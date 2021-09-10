@@ -1,0 +1,3 @@
+Spot Coverage Percentage = 4.34%
+Fac Coverage Percentage = 2.13%
+RandomSeed = None
