@@ -132,6 +132,6 @@ dmypy.json
 .vscode/
 
 # Ignoring files generated at run time: star images, plots, etc.
-./NextGenModels/BinnedData/
-./ProxCenRealistic/
-./ProxCenTest/
+NextGenModels/BinnedData/
+ProxCenRealistic/
+ProxCenTest/
