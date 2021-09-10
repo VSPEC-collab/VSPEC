@@ -78,7 +78,7 @@ class ReadStarModels():
                 numberOfValues=0
                 # Initially, the bottom of the bin is set to the first center wavelength (.2 in my case)
                 # minus the same amount as the difference between the cw and the bin's top value
-                bottom = cwValues[0] - (topValues[0] - cwValues[0])
+                bottom = self.cwValues[0] - (self.topValues[0] - self.cwValues[0])
             # If lam (the current wavelength being looked at) is less than the bin's bottom (lower bound)
             # then a new bin gets created.
             # The meanVal of the bin and the number of values in the bin gets reset
@@ -92,7 +92,7 @@ class ReadStarModels():
             # The loop breaks when all center wavelengths (bins) have been examined
             # or if the current bin's top value is less than the lam being examined. If that happens,
             # it moves to the next bin
-            while binCount < len(cwValues) and topValues[binCount] < lam:
+            while binCount < len(self.cwValues) and self.topValues[binCount] < lam:
                 # These conditionals cover all of the possible scenarios while binning and how
                 # to handle them
 
@@ -107,7 +107,7 @@ class ReadStarModels():
                 # If the top value of the bin is greater than the previous lambda's (lastLam) flux
                 # value, calculate an average flux value between the last flux value (inside the bin)
                 # and the current flux value 
-                elif topValues[binCount] > lastLam:
+                elif self.topValues[binCount] > lastLam:
                     # Take the slope of the line between the current flux value (outside of bin) and
                     # the previous flux value (inside of bin), multiply it by the difference between
                     # the bin's center wavelength and the previous wavelength
@@ -115,18 +115,18 @@ class ReadStarModels():
                     print("lastLam = ", lastLam)
                     print("val = ", val)
                     print("lastVal = ", lastVal)
-                    print("CW = ", cwValues[binCount])
-                    temp = (val  - lastVal)*(cwValues[binCount] - lastLam)/( lam - lastLam) + lastVal
+                    print("CW = ", self.cwValues[binCount])
+                    temp = (val  - lastVal)*(self.cwValues[binCount] - lastLam)/( lam - lastLam) + lastVal
                     print("temp = ", temp)
                     outputY.append(temp)
                     outputYstring.append("{:.7e}".format(temp))
-                elif topValues[binCount] > ultimaLam:
+                elif self.topValues[binCount] > ultimaLam:
                     print("lastLam = ", lastLam)
                     print("ultimaLam = ", ultimaLam)
                     print("lastVal = ", lastVal)
                     print("ultimaVal = ", ultimaVal)
-                    print("CW = ", cwValues[binCount])
-                    temp = (lastVal - ultimaVal) * (cwValues[binCount] - ultimaLam) / (lastLam - ultimaLam) + ultimaVal
+                    print("CW = ", self.cwValues[binCount])
+                    temp = (lastVal - ultimaVal) * (self.cwValues[binCount] - ultimaLam) / (lastLam - ultimaLam) + ultimaVal
                     print("temp = ", temp)
                     outputY.append(temp)
                     outputYstring.append("{:.7e}".format(temp))
@@ -134,8 +134,8 @@ class ReadStarModels():
                     print("ultimaVal = ", ultimaVal)
                     outputY.append(ultimaVal)
                     outputYstring.append("{:.7e}".format(ultimaVal))
-                bottom = topValues[binCount]
-                cwValuesString.append("{:.9e}".format(cwValues[binCount]))
+                bottom = self.topValues[binCount]
+                cwValuesString.append("{:.9e}".format(self.cwValues[binCount]))
                 binCount += 1
                 numberOfValues = 0
                 summationVal = 0.0
@@ -152,7 +152,7 @@ class ReadStarModels():
 
         print("Time after binning")
         print("--- %s seconds ---" % (time.time() - start_time))
-        model = pd.DataFrame(list(zip(cwValues, outputY)), columns =['wavelength', 'flux'])
+        model = pd.DataFrame(list(zip(self.cwValues, outputY)), columns =['wavelength', 'flux'])
         modelStrings = pd.DataFrame(list(zip(cwValuesString, outputYstring)), columns =['wavelength', 'flux'])
 
         return model, modelStrings
@@ -199,32 +199,32 @@ class ReadStarModels():
         self.facModel.wavelength /= 1.0e4
         
         # cut the wavelength values tot he specified cut range (.1999-20.5 microns)
-        photModel = photModel.loc[
-            (photModel.wavelength >= self.rangeMin) & (photModel.wavelength <= self.rangeMax)
+        self.photModel = self.photModel.loc[
+            (self.photModel.wavelength >= self.rangeMin) & (self.photModel.wavelength <= self.rangeMax)
         ]
-        spotModel = spotModel.loc[
-            (spotModel.wavelength >= self.rangeMin) & (spotModel.wavelength <= self.rangeMax)
+        self.spotModel = self.spotModel.loc[
+            (self.spotModel.wavelength >= self.rangeMin) & (self.spotModel.wavelength <= self.rangeMax)
         ]
-        facModel = facModel.loc[
-            (facModel.wavelength >= self.rangeMin) & (facModel.wavelength <= self.rangeMax)
+        self.facModel = self.facModel.loc[
+            (self.facModel.wavelength >= self.rangeMin) & (self.facModel.wavelength <= self.rangeMax)
         ]
 
-        self.photModel, self.photModelStrings = bin(self.photModel)
-        self.spotModel, self.spotModelStrings = bin(self.spotModel)
-        self.facModel, self.facModelStrings = bin(self.facModel)
+        self.photModel, self.photModelStrings = self.bin(self.photModel)
+        self.spotModel, self.spotModelStrings = self.bin(self.spotModel)
+        self.facModel, self.facModelStrings = self.bin(self.facModel)
 
         binnedPhotStringCSV = self.photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file = open(r'./BinnedNextGenModels/binned%sStellarModel.txt' % teffStar,'w')
+        file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffStar,'w')
         file.write(binnedPhotStringCSV)
         file.close()
 
         binnedSpotspectrumCSV = self.spotModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file = open(r'./BinnedNextGenModels/binned%sStellarModel.txt' % teffSpot,'w')
+        file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffSpot,'w')
         file.write(binnedSpotspectrumCSV)
         file.close()
 
         binnedFaculaespectrumCSV = self.facModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file = open(r'./BinnedNextGenModels/binned%sStellarModel.txt' % teffFac,'w')
+        file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffFac,'w')
         file.write(binnedFaculaespectrumCSV)
         file.close()
 

@@ -106,7 +106,7 @@ if __name__ == "__main__":
     # If the stellar data was previously binned, simply load in the saved binned stellar model.
     ###### Does saving these as .npy arrays save storage space/loading time rather than .txt files?
     if Params.loadData:
-        starspectrum = pd.read_csv('./BinnedNextGenModels/binned%dStellarModel.txt' % Params.teffStar,
+        starspectrum = pd.read_csv('./NextGenModels/BinnedData/binned%dStellarModel.txt' % Params.teffStar,
                                   names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
 
         spotspectrum = pd.read_csv('./BinnedNextGenModels/binned%dStellarModel.txt' % Params.teffSpot,

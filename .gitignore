@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Ignore vscode Json file
+.vscode/
+
+# Ignoring files generated at run time: star images, plots, etc.
+./NextGenModels/BinnedData/
+./ProxCenRealistic/
+./ProxCenTest/
