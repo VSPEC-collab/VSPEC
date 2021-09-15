@@ -51,8 +51,6 @@ if __name__ == "__main__":
 
     # 4) This section generates the hemispheres of the star, based on the 2D surface map.
          
-    
-
     # Name of the .npy array which contains the flat surface map
     # This array is used to create the hemisphere maps
     surface_map = np.load('./%s/Data/flatMap.npy' % Params.starName)

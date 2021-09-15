@@ -340,7 +340,7 @@ class ParamModel():
         self.teffFac = int(configParser.get('Star', 'teffFac'))
 
         # Booleaan that decides whether to generate the hemisphere data or not (if already generated for example)
-        self.generateHemispheres = configParser.getboolean('Star', 'generateHemispheres')
+        self.generateHemispheres = configParser.getboolean('HemiMap', 'generateHemispheres')
 
         # Boolean that decides whether to create high resolution hemisphere maps or not
         # Default imageResolution of 300
@@ -382,9 +382,6 @@ class ParamModel():
         self.resolvingPower = int(configParser.get('Star', 'resolvingPower'))
         self.binnedWavelengthMin = float(configParser.get('Star', 'binnedWavelengthMin'))
         self.binnedWavelengthMax = float(configParser.get('Star', 'binnedWavelengthMax'))
-
-        # # Whether or not a planet is being considered; creates spectra of the reflection
-        # self.planetBool = configParser.getboolean('Planet', 'hasPlanet')
 
         self.planetName = configParser.get('Planet', 'planetName')
         self.revPlanet = float(configParser.get('Planet', 'revPlanet'))

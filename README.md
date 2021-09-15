@@ -6,7 +6,10 @@ TUTORIAL
 
 2) The code comes with 2 example config files, each containing the necessary information to run the code
 
-3) Run the main.py program and input the name of the config file you wish to use.
+3) Run the main.py program and input the name of the config file you wish to use, then hit enter.
+    3a) Example: ProxCenTest.cfg
+    
+    3b) The program will create all the necessary folders in the locally cloned directory.
 
 4) On the first run, the program will have to create the star map, the 3D hemisphere star models, and bin the NextGen stellar model code. This will take some time
     4a) By default, the star hemisphere map images are low resolution simply because it is faster. Changing them to high res can be done in the config file.
