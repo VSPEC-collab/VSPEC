@@ -49,7 +49,37 @@ if __name__ == "__main__":
         # Saves the numpy array version of the flat surface map to be loaded while creating the hemisphere views
         np.save('./%s/Data/flatMap.npy' % Params.starName, surface_map)
 
-    # 4) This section generates the hemispheres of the star, based on the 2D surface map.
+    # 4) This section "Bins" the stellar models to be a uniform resolving power and wavelength range.
+
+    # If the stellar data was previously binned, simply load in the saved binned stellar model.
+    ###### Does saving these as .npy arrays save storage space/loading time rather than .txt files?
+    if Params.loadData:
+        starspectrum = pd.read_csv('./NextGenModels/BinnedData/binned%dStellarModel.txt' % Params.teffStar,
+                                  names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+
+        spotspectrum = pd.read_csv('./BinnedNextGenModels/binned%dStellarModel.txt' % Params.teffSpot,
+                                   names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+        
+        faculaespectrum = pd.read_csv('./BinnedNextGenModels/binned%dStellarModel.txt' % Params.binDatateffFac,
+                                      names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+    else:
+        topValues = []
+        cwValues = []
+        CW = Params.binnedWavelengthMin
+        # Calculate the center wavelenghts (CW) and upper values (top) of each bin
+        while CW < Params.binnedWavelengthMax:
+            deltaLambda = CW / Params.resolvingPower
+            topValue = CW + (deltaLambda / 2)
+            topValues.append(topValue)
+            cwValues.append(CW)
+            CW += deltaLambda
+
+        allModels = read_info.ReadStarModels(Params.starName, Params.binnedWavelengthMin, Params.binnedWavelengthMax,
+                                             Params.imageResolution, Params.resolvingPower, topValues, cwValues,
+                                             Params.phot_model_file, Params.spot_model_file, Params.fac_model_file)
+        allModels.read_model(Params.teffStar, Params.teffSpot, Params.teffFac)
+
+    # 5) This section generates the hemispheres of the star, based on the 2D surface map.
          
     # Name of the .npy array which contains the flat surface map
     # This array is used to create the hemisphere maps
@@ -89,35 +119,7 @@ if __name__ == "__main__":
         
         deltaStellarPhase = Params.deltaPhase * 360
 
-
-    topValues = []
-    cwValues = []
-    CW = Params.binnedWavelengthMin
-    # Calculate the center wavelenghts (CW) and upper values (top) of each bin
-    while CW < Params.binnedWavelengthMax:
-        deltaLambda = CW / Params.resolvingPower
-        topValue = CW + (deltaLambda / 2)
-        topValues.append(topValue)
-        cwValues.append(CW)
-        CW += deltaLambda
-
-    # If the stellar data was previously binned, simply load in the saved binned stellar model.
-    ###### Does saving these as .npy arrays save storage space/loading time rather than .txt files?
-    if Params.loadData:
-        starspectrum = pd.read_csv('./NextGenModels/BinnedData/binned%dStellarModel.txt' % Params.teffStar,
-                                  names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
-
-        spotspectrum = pd.read_csv('./BinnedNextGenModels/binned%dStellarModel.txt' % Params.teffSpot,
-                                   names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
-        
-        faculaespectrum = pd.read_csv('./BinnedNextGenModels/binned%dStellarModel.txt' % Params.binDatateffFac,
-                                      names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
-    else:
-        allModels = read_info.ReadStarModels(Params.starName, Params.binnedWavelengthMin, Params.binnedWavelengthMax,
-                                             Params.imageResolution, Params.resolvingPower, topValues, cwValues,
-                                             Params.phot_model_file, Params.spot_model_file, Params.fac_model_file)
-        allModels.read_model(Params.teffStar, Params.teffSpot, Params.teffFac)
-
     print("done")
     # GCM file type should be a net cdf file typ
     # Most common gcf file type
+
