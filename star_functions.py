@@ -46,7 +46,6 @@ class StarModel2D():
         spotNormalization = surface_area * self.spotCoverage / total_spot_coverage
         facNormalization = surface_area * self.facCoverage / total_fac_coverage
 
-
         true_spot_radius = spot_radius * spotNormalization ** 0.5
         true_spot_coverage = np.sum(np.pi * true_spot_radius ** 2)
         true_fac_radius = fac_radius * facNormalization ** 0.5

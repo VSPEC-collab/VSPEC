@@ -400,17 +400,14 @@ class ParamModel():
 
         # Paramaters sent to PSG to retrieve planet spectra
         self.planetName = configParser.get('PSG', 'planetName') # Name of planet, used for graphing/save name purposes
-        self.noStar = configParser.getboolean('PSG', 'noStar')  # Set to true if you want to retrieve strictly the planet thermal values
+        # self.noStar = configParser.getboolean('PSG', 'noStar')  # Set to true if you want to retrieve strictly the planet thermal values
         self.phase1 = configParser.getfloat('PSG', 'phase1')         # Initial phase (degrees) for the simulation, 0 is sub-solar point, 180 is night-side
         self.phase2 = configParser.getfloat('PSG', 'phase2')         # Final phase (degrees)
         self.dphase = configParser.getfloat('PSG', 'dphase')         # Phase delta value (degrees)
         self.binning= configParser.getfloat('PSG', 'binning')        # Binning applied to the GCM data for each radiative-transfer (greater is faster, minimum is 1)
         self.objDiam = configParser.getfloat('PSG', 'objDiam')       # Diamater of prox-cen b (km)
         self.objGrav = configParser.getfloat('PSG', 'objGrav')       # Surface Grav of prox cen b (m/s^2)
-        if self.noStar:
-            self.starType = '-'         # Sets the star to none; returns ONLY the thermal flux of the planet********
-        else:
-            self.starType = 'M'
+        self.starType = configParser.get('PSG', 'starType')         # Star type
         self.semMajAx = configParser.getfloat('PSG', 'semMajAx')   # Semi Major Axis of planet (AU)
         self.objPer = configParser.getfloat('PSG', 'objPer')       # Period of planet (days)
         self.objRev = self.objPer                             # planet revolution is equal to planet rev for tidally locked planets
