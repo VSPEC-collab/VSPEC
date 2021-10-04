@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # EDIT: this key belongs to me, need to remove it after testing. Then test again to ensure one full run can work
     # GlobES/API calls can be sequentially, and PSG will remember the previous values
     # This means that we can upload parameters step-by-step. To reset your config for GlobES (use type=set), and to simply update (use type=upd)
-    os.system('curl -v -d key=3c8f608c3c5059f79a59 -d app=globes -d type=set --data-urlencode file@./GCMs/modernearth.gcm %s/api.php' % Params.psgurl)
+    os.system('curl -v -d key=3c8f608c3c5059f79a59 -d app=globes -d type=set --data-urlencode file@./Configs/GCMs/modernearth.gcm %s/api.php' % Params.psgurl)
     # print('curl -v -d app=globes -d type=set --data-urlencode file@./ProxCen+TOI700d/modernearth.gcm %s/api.php' % psgurl)
     # exit()
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
 
     print("wait")
     # Define parameters of this run
-    with open("./GCMs/config.txt", "w") as fr:
+    with open("./Configs/GCMs/config.txt", "w") as fr:
         fr.write('<OBJECT-DIAMETER>%f\n' % Params.objDiam)
         fr.write('<OBJECT-GRAVITY>%f\n' % Params.objGrav)
         fr.write('<OBJECT-STAR-TYPE>%s\n' % Params.starType)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
         fr.write('<GENERATOR-GCM-BINNING>%d\n' % Params.binning)
         fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
         fr.close()
-    os.system('curl -v -d key=3c8f608c3c5059f79a59 -d app=globes -d type=upd --data-urlencode file@./GCMs/config.txt %s/api.php' % Params.psgurl)
+    os.system('curl -v -d key=3c8f608c3c5059f79a59 -d app=globes -d type=upd --data-urlencode file@./Configs/GCMs/config.txt %s/api.php' % Params.psgurl)
     # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 --data-urlencode file@config.txt %s/api.php > spectra/halfwayPointHandUpdate.txt' % psgurl)
     # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 --data-urlencode file@./psg_cfg_master_config_after_changes.txt %s/api.php > spectra/halfwayPoint.txt' % psgurl)
     # print('curl -v -d app=globes -d type=upd --data-urlencode file@config.txt %s/api.php' % psgurl)
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         if phase>178 and phase<182: phase=182 # Add transit phase;
         if phase == 185:
             phase = 186
-        with open("./GCMs/config.txt", "w") as fr:
+        with open("./Configs/GCMs/config.txt", "w") as fr:
             if Params.noStar:
                 phase *= -1
                 fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % phase)
