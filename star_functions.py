@@ -77,9 +77,9 @@ class StarModel2D():
         print("Total SpotCoverage = ", surfaceMapSpotCoverage)
         print("Total FacCoverage = ", surfaceMapFacCoverage)
 
-        if os.path.isfile('./%s/surfaceMapInfo.txt' % self.starName):
-            os.remove('./%s/surfaceMapInfo.txt' % self.starName)
-        f = open('./%s/surfaceMapInfo.txt' % self.starName, 'a')
+        if os.path.isfile('./%s/Data/surfaceMapInfo.txt' % self.starName):
+            os.remove('./%s/Data/surfaceMapInfo.txt' % self.starName)
+        f = open('./%s/Data/surfaceMapInfo.txt' % self.starName, 'a')
         f.write('Total Spot Coverage Percentage = {:.2f}%\n'.format(surfaceMapSpotCoverage * 100))
         f.write('Total Fac Coverage Percentage = {:.2f}%\n'.format(surfaceMapFacCoverage * 100))
         f.write('RandomSeed = %s' % randomSeed)
