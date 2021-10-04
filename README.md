@@ -91,7 +91,7 @@ Once you have built and saved all of the models, re-running any part of the code
 
 
 
-## Output files
+<!-- ## Output files
 
 The code writes the current output of the simulations on two file saved in the `$MAIN/output` directory. The `$MAIN/output/Hydro_ioniz.txt` file stores the hydrodynamical variables, which are saved in column vectors in the following order:
 1. radial distance (in unit of the planetary radius)
@@ -122,4 +122,4 @@ The `--live n` arguments are optional, and can therefore be omitted. If so, the 
 ## References
 <a id="1">[1]</a> 
 Caldiroli, A., Haardt, F., Gallo, E., Spinelli, R., Malsky, I., Rauscher, E., 2021, "Irradiation-driven escape of primordial planetary atmospheres I. The ATES photoionization hydrodynamics code", arXiv:2106.10294
-
+ -->
