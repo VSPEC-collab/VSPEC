@@ -45,7 +45,7 @@ This code was designed using Python 3.8
 
 The code doesn't require any special installation, and can be directly downloaded from the Github page or, in alternative, the repository can be cloned via
 
-    git clone https://github.com/AndreaCaldiroli/ATES-Code
+    git clone https://github.com/cameronkelahan/VSPCA.git
 
     
 ## Directories and files
