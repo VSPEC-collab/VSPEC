@@ -52,7 +52,6 @@ if __name__ == "__main__":
         fr.write('<OBJECT-SOLAR-LATITUDE>0.0\n')
         fr.write('<OBJECT-OBS-LATITUDE>0.0\n')
         fr.write('<GENERATOR-RADUNITS>%s\n' % Params.radunit)
-        # fr.write('<GENERATOR-RADUNITS>%s\n' % radunit)
         fr.write('<GENERATOR-GCM-BINNING>%d\n' % Params.binning)
         fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
         fr.close()

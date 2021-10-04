@@ -74,14 +74,14 @@ class StarModel2D():
         surfaceMapSpotCoverage = len(spot_pixels[0]) / length
         surfaceMapFacCoverage = len(fac_pixels[0]) / length
 
-        print("SpotCoverage = ", surfaceMapSpotCoverage)
-        print("FacCoverage = ", surfaceMapFacCoverage)
+        print("Total SpotCoverage = ", surfaceMapSpotCoverage)
+        print("Total FacCoverage = ", surfaceMapFacCoverage)
 
         if os.path.isfile('./%s/surfaceMapInfo.txt' % self.starName):
             os.remove('./%s/surfaceMapInfo.txt' % self.starName)
         f = open('./%s/surfaceMapInfo.txt' % self.starName, 'a')
-        f.write('Spot Coverage Percentage = {:.2f}%\n'.format(surfaceMapSpotCoverage * 100))
-        f.write('Fac Coverage Percentage = {:.2f}%\n'.format(surfaceMapFacCoverage * 100))
+        f.write('Total Spot Coverage Percentage = {:.2f}%\n'.format(surfaceMapSpotCoverage * 100))
+        f.write('Total Fac Coverage Percentage = {:.2f}%\n'.format(surfaceMapFacCoverage * 100))
         f.write('RandomSeed = %s' % randomSeed)
         f.close()
 
@@ -172,6 +172,7 @@ class HemiModel():
         self.inclination = inclination
         self.imageResolution = imageResolutiopn
         self.starName = starName
+        self.surfaceCoverageDictionary = {}
 
     def generate_hemisphere_map(self, phase, count):
         # phase is between 0 and 1
@@ -197,6 +198,9 @@ class HemiModel():
             # regrid_shape=100
         ).get_array()
 
+        # Calulate and save the photosphere, spot, and facuale coverage percentages for this hemisphere
+        self.calculate_coverage(hemi_map, phase)
+
         plt.title("Hemishpere Map: %s\nT=%dK; Log g=5; Met=0" % (self.starName, self.teffStar))
 
         # Saves each hemishpere map image to file
@@ -209,3 +213,39 @@ class HemiModel():
         hemi_map.dump('./%s/Data/HemiMapArrays/hemiArray_%d' % (self.starName, count))
 
         return hemi_map
+
+    def calculate_coverage(self, hemi_map, phase, ignore_planet=False):
+        # add where the 3rd dimension index is certain color
+        flat_image = hemi_map[~hemi_map.mask].flatten()
+        total_size = flat_image.shape[0]
+        # print(total_size)
+        photo = np.where(flat_image == 0)[0].shape[0]
+        spot = np.where(flat_image == 1)[0].shape[0]
+        fac = np.where(flat_image == 2)[0].shape[0]
+
+        # print(photo)
+        # print(spot)
+        # print(fac)
+        # print(photo+spot+fac)
+
+        # planet  = np.where(flat_image == 2)[0].shape[0]
+
+        if ignore_planet:
+        #    total_size_mod = total_size - planet
+            pass
+        else:
+            total_size_mod = total_size
+
+        photo_frac =  photo / total_size_mod
+        print("Phase's Photo frac = ", photo_frac)
+        spot_frac = spot / total_size_mod
+        print("Phase's Spot frac = ", spot_frac)
+        fac_frac = fac / total_size_mod
+        print("Phase's Fac frac = \n", fac_frac)
+        # return photo_frac, spot_frac, fac_frac
+
+        # Save these values to a dictionary
+        # The dictionary key is the phase, the dictionary value is another dictionary that contatins the key-value pairs of 
+        # photosphere: coverage_percentage; spot: coverage_percentage; faculae: coverage_percentage
+        tempDict = {'phot':photo_frac, 'spot':spot_frac, 'fac':fac_frac}
+        self.surfaceCoverageDictionary[phase] = tempDict

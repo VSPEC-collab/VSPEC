@@ -1,4 +1,5 @@
 import read_info, star_functions
+import csv
 import numpy as np
 import os
 import pandas as pd
@@ -17,6 +18,7 @@ if __name__ == "__main__":
         os.mkdir('./%s/Data/PSGCombinedSpectra/' % Params.starName)
         os.mkdir('./%s/Data/PSGThermalSpectra/' % Params.starName)
         os.mkdir('./%s/Data/SumfluxArraysByPhase/' % Params.starName)
+        os.mkdir('./%s/Data/SurfaceCoveragePercentage/' % Params.starName)
         os.mkdir('./%s/Figures' % Params.starName)
         os.mkdir('./%s/Figures/VariabilityGraphs' % Params.starName)
         os.mkdir('./%s/Figures/Hemi+LightCurve/' % Params.starName)
@@ -116,11 +118,19 @@ if __name__ == "__main__":
         for phase in phases:
             # EDIT: Am I able to compute the surface area percentages for the current stellar phase here? And save them for later?
             #       This would keep me from having to re-load the .npy arrays later on.
+
+            # IMPORTANT
+            # I want to add in the functionality to save the surface area coverage percentage during this for-loop
+            # will save time. Look into adding it inside the generate_hemisphere_map method.
             hemi_map = HM.generate_hemisphere_map(phase, count)
             print("Percent Complete = ", phase * 100, "%")
             count += 1
         
         deltaStellarPhase = Params.deltaPhase * 360
+
+        w = csv.writer(open("./%s/Data/SurfaceCoveragePercentage/surfaceCoveragePercentageDict.csv" % Params.starName, "w"))
+        for key, val in HM.surfaceCoverageDictionary.items():
+            w.writerow([key, val])
 
     # GCM file type should be a net cdf file typ
     # Most common gcf file type
@@ -139,3 +149,4 @@ if __name__ == "__main__":
     allModels.facModel.flux *= Params.distanceFluxCorrection
 
     print("done")
+
