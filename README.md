@@ -70,11 +70,11 @@ All files are created when the code is run, based on the chosen stellar config f
 ## Using the code
 
 The Code is split into 4 main executable programs, all named ____Builder.py, that you run individually and, to start, in this order.
-    1) StarBuilder.py
-        i) creates the variable star model with spots and faculae, must be run first as the program needs a star.
-       ii) calculates the coverage fractions of the photosphere, spots, and faculae for each phase of the star.
-      iii) it also bins the supplied stellar flux models (NextGen stellar dataset by default) to a resolving power specified 
-            in the config.
+
+1. StarBuilder.py
+   - Creates the variable star model with spots and faculae, must be run first as the program needs a star.
+   - Calculates the coverage fractions of the photosphere, spots, and faculae for each phase of the star.
+   - It also bins the supplied stellar flux models (NextGen stellar dataset by default) to a resolving power specified in the config.
     2) PlanetBuilder.py
         i) calls the Globes application of the Planetary Spectrum Generator web-tool.
        ii) Run second, after building th star; the program needs a planet.
