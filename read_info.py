@@ -37,6 +37,7 @@ class ReadStarModels():
         self.spotModel = spotModel
         self.facModel = facModel
 
+    # EDIT: Move Bin into it's own program file
     # Bin the photosphere, spot, and faculae stellar model flux values
     def bin(self, model):
         ultimaLam=0.0
@@ -400,37 +401,37 @@ class ParamModel():
         # Paramaters sent to PSG to retrieve planet spectra
         self.planetName = configParser.get('PSG', 'planetName') # Name of planet, used for graphing/save name purposes
         self.noStar = configParser.getboolean('PSG', 'noStar')  # Set to true if you want to retrieve strictly the planet thermal values
-        self.phase1 = configParser.get('PSG', 'phase1')         # Initial phase (degrees) for the simulation, 0 is sub-solar point, 180 is night-side
-        self.phase2 = configParser.get('PSG', 'phase2')         # Final phase (degrees)
-        self.dphase = configParser.get('PSG', 'dphase')         # Phase delta value (degrees)
-        self.binning= configParser.get('PSG', 'binning')        # Binning applied to the GCM data for each radiative-transfer (greater is faster, minimum is 1)
-        self.objDiam = configParser.get('PSG', 'objDiam')       # Diamater of prox-cen b (km)
-        self.objGrav = configParser.get('PSG', 'objGrav')       # Surface Grav of prox cen b (m/s^2)
+        self.phase1 = configParser.getfloat('PSG', 'phase1')         # Initial phase (degrees) for the simulation, 0 is sub-solar point, 180 is night-side
+        self.phase2 = configParser.getfloat('PSG', 'phase2')         # Final phase (degrees)
+        self.dphase = configParser.getfloat('PSG', 'dphase')         # Phase delta value (degrees)
+        self.binning= configParser.getfloat('PSG', 'binning')        # Binning applied to the GCM data for each radiative-transfer (greater is faster, minimum is 1)
+        self.objDiam = configParser.getfloat('PSG', 'objDiam')       # Diamater of prox-cen b (km)
+        self.objGrav = configParser.getfloat('PSG', 'objGrav')       # Surface Grav of prox cen b (m/s^2)
         if self.noStar:
             self.starType = '-'         # Sets the star to none; returns ONLY the thermal flux of the planet********
         else:
             self.starType = 'M'
-        self.semMajAx = configParser.get('PSG', 'semMajAx')   # Semi Major Axis of planet (AU)
-        self.objPer = configParser.get('PSG', 'objPer')       # Period of planet (days)
+        self.semMajAx = configParser.getfloat('PSG', 'semMajAx')   # Semi Major Axis of planet (AU)
+        self.objPer = configParser.getfloat('PSG', 'objPer')       # Period of planet (days)
         self.objRev = self.objPer                             # planet revolution is equal to planet rev for tidally locked planets
-        self.objEcc = configParser.get('PSG', 'objEcc')       # Eccentricity of planet
-        self.objDis = configParser.get('PSG', 'objDis')       # Distance to system (uses distance to star) (pc)
-        self.starTemp = configParser.get('PSG', 'starTemp')   # Temperature of star; ProxCen's temp is really 3042, but need to use 3000 for later conversion
-        self.starRad = configParser.get('PSG', 'starRad')     # Radius of the star
-        self.lam1   = configParser.get('PSG', 'lam1')         # Initial wavelength of the simulations (um)
-        self.lam2   = configParser.get('PSG', 'lam2')         # Final wavelength of the simulations (um)
-        self.lamRP  = configParser.get('PSG', 'lamRP')        # Resolving power
-        self.beamValue = configParser.get('PSG', 'beamValue') # Beam value and unit used to also retrieve stellar flux values, not just planet
+        self.objEcc = configParser.getfloat('PSG', 'objEcc')       # Eccentricity of planet
+        self.objDis = configParser.getfloat('PSG', 'objDis')       # Distance to system (uses distance to star) (pc)
+        self.starTemp = configParser.getint('PSG', 'starTemp')   # Temperature of star; ProxCen's temp is really 3042, but need to use 3000 for later conversion
+        self.starRad = configParser.getfloat('PSG', 'starRad')     # Radius of the star
+        self.lam1   = configParser.getfloat('PSG', 'lam1')         # Initial wavelength of the simulations (um)
+        self.lam2   = configParser.getfloat('PSG', 'lam2')         # Final wavelength of the simulations (um)
+        self.lamRP  = configParser.getfloat('PSG', 'lamRP')        # Resolving power
+        self.beamValue = configParser.getfloat('PSG', 'beamValue') # Beam value and unit used to also retrieve stellar flux values, not just planet
         self.beamUnit = configParser.get('PSG', 'beamUnit')
         self.radunit = configParser.get('PSG', 'radunit')     # Desired spectral irradiance unit for planet and star combo
         self.psgurl = configParser.get('PSG', 'psgurl')       # URL of the PSG server
 
         self.PSGcombinedSpectraFolder = './%s/Data/PSGCombinedSpectra/' % self.starName
         
-        self.revPlanet = float(configParser.get('PSG', 'revPlanet'))
+        self.revPlanet = configParser.getfloat('PSG', 'revPlanet')
         # The planet rotation is equivalent to the planet revolution for tidally locked planets
         self.rotPlanet = self.revPlanet
-        self.planetPhaseChange = int(configParser.get('PSG', 'planetPhaseChange'))
+        self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')
 
         # Some unit conversions
         self.distanceFluxCorrection = (self.starRadiusMeters/self.starDistanceMeters)**2

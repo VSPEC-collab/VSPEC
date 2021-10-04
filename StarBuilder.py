@@ -1,4 +1,4 @@
-import read_info, star_functions, callPSG
+import read_info, star_functions
 import numpy as np
 import os
 import pandas as pd
