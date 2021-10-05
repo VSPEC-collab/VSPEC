@@ -135,3 +135,5 @@ dmypy.json
 NextGenModels/BinnedData/
 ProxCenRealistic/
 ProxCenTest/
+Configs/GCMs/config.txt
+Configs/Stellar/config.txt
