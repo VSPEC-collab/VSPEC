@@ -323,8 +323,8 @@ class ParamModel():
         configParser = configparser.RawConfigParser()
         while True:
             try:
-                fileName = input("Config File Path: ./Config/")
-                configParser.read_file(open("./Configs/%s" % fileName))
+                fileName = input("Config File Path: ./Config/Stellar/")
+                configParser.read_file(open("./Configs/Stellar/%s" % fileName))
                 break
             except FileNotFoundError:
                 print("There is no config file by that name, please try again.")
@@ -424,6 +424,7 @@ class ParamModel():
         self.psgurl = configParser.get('PSG', 'psgurl')       # URL of the PSG server
 
         self.PSGcombinedSpectraFolder = './%s/Data/PSGCombinedSpectra/' % self.starName
+        self.PSGthermalSpectraFolder = './%s/Data/PSGThermalSpectra/' % self.starName
         
         self.revPlanet = configParser.getfloat('PSG', 'revPlanet')
         # The planet rotation is equivalent to the planet revolution for tidally locked planets

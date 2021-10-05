@@ -22,14 +22,9 @@ if __name__ == "__main__":
     # EDIT: this key belongs to me, need to remove it after testing. Then test again to ensure one full run can work
     # GlobES/API calls can be sequentially, and PSG will remember the previous values
     # This means that we can upload parameters step-by-step. To reset your config for GlobES (use type=set), and to simply update (use type=upd)
-    os.system('curl -v -d key=3c8f608c3c5059f79a59 -d app=globes -d type=set --data-urlencode file@./Configs/GCMs/modernearth.gcm %s/api.php' % Params.psgurl)
-    # print('curl -v -d app=globes -d type=set --data-urlencode file@./ProxCen+TOI700d/modernearth.gcm %s/api.php' % psgurl)
-    # exit()
+    print("Uploading GCM to PSG...")
+    os.system('curl -s -d key=3c8f608c3c5059f79a59 -d app=globes -d type=set --data-urlencode file@./Configs/GCMs/modernearth.gcm %s/api.php' % Params.psgurl)
 
-    # # Calls just regular old PSG, not globes
-    # if update: os.system(f'curl -v -d -m 45 type=set --data-urlencode file@./ProxCen+TOI700d/baseConfigStellarTemplates.txt %s/api.php' % psgurl)
-
-    print("wait")
     # Define parameters of this run
     with open("./Configs/GCMs/config.txt", "w") as fr:
         fr.write('<OBJECT-DIAMETER>%f\n' % Params.objDiam)
@@ -55,7 +50,8 @@ if __name__ == "__main__":
         fr.write('<GENERATOR-GCM-BINNING>%d\n' % Params.binning)
         fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
         fr.close()
-    os.system('curl -v -d key=3c8f608c3c5059f79a59 -d app=globes -d type=upd --data-urlencode file@./Configs/GCMs/config.txt %s/api.php' % Params.psgurl)
+    print("Uploading specified planet and star data...")
+    os.system('curl -s -d key=3c8f608c3c5059f79a59 -d app=globes -d type=upd --data-urlencode file@./Configs/GCMs/config.txt %s/api.php' % Params.psgurl)
     # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 --data-urlencode file@config.txt %s/api.php > spectra/halfwayPointHandUpdate.txt' % psgurl)
     # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 --data-urlencode file@./psg_cfg_master_config_after_changes.txt %s/api.php > spectra/halfwayPoint.txt' % psgurl)
     # print('curl -v -d app=globes -d type=upd --data-urlencode file@config.txt %s/api.php' % psgurl)
@@ -63,42 +59,39 @@ if __name__ == "__main__":
 
     # Calculate the spectra across the phases
     if not os.path.isdir('spectra'): os.system('mkdir ./PSGSpectra/')
+
+    print("PERCENT DONE")
+    print("=================")
     for phase in np.arange(Params.phase1,Params.phase2+Params.dphase,Params.dphase):
         if phase>178 and phase<182: phase=182 # Add transit phase;
         if phase == 185:
             phase = 186
-        with open("./Configs/GCMs/config.txt", "w") as fr:
-            if Params.noStar:
-                phase *= -1
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % phase)
-                phase *= -1
-            else:
-                fr.write('<OBJECT-SEASON>%f\n' % phase)
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % phase)
-                fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
-            # fr.write('<GENERATOR-CONT-STELLAR>Y\n')
-            # fr.write('<GEOMETRY-PHASE>-%f\n' % phase)
+        
+        # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
+        with open("./Configs/Stellar/config.txt", "w") as fr:
+            fr.write('<OBJECT-STAR-TYPE>%s\n' % Params.starType)
+            fr.write('<OBJECT-SEASON>%f\n' % phase)
+            fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % phase)
+            fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
             fr.close()
-        if phase == 45:
-            print("45")
-        os.system('curl -v -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@config.txt %s/api.php > %s/phase%d.txt'
+        
+        # First call PSG to retrieve the stellar and planet reflection values; saves the output
+        os.system('curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@./Configs/Stellar/config.txt %s/api.php > %s/phase%d.txt'
                   % (Params.psgurl, Params.PSGcombinedSpectraFolder, phase))
-        # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 -d type=upd --data-urlencode file@config.txt %s/api.php > spectra/phase%d.txt' % (psgurl,phase))
-        # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 --data-urlencode file@psg_cfg_master_config_after_changes.txt %s/api.php > spectra/phase%d.txt' % (psgurl,phase))
-        # print('curl -v -d app=globes --data-urlencode file@config.txt %s/api.php' % psgurl)
-        # exit()
-        # data = np.genfromtxt('spectra/phase%d.txt' % phase)
-        # plt.plot(data[:,0],data[:,1],label=phase)
-        print(phase)
-        # f = "%d" % int(phase)
-        # outfile = "%s.txt" % f
-        # os.chdir(mypath)
-        # os.system("curl -d -m 45 type=cfg --data-urlencode file@%s https://psg.gsfc.nasa.gov/api.php > ./proxCenRealistic/PSGConfigs/%s " %(f, outfile))
-        #Dope! 
+        
+        # Second call to PSG to retrieve strictly the planet's thermal values, by setting the star to Null (-)
+        with open("./Configs/Stellar/config.txt", "w") as fr:
+            phase *= -1
+            fr.write('<OBJECT-STAR-TYPE>-\n')
+            fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % phase)
+            phase *= -1
+            fr.close()
+        
+        os.system('curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@./Configs/Stellar/config.txt %s/api.php > %s/phase%d.txt'
+            % (Params.psgurl, Params.PSGthermalSpectraFolder, phase))
 
-    # #Endfor phase
-    # plt.yscale('log')
-    # plt.xscale('log')
-    # plt.legend()
-    # plt.show()
+        print(round(((phase/360) * 100), 2), "%")
+
+
+
     print('done')
