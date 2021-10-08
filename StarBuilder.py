@@ -64,7 +64,12 @@ if __name__ == "__main__":
                                    names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
         
         allModels.facModel = pd.read_csv('./NextGenModels/BinnedData/binned%dStellarModel.txt' % Params.teffFac,
-                                      names=['wavelength', 'flux'], delimiter=' ', skiprows=1)                      
+                                      names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+        
+        if not np.all(allModels.photModel.wavelength == allModels.spotModel.wavelength) or not np.all(allModels.photModel.wavelength == allModels.facModel.wavelength):
+            raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale and currently are not.")
+        data = {'wavelength': allModels.photModel.wavelength, 'photflux': allModels.photModel.flux, 'spotflux': allModels.spotModel.flux, 'facflux': allModels.facModel.flux}
+        allModels.mainDataFrame = pd.DataFrame(data)
     else:
         topValues = []
         cwValues = []
@@ -134,19 +139,6 @@ if __name__ == "__main__":
 
     # GCM file type should be a net cdf file typ
     # Most common gcf file type
-
-
-    # THIS SHOULD BE DONE IN SpectraBuilder.py
-    # 7) Convert stellar data into PSG units
-    # EDIT LATER: Currently hard-coded to convert into W/m2/um
-    allModels.photModel.flux *= Params.erg_sTOwatts * Params.cm2TOm2 * Params.cmTOum
-    allModels.spotModel.flux *= Params.erg_sTOwatts * Params.cm2TOm2 * Params.cmTOum
-    allModels.facModel.flux *= Params.erg_sTOwatts * Params.cm2TOm2 * Params.cmTOum
-    
-    # Take into account the distance to our star
-    allModels.photModel.flux *= Params.distanceFluxCorrection
-    allModels.spotModel.flux *= Params.distanceFluxCorrection
-    allModels.facModel.flux *= Params.distanceFluxCorrection
 
     print("done")
 
