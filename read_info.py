@@ -1,5 +1,6 @@
 import configparser
 import h5py
+import numpy as np
 import pandas as pd
 import time
 
@@ -221,6 +222,11 @@ class ReadStarModels():
         self.spotModel, self.spotModelStrings = self.bin(self.spotModel)
         self.facModel, self.facModelStrings = self.bin(self.facModel)
 
+        if not np.all(self.photModel.wavelength == self.spotModel.wavelength) or not np.all(self.photModel.wavelength == self.facModel.wavelength):
+            raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale and currently are not.")
+        data = {'wavelength': self.photModel.wavelength, 'photflux': self.photModel.flux, 'spotflux': self.spotModel.flux, 'facflux': self.facModel.flux}
+        self.mainDataFrame = pd.DataFrame(data)
+
         binnedPhotStringCSV = self.photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
         file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffStar,'w')
         file.write(binnedPhotStringCSV)
@@ -379,6 +385,7 @@ class ParamModel():
         # print("Exposure Time percent = ", self.exposure_time_percent)
         self.deltaPhase = self.exposure_time_percent / 100
         # print("Delta Phase = ", self.deltaPhase)
+        self.deltaStellarPhase = self.deltaPhase * 360
 
         # Load in the NextGen Stellar Info
         phot_model_file = configParser.get('Star', 'phot_model_file')
