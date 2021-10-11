@@ -1,26 +1,39 @@
 import ast
 import csv
 import read_info
+import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
 
 def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet):
+    # Creates a new column of the allModels.allModelSpectra dataframe that contains 'sumflux,' the linearly combined
+    # flux output of the photosphere, spot, and faculae based on their respective surface coverage percent.
+    # Essentially, it is the total flux output by the star as seen from the observer.
     photFrac = percentagesDict['phot']
     spotFrac = percentagesDict['spot']
     facFrac = percentagesDict['fac']
-    location = len(allModels.allModelSpectra.axes[1])
-    allModels.allModelSpectra.insert(location, 'sumflux', (allModels.allModelSpectra.photflux * photFrac) +
-                                                          (allModels.allModelSpectra.spotflux * spotFrac) +
-                                                          (allModels.allModelSpectra.facflux * facFrac))
+    allModels.allModelSpectra["sumflux"] = ((allModels.allModelSpectra.photflux * photFrac) +
+                                            (allModels.allModelSpectra.spotflux * spotFrac) +
+                                            (allModels.allModelSpectra.facflux * facFrac))
+    print(allModels.allModelSpectra.sumflux)
 
+    # Creates a new column of the allModels.allModelSpectra dataframe that contains 'sumfluxTowardsPlanet,' the linearly combined
+    # flux output of the photosphere, spot, and faculae based on their respective surface coverage percent.
+    # Essentially, it is the total flux output by the star as seen from the planet.
     photFracTowardsPlanet = percentagesDictTowardsPlanet['phot']
     spotFracTowardsPlanet = percentagesDictTowardsPlanet['spot']
     facFracTowardsPlanet = percentagesDictTowardsPlanet['fac']
-    location = len(allModels.allModelSpectra.axes[1])
-    allModels.allModelSpectra.insert(location, 'sumfluxTowardsPlanet', (allModels.allModelSpectra.photflux * photFracTowardsPlanet) +
-                                    (allModels.allModelSpectra.spotflux * spotFracTowardsPlanet) +
-                                    (allModels.allModelSpectra.facflux * facFracTowardsPlanet))
+    allModels.allModelSpectra["sumfluxTowardsPlanet"] = ((allModels.allModelSpectra.photflux * photFracTowardsPlanet) +
+                                        (allModels.allModelSpectra.spotflux * spotFracTowardsPlanet) +
+                                        (allModels.allModelSpectra.facflux * facFracTowardsPlanet))
+
+def calculate_planet_flux(allModels):
+    # Produce only PSG's reflection flux values by subtracting the thermal flux values out, removing the planet's
+    # thermal radiance spectrum
+    planetReflectionOnly = abs(allModels.allModelSpectra.planetReflection - allModels.allModelSpectra.planetThermal)
+
+    
 
 if __name__ == "__main__":
     # 1) Read in all of the user-defined config parameters into a class, called Params.
@@ -59,8 +72,6 @@ if __name__ == "__main__":
         for row in reader:
             valueDict = ast.literal_eval(row[1])
             surfaceCoverageDict[float(row[0])] = valueDict
-
-        print("Done")
 
     # For loop here to run through each "image"/number of exposures as specified in the config file
     for index in range(Params.num_exposures):
@@ -118,16 +129,18 @@ if __name__ == "__main__":
             names=["wavelength", "total", "planet"],
             )
 
-        location = len(allModels.allModelSpectra.axes[1])
-        allModels.allModelSpectra.insert(location, 'planetReflection', allModels.planetReflectionModel.planet)
-        location = len(allModels.allModelSpectra.axes[1])
-        allModels.allModelSpectra.insert(location, 'planetThermal', allModels.planetThermalModel.planet)
+        allModels.allModelSpectra["planetReflection"] = allModels.planetReflectionModel.planet.values
+
+        allModels.allModelSpectra["planetThermal"] = allModels.planetThermalModel.planet.values
 
         # Calculate the total output flux of this star's phase by computing a linear combination of the photosphere,
         # spot, and flux models based on what percent of the surface area those components take up
         tempPhase = Params.deltaPhase * index
+        tempPhaseFacingPlanet = allModels.starPhaseFacingPlanet * Params.deltaPhase
         percentagesDict = surfaceCoverageDict[tempPhase]
-        percentagesDictTowardsPlanet = []
+        percentagesDictTowardsPlanet = surfaceCoverageDict[tempPhaseFacingPlanet]
         calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet)
+
+        calculate_planet_flux(allModels)
 
         print("done")
