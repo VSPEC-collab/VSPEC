@@ -6,7 +6,7 @@ import numpy as np
 import os
 import pandas as pd
 
-def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet):
+def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, phase):
     # Creates a new column of the allModels.allModelSpectra dataframe that contains 'sumflux,' the linearly combined
     # flux output of the photosphere, spot, and faculae based on their respective surface coverage percent.
     # Essentially, it is the total flux output by the star as seen from the observer.
@@ -16,7 +16,8 @@ def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesD
     allModels.allModelSpectra["sumflux"] = ((allModels.allModelSpectra.photflux * photFrac) +
                                             (allModels.allModelSpectra.spotflux * spotFrac) +
                                             (allModels.allModelSpectra.facflux * facFrac))
-    print(allModels.allModelSpectra.sumflux)
+
+    allModels.allModelSpectra.sumflux.to_csv('./%s/Data/SumfluxArraysTowardsObserver/phase%d.txt' % (Params.starName, phase))
 
     # Creates a new column of the allModels.allModelSpectra dataframe that contains 'sumfluxTowardsPlanet,' the linearly combined
     # flux output of the photosphere, spot, and faculae based on their respective surface coverage percent.
@@ -28,12 +29,27 @@ def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesD
                                         (allModels.allModelSpectra.spotflux * spotFracTowardsPlanet) +
                                         (allModels.allModelSpectra.facflux * facFracTowardsPlanet))
 
-def calculate_planet_flux(allModels):
+    allModels.allModelSpectra.sumfluxTowardsPlanet.to_csv('./%s/Data/SumfluxArraysTowardsPlanet/phase%d.txt' % (Params.starName, phase))
+
+def calculate_planet_flux(allModels, phase):
     # Produce only PSG's reflection flux values by subtracting the thermal flux values out, removing the planet's
     # thermal radiance spectrum
-    planetReflectionOnly = abs(allModels.allModelSpectra.planetReflection - allModels.allModelSpectra.planetThermal)
+    planetReflectionOnly = abs(allModels.planetReflectionModel.planet - allModels.planetThermalModel.planet)
 
-    
+    # Calculate the fraction (contrast) of the PSG planet's reflected flux to PSG's stellar flux.
+    # Will apply this fraction to the NextGen stellar flux to obtain the equivalent planet reflection flux
+    # values as if calculated while the planet was around the NextGen star
+    planetFluxFraction = planetReflectionOnly / allModels.planetReflectionModel.stellar
+
+    # Multiply the reflection fraction from the PSG data by the NextGen star's variable sumflux values
+    # This simulates the planet's reflection flux if it were created around this varaiable NextGen star,
+    # rather than the star used in PSG.
+    # Must multiply by the phase of the star facing the planet.
+    adjustedReflectionFlux = planetFluxFraction * allModels.allModelSpectra.sumfluxTowardsPlanet
+
+    # Add back on the planet's thermal flux values to the adjusted reflection flux values
+    allModels.allModelSpectra["planetReflection"] = adjustedReflectionFlux + allModels.planetThermalModel.planet
+    allModels.allModelSpectra.planetReflection.to_csv('./%s/Data/VariablePlanetFlux/phase%d.txt' % (Params.starName, phase))
 
 if __name__ == "__main__":
     # 1) Read in all of the user-defined config parameters into a class, called Params.
@@ -74,7 +90,13 @@ if __name__ == "__main__":
             surfaceCoverageDict[float(row[0])] = valueDict
 
     # For loop here to run through each "image"/number of exposures as specified in the config file
+    print("Calculating Total System Output, Stellar, and Planetary Reflection Flux Values")
+    print("------------------------------------------------------------------------------")
     for index in range(Params.num_exposures):
+        percent = (index/Params.num_exposures) * 100
+        # print(percent)
+        if percent % 25 == 0:
+            print("%.1f" % (percent) + "%" + " Complete")
         # The current phase of the planet is the planet phase change value (between exposures) multiplied
         # by the nuber of exposures taken so far (index)
         # Example: 180
@@ -129,18 +151,14 @@ if __name__ == "__main__":
             names=["wavelength", "total", "planet"],
             )
 
-        allModels.allModelSpectra["planetReflection"] = allModels.planetReflectionModel.planet.values
-
-        allModels.allModelSpectra["planetThermal"] = allModels.planetThermalModel.planet.values
-
         # Calculate the total output flux of this star's phase by computing a linear combination of the photosphere,
         # spot, and flux models based on what percent of the surface area those components take up
         tempPhase = Params.deltaPhase * index
         tempPhaseFacingPlanet = allModels.starPhaseFacingPlanet * Params.deltaPhase
         percentagesDict = surfaceCoverageDict[tempPhase]
         percentagesDictTowardsPlanet = surfaceCoverageDict[tempPhaseFacingPlanet]
-        calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet)
+        calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, index)
 
-        calculate_planet_flux(allModels)
+        calculate_planet_flux(allModels, index)
 
-        print("done")
+print("Done")
