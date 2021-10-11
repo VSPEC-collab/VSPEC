@@ -209,6 +209,7 @@ class HemiModel():
         plt.close("all")
 
         # Save the pickle numpy array version of the hemisphere map to load in other programs later
+        # UNUSED? EDIT
         hemi_map.dump('./%s/Data/HemiMapArrays/hemiArray_%d' % (self.starName, count))
 
         return hemi_map
