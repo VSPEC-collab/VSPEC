@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # EDIT: this key belongs to me, need to remove it after testing. Then test again to ensure one full run can work
     # GlobES/API calls can be sequentially, and PSG will remember the previous values
     # This means that we can upload parameters step-by-step. To reset your config for GlobES (use type=set), and to simply update (use type=upd)
-    print("Uploading GCM to PSG...")
+    print("\nUploading GCM to PSG...")
     os.system('curl -s -d key=3c8f608c3c5059f79a59 -d app=globes -d type=set --data-urlencode file@./Configs/GCMs/modernearth.gcm %s/api.php' % Params.psgurl)
 
     # Define parameters of this run
@@ -50,17 +50,10 @@ if __name__ == "__main__":
         fr.write('<GENERATOR-GCM-BINNING>%d\n' % Params.binning)
         fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
         fr.close()
-    print("Uploading specified planet and star data...")
+    print("\nUploading specified planet and star data...")
     os.system('curl -s -d key=3c8f608c3c5059f79a59 -d app=globes -d type=upd --data-urlencode file@./Configs/GCMs/config.txt %s/api.php' % Params.psgurl)
-    # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 --data-urlencode file@config.txt %s/api.php > spectra/halfwayPointHandUpdate.txt' % psgurl)
-    # if update: os.system('curl -v -d key=3c8f608c3c5059f79a59 --data-urlencode file@./psg_cfg_master_config_after_changes.txt %s/api.php > spectra/halfwayPoint.txt' % psgurl)
-    # print('curl -v -d app=globes -d type=upd --data-urlencode file@config.txt %s/api.php' % psgurl)
-    # exit()
 
-    # Calculate the spectra across the phases
-    if not os.path.isdir('spectra'): os.system('mkdir ./PSGSpectra/')
-
-    print("PERCENT DONE")
+    print("\nPERCENT DONE")
     print("=================")
     for phase in np.arange(Params.phase1,Params.phase2+Params.dphase,Params.dphase):
         if phase>178 and phase<182: phase=182 # Add transit phase;

@@ -64,11 +64,8 @@ class StarModel2D():
 
         flat_image = surface_map.flatten()
         length = len(flat_image)
-        print("Length = ", length)
         spot_pixels = np.where(flat_image == 1)
-        print(len(spot_pixels[0]))
         fac_pixels = np.where(flat_image == 2)
-        print(len(fac_pixels[0]))
         # summ = sum(flat_image)
         surfaceMapSpotCoverage = len(spot_pixels[0]) / length
         surfaceMapFacCoverage = len(fac_pixels[0]) / length
@@ -237,12 +234,8 @@ class HemiModel():
             total_size_mod = total_size
 
         photo_frac =  photo / total_size_mod
-        print("Phase's Photo frac = ", photo_frac)
         spot_frac = spot / total_size_mod
-        print("Phase's Spot frac = ", spot_frac)
         fac_frac = fac / total_size_mod
-        print("Phase's Fac frac = \n", fac_frac)
-        # return photo_frac, spot_frac, fac_frac
 
         # Save these values to a dictionary
         # The dictionary key is the phase, the dictionary value is another dictionary that contatins the key-value pairs of 

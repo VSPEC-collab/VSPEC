@@ -90,13 +90,13 @@ if __name__ == "__main__":
             surfaceCoverageDict[float(row[0])] = valueDict
 
     # For loop here to run through each "image"/number of exposures as specified in the config file
-    print("Calculating Total System Output, Stellar, and Planetary Reflection Flux Values")
+    print("\nCalculating Total System Output, Stellar, and Planetary Reflection Flux Values")
     print("------------------------------------------------------------------------------")
     for index in range(Params.num_exposures):
         percent = (index/Params.num_exposures) * 100
         # print(percent)
         if percent % 25 == 0:
-            print("%.1f" % (percent) + "%" + " Complete")
+            print("%.1f" % percent + "%" + " Complete")
         # The current phase of the planet is the planet phase change value (between exposures) multiplied
         # by the nuber of exposures taken so far (index)
         # Example: 180

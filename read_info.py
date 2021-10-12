@@ -120,27 +120,14 @@ class ReadStarModels():
                     # Take the slope of the line between the current flux value (outside of bin) and
                     # the previous flux value (inside of bin), multiply it by the difference between
                     # the bin's center wavelength and the previous wavelength
-                    print("lam = ", lam)
-                    print("lastLam = ", lastLam)
-                    print("val = ", val)
-                    print("lastVal = ", lastVal)
-                    print("CW = ", self.cwValues[binCount])
                     temp = (val  - lastVal)*(self.cwValues[binCount] - lastLam)/( lam - lastLam) + lastVal
-                    print("temp = ", temp)
                     outputY.append(temp)
                     outputYstring.append("{:.7e}".format(temp))
                 elif self.topValues[binCount] > ultimaLam:
-                    print("lastLam = ", lastLam)
-                    print("ultimaLam = ", ultimaLam)
-                    print("lastVal = ", lastVal)
-                    print("ultimaVal = ", ultimaVal)
-                    print("CW = ", self.cwValues[binCount])
                     temp = (lastVal - ultimaVal) * (self.cwValues[binCount] - ultimaLam) / (lastLam - ultimaLam) + ultimaVal
-                    print("temp = ", temp)
                     outputY.append(temp)
                     outputYstring.append("{:.7e}".format(temp))
                 else:
-                    print("ultimaVal = ", ultimaVal)
                     outputY.append(ultimaVal)
                     outputYstring.append("{:.7e}".format(ultimaVal))
                 bottom = self.topValues[binCount]
@@ -156,8 +143,11 @@ class ReadStarModels():
             summationVal += lastVal
             numberOfValues += 1
             lambdaIndex += 1
-            if lambdaIndex % 100000 == 0:
-                print(lambdaIndex)
+
+            percent = (lambdaIndex/len(model.wavelength)) * 100
+            # print(percent)
+            if  percent % 1 == 0:
+                print("%.1f" % percent + "%" + "Complete")
 
         print("Time after binning")
         print("--- %s seconds ---" % (time.time() - start_time))
@@ -176,7 +166,7 @@ class ReadStarModels():
         # )
 
         # Works for reading h5 files
-        print('Reading File: <'+self.photModelFile+'>')
+        # print('Reading File: <'+self.photModelFile+'>')
         fh5 = h5py.File(self.photModelFile,'r')
         wl = fh5['PHOENIX_SPECTRUM/wl'][()]
         fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
@@ -185,7 +175,7 @@ class ReadStarModels():
         fh5.close()
 
         # Works for reading h5 files
-        print('Reading File: <'+self.spotModelFile+'>')
+        # print('Reading File: <'+self.spotModelFile+'>')
         fh5 = h5py.File(self.spotModelFile,'r')
         wl = fh5['PHOENIX_SPECTRUM/wl'][()]
         fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
@@ -194,7 +184,7 @@ class ReadStarModels():
         fh5.close()
 
         # Works for reading h5 files
-        print('Reading File: <'+self.facModelFile+'>')
+        # print('Reading File: <'+self.facModelFile+'>')
         fh5 = h5py.File(self.facModelFile,'r')
         wl = fh5['PHOENIX_SPECTRUM/wl'][()]
         fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
@@ -218,8 +208,14 @@ class ReadStarModels():
             (self.facModel.wavelength >= self.rangeMin) & (self.facModel.wavelength <= self.rangeMax)
         ]
 
+        print("\nBinning Photosphere Data to Specified Resolving Power...")
+        print("----------------------------------------------------------")
         self.photModel, self.photModelStrings = self.bin(self.photModel)
+        print("\nBinning Spot Data to Specified Resolving Power...")
+        print("----------------------------------------------------------")
         self.spotModel, self.spotModelStrings = self.bin(self.spotModel)
+        print("\nBinning Faculae Data to Specified Resolving Power...")
+        print("----------------------------------------------------------")
         self.facModel, self.facModelStrings = self.bin(self.facModel)
 
         if not np.all(self.photModel.wavelength == self.spotModel.wavelength) or not np.all(self.photModel.wavelength == self.facModel.wavelength):
@@ -241,85 +237,6 @@ class ReadStarModels():
         file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffFac,'w')
         file.write(binnedFaculaespectrumCSV)
         file.close()
-
-        # # This code plots the difference in wavelength values of the raw data. Shows a resolution across the model
-        # wavelengthDifference = []
-        # wavelengthResolution = []
-        # frequencyList = []
-        # frequencyDiff = []
-        # c = 2.99e14
-        # count = 0
-        # for value in model.wavelength:
-        #     if count == len(model.wavelength) - 1 or count == 0:
-        #         wavelengthDifference.append(float('nan'))
-        #         wavelengthResolution.append(float('nan'))
-        #         frequencyDiff.append(float('nan'))
-        #         frequencyList.append(float('nan'))
-        #         # print("End of file")
-        #     else:
-        #         frequency = c/value
-        #         diffWave = model.wavelength[count + 1] - value
-        #         diffFreq = (frequency) - (c/model.wavelength[count + 1])
-        #         wavelengthDifference.append(diffWave)
-        #         wavelengthResolution.append(value/diffWave)
-        #         frequencyList.append(frequency)
-        #         frequencyDiff.append(diffFreq)
-
-        #         # print(diffWave)
-        #         # print(value/diffWave)
-        #         # print(diffFreq)
-        #         # if diffWave > 0.05:
-        #         #     print(model.wavelength[count])
-        #         #     print("Greater than 0.05")
-        #         #     print(diffWave)
-        #     count += 1
-        #     if count % 100000 == 0:
-        #         print(count)
-        
-        # fig = plt.figure()
-        # plt.yscale('log')
-        # plt.plot(model.wavelength, wavelengthDifference)
-        # plt.title("Wavelength Spacing of NextGen Data")
-        # plt.ylabel("Delta Wavelength")
-        # plt.xlabel("Wavelength (um)")
-        # if bin_data:
-        #     plt.savefig('./%s/BinnedNextGenModels/VariabilityGraphs/wavelengthSpacingOfRawData.png' % starName, bbox_inches='tight')
-        # else:
-        #     plt.savefig('./%s/NotBinnedNextGenModels/VariabilityGraphs/wavelengthSpacingOfRawData.png' % starName, bbox_inches='tight')
-        # # plt.show()
-        # plt.close("all")
-        # print("WavelengthDiffPlot done")
-
-        # fig = plt.figure()
-        # # plt.yscale('log')
-        # plt.ticklabel_format(useOffset=False, style='plain')
-        # # plt.ylim(resolvingPower - 1, resolvingPower + 1)
-        # plt.yscale('log')
-        # plt.plot(model.wavelength, wavelengthResolution)
-        # plt.title("Wavelength Resolution of NextGen Data")
-        # plt.ylabel("Wavelength/Delta Wavelength (Wavelength Resolving Power)")
-        # plt.xlabel("Wavelength (um)")
-        # if bin_data:
-        #     plt.savefig('./%s/BinnedNextGenModels/VariabilityGraphs/wavelengthResolvingPower.png' % starName, bbox_inches='tight')
-        # else:
-        #     plt.savefig('./%s/NotBinnedNextGenModels/VariabilityGraphs/wavelengthResolvingPower.png' % starName, bbox_inches='tight')
-        # # plt.show()
-        # plt.close("all")
-        # print("WavelengthResolvingPowerPlot done")
-
-        # fig = plt.figure()
-        # plt.yscale('log')
-        # plt.plot(frequencyList, frequencyDiff)
-        # plt.title("Delta Frequency of NextGen Data")
-        # plt.ylabel("Delta Frequency")
-        # plt.xlabel("Frequency (um/s)")
-        # if bin_data:
-        #     plt.savefig('./%s/BinnedNextGenModels/VariabilityGraphs/frequencyDiff.png' % starName, bbox_inches='tight')
-        # else:
-        #     plt.savefig('./%s/NotBinnedNextGenModels/VariabilityGraphs/frequencyDiff.png' % starName, bbox_inches='tight')
-        # # plt.show()
-        # plt.close("all")
-        # print("FrequencyDiffPlot done")
 
         return self
 

@@ -120,7 +120,7 @@ if __name__ == "__main__":
         # Count keeps track of which hemisphere map image is being looked at currently
         phase = 0
         count = 0
-        print("GENERATING HEMISPHERES")
+        print("\nGENERATING HEMISPHERES")
         print("----------------------")
         for phase in phases:
             # EDIT: Am I able to compute the surface area percentages for the current stellar phase here? And save them for later?
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             # I want to add in the functionality to save the surface area coverage percentage during this for-loop
             # will save time. Look into adding it inside the generate_hemisphere_map method.
             hemi_map = HM.generate_hemisphere_map(phase, count)
-            print("Percent Complete = ", phase * 100, "%")
+            print("Percent Complete = %.1f" % (phase * 100), "%")
             count += 1
         
         deltaStellarPhase = Params.deltaPhase * 360
