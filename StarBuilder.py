@@ -13,7 +13,8 @@ if __name__ == "__main__":
     # 2) Check that all directories used in the program are created
     if not os.path.isdir('./%s/' % Params.starName):
         os.mkdir('./%s/' % Params.starName)
-        os.mkdir('./%s/Data' % Params.starName)
+        os.mkdir('./%s/Data/' % Params.starName)
+        os.mkdir('./%s/Data/AllModelSpectraValues/' % Params.starName)
         os.mkdir('./%s/Data/HemiMapArrays/' % Params.starName)
         os.mkdir('./%s/Data/PSGCombinedSpectra/' % Params.starName)
         os.mkdir('./%s/Data/PSGThermalSpectra/' % Params.starName)
@@ -21,14 +22,17 @@ if __name__ == "__main__":
         os.mkdir('./%s/Data/SumfluxArraysTowardsPlanet/' % Params.starName)
         os.mkdir('./%s/Data/SurfaceCoveragePercentage/' % Params.starName)
         os.mkdir('./%s/Data/VariablePlanetFlux/' % Params.starName)
-        os.mkdir('./%s/Figures' % Params.starName)
-        os.mkdir('./%s/Figures/VariabilityGraphs' % Params.starName)
+        os.mkdir('./%s/Figures/' % Params.starName)
+        os.mkdir('./%s/Figures/VariabilityGraphs/' % Params.starName)
         os.mkdir('./%s/Figures/Hemi+LightCurve/' % Params.starName)
         os.mkdir('./%s/Figures/HemiMapImages/' % Params.starName)
         os.mkdir('./%s/Figures/IntegralPhasePlot/' % Params.starName)
-        os.mkdir('./%s/Figures/LightCurves' % Params.starName)
-        os.mkdir('./%s/Figures/PlanetFluxCalculation/' % Params.starName)
-        os.mkdir('./%s/Figures/SpectrumGraphs/' % Params.starName)
+        os.mkdir('./%s/Figures/LightCurves/' % Params.starName)
+        os.mkdir('./%s/Figures/PlanetPlots/' % Params.starName)
+        os.mkdir('./%s/Figures/PlanetPlots/PlanetPhase0Contrast/' % Params.starName)
+        os.mkdir('./%s/Figures/PlanetPlots/VariableAndPSGContrast/' % Params.starName)
+        os.mkdir('./%s/Figures/StellarPlots/' % Params.starName)
+        os.mkdir('./%s/Figures/StellarPlots/MaxSumfluxChanges/' % Params.starName)
 
     # 3) If not already created, create the 2D Spot map of the star's surface
     #    that plots the locations of the spots and faculae. Used later to create
