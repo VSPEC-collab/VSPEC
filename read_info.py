@@ -361,3 +361,9 @@ class ParamModel():
         self.cmTOum = 1e4
         self.cm2TOm2 = 1e-4
         self.erg_sTOwatts = 1e-7
+
+        # Plotting booleans; decide what plots to create during an execution of the program.
+        self.plotLightCurve = configParser.getboolean('Plots', 'plotLightCurve')
+        self.plotPlanetContrast = configParser.getboolean('Plots', 'plotPlanetContrast')
+        self.plotPlanetVariationContrast = configParser.getboolean('Plots', 'plotPlanetVariationContrast')
+        self.plotMaxFluxChange = configParser.getboolean('Plots', 'plotMaxFluxChange')
