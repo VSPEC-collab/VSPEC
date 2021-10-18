@@ -17,7 +17,7 @@ def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesD
                                             (allModels.allModelSpectra.spotflux * spotFrac) +
                                             (allModels.allModelSpectra.facflux * facFrac))
 
-    allModels.allModelSpectra.sumflux.to_csv('./%s/Data/SumfluxArraysTowardsObserver/phase%d.txt' % (Params.starName, phase))
+    # allModels.allModelSpectra.sumflux.to_csv('./%s/Data/SumfluxArraysTowardsObserver/phase%d.txt' % (Params.starName, phase))
 
     # Creates a new column of the allModels.allModelSpectra dataframe that contains 'sumfluxTowardsPlanet,' the linearly combined
     # flux output of the photosphere, spot, and faculae based on their respective surface coverage percent.
@@ -29,12 +29,15 @@ def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesD
                                         (allModels.allModelSpectra.spotflux * spotFracTowardsPlanet) +
                                         (allModels.allModelSpectra.facflux * facFracTowardsPlanet))
 
-    allModels.allModelSpectra.sumfluxTowardsPlanet.to_csv('./%s/Data/SumfluxArraysTowardsPlanet/phase%d.txt' % (Params.starName, phase))
+    # allModels.allModelSpectra.sumfluxTowardsPlanet.to_csv('./%s/Data/SumfluxArraysTowardsPlanet/phase%d.txt' % (Params.starName, phase))
+    # allModels.allModelSpectra.to_csv('./%s/Data/AllModelSpectraValues/phase%d.csv' % (Params.starName, phase), index=False, sep=',')
+    # print(allModels.allModelSpectra)
+    # print('wait')
 
 def calculate_planet_flux(allModels, phase):
     # Produce only PSG's reflection flux values by subtracting the thermal flux values out, removing the planet's
     # thermal radiance spectrum
-    planetReflectionOnly = abs(allModels.planetReflectionModel.planet - allModels.planetThermalModel.planet)
+    planetReflectionOnly = abs(allModels.planetReflectionModel.planet.values - allModels.planetThermalModel.planet.values)
 
     # Calculate the fraction (contrast) of the PSG planet's reflected flux to PSG's stellar flux.
     # Will apply this fraction to the NextGen stellar flux to obtain the equivalent planet reflection flux
@@ -48,8 +51,8 @@ def calculate_planet_flux(allModels, phase):
     adjustedReflectionFlux = planetFluxFraction * allModels.allModelSpectra.sumfluxTowardsPlanet
 
     # Add back on the planet's thermal flux values to the adjusted reflection flux values
-    allModels.allModelSpectra["planetReflection"] = adjustedReflectionFlux + allModels.planetThermalModel.planet
-    allModels.allModelSpectra.planetReflection.to_csv('./%s/Data/VariablePlanetFlux/phase%d.txt' % (Params.starName, phase))
+    allModels.allModelSpectra["planetReflection"] = adjustedReflectionFlux + allModels.planetThermalModel.planet.values
+    # allModels.allModelSpectra.planetReflection.to_csv('./%s/Data/VariablePlanetFlux/phase%d.txt' % (Params.starName, phase), index=False)
 
 if __name__ == "__main__":
     # 1) Read in all of the user-defined config parameters into a class, called Params.
@@ -160,5 +163,9 @@ if __name__ == "__main__":
         calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, index)
 
         calculate_planet_flux(allModels, index)
+
+        allModels.allModelSpectra.to_csv('./%s/Data/AllModelSpectraValues/phase%d.csv' % (Params.starName, index), index=False, sep=',')
+        # print(allModels.allModelSpectra)
+        # print('wait')
 
 print("Done")
