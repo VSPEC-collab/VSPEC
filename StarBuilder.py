@@ -33,6 +33,7 @@ if __name__ == "__main__":
         os.mkdir('./%s/Figures/PlanetPlots/VariableAndPSGContrast/' % Params.starName)
         os.mkdir('./%s/Figures/StellarPlots/' % Params.starName)
         os.mkdir('./%s/Figures/StellarPlots/MaxSumfluxChanges/' % Params.starName)
+        os.mkdir('./%s/Figures/StellarPlots/StarFlux/' % Params.starName)
 
     # 3) If not already created, create the 2D Spot map of the star's surface
     #    that plots the locations of the spots and faculae. Used later to create
@@ -92,6 +93,7 @@ if __name__ == "__main__":
                                              Params.imageResolution, Params.resolvingPower, Params.phot_model_file,
                                              Params.spot_model_file, Params.fac_model_file, topValues, cwValues)
         allModels.read_model(Params.teffStar, Params.teffSpot, Params.teffFac)
+        print("Done")
 
     # 5) This section generates the hemispheres of the star, based on the 2D surface map.
          
