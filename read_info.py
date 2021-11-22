@@ -265,6 +265,9 @@ class ParamModel():
         self.facCoverage = self.facCoverage/100
         self.facNumber = int(configParser.get('Star', 'facNumber'))
 
+        # Load in 
+        self.defaultModelType = configParser.getboolean('Star', 'defaultModelType')
+
         # Temperature values for the star, spots, and faculae
         self.teffStar = int(configParser.get('Star', 'teffStar'))
         self.teffSpot = int(configParser.get('Star', 'teffSpot'))
@@ -305,12 +308,17 @@ class ParamModel():
         self.deltaStellarPhase = self.deltaPhase * 360
 
         # Load in the NextGen Stellar Info
-        phot_model_file = configParser.get('Star', 'phot_model_file')
-        self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove
-        spot_model_file = configParser.get('Star', 'spot_model_file')
-        self.spot_model_file = spot_model_file.strip('"')
-        fac_model_file = configParser.get('Star', 'fac_model_file')
-        self.fac_model_file = fac_model_file.strip('"')
+        if self.defaultModelType:
+            phot_model_file = "./NextGenModels/RawData/lte0"+str(self.teffStar)+"-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5"
+            spot_model_file = "./NextGenModels/RawData/lte0"+str(self.teffSpot)+"-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5"
+            fac_model_file = "./NextGenModels/RawData/lte0"+str(self.teffFac)+"-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5"
+        else:
+            phot_model_file = configParser.get('Star', 'phot_model_file')
+            self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove
+            spot_model_file = configParser.get('Star', 'spot_model_file')
+            self.spot_model_file = spot_model_file.strip('"')
+            fac_model_file = configParser.get('Star', 'fac_model_file')
+            self.fac_model_file = fac_model_file.strip('"')
 
         # Boolean which says whether or not the user wishes to bin the data to a certain resolving power
         self.binData = configParser.getboolean('Star', 'binData')
@@ -367,3 +375,4 @@ class ParamModel():
         self.plotPlanetContrast = configParser.getboolean('Plots', 'plotPlanetContrast')
         self.plotPlanetVariationContrast = configParser.getboolean('Plots', 'plotPlanetVariationContrast')
         self.plotMaxFluxChange = configParser.getboolean('Plots', 'plotMaxFluxChange')
+        self.plotStellarFlux = configParser.getboolean('Plots', 'plotStellarFlux')
