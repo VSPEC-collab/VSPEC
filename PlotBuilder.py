@@ -32,13 +32,19 @@ import read_info
 
 # Initial plot in PPM on the y-axis
 
+# Re-create the PlanetVariationFlux plot at specified wavelengths: optical and 10 um; locked at 90 degrees planet phase
+# Also re-create this at eclipse and transit
+
+# Give options to specify wavelength, planet-phase constants, stellar phase contants, etc. Super customizeable.
+
+# Start with images that are paper-worthy
+
 def max_flux_change(Params, allModels, phase, x, y):
     # The X-Axis represents the number of the images taken. Presents itself as a time series, from first image
     # to last
     adjustment = 360 / Params.num_exposures
     x.append(phase * adjustment)
     y.append(allModels.maxChange)
-    print(allModels.maxChange)
     plt.yscale('log')
     plt.plot(x, y)
     plt.title("Variable Planet Flux / PSG Blackbody Planet Flux")
@@ -64,14 +70,20 @@ def planet_contrast(Params, allModels, phase):
 # Plots the contrast between the current phase 0 of the planet as it rotates with the initial phase 0.
 # Shows the difference caused by the variable surface of the star rather than the spectral models or revolution
 # of the planet.
-def planet_variation_contrast(Params, allModels, phase):
-    contrast = allModels.allModelSpectra.planetReflection / allModels.allModelSpectra0.planetReflection
+def planet_variation_contrast(Params, allModels, current_phase, initial_phase):
+    if initial_phase == 0:
+        contrast = allModels.allModelSpectra.planetReflection / allModels.allModelSpectra0.planetReflection
+    elif initial_phase == 90:
+        contrast = allModels.allModelSpectra.planetReflection / allModels.allModelSpectra90.planetReflection
+    elif initial_phase == 180:
+        contrast = allModels.allModelSpectra.planetReflection / allModels.allModelSpectra180.planetReflection
+    
     plt.plot(allModels.allModelSpectra.wavelength, contrast)
-    plt.title("Phase 0 Planet Reflection Flux / Initial Phase 0 Planet Reflection Flux")
+    plt.title("Current Phase %d Planet Reflection Flux / Initial" % (initial_phase))
     plt.xlabel("Wavelength (um)")
     plt.ylabel("Flux Contrast")
     # Come up with a directory to store this in ################################
-    plt.savefig('./%s/Figures/PlanetPlots/PlanetPhase0Contrast/planetPhase0Contrast_%d' % (Params.starName, phase), bbox_inches='tight')
+    plt.savefig('./%s/Figures/PlanetPlots/PlanetPhase%dContrast/planetPhaseContrast_%d' % (Params.starName, initial_phase, current_phase), bbox_inches='tight')
     # plt.show()
     plt.close('all')
 
@@ -88,7 +100,7 @@ def plot_light_curve(allModels, Params, phase, x, y):
     # The y value is the flux value of the current hemisphere image
     y.append(avg_sumflux)
 
-    plt.plot(x, y)
+    plt.plot(x, y, label="Phase %d" % phase)
     plt.yscale("log")
     plt.title("Light Curve")
     plt.ylabel("Flux (W/m^2/um)")
@@ -98,6 +110,14 @@ def plot_light_curve(allModels, Params, phase, x, y):
     plt.close("all")
 
     return x, y
+
+def plot_stellar_flux(Params, allModels, phase):
+    plt.plot(allModels.allModelSpectra.wavelength, allModels.allModelSpectra.sumflux)
+    plt.title("Star's Output Flux")
+    plt.xlabel("Wavelength (um)")
+    plt.ylabel("Flux (W/um/m2)")
+    plt.savefig('./%s/Figures/StellarPlots/StarFlux/totalStellarFlux_%d' % (Params.starName, phase), bbox_inches='tight')
+    plt.close('all')
 
 if __name__ == "__main__":
     Params = read_info.ParamModel()
@@ -109,16 +129,30 @@ if __name__ == "__main__":
     y_lightCurve  = []
     x_maxChange = []
     y_maxChange = []
+
+    allModels.maxChange = 0
+
     zero_flag = True
+    ninety_flag = True
+    eclipse_flag = True
+
     for phase in range(Params.num_exposures):
-        allModels.allModelSpectra = pd.read_csv('./%s/Data/AllModelSpectraValues/phase%d.csv' % (Params.starName, phase), sep=",")
         
-        if zero_flag:
-            allModels.allModelSpectra0 = allModels.allModelSpectra
-            allModels.maxChange = 0
-            zero_flag = False
+        allModels.allModelSpectra = pd.read_csv('./%s/Data/AllModelSpectraValues/phase%d.csv' % (Params.starName, phase), sep=",")
 
         allModels.planetPhase = (Params.planetPhaseChange * phase) % 360
+
+        if allModels.planetPhase == 0 and zero_flag:
+            allModels.allModelSpectra0 = allModels.allModelSpectra
+            zero_flag = False
+
+        if allModels.planetPhase == 90 and ninety_flag:
+            allModels.allModelSpectra90 = allModels.allModelSpectra
+            ninety_flag = False
+        print(allModels.planetPhase)
+        if allModels.planetPhase == 180 and eclipse_flag:
+            allModels.allModelSpectra180 = allModels.allModelSpectra
+            eclipse_flag = False
 
         # PSG can't calculate the planet's values at phase 180 (in front of star, no reflection), so it calculates them at phase 182.
         if allModels.planetPhase == 180:
@@ -138,13 +172,19 @@ if __name__ == "__main__":
                                           )
 
         if Params.plotLightCurve:
-            x, y = plot_light_curve(allModels, Params, phase, x, y)
+            x_lightCurve, y_lightCurve = plot_light_curve(allModels, Params, phase, x_lightCurve, y_lightCurve)
 
         if Params.plotPlanetContrast:
             planet_contrast(Params, allModels, phase)
 
         if allModels.planetPhase == 0 and Params.plotPlanetVariationContrast:
-            planet_variation_contrast(Params, allModels, phase)
+            planet_variation_contrast(Params, allModels, phase, initial_phase=0)
+
+        if allModels.planetPhase == 90 and Params.plotPlanetVariationContrast:
+            planet_variation_contrast(Params, allModels, phase, initial_phase=90)
+            
+        if allModels.planetPhase == 182 and Params.plotPlanetVariationContrast:
+            planet_variation_contrast(Params, allModels, phase, initial_phase=180)
 
         # Calculate the average sumflux of the current phase and subtract the initial sumflux to determine
         # the difference. Highlights how much the stellar flux is affected by the variable surface.
@@ -153,3 +193,6 @@ if __name__ == "__main__":
         if Params.plotMaxFluxChange and change > allModels.maxChange:
             x_maxChange, y_maxChange = max_flux_change(Params, allModels, phase, x_maxChange, y_maxChange)
             allModels.maxChange = change
+
+        if Params.plotStellarFlux:
+            plot_stellar_flux(Params, allModels, phase)
