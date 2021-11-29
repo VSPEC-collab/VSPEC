@@ -74,7 +74,7 @@ if __name__ == "__main__":
                                       names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
         
         if not np.all(allModels.photModel.wavelength == allModels.spotModel.wavelength) or not np.all(allModels.photModel.wavelength == allModels.facModel.wavelength):
-            raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale and currently are not.")
+            raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale and currently are not. Have you binned the date yet? Check 'binData' in your config file.")
         data = {'wavelength': allModels.photModel.wavelength, 'photflux': allModels.photModel.flux, 'spotflux': allModels.spotModel.flux, 'facflux': allModels.facModel.flux}
         allModels.mainDataFrame = pd.DataFrame(data)
     else:
