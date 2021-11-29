@@ -138,3 +138,4 @@ ProxCenTest/
 ProxCenTemplate/
 Configs/GCMs/config.txt
 Configs/Stellar/config.txt
+testPlots.py
