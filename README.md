@@ -1,6 +1,6 @@
 # Exoplanet Phase Curve Variability Simulator
 
-This code links variable stellar model output to GCM output and creates realistic, synthetic data of a star/planet system. It returns spectra of the star, planet, and combined star/planet. The data sets will be used to create a method of separating the planet's flux (reflected and thermal) from the combined system flux as observed by a telescope, in order to study the planet's atmosphere based on its spectra.
+TEST This code links variable stellar model output to GCM output and creates realistic, synthetic data of a star/planet system. It returns spectra of the star, planet, and combined star/planet. The data sets will be used to create a method of separating the planet's flux (reflected and thermal) from the combined system flux as observed by a telescope, in order to study the planet's atmosphere based on its spectra.
 
 
 ## Requirements
