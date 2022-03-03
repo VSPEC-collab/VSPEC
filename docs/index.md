@@ -16,7 +16,7 @@ The code is made up of 4 main programs:
 
 The code is executed based on a user-specified/curated config file:
 * Config files are stored in `/Configs`
-* Users can create their own configs based on example the template provided in the repository (ProxCenTemplate)
+* Users can create their own configs based on the example template provided in the repository (ProxCenTemplate)
 * The code also relies on a GCM config file which can be found in/uploaded to `/Configs/GCMs/`
 * Users are free to create new configs for the star based on the template or introduce new GCM configs
 
