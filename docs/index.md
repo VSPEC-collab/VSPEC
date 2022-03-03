@@ -24,9 +24,7 @@ All data are created when the code is run, based on the chosen stellar config fi
 * A folder with the user-defined name of the star (based on config) is created.
 * This folder contains two major sub-directories: Data saves all necessary data arrays and Figures stores all produced images/plots.
 
-### Uding the Code
-
-## Using the code
+### Using the Code
 
 The Code is split into 4 main executable programs, all named ____Builder.py, that you run individually and, to start, in this order.
 
@@ -41,8 +39,8 @@ The Code is split into 4 main executable programs, all named ____Builder.py, tha
 3. SpectraBuilder.py
    - Run third; it needs saved planetary spectra and stellar spectra.
    - Uses the output of the StarBuilder.py and PlanetBuilder.py to create a synthetic timeseries of flux data that applies the planet flux from PSG to the star model created in StarBuilder.py, so the data we see is of the planet's flux as if it were revolving around the newly created, variable star.
-4. GraphBuilder.py
-   - Creates many graphs showing lightcurves, stellar flux output, planet flux output, planet thermal flux output, total system output, etc. across a timeseries.
+4. PlotBuilder.py
+   - Creates many plots displaying lightcurves, stellar flux output, planet flux output, planet thermal flux output, total system output, etc. across a timeseries.
 
 ```markdown
 Syntax highlighted code block
