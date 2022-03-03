@@ -2,10 +2,6 @@
 
 VSPEC is a tool designed to create time-series datasets combining spectroscopic light curves incorporating stellar variability with phase curves of M-star planets utilizing GCM's. It produces reflected light...
 
-### Overview
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
 ### Directories and Files
 
 The code is made up of 4 main programs:
