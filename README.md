@@ -11,7 +11,7 @@ This code was designed using Python 3.8
 
 The code doesn't require any special installation, and can be directly downloaded from the Github page or, in alternative, the repository can be cloned via
 
-    https://github.com/cameronkelahan/Exoplanet-Phase-Curve-Variability-Simulator
+    https://github.com/cameronkelahan/VSPEC
 
     
 ## Directories and files
