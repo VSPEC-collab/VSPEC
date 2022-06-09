@@ -1,6 +1,6 @@
-# Exoplanet Phase Curve Variability Simulator
+# Variable Star PhasE Curve
 
-TEST This code links variable stellar model output to GCM output and creates realistic, synthetic data of a star/planet system. It returns spectra of the star, planet, and combined star/planet. The data sets will be used to create a method of separating the planet's flux (reflected and thermal) from the combined system flux as observed by a telescope, in order to study the planet's atmosphere based on its spectra.
+This code links variable stellar model output to GCM output and creates realistic, synthetic data of a star/planet system. It returns spectra of the star, planet, and combined star/planet. The data sets made with this tool will be used to create a method of separating the planet's flux (reflected and thermal) from the combined system flux as observed by a telescope, in order to study the planet's atmosphere based on its spectra.
 
 
 ## Requirements
@@ -26,9 +26,9 @@ The code is executed based on a user-specified/curated config file:
 * Config files are stored in `/Configs`
 * Users can create their own configs based on the template provided in the repository (ProxCenTemplate)
 * The code also relies on a GCM config file which can be found in `/Configs/GCMs/`
-* Users are free to create new configs for the star based on the template or introduce new GCM configs
+* Users are free to create new configs for the star based on the template, or introduce new GCM configs
 
-All files are created when the code is run, based on the chosen stellar config file:
+All directories are created when the code is run, based on the chosen stellar config file:
 * A folder with the user-defined name of the star (based on config) is created.
 * This folder contains two major sub-directories: Data saves all necessary data arrays and Figures stores all produced images/plots.
 
@@ -38,7 +38,7 @@ All files are created when the code is run, based on the chosen stellar config f
 The Code is split into 4 main executable programs, all named ____Builder.py, that you run individually and, to start, in this order.
 
 1. StarBuilder.py
-   - Creates the variable star model with spots and faculae, must be run first as the program needs a star.
+   - Creates the variable star model with spots and faculae. Must be run first as the program needs a star.
    - Calculates the coverage fractions of the photosphere, spots, and faculae for each phase of the star.
    - It also bins the supplied stellar flux models (NextGen stellar dataset by default) to a resolving power specified in the config.
 2. PlanetBuilder.py
