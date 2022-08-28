@@ -1,44 +1,90 @@
+from multiprocessing import Pool, cpu_count, Array
 import read_info, star_functions
 import csv
 import numpy as np
 import os
 import pandas as pd
+from pathlib import Path
+
+import time
+
+# 1st file to run.
 
 if __name__ == "__main__":
-    # Main program of my spotty-PSG connection code
-
+    
     # 1) Read in all of the user-defined config parameters into a class, called Params.
     Params = read_info.ParamModel()
+    
+    parent_folder = Path('.') / f'{Params.starName}/'
+    figures_folder = parent_folder / 'Figures'
 
+    # CHANGE ALL % FormattinG to f"text {variable}"
     # 2) Check that all directories used in the program are created
-    if not os.path.isdir('./%s/' % Params.starName):
-        os.mkdir('./%s/' % Params.starName)
-        os.mkdir('./%s/Data/' % Params.starName)
-        os.mkdir('./%s/Data/AllModelSpectraValues/' % Params.starName)
-        os.mkdir('./%s/Data/HemiMapArrays/' % Params.starName)
-        os.mkdir('./%s/Data/PSGCombinedSpectra/' % Params.starName)
-        os.mkdir('./%s/Data/PSGThermalSpectra/' % Params.starName)
-        os.mkdir('./%s/Data/SumfluxArraysTowardsObserver/' % Params.starName)
-        os.mkdir('./%s/Data/SumfluxArraysTowardsPlanet/' % Params.starName)
-        os.mkdir('./%s/Data/SurfaceCoveragePercentage/' % Params.starName)
-        os.mkdir('./%s/Data/VariablePlanetFlux/' % Params.starName)
-        os.mkdir('./%s/Figures/' % Params.starName)
-        os.mkdir('./%s/Figures/VariabilityGraphs/' % Params.starName)
-        os.mkdir('./%s/Figures/Hemi+LightCurve/' % Params.starName)
-        os.mkdir('./%s/Figures/HemiMapImages/' % Params.starName)
-        os.mkdir('./%s/Figures/IntegralPhasePlot/' % Params.starName)
-        os.mkdir('./%s/Figures/LightCurves/' % Params.starName)
-        os.mkdir('./%s/Figures/PlanetPlots/' % Params.starName)
-        os.mkdir('./%s/Figures/PlanetPlots/PlanetPhase0Contrast/' % Params.starName)
-        os.mkdir('./%s/Figures/PlanetPlots/VariableAndPSGContrast/' % Params.starName)
-        os.mkdir('./%s/Figures/StellarPlots/' % Params.starName)
-        os.mkdir('./%s/Figures/StellarPlots/MaxSumfluxChanges/' % Params.starName)
-        os.mkdir('./%s/Figures/StellarPlots/StarFlux/' % Params.starName)
+    if not parent_folder.exists():
+        parent_folder.mkdir()
+        data_folder = parent_folder / 'Data'
+        data_folder.mkdir()
+        all_spectra_values_folder = data_folder / 'AllModelSpectraValues'
+        all_spectra_values_folder.mkdir()
+        hemi_map_arrays_folder = data_folder / 'HemiMapArrays'
+        hemi_map_arrays_folder.mkdir()
+        PSG_combined_spectra_folder = data_folder / 'PSGCombinedSpectra'
+        PSG_combined_spectra_folder.mkdir()
+        PSG_thermal_spectra_folder = data_folder / 'PSGThermalSpectra'
+        PSG_thermal_spectra_folder.mkdir()
+        sumflux_arrays_towards_observer_folder = data_folder / 'SumfluxArraysTowardsObserver'
+        sumflux_arrays_towards_observer_folder.mkdir()
+        sumflux_arrays_towards_planet_folder = data_folder / 'SumfluxArraysTowardsPlanet'
+        sumflux_arrays_towards_planet_folder.mkdir()
+        surface_coverage_percentage_folder = data_folder / 'SurfaceCoveragePercentage'
+        surface_coverage_percentage_folder.mkdir()
+        variable_planet_flux_folder = data_folder / 'VariablePlanetFlux'
+        variable_planet_flux_folder.mkdir()
+        figures_folder.mkdir()
+        gifs_folder = figures_folder / 'GIFs'
+        gifs_folder.mkdir()
+        hemi_and_light_curve_folder = figures_folder / 'Hemi+LightCurve'
+        hemi_and_light_curve_folder.mkdir()
+        hemi_map_images_folder = figures_folder / 'HemiMapImages'
+        hemi_map_images_folder.mkdir()
+        integral_phase_plot_folder = figures_folder / 'IntegralPhasePlot'
+        integral_phase_plot_folder.mkdir()
+        light_curves_observer_folder = figures_folder / 'LightCurvesObserver'
+        light_curves_observer_folder.mkdir()
+        light_curves_planet_folder = figures_folder / 'LightCurvesPlanet'
+        light_curves_planet_folder.mkdir()
+        planet_contrast_and_light_curve_folder = figures_folder / 'PlanetContrast+LightCurve'
+        planet_contrast_and_light_curve_folder.mkdir()
+        planet_plots_folder = figures_folder / 'PlanetPlots'
+        planet_plots_folder.mkdir()
+        planet_flux_folder = planet_plots_folder / 'PlanetFlux'
+        planet_flux_folder.mkdir()
+        planet_phase_0_contrast_folder = planet_plots_folder / 'PlanetPhase0Contrast'
+        planet_phase_0_contrast_folder.mkdir()
+        planet_phase_90_contrast_folder = planet_plots_folder / 'PlanetPhase90Contrast'
+        planet_phase_90_contrast_folder.mkdir()
+        planet_phase_180_contrast_folder = planet_plots_folder / 'PlanetPhase180Contrast'
+        planet_phase_180_contrast_folder.mkdir()
+        variable_and_PSG_contrast_folder = planet_plots_folder / 'VariableAndPSGContrast'
+        variable_and_PSG_contrast_folder.mkdir()
+        variable_H2O_feature_folder = planet_plots_folder / 'VariableH2OFeature'
+        variable_H2O_feature_folder.mkdir()
+        variable_CO2_feature_folder = planet_plots_folder / 'VariableCO2Feature'
+        variable_CO2_feature_folder.mkdir()
+        stellar_plots_folder = figures_folder / 'StellarPlots'
+        stellar_plots_folder.mkdir()
+        max_sumflux_changes_folder = stellar_plots_folder / 'MaxSumfluxChanges'
+        max_sumflux_changes_folder.mkdir()
+        star_flux_folder = stellar_plots_folder / 'StarFlux'
+        star_flux_folder.mkdir()
+        variability_graphs_folder = figures_folder / 'VariabilityGraphs'
+        variability_graphs_folder.mkdir()
 
     # 3) If not already created, create the 2D Spot map of the star's surface
     #    that plots the locations of the spots and faculae. Used later to create
     #    the 3D hemisphere models
-    if not os.path.isfile('./%s/Figures/FlatMap.png' % Params.starName):
+    flat_map_image = figures_folder / 'FlatMap.png'
+    if not flat_map_image.exists():
         # Create a 2D spotmmodel from the star_flatmap.py file
         StarModel2D = star_functions.StarModel2D(
             Params.spotCoverage,
@@ -55,7 +101,9 @@ if __name__ == "__main__":
         surface_map = surface_map.astype(np.int8)
 
         # Saves the numpy array version of the flat surface map to be loaded while creating the hemisphere views
-        np.save('./%s/Data/flatMap.npy' % Params.starName, surface_map)
+        
+        flat_map_file = data_folder / 'flatMap.npy'
+        np.save(flat_map_file, surface_map)
 
     # 4) This section "Bins" the stellar models to be a uniform resolving power and wavelength range.
 
@@ -63,15 +111,15 @@ if __name__ == "__main__":
     ###### Does saving these as .npy arrays save storage space/loading time rather than .txt files?
     if Params.loadData:
         allModels = read_info.ReadStarModels(Params.starName)
-
-        allModels.photModel = pd.read_csv('./NextGenModels/BinnedData/binned%dStellarModel.txt' % Params.teffStar,
-                                  names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
-
-        allModels.spotModel = pd.read_csv('./NextGenModels/BinnedData/binned%dStellarModel.txt' % Params.teffSpot,
-                                   names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
         
-        allModels.facModel = pd.read_csv('./NextGenModels/BinnedData/binned%dStellarModel.txt' % Params.teffFac,
-                                      names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+        file_to_read = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Params.teffStar}StellarModel.txt'
+        allModels.photModel = pd.read_csv(file_to_read, names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+
+        file_to_read = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Params.teffSpot}StellarModel.txt'
+        allModels.spotModel = pd.read_csv(file_to_read, names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+        
+        file_to_read = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Params.teffFac}StellarModel.txt'
+        allModels.facModel = pd.read_csv(file_to_read, names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
         
         if not np.all(allModels.photModel.wavelength == allModels.spotModel.wavelength) or not np.all(allModels.photModel.wavelength == allModels.facModel.wavelength):
             raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale and currently are not. Have you binned the date yet? Check 'binData' in your config file.")
@@ -99,17 +147,19 @@ if __name__ == "__main__":
          
     # Name of the .npy array which contains the flat surface map
     # This array is used to create the hemisphere maps
-    surface_map = np.load('./%s/Data/flatMap.npy' % Params.starName)
+    surface_map = np.load(Path('.') / f'{Params.starName}' / 'Data' / 'flatMap.npy')
 
     # If the generate hemispheres boolean set by the user-defined config is true, the program will generate
     # (or re-generate with different inclination for example) the star hemispheres.
     if Params.generateHemispheres:
 
-        # Can be made high res by user-specified config. 3000x3000 array
+        # Can be made high res by user-specified config. 3000x3000 (SLOW). Array by default is 180x180.
+        # This is the smallest number if 'pixels' in the image that can be used without a noticeable los of accuracy
         if Params.highResHemispheres:
             Params.imageResolution = 3000
 
         HM = star_functions.HemiModel(
+            Params,
             Params.teffStar,
             Params.rotstar,
             surface_map,
@@ -118,34 +168,19 @@ if __name__ == "__main__":
             Params.starName,
         )
 
-        # Tyler's Suggestion
-        # create array of phases
-        phases = [i * Params.deltaPhase for i in range(Params.num_exposures)]
-
         # Begin at phase = 0
-        # Count keeps track of which hemisphere map image is being looked at currently
-        phase = 0
-        count = 0
         print("\nGENERATING HEMISPHERES")
         print("----------------------")
-        for phase in phases:
-            # EDIT: Am I able to compute the surface area percentages for the current stellar phase here? And save them for later?
-            #       This would keep me from having to re-load the .npy arrays later on.
-
-            # IMPORTANT
-            # I want to add in the functionality to save the surface area coverage percentage during this for-loop
-            # will save time. Look into adding it inside the generate_hemisphere_map method.
-            hemi_map = HM.generate_hemisphere_map(phase, count)
-            print("Percent Complete = %.1f" % (phase * 100), "%")
-            count += 1
         
-        deltaStellarPhase = Params.deltaPhase * 360
-
-        w = csv.writer(open("./%s/Data/SurfaceCoveragePercentage/surfaceCoveragePercentageDict.csv" % Params.starName, "w"))
+        HM.multiprocessing_worker()
+        
+        # Writes the surface coverage percentage of the photosphere, spots, and faculae for each image taken to file.
+        # Allows for a speedy way to read the data further down the line.
+        w = csv.writer(open(Path('.') / f'{Params.starName}' / 'Data' / 'SurfaceCoveragePercentage' / 'surfaceCoveragePercentageDict.csv', 'w'))
         for key, val in HM.surfaceCoverageDictionary.items():
             w.writerow([key, val])
 
-    # GCM file type should be a net cdf file typ
+    # GCM file type should be a net cdf file type
     # Most common gcf file type
 
     print("done")
