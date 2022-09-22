@@ -227,19 +227,19 @@ class ReadStarModels():
         self.mainDataFrame = pd.DataFrame(data)
 
         binnedPhotStringCSV = self.photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file_to_open = Path('.' / 'NextGenModels' / 'BinnedData' / f'binned{teffStar}StellarModel.txt')
+        file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{teffStar}StellarModel.txt'
         file = open(file_to_open,'w')
         file.write(binnedPhotStringCSV)
         file.close()
 
         binnedSpotspectrumCSV = self.spotModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file_to_open = Path('.' / 'NextGenModels' / 'BinnedData' / f'binned{teffSpot}StellarModel.txt')
+        file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{teffSpot}StellarModel.txt'
         file = open(file_to_open,'w')
         file.write(binnedSpotspectrumCSV)
         file.close()
 
         binnedFaculaespectrumCSV = self.facModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file_to_open = Path('.' / 'NextGenModels' / 'BinnedData' / f'binned{teffFac}StellarModel.txt')
+        file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{teffFac}StellarModel.txt'
         file = open(file_to_open,'w')
         file.write(binnedFaculaespectrumCSV)
         file.close()
