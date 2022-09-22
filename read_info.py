@@ -1,7 +1,10 @@
 import configparser
+from contextlib import nullcontext
 import h5py
 import numpy as np
+import math
 import pandas as pd
+from pathlib import Path
 import time
 
 class ReadStarModels():
@@ -224,33 +227,117 @@ class ReadStarModels():
         self.mainDataFrame = pd.DataFrame(data)
 
         binnedPhotStringCSV = self.photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffStar,'w')
+        file_to_open = Path('.' / 'NextGenModels' / 'BinnedData' / f'binned{teffStar}StellarModel.txt')
+        file = open(file_to_open,'w')
         file.write(binnedPhotStringCSV)
         file.close()
 
         binnedSpotspectrumCSV = self.spotModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffSpot,'w')
+        file_to_open = Path('.' / 'NextGenModels' / 'BinnedData' / f'binned{teffSpot}StellarModel.txt')
+        file = open(file_to_open,'w')
         file.write(binnedSpotspectrumCSV)
         file.close()
 
         binnedFaculaespectrumCSV = self.facModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file = open(r'./NextGenModels/BinnedData/binned%sStellarModel.txt' % teffFac,'w')
+        file_to_open = Path('.' / 'NextGenModels' / 'BinnedData' / f'binned{teffFac}StellarModel.txt')
+        file = open(file_to_open,'w')
         file.write(binnedFaculaespectrumCSV)
         file.close()
 
         return self
 
 class ParamModel():
+    
+    def calculate_observation_parameters(self, observation_param_dict):
+        # This scenario is if the user has elected to image the planet every 'n' minutes
+        if 'time_between_exposures' in observation_param_dict:
+            delta_time = observation_param_dict['time_between_exposures']
+            
+            # Convert minutes to days
+            self.delta_time = delta_time * (1/ 60) * (1/24)
+            
+            # The delta_phase_planet between images will be calculated based on the rotation of the planet
+            # given the amount of time between exposures.
+            self.delta_phase_planet = float((self.delta_time / self.rotPlanet) * 360)
+            
+            print("delta_phase_planet = ", self.delta_phase_planet)
+            
+            self.delta_phase_star = float((self.delta_time / self.rotstar) * 360)
+        
+        # This scenario is if the uer has elected to image the planet every 'n' degrees of its rotation
+        elif 'image_per_degree_rotation_planet' in observation_param_dict:
+            degrees_rotate = observation_param_dict['image_per_degree_rotation_planet']
+            
+            self.delta_phase_planet = float(degrees_rotate)
+            print(f"Image every {degrees_rotate} planet rotation degrees")
+            
+            # First, take the percentage of the planet delta phase out of 360 and apply it to the planet's rotation period.
+            # This gives the number of days the planet has taken to rotate delta_phase_planet degrees.
+            # Take that number of days and apply it to the star's rotation period to get the percent that these days take up.
+            # Multiply that by 360 degrees to see how many degrees the star rotates during the same time period as the
+            # delta_planet_phase.
+            delta_planet_phase_in_days = (self.delta_phase_planet / 360) * self.rotPlanet
+            self.delta_phase_star = float((delta_planet_phase_in_days / self.rotstar) * 360)
+            
+            print('done')
+        
+        # This scenario is if the uer has elected to image the planet every 'n' degrees of the star's
+        # rotation    
+        elif 'image_per_degree_rotation_star' in observation_param_dict:
+            degrees_rotate = observation_param_dict['image_per_degree_rotation_star']
+            
+            self.delta_phase_star = float(degrees_rotate)
+            print(f"Image every {degrees_rotate} star rotation degrees")
+            
+            # First, take the percentage of the star delta phase out of 360 and apply it to the star's rotation period.
+            # This gives the number of days the star has taken to rotate delta_phase_star degrees.
+            # Take that number of days and apply it to the planet's rotation period to get the percent that these days take up.
+            # Multiply that by 360 degrees to see how many degrees the planet rotates during the same time period as the
+            # delta_planet_star.
+            delta_star_phase_in_days = (self.delta_phase_star / 360) * self.rotstar
+            self.delta_phase_planet = float((delta_star_phase_in_days / self.rotPlanet) * 360)
+            
+            print('done')
+            
+        if 'observing_time' in observation_param_dict:
+            total_time = observation_param_dict['observing_time'] * (1/60) * (1/24)
+            
+            if 'time_between_exposures' in observation_param_dict:
+                total_images = math.floor(total_time / self.delta_time)
+                print("TOTAL IMAGES = ", total_images)
+
+            elif 'image_per_degree_rotation_planet' in observation_param_dict:
+                total_images = math.floor(total_time / ((self.delta_phase_planet / 360) * self.rotPlanet))
+                print("TOTAL IMAGES = ", total_images)
+                
+            elif 'image_per_degree_rotation_star' in observation_param_dict:
+                total_images = math.floor(total_time / ((self.delta_phase_star / 360) * self.rotstar))
+                print("TOTAL IMAGES = ", total_images)
+            
+            self.total_images = total_images
+        
+        elif 'num_planet_rotations' in observation_param_dict:
+            total_rotations = observation_param_dict['num_planet_rotations']
+            total_images = math.floor((360 / self.delta_phase_planet) * total_rotations)
+            self.total_images = total_images + 1
+        
+        elif 'num_star_rotations' in observation_param_dict:
+            total_rotations = observation_param_dict['num_star_rotations']
+            total_images = math.floor((360 / self.delta_phase_star) * total_rotations)
+            self.total_images = total_images + 1
 
     def __init__(self):
         configParser = configparser.RawConfigParser()
         while True:
             try:
-                fileName = input("Config File Path: ./Config/Stellar/")
-                configParser.read_file(open("./Configs/Stellar/%s" % fileName))
+                fileName = input("Config File Name (Located in the Config/Stellar Folder): ")
+                p = Path('.')
+                # file_to_open = p / 'Configs' / 'Stellar' / f'{fileName}.cfg'
+                file_to_open = Path('.') / 'Configs' / 'Stellar' / f'{fileName}.cfg'
+                configParser.read_file(open(file_to_open))
                 break
             except FileNotFoundError:
-                print("There is no config file by that name, please try again.")
+                print("There is no config file by that name, please try again. (Note: Do not include .cfg)")
         
         # Read in the information of the star from the config file
         self.starName = configParser.get('Star', 'starName')
@@ -285,33 +372,63 @@ class ParamModel():
         # Boolean that decides whether to create high resolution hemisphere maps or not
         # Default imageResolution of 300
         self.highResHemispheres = configParser.getboolean('HemiMap', 'high_res')
-        self.imageResolution = 300
+        self.imageResolution = 180
 
         # Rotation of star in days
         self.rotstar = float(configParser.get('Star', 'Rotstar'))
 
         # Inclination of the star
         self.inclination = int(configParser.get('Star', 'Inclination'))
+        self.inclinationPSG = self.inclination + 90
 
         # Total number of exposures to be takn
-        # self.num_exposures = int(configParser.get('HemiMap', 'num_exposures'))
+        # self.total_images = int(configParser.get('HemiMap', 'total_images'))
+        
+        self.final_stellar_phase = int(configParser.get('HemiMap', 'final_stellar_phase'))
+        
+        self.revPlanet = configParser.getfloat('PSG', 'revPlanet')
+        # The planet rotation is equivalent to the planet revolution for tidally locked planets
+        self.rotPlanet = self.revPlanet
+        self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')
 
-        # Time (in days) between exposures
-        self.time_between_exposures = float(configParser.get('HemiMap', 'time_between_exposures'))
+        self.observation_style = str(configParser.get('HemiMap', 'Chosen_Observation_Style'))
+        if self.observation_style == 'time_between_exposures':
+            self.observation_param_dict = {'time_between_exposures':int(configParser.get('HemiMap', 'time_between_exposures'))}
+        elif self.observation_style == 'image_per_degree_rotation_planet':
+            self.observation_param_dict = {'image_per_degree_rotation_planet':int(configParser.get('HemiMap', 'image_per_degree_rotation_planet'))}
+        elif self.observation_style == 'image_per_degree_rotation_star':
+            self.observation_param_dict = {'image_per_degree_rotation_star':int(configParser.get('HemiMap', 'image_per_degree_rotation_star'))}
+        
+        self.observation_length = str(configParser.get('HemiMap', 'Chosen_Observation_Length'))
+        if self.observation_length == 'observing_time':
+            self.observation_param_dict['observing_time'] = int(configParser.get('HemiMap', 'observing_time'))
+        elif self.observation_length == 'num_planet_rotations':
+            self.observation_param_dict['num_planet_rotations'] = int(configParser.get('HemiMap', 'num_planet_rotations'))
+        elif self.observation_length == 'num_star_rotations':
+            self.observation_param_dict['num_star_rotations'] = int(configParser.get('HemiMap', 'num_star_rotations'))
+        
+        # Based on user input, this method will look at the chosen observation style and calculate how many
+        # degrees the planet and star will rotate per image.
+        # Then, also based on the user's input, this method will look at the observation length
+        # and calculate how many images will be taken.
+        self.calculate_observation_parameters(self.observation_param_dict)
 
-        # Calculates what percent the time between exposures is compared to the stellar rotation period
-        # Used to calculate the change in phase between images 
-        self.exposure_time_percent = self.time_between_exposures * (100 / self.rotstar)
-        # print("Exposure Time percent = ", self.exposure_time_percent)
-        self.deltaPhase = self.exposure_time_percent / 100
-        # print("Delta Phase = ", self.deltaPhase)
-        self.deltaStellarPhase = self.deltaPhase * 360
+        # # Time (in minutes) between exposures. Converted to days.
+        # self.time_between_exposures = float(configParser.get('HemiMap', 'time_between_exposures'))
+
+        # # Calculates what percent the time between exposures is compared to the stellar rotation period
+        # # Used to calculate the change in phase between images 
+        # self.exposure_time_percent = self.time_between_exposures * (100 / self.rotstar)
+        # # print("Exposure Time percent = ", self.exposure_time_percent)
+        # self.deltaPhase = self.exposure_time_percent / 100
+        # # print("Delta Phase = ", self.deltaPhase)
+        # self.deltaStellarPhase = self.deltaPhase * 360
 
         # Load in the NextGen Stellar Info
         if self.defaultModelType:
-            phot_model_file = "./NextGenModels/RawData/lte0"+str(self.teffStar)+"-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5"
-            spot_model_file = "./NextGenModels/RawData/lte0"+str(self.teffSpot)+"-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5"
-            fac_model_file = "./NextGenModels/RawData/lte0"+str(self.teffFac)+"-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5"
+            phot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffStar)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            spot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffSpot)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            fac_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffFac)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
         else:
             phot_model_file = configParser.get('Star', 'phot_model_file')
             self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove
@@ -335,7 +452,6 @@ class ParamModel():
         # self.noStar = configParser.getboolean('PSG', 'noStar')  # Set to true if you want to retrieve strictly the planet thermal values
         self.phase1 = configParser.getfloat('PSG', 'phase1')         # Initial phase (degrees) for the simulation, 0 is sub-solar point, 180 is night-side
         self.phase2 = configParser.getfloat('PSG', 'phase2')         # Final phase (degrees)
-        self.dphase = configParser.getfloat('PSG', 'dphase')         # Phase delta value (degrees)
         self.binning= configParser.getfloat('PSG', 'binning')        # Binning applied to the GCM data for each radiative-transfer (greater is faster, minimum is 1)
         self.objDiam = configParser.getfloat('PSG', 'objDiam')       # Diamater of prox-cen b (km)
         self.objGrav = configParser.getfloat('PSG', 'objGrav')       # Surface Grav of prox cen b (m/s^2)
@@ -355,17 +471,13 @@ class ParamModel():
         self.radunit = configParser.get('PSG', 'radunit')     # Desired spectral irradiance unit for planet and star combo
         self.psgurl = configParser.get('PSG', 'psgurl')       # URL of the PSG server
 
-        self.PSGcombinedSpectraFolder = './%s/Data/PSGCombinedSpectra/' % self.starName
-        self.PSGthermalSpectraFolder = './%s/Data/PSGThermalSpectra/' % self.starName
-        
-        self.revPlanet = configParser.getfloat('PSG', 'revPlanet')
-        # The planet rotation is equivalent to the planet revolution for tidally locked planets
-        self.rotPlanet = self.revPlanet
-        self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')
+        self.PSGcombinedSpectraFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGCombinedSpectra'
+        self.PSGthermalSpectraFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGThermalSpectra'
 
         # Some unit conversions
         self.distanceFluxCorrection = (self.starRadiusMeters/self.starDistanceMeters)**2
 
+        # Units are hard-fast, EDIT LATER
         self.cmTOum = 1e4
         self.cm2TOm2 = 1e-4
         self.erg_sTOwatts = 1e-7
@@ -376,3 +488,10 @@ class ParamModel():
         self.plotPlanetVariationContrast = configParser.getboolean('Plots', 'plotPlanetVariationContrast')
         self.plotMaxFluxChange = configParser.getboolean('Plots', 'plotMaxFluxChange')
         self.plotStellarFlux = configParser.getboolean('Plots', 'plotStellarFlux')
+        self.plotAdjustedPlanetFlux = configParser.getboolean('Plots', 'plotAdjustedPlanetFlux')
+        self.plotPlanetFluxVariation = configParser.getboolean('Plots', 'plotPlanetFluxVariation')
+        self.plotLightCurveHemiCombo = configParser.getboolean('Plots', 'plotLightCurveHemiMapCombo')
+        self.plotLightCurveContrastCombo = configParser.getboolean('Plots', 'plotLightCurveContrastCombo')
+        self.plotBinnedVariations = configParser.getboolean('Plots', 'plotBinnedVariations')
+        
+        self.makeGifs = configParser.getboolean('Gifs', 'makeGifs')
