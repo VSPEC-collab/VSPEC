@@ -426,9 +426,9 @@ class ParamModel():
 
         # Load in the NextGen Stellar Info
         if self.defaultModelType:
-            phot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffStar)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            spot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffSpot)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            fac_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffFac)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            self.phot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffStar)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            self.spot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffSpot)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            self.fac_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffFac)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
         else:
             phot_model_file = configParser.get('Star', 'phot_model_file')
             self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove
