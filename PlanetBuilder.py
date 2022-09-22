@@ -5,10 +5,13 @@
 # February 2021
 # ---------------------------------------------------------------
 
+from sys import api_version
 import numpy as np
 import os
 from pathlib import Path
 import read_info
+
+api_key = '5c48d8163cc183e79ac3'
 
 # 2nd file to run.
 
@@ -30,7 +33,7 @@ if __name__ == "__main__":
     print("\nUploading GCM to PSG...")
     file_path = Path('.') / 'Configs' / 'GCMs' / f'{gcm}'
     # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes -d type=set --data-urlencode file@{file_path} {Params.psgurl}/api.php')
-    os.system(f'curl -s -d app=globes -d type=set --data-urlencode file@{file_path} {Params.psgurl}/api.php')
+    os.system(f'curl -s -d key={api_key} -d app=globes -d type=set --data-urlencode file@{file_path} {Params.psgurl}/api.php')
 
     # Define parameters of this run
     with open(Path('.') / 'Configs' / 'GCMs' / 'config.txt', "w") as fr:
@@ -72,7 +75,7 @@ if __name__ == "__main__":
     print("\n\n\n\n\n\n\n\n")
     print("\nUploading specified planet and star data...")
     # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes -d type=upd --data-urlencode file@{file_path} {Params.psgurl}/api.php')
-    os.system(f'curl -s -d app=globes -d type=upd --data-urlencode file@{file_path} {Params.psgurl}/api.php')
+    os.system(f'curl -s -d key={api_key} -d app=globes -d type=upd --data-urlencode file@{file_path} {Params.psgurl}/api.php')
     # os.system(f'curl -v -d type=cfg -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {file_path}')
 
     print("\nPERCENT DONE")
@@ -101,9 +104,9 @@ if __name__ == "__main__":
         # -d wgeo=y (After type=cfg)
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         if ((count/Params.total_images) * 100) >= 71:
-            os.system(f'curl -s -d type=cfg -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
+            os.system(f'curl -s -d key={api_key} -d type=cfg -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         else:
-            os.system(f'curl -s -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
+            os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         # os.system(f'curl -v -d type=all -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         
         # with open(f'{file_path}', 'r') as fr:
@@ -118,9 +121,9 @@ if __name__ == "__main__":
             fr.close()
         
         if ((count/Params.total_images) * 100) >= 71:
-            os.system(f'curl -s -d type=all -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
+            os.system(f'curl -s -d key={api_key} -d type=all -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
-        os.system(f'curl -s -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
+        os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
 
         print(round(((count/Params.total_images) * 100), 2), "%")
         print(count)
