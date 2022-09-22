@@ -294,7 +294,7 @@ class ParamModel():
         self.inclination = int(configParser.get('Star', 'Inclination'))
 
         # Total number of exposures to be takn
-        self.num_exposures = int(configParser.get('HemiMap', 'num_exposures'))
+        # self.num_exposures = int(configParser.get('HemiMap', 'num_exposures'))
 
         # Time (in days) between exposures
         self.time_between_exposures = float(configParser.get('HemiMap', 'time_between_exposures'))
