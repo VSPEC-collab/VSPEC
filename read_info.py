@@ -226,6 +226,11 @@ class ReadStarModels():
         data = {'wavelength': self.photModel.wavelength, 'photflux': self.photModel.flux, 'spotflux': self.spotModel.flux, 'facflux': self.facModel.flux}
         self.mainDataFrame = pd.DataFrame(data)
 
+        # make sure NextGenModels/BinnedData exists --> This is a problem the first time the code is ran
+        binned_path = Path('.') / 'NextGenModels' / 'BinnedData'
+        if not binned_path.exists():
+            binned_path.mkdir()
+
         binnedPhotStringCSV = self.photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
         file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{teffStar}StellarModel.txt'
         file = open(file_to_open,'w')
