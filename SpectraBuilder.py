@@ -108,7 +108,7 @@ if __name__ == "__main__":
             spot_pct.append(valueDict['spot'])
             fac_pct.append(valueDict['fac'])
     #and get the last one to interp up to 360 degrees
-    i_min = np.argwhere(np.array(starphases)==min(starphases))
+    i_min = np.argmin(starphases)
     starphases.append(starphases[i_min]+360)
     phot_pct.append(phot_pct[i_min])
     spot_pct.append(spot_pct[i_min])
