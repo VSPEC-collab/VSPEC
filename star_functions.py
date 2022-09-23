@@ -217,7 +217,7 @@ class HemiModel():
             self.surfaceCoverageDictionary[res[3]] = tempDict
 
     def generate_hemisphere_map(self, image_id):
-        planet_phase = (self.Params.delta_phase_planet * image_id) % 360
+        planet_phase = (self.Params.phase1 + self.Params.delta_phase_planet * image_id) % 360
         star_phase = (self.Params.delta_phase_star * image_id) % 360
         star_phase_string = str("%.3f" % star_phase)
         # phase is between [0 and 360)
