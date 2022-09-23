@@ -322,7 +322,7 @@ class ParamModel():
                 print("TOTAL IMAGES = ", total_images)
             
             self.total_images = total_images
-        
+            print(f'total_image = {self.total_images}')
         elif 'num_planet_rotations' in observation_param_dict:
             total_rotations = observation_param_dict['num_planet_rotations']
             total_images = math.floor((360 / self.delta_phase_planet) * total_rotations)

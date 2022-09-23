@@ -556,10 +556,13 @@ def make_gifs(Params, filePath, saveName, removeFirst, loop, duration, phaseType
     for image in range(Params.total_images):
         star_phase = (Params.delta_phase_star * image) % 360
         star_phase_string = str("%.3f" % star_phase)
-        if phaseType == 'int':
-            frames.append(Image.open(filePath + "_%d.png" % image))
-        elif phaseType == 'string':
-            frames.append(Image.open(filePath + "_%s.png" % star_phase_string))
+        try:
+            if phaseType == 'int':
+                frames.append(Image.open(filePath + "_%d.png" % image))
+            elif phaseType == 'string':
+                frames.append(Image.open(filePath + "_%s.png" % star_phase_string))
+        except FileNotFoundError:
+            return None
     # frames = [Image.open(image) for image in glob.glob(f"{frame_folder}/PSGandVariablePlanetFluxComparison*.png")]
     if removeFirst:
         del frames[0]
@@ -635,10 +638,10 @@ if __name__ == "__main__":
         
         # Read in all of the appropriate information regarding thevariable star and planet fluxes
         allModels.allModelSpectra = pd.read_csv(Path('.') / f'{Params.starName}' / 'Data' / 'AllModelSpectraValues' / f'phase{phase}.csv', sep=",")
-        allModels.allModelSpectra0Spots = pd.read_csv(Path('.') / 'ProxCen0Pct' / 'Data' / 'AllModelSpectraValues' / f'phase{phase}.csv', sep=",")
+        allModels.allModelSpectra0Spots = pd.read_csv(Path('.') / 'test' / 'Data' / 'AllModelSpectraValues' / f'phase{phase}.csv', sep=",")
 
         # The phase of the planet, according to observer, compared to starting point (0 degrees)
-        allModels.planetPhase = (Params.planetPhaseChange * phase)
+        allModels.planetPhase = (Params.phase1 + Params.delta_phase_planet * phase)
         if allModels.planetPhase >= 360:
             # revolution += 1
             pass
@@ -660,8 +663,8 @@ if __name__ == "__main__":
             eclipse_flag = False
 
         # PSG can't calculate the planet's values at phase 180 (in front of star, no reflection), so it calculates them at phase 182.
-        if allModels.planetPhase == 180:
-            allModels.planetPhase = 182
+        if round(allModels.planetPhase,3) == 180.00:
+            allModels.planetPhase = 182.00
 
         # EDIT LATER
         # The way this GCM was created, Phase 176-185 are calculated as if in transit, so we must use phase 186
