@@ -263,8 +263,10 @@ class ParamModel():
             
             # The delta_phase_planet between images will be calculated based on the rotation of the planet
             # given the amount of time between exposures.
+
             self.delta_phase_planet = float((self.delta_time / self.rotPlanet) * 360)
-            
+            print(f'delta_time = {self.delta_time}')
+            print(f'rotPlanet = {self.rotPlanet}')
             print("delta_phase_planet = ", self.delta_phase_planet)
             
             self.delta_phase_star = float((self.delta_time / self.rotstar) * 360)
