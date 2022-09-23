@@ -83,9 +83,9 @@ if __name__ == "__main__":
     # Calculate the total number of planet rotations given the observing time frame
     final_phase = Params.total_images * Params.delta_phase_planet
     # print(np.arange(0,final_phase,Params.delta_phase_planet))
-    print(np.arange(0,final_phase,Params.delta_phase_planet) % 360)
+    print(np.arange(Params.phase1,Params.phase1+final_phase,Params.delta_phase_planet) % 360)
     count = 0
-    for phase in (np.arange(180,final_phase,Params.delta_phase_planet) % 360):
+    for phase in (np.arange(Params.phase1,Params.phase1+final_phase,Params.delta_phase_planet) % 360):
         if phase>178 and phase<182:
             phase=182.0 # Add transit phase;
         if phase == 185:
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         file_path = Path('.') / 'Configs' / 'Stellar' / 'config.txt'
         # -d wgeo=y (After type=cfg)
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
-        if ((count/Params.total_images) * 100) >= 71:
+        if ((count/Params.total_images) * 100) >= 200: #changed from 71
             os.system(f'curl -s -d key={api_key} -d type=cfg -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         else:
             os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
