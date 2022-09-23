@@ -112,7 +112,7 @@ if __name__ == "__main__":
         # by the nuber of exposures taken so far (index)
         # Example: 180
         # Planet phase change is specified by the user; how many degrees it turns between "images" of the star
-        allModels.planetPhase = (Params.delta_phase_planet * index) % 360
+        allModels.planetPhase = (Params.phase1 + Params.delta_phase_planet * index) % 360
 
         # The current phase of the star is the star phase change value (between exposures) multiplied
         # by the nuber of exposures taken so far (index)
