@@ -83,9 +83,9 @@ if __name__ == "__main__":
     # Calculate the total number of planet rotations given the observing time frame
     final_phase = Params.total_images * Params.delta_phase_planet
     # print(np.arange(0,final_phase,Params.delta_phase_planet))
-    print(np.arange(Params.phase1,Params.phase1+final_phase,Params.delta_phase_planet) % 360)
+    print(np.linspace(Params.phase1,Params.phase1+final_phase,Params.delta_phase_planet) % 360)
     count = 0
-    for phase in (np.arange(Params.phase1,Params.phase1+final_phase,Params.delta_phase_planet) % 360):
+    for phase in (np.linspace(Params.phase1,Params.phase1+final_phase,Params.delta_phase_planet) % 360):
         if phase>178 and phase<182:
             phase=182.0 # Add transit phase;
         if phase == 185:
