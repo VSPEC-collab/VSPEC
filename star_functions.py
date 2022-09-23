@@ -206,6 +206,7 @@ class HemiModel():
         ncpus = multiprocessing.cpu_count()
         
         with multiprocessing.Pool(ncpus - 1) as pool:
+            print(f'total images = {self.Params.total_images}')
             results = pool.map(self.generate_hemisphere_map, range(self.Params.total_images))
         total_time = time.time() - start_time
         #360 secondsm, 6 mins
@@ -217,6 +218,8 @@ class HemiModel():
             self.surfaceCoverageDictionary[res[3]] = tempDict
 
     def generate_hemisphere_map(self, image_id):
+        if (image_id % 10) == 0:
+            print(f'id = {image_id}')
         planet_phase = (self.Params.phase1 + self.Params.delta_phase_planet * image_id) % 360
         star_phase = (self.Params.delta_phase_star * image_id) % 360
         star_phase_string = str("%.3f" % star_phase)
