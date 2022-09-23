@@ -119,6 +119,8 @@ if __name__ == "__main__":
         # Example: 30
         allModels.starPhase = (Params.delta_phase_star * index) % 360
 
+        print(f'planet phase = {allModels.planetPhase}')
+        print(f'star phase = {allModels.starPhase}')
         # In PSG's models, phase 0 for the planet is "behind" the star from the viewer's perspective,
         # in secondary eclipse.
         # In the variable stellar code, phase 0 of the star is the side of the star facing the observer.
@@ -133,10 +135,11 @@ if __name__ == "__main__":
         # turned to figure out what phase of the star is facing the planet.
         # Modulo 360 ensures it is never above that value, and dividing by delta stellar phase
         
-        temp = int(180 / Params.delta_phase_planet)
-        allModels.starPhaseFacingPlanet = ((Params.delta_phase_planet * (temp + 1)) - allModels.starPhase) % 360
-        allModels.starPhaseFacingPlanet = ((allModels.planetPhase + 180) - (allModels.starPhase % 360)) % 360
-        
+        # temp = int(180 / Params.delta_phase_planet)
+        # allModels.starPhaseFacingPlanet = ((Params.delta_phase_planet * (temp + 1)) - allModels.starPhase) % 360
+        # allModels.starPhaseFacingPlanet = ((allModels.planetPhase + 180) - (allModels.starPhase % 360)) % 360
+        allModels.starPhaseFacingPlanet = (180 - allModels.starPhase + allModels.planetPhase) % 360
+        print(f'star phase facing planet = {allModels.starPhaseFacingPlanet}')
         # Example:
         # deltaPlanetPhase = 10
         # deltaStellarPhase = 6.666
