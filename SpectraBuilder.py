@@ -6,6 +6,7 @@ import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
+from scipy.interpolate import interp1d
 
 # 3rd file to run.
 
@@ -92,13 +93,30 @@ if __name__ == "__main__":
     allModels.allModelSpectra.facflux *= conversion
 
     # Load in the dictionary of surface coverage percentages for each of the star's phases
-    surfaceCoverageDict = {}
+    # Actually, load into arrays for scipy.interp
+    starphases = []
+    phot_pct = []
+    spot_pct = []
+    fac_pct = []
     with open(Path('.') / f'{Params.starName}' / 'Data' / 'SurfaceCoveragePercentage' / 'surfaceCoveragePercentageDict.csv', newline='') as csvfile:
         # reader = csv.DictReader(csvfile)
         reader = csv.reader(csvfile)
         for row in reader:
             valueDict = ast.literal_eval(row[1])
-            surfaceCoverageDict[float(row[0])] = valueDict
+            starphases.append(float(row[0]))
+            phot_pct.append(valueDict['phot'])
+            spot_pct.append(valueDict['spot'])
+            fac_pct.append(valueDict['fac'])
+    #and get the last one to interp up to 360 degrees
+    i_min = np.argwhere(np.array(starphases)==min(starphases))
+    starphases.append(starphases[i_min]+360)
+    phot_pct.append(phot_pct[i_min])
+    spot_pct.append(spot_pct[i_min])
+    fac_pct.append(fac_pct[i_min])
+
+    phot_interp = interp1d(starphases,phot_pct)
+    spot_interp = interp1d(starphases,spot_pct)
+    fac_interp = interp1d(starphases,fac_pct)
 
     # For loop here to run through each "image"/number of exposures as specified in the config file
     print("\nCalculating Total System Output, Stellar, and Planetary Reflection Flux Values")
@@ -150,18 +168,18 @@ if __name__ == "__main__":
         # Given these parameters, 1/2 of the deltaStellarPhase = the deltaStellarPhaseFacingPlanet
         
         # PSG can't calculate the planet's values at phase 180 (in front of star, no reflection), so it calculates them at phase 182.
-        if allModels.planetPhase == 180:
-            allModels.planetPhase = 182
+        # if allModels.planetPhase == 180:
+        #     allModels.planetPhase = 182
 
-        # EDIT LATER
-        # The way this GCM was created, Phase 176-185 are calculated as if in transit, so we must use phase 186
-        # in place of 185 or else the lower wavelength flux values will still be 0.
-        if allModels.planetPhase == 185:
-            allModels.planetPhase = 186
+        # # EDIT LATER
+        # # The way this GCM was created, Phase 176-185 are calculated as if in transit, so we must use phase 186
+        # # in place of 185 or else the lower wavelength flux values will still be 0.
+        # if allModels.planetPhase == 185:
+        #     allModels.planetPhase = 186
         
-        # allModels.starPhaseFacingPlanet = round((((allModels.planetPhase + 180) - allModels.starPhase) % 360) / Params.deltaStellarPhase)
-        if allModels.starPhaseFacingPlanet == Params.total_images + 1:
-            allModels.starPhaseFacingPlanet = 0
+        # # allModels.starPhaseFacingPlanet = round((((allModels.planetPhase + 180) - allModels.starPhase) % 360) / Params.deltaStellarPhase)
+        # if allModels.starPhaseFacingPlanet == Params.total_images + 1:
+        #     allModels.starPhaseFacingPlanet = 0
 
         # Read in the planet's reflected spectrum (in W/sr/m^2/um) for the current phase
         allModels.PSGplanetReflectionModel = pd.read_csv(
@@ -185,8 +203,16 @@ if __name__ == "__main__":
         tempPhaseFacingPlanet = round(allModels.starPhaseFacingPlanet, 3)
         if tempPhaseFacingPlanet == 360:
             tempPhaseFacingPlanet = 0
-        percentagesDict = surfaceCoverageDict[tempPhase]
-        percentagesDictTowardsPlanet = surfaceCoverageDict[tempPhaseFacingPlanet]
+        percentagesDict = {
+            'phot': phot_interp(tempPhase),
+            'spot': spot_interp(tempPhase),
+            'fac': fac_interp(tempPhase)
+        }
+        percentagesDictTowardsPlanet = {
+            'phot': phot_interp(tempPhaseFacingPlanet),
+            'spot': spot_interp(tempPhaseFacingPlanet),
+            'fac': fac_interp(tempPhaseFacingPlanet)
+        }
         calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, index)
 
         calculate_planet_flux(allModels, index)
