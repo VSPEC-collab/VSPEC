@@ -180,6 +180,10 @@ class ReadStarModels():
                     wl = fh5['PHOENIX_SPECTRUM/wl'][()]
                     #wl in angstroms. We can take off some of it that we don't need
                     # for now, lets cut off anything short of 0.5 um
+                    # if you still get a segmentation fault, you can allocate more memory:
+                    # ulimit -s
+                    # ulimit -s <new limit>
+                    # perhaps double the limit you got from the first line
                     fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
                     interp_data[teffs[i]] = {'wl':wl[wl >= 5000],'fl':fl[wl >= 5000]}
                 assert np.all(interp_data[teffs[0]]['wl'] == interp_data[teffs[0]]['wl'])
