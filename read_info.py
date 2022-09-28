@@ -6,6 +6,7 @@ import math
 import pandas as pd
 from pathlib import Path
 import time
+from scipy.interpolate import interp2d
 
 class ReadStarModels():
     def __init__(self,
@@ -170,30 +171,45 @@ class ReadStarModels():
 
         # Works for reading h5 files
         # print('Reading File: <'+self.photModelFile+'>')
-        fh5 = h5py.File(self.photModelFile,'r')
-        wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-        fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-        data = {'wavelength': wl, 'flux': fl}
-        self.photModel = pd.DataFrame(data)
-        fh5.close()
-
-        # Works for reading h5 files
-        # print('Reading File: <'+self.spotModelFile+'>')
-        fh5 = h5py.File(self.spotModelFile,'r')
-        wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-        fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-        data = {'wavelength': wl, 'flux': fl}
-        self.spotModel = pd.DataFrame(data)
-        fh5.close()
-
-        # Works for reading h5 files
-        # print('Reading File: <'+self.facModelFile+'>')
-        fh5 = h5py.File(self.facModelFile,'r')
-        wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-        fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-        data = {'wavelength': wl, 'flux': fl}
-        self.facModel = pd.DataFrame(data)
-        fh5.close()
+        for Teff in [teffStar,teffSpot,teffFac]:
+            if isinstance(self.photModelFile,list):
+                teffs = [int(teffStar - teffStar%100),int(teffStar - teffStar%100)]
+                interp_data = {}
+                for i in [0,1]:
+                    fh5 = h5py.File(self.photModelFile[i],'r')
+                    wl = fh5['PHOENIX_SPECTRUM/wl'][()]
+                    fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
+                    interp_data[teffs[i]] = {'wl':wl,'fl':fl}
+                assert np.all(interp_data[teffs['wl']] == interp_data[teffs['wl']])
+                wavelen = interp_data[teffs[0]]['wl']
+                interp_func = interp2d(wavelen,
+                teffs,[interp_data[teffs[0]]['fl'],interp_data[teffs[1]]['fl']])
+                data = {'wavelength': wavelen,
+                    'flux': interp_func(wavelen,teffStar)
+                }
+                if Teff==teffStar:
+                    self.photModel = pd.DataFrame(data)
+                elif Teff==teffSpot:
+                    self.spotModel = pd.DataFrame(data)
+                elif Teff==teffFac:
+                    self.facModel = pd.DataFrame(data)
+                else:
+                    raise ValueError('Teffs did not match up')
+                fh5.close()
+            else:
+                fh5 = h5py.File(self.photModelFile,'r')
+                wl = fh5['PHOENIX_SPECTRUM/wl'][()]
+                fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
+                data = {'wavelength': wl, 'flux': fl}
+                if Teff==teffStar:
+                    self.photModel = pd.DataFrame(data)
+                elif Teff==teffSpot:
+                    self.spotModel = pd.DataFrame(data)
+                elif Teff==teffFac:
+                    self.facModel = pd.DataFrame(data)
+                else:
+                    raise ValueError('Teffs did not match up')
+                fh5.close()
 
         # lets convert to micron
         self.photModel.wavelength /= 1.0e4
