@@ -178,8 +178,10 @@ class ReadStarModels():
                 for i in [0,1]:
                     fh5 = h5py.File(self.photModelFile[i],'r')
                     wl = fh5['PHOENIX_SPECTRUM/wl'][()]
+                    #wl in angstroms. We can take off some of it that we don't need
+                    # for now, lets cut off anything short of 0.5 um
                     fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-                    interp_data[teffs[i]] = {'wl':wl,'fl':fl}
+                    interp_data[teffs[i]] = {'wl':wl[wl >= 5000],'fl':fl[wl >= 5000]}
                 assert np.all(interp_data[teffs[0]]['wl'] == interp_data[teffs[0]]['wl'])
                 wavelen = interp_data[teffs[0]]['wl']
                 interp_func = interp2d(wavelen,
