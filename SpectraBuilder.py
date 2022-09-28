@@ -214,11 +214,20 @@ if __name__ == "__main__":
             'spot': spot_interp(tempPhase),
             'fac': fac_interp(tempPhase)
         }
+        # now normalize (because of the interpolation)
+        total = np.array(percentagesDict.values()).sum()
+        for key in percentagesDict:
+            percentagesDict[key] = percentagesDict[key] *100.0/total
         percentagesDictTowardsPlanet = {
             'phot': phot_interp(tempPhaseFacingPlanet),
             'spot': spot_interp(tempPhaseFacingPlanet),
             'fac': fac_interp(tempPhaseFacingPlanet)
         }
+        # now normalize (because of the interpolation)
+        total = np.array(percentagesDictTowardsPlanet.values()).sum()
+        for key in percentagesDictTowardsPlanet:
+            percentagesDictTowardsPlanet[key] = percentagesDictTowardsPlanet[key] *100.0/total
+            
         calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, index)
 
         calculate_planet_flux(allModels, index)
