@@ -433,9 +433,21 @@ class ParamModel():
 
         # Load in the NextGen Stellar Info
         if self.defaultModelType:
-            self.phot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffStar)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            self.spot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffSpot)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            self.fac_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffFac)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            teffs = [int(self.teffStar - self.teffStar%100),int(self.teffStar - self.teffStar%100)]
+            self.phot_model_file = [
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            ]
+            teffs = [int(self.teffSpot - self.teffSpot%100),int(self.teffSpot - self.teffSpot%100)]
+            self.spot_model_file = [
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            ]
+            teffs = [int(self.teffFac - self.teffFac%100),int(self.teffFac - self.teffFac%100)]
+            self.fac_model_file = [
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            ]
         else:
             phot_model_file = configParser.get('Star', 'phot_model_file')
             self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove
