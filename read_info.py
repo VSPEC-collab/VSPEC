@@ -180,7 +180,7 @@ class ReadStarModels():
                     wl = fh5['PHOENIX_SPECTRUM/wl'][()]
                     fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
                     interp_data[teffs[i]] = {'wl':wl,'fl':fl}
-                assert np.all(interp_data[teffs['wl']] == interp_data[teffs['wl']])
+                assert np.all(interp_data[teffs[0]]['wl'] == interp_data[teffs[0]]['wl'])
                 wavelen = interp_data[teffs[0]]['wl']
                 interp_func = interp2d(wavelen,
                 teffs,[interp_data[teffs[0]]['fl'],interp_data[teffs[1]]['fl']])
