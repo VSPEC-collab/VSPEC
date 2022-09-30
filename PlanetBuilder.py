@@ -105,7 +105,7 @@ if __name__ == "__main__":
         file_path = Path('.') / 'Configs' / 'Stellar' / 'config.txt'
         # -d wgeo=y (After type=cfg)
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
-        if ((count/Params.total_images) * 100) >= 200: #changed from 71
+        if ((count/Params.total_images) * 100) >= 0: #changed from 71
             os.system(f'curl -s -d key={api_key} -d type=cfg -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         else:
             os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
