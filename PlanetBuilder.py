@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 import read_info
 
-api_key = open('~/psg_key.txt','r').read()
+api_key = open('/Users/tjohns39/psg_key.txt','r').read()
 
 # 2nd file to run.
 
