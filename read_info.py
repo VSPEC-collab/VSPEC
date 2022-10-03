@@ -307,6 +307,7 @@ class ParamModel():
             # delta_planet_phase.
             delta_planet_phase_in_days = (self.delta_phase_planet / 360) * self.rotPlanet
             self.delta_phase_star = float((delta_planet_phase_in_days / self.rotstar) * 360)
+            self.delta_time = self.delta_phase_planet / 360.0 * self.rotPlanet
             
             print('done')
         
@@ -325,7 +326,9 @@ class ParamModel():
             # delta_planet_star.
             delta_star_phase_in_days = (self.delta_phase_star / 360) * self.rotstar
             self.delta_phase_planet = float((delta_star_phase_in_days / self.rotPlanet) * 360)
-            
+            self.delta_time = self.delta_phase_star / 360.0 * self.rotstar
+
+
             print('done')
             
         if 'observing_time' in observation_param_dict:
@@ -354,6 +357,7 @@ class ParamModel():
             total_rotations = observation_param_dict['num_star_rotations']
             total_images = math.floor((360 / self.delta_phase_star) * total_rotations)
             self.total_images = total_images + 1
+        self.detector_number_of_integrations = self.delta_time/self.detector_integration_time
 
     def __init__(self):
         configParser = configparser.RawConfigParser()
@@ -419,6 +423,16 @@ class ParamModel():
         # The planet rotation is equivalent to the planet revolution for tidally locked planets
         self.rotPlanet = self.revPlanet
         self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')
+
+        # Noise
+        self.detector_type = configParser.get('PSG','detector_type')
+        self.detector_integration_time = configParser.getfloat('PSG','detector_integration_time')
+        self.detector_pixel_sampling = configParser.getint('PSG','detector_pixel_sampling')
+        self.detector_read_noise = configParser.getint('PSG','detector_read_noise')
+        self.detector_dark_current = configParser.getint('PSG','detector_dark_current')
+        self.detector_throughput = configParser.getfloat('PSG','detector_throughput')
+        self.detector_emissivity = configParser.getfloat('PSG','detector_emissivity')
+        self.detector_temperature = configParser.getfloat('PSG','detector_temperature')
 
         self.observation_style = str(configParser.get('HemiMap', 'Chosen_Observation_Style'))
         if self.observation_style == 'time_between_exposures':
