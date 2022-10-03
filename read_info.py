@@ -357,7 +357,7 @@ class ParamModel():
             total_rotations = observation_param_dict['num_star_rotations']
             total_images = math.floor((360 / self.delta_phase_star) * total_rotations)
             self.total_images = total_images + 1
-        self.detector_number_of_integrations = self.delta_time/self.detector_integration_time
+        self.detector_number_of_integrations = self.delta_time * 24*60*60/self.detector_integration_time
 
     def __init__(self):
         configParser = configparser.RawConfigParser()
