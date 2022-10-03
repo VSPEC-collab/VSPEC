@@ -32,6 +32,10 @@ if __name__ == "__main__":
         PSG_combined_spectra_folder.mkdir()
         PSG_thermal_spectra_folder = data_folder / 'PSGThermalSpectra'
         PSG_thermal_spectra_folder.mkdir()
+        PSG_noise_folder = data_folder / 'PSGNoise'
+        PSG_noise_folder.mkdir()
+        PSG_layers_folder = data_folder / 'PSGLayers'
+        PSG_layers_folder.mkdir()
         sumflux_arrays_towards_observer_folder = data_folder / 'SumfluxArraysTowardsObserver'
         sumflux_arrays_towards_observer_folder.mkdir()
         sumflux_arrays_towards_planet_folder = data_folder / 'SumfluxArraysTowardsPlanet'

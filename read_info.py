@@ -529,6 +529,8 @@ class ParamModel():
 
         self.PSGcombinedSpectraFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGCombinedSpectra'
         self.PSGthermalSpectraFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGThermalSpectra'
+        self.PSGnoiseFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGNoise'
+        self.PSGlayersFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGLayers'
 
         # Some unit conversions
         self.distanceFluxCorrection = (self.starRadiusMeters/self.starDistanceMeters)**2
