@@ -189,7 +189,7 @@ if __name__ == "__main__":
 
         # Read in the planet's reflected spectrum (in W/sr/m^2/um) for the current phase
         allModels.PSGplanetReflectionModel = pd.read_csv(
-            Path('.') / f'{Params.starName}' / 'Data' / 'PSGCombinedSpectra' / f'phase{allModels.planetPhase:.3f}.txt',
+            Path('.') / f'{Params.starName}' / 'Data' / 'PSGCombinedSpectra' / f'phase{allModels.planetPhase:.3f}.rad',
             comment='#',
             delim_whitespace=True,
             names=["wavelength", "total", "stellar", "planet"],
@@ -197,7 +197,7 @@ if __name__ == "__main__":
 
         # Read in the planet's thermal spectrum (in W/m^2/um) for the current phase
         allModels.planetThermalModel = pd.read_csv(
-            Path('.') / f'{Params.starName}' / 'Data' / 'PSGThermalSpectra' / f'phase{allModels.planetPhase:.3f}.txt',
+            Path('.') / f'{Params.starName}' / 'Data' / 'PSGThermalSpectra' / f'phase{allModels.planetPhase:.3f}.rad',
             comment='#',
             delim_whitespace=True,
             names=["wavelength", "total", "planet"],
