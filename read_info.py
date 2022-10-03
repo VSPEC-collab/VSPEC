@@ -433,6 +433,7 @@ class ParamModel():
         self.detector_throughput = configParser.getfloat('PSG','detector_throughput')
         self.detector_emissivity = configParser.getfloat('PSG','detector_emissivity')
         self.detector_temperature = configParser.getfloat('PSG','detector_temperature')
+        self.telescope_diameter = configParser.getfloat('PSG','telescope_diameter')
 
         self.observation_style = str(configParser.get('HemiMap', 'Chosen_Observation_Style'))
         if self.observation_style == 'time_between_exposures':
