@@ -215,7 +215,7 @@ if __name__ == "__main__":
             'fac': fac_interp(tempPhase)
         }
         # now normalize (because of the interpolation)
-        total = np.array(percentagesDict.values()).sum()
+        total = np.array(list(percentagesDict.values())).sum()
         for key in percentagesDict:
             percentagesDict[key] = percentagesDict[key] *100.0/total
         percentagesDictTowardsPlanet = {
@@ -224,7 +224,7 @@ if __name__ == "__main__":
             'fac': fac_interp(tempPhaseFacingPlanet)
         }
         # now normalize (because of the interpolation)
-        total = np.array(percentagesDictTowardsPlanet.values()).sum()
+        total = np.array(list(percentagesDictTowardsPlanet.values())).sum()
         for key in percentagesDictTowardsPlanet:
             percentagesDictTowardsPlanet[key] = percentagesDictTowardsPlanet[key] *100.0/total
             

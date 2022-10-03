@@ -6,6 +6,7 @@ import math
 import pandas as pd
 from pathlib import Path
 import time
+from scipy.interpolate import interp2d
 
 class ReadStarModels():
     def __init__(self,
@@ -170,30 +171,51 @@ class ReadStarModels():
 
         # Works for reading h5 files
         # print('Reading File: <'+self.photModelFile+'>')
-        fh5 = h5py.File(self.photModelFile,'r')
-        wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-        fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-        data = {'wavelength': wl, 'flux': fl}
-        self.photModel = pd.DataFrame(data)
-        fh5.close()
-
-        # Works for reading h5 files
-        # print('Reading File: <'+self.spotModelFile+'>')
-        fh5 = h5py.File(self.spotModelFile,'r')
-        wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-        fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-        data = {'wavelength': wl, 'flux': fl}
-        self.spotModel = pd.DataFrame(data)
-        fh5.close()
-
-        # Works for reading h5 files
-        # print('Reading File: <'+self.facModelFile+'>')
-        fh5 = h5py.File(self.facModelFile,'r')
-        wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-        fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-        data = {'wavelength': wl, 'flux': fl}
-        self.facModel = pd.DataFrame(data)
-        fh5.close()
+        for Teff in [teffStar,teffSpot,teffFac]:
+            if isinstance(self.photModelFile,list):
+                teffs = [int(teffStar - teffStar%100),int(teffStar - teffStar%100)]
+                interp_data = {}
+                for i in [0,1]:
+                    fh5 = h5py.File(self.photModelFile[i],'r')
+                    wl = fh5['PHOENIX_SPECTRUM/wl'][()]
+                    #wl in angstroms. We can take off some of it that we don't need
+                    # for now, lets cut off anything short of 0.5 um
+                    # if you still get a segmentation fault, you can allocate more memory:
+                    # ulimit -s
+                    # ulimit -s <new limit>
+                    # perhaps double the limit you got from the first line
+                    fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
+                    interp_data[teffs[i]] = {'wl':wl[wl >= 5000],'fl':fl[wl >= 5000]}
+                assert np.all(interp_data[teffs[0]]['wl'] == interp_data[teffs[0]]['wl'])
+                wavelen = interp_data[teffs[0]]['wl']
+                interp_func = interp2d(wavelen,
+                teffs,[interp_data[teffs[0]]['fl'],interp_data[teffs[1]]['fl']])
+                data = {'wavelength': wavelen,
+                    'flux': interp_func(wavelen,teffStar)
+                }
+                if Teff==teffStar:
+                    self.photModel = pd.DataFrame(data)
+                elif Teff==teffSpot:
+                    self.spotModel = pd.DataFrame(data)
+                elif Teff==teffFac:
+                    self.facModel = pd.DataFrame(data)
+                else:
+                    raise ValueError('Teffs did not match up')
+                fh5.close()
+            else:
+                fh5 = h5py.File(self.photModelFile,'r')
+                wl = fh5['PHOENIX_SPECTRUM/wl'][()]
+                fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
+                data = {'wavelength': wl, 'flux': fl}
+                if Teff==teffStar:
+                    self.photModel = pd.DataFrame(data)
+                elif Teff==teffSpot:
+                    self.spotModel = pd.DataFrame(data)
+                elif Teff==teffFac:
+                    self.facModel = pd.DataFrame(data)
+                else:
+                    raise ValueError('Teffs did not match up')
+                fh5.close()
 
         # lets convert to micron
         self.photModel.wavelength /= 1.0e4
@@ -433,9 +455,21 @@ class ParamModel():
 
         # Load in the NextGen Stellar Info
         if self.defaultModelType:
-            self.phot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffStar)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            self.spot_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffSpot)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            self.fac_model_file = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(self.teffFac)}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            teffs = [int(self.teffStar - self.teffStar%100),int(self.teffStar - self.teffStar%100)]
+            self.phot_model_file = [
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            ]
+            teffs = [int(self.teffSpot - self.teffSpot%100),int(self.teffSpot - self.teffSpot%100)]
+            self.spot_model_file = [
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            ]
+            teffs = [int(self.teffFac - self.teffFac%100),int(self.teffFac - self.teffFac%100)]
+            self.fac_model_file = [
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
+                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            ]
         else:
             phot_model_file = configParser.get('Star', 'phot_model_file')
             self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove

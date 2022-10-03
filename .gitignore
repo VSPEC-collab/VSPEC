@@ -138,7 +138,9 @@ ProxCenTest/
 ProxCenTemplate/
 Configs/GCMs/config.txt
 Configs/Stellar/config.txt
+Configs/
 test/
+proxCen0spot/
 testPlots.py
 
-.DS_Store
+.DS_store

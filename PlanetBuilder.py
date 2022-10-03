@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 import read_info
 
-api_key = '5c48d8163cc183e79ac3'
+api_key = open('/Users/tjohns39/psg_key.txt','r').read()
 
 # 2nd file to run.
 
@@ -105,10 +105,8 @@ if __name__ == "__main__":
         file_path = Path('.') / 'Configs' / 'Stellar' / 'config.txt'
         # -d wgeo=y (After type=cfg)
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
-        if ((count/Params.total_images) * 100) >= 200: #changed from 71
-            os.system(f'curl -s -d key={api_key} -d type=cfg -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
-        else:
-            os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
+        # os.system(f'curl -s -d key={api_key} -d type=cfg -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.cfg')
+        os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         # os.system(f'curl -v -d type=all -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         
         # with open(f'{file_path}', 'r') as fr:
@@ -122,15 +120,14 @@ if __name__ == "__main__":
             phase *= -1
             fr.close()
         
-        if ((count/Params.total_images) * 100) >= 71:
-            os.system(f'curl -s -d key={api_key} -d type=all -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
+        os.system(f'curl -s -d key={api_key} -d type=lyr -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.lyr')
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
         os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
 
         print(round(((count/Params.total_images) * 100), 2), "%")
         print(count)
-        if ((count/Params.total_images) * 100) >= 71:
-            print("Pause")
+        # if ((count/Params.total_images) * 100) >= 71:
+        #     print("Pause")
         count += 1
 
 
