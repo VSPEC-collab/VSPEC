@@ -46,18 +46,18 @@ def calculate_planet_flux(allModels, phase):
     # Calculate the fraction (contrast) of the PSG planet's reflected flux to PSG's stellar flux.
     # Will apply this fraction to the NextGen stellar flux to obtain the equivalent planet reflection flux
     # values as if calculated while the planet was around the NextGen star
-    planetFluxFraction = np.array(planetReflectionOnly / allModels.PSGplanetReflectionModel.stellar)
+    planetFluxFraction = np.array(planetReflectionOnly / allModels.PSGplanetReflectionModel.stellar.values)
 
     # Multiply the reflection fraction from the PSG data by the NextGen star's variable sumflux values
     # This simulates the planet's reflection flux if it were created around this varaiable NextGen star,
     # rather than the star used in PSG.
     # Must multiply by the phase of the star facing the planet.
-    adjustedReflectionFlux = planetFluxFraction * allModels.allModelSpectra.sumfluxTowardsPlanet
+    adjustedReflectionFlux = planetFluxFraction * allModels.allModelSpectra.sumfluxTowardsPlanet.values
 
     # Add back on the planet's thermal flux values to the adjusted reflection flux values
     allModels.allModelSpectra["planetReflection"] = adjustedReflectionFlux + allModels.planetThermalModel.planet.values
     # allModels.allModelSpectra.planetReflection.to_csv('./%s/Data/VariablePlanetFlux/phase%d.txt' % (Params.starName, phase), index=False)
-    allModels.allModelSpectra['sourceTotal'] = allModels.allModelSpectra['sumflux'] + adjustedReflectionFlux + allModels.planetThermalModel.planet.values
+    allModels.allModelSpectra['sourceTotal'] = allModels.allModelSpectra['sumflux'].values + adjustedReflectionFlux + allModels.planetThermalModel.planet.values
     # Add the planet's thermal value to the allModelSpectra dataframe
     allModels.allModelSpectra["planetThermal"] = allModels.planetThermalModel.planet.values
 
@@ -68,10 +68,9 @@ def calculate_noise(allModels,phase):
     new stellar model and add the other sources.
     """
     PSGnoise = allModels.noiseModel
-    PSGsource = allModels.PSGplanetReflectionModel.total.values
-    Modelsource = allModels.allModelSpectra['sourceTotal']
-    Modelnoise_source = PSGnoise['Source'] * np.sqrt(Modelsource/PSGsource)
-    print('conversion = ', np.mean(Modelsource/PSGsource))
+    PSGsource = np.array(allModels.PSGplanetReflectionModel.total.values)
+    Modelsource = np.array(allModels.allModelSpectra['sourceTotal'].values)
+    Modelnoise_source = PSGnoise['Source'].values * np.sqrt(Modelsource/PSGsource)
     # Now add in quadrature
     Noise_sq = Modelnoise_source**2 + PSGnoise['Detector']**2 + PSGnoise['Telescope']**2 + PSGnoise['Background']**2
     allModels.allModelSpectra['Noise'] = np.sqrt(Noise_sq)
@@ -106,14 +105,13 @@ if __name__ == "__main__":
     if not np.all(allModels.photModel.wavelength == allModels.spotModel.wavelength) or not np.all(allModels.photModel.wavelength == allModels.facModel.wavelength):
         raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale, and currently are not.")
     # EDIT LATER: Currently hard-coded to convert into W/m2/um
-    conversion = Params.erg_sTOwatts * Params.cm2TOm2 * Params.cmTOum * Params.distanceFluxCorrection
-    print(f'Unit conversion factor = {conversion}')
+
+    conversion = Params.unit_conversion * Params.distanceFluxCorrection
     data = {'wavelength': allModels.photModel.wavelength,
             'photflux': allModels.photModel.flux*conversion,
             'spotflux': allModels.spotModel.flux*conversion,
             'facflux': allModels.facModel.flux*conversion}
     allModels.allModelSpectra = pd.DataFrame(data)
-    print(f'Stellar Model Spectrum length: {len(allModels.allModelSpectra)}')
 
     # allModels.allModelSpectra.photflux *= conversion
     # allModels.allModelSpectra.spotflux *= conversion
@@ -149,10 +147,6 @@ if __name__ == "__main__":
     print("\nCalculating Total System Output, Stellar, and Planetary Reflection Flux Values")
     print("------------------------------------------------------------------------------")
     for index in range(Params.total_images):
-        percent = (index/Params.total_images) * 100
-        # print(percent)
-        if percent % 25 == 0:
-            print(f'{percent:.1f}% Complete')
         # The current phase of the planet is the planet phase change value (between exposures) multiplied
         # by the nuber of exposures taken so far (index)
         # Example: 180
@@ -169,9 +163,7 @@ if __name__ == "__main__":
         # by the nuber of exposures taken so far (index)
         # Example: 30
         allModels.starPhase = (Params.delta_phase_star * index) % 360
-
-        print(f'planet phase = {allModels.planetPhase}')
-        print(f'star phase = {allModels.starPhase}')
+        
         # In PSG's models, phase 0 for the planet is "behind" the star from the viewer's perspective,
         # in secondary eclipse.
         # In the variable stellar code, phase 0 of the star is the side of the star facing the observer.
@@ -190,7 +182,13 @@ if __name__ == "__main__":
         # allModels.starPhaseFacingPlanet = ((Params.delta_phase_planet * (temp + 1)) - allModels.starPhase) % 360
         # allModels.starPhaseFacingPlanet = ((allModels.planetPhase + 180) - (allModels.starPhase % 360)) % 360
         allModels.starPhaseFacingPlanet = (180 - allModels.starPhase + allModels.planetPhase) % 360
-        print(f'star phase facing planet = {allModels.starPhaseFacingPlanet}')
+        percent = int((index/Params.total_images) * 100)
+        # print(percent)
+        if percent % 10 == 0:
+            print(f'{percent:.1f}% Complete')
+            print(f'planet phase = {allModels.planetPhase}')
+            print(f'star phase = {allModels.starPhase}')
+            print(f'star phase facing planet = {allModels.starPhaseFacingPlanet}')
         # Example:
         # deltaPlanetPhase = 10
         # deltaStellarPhase = 6.666
@@ -219,7 +217,7 @@ if __name__ == "__main__":
             Path('.') / f'{Params.starName}' / 'Data' / 'PSGCombinedSpectra' / f'phase{allModels.planetPhase:.3f}.rad',
             comment='#',
             delim_whitespace=True,
-            names=["wavelength", "total", "stellar", "planet"],
+            names=["wavelength", "total", "noise", "stellar", "planet"],
             )
 
         # Read in the planet's thermal spectrum (in W/m^2/um) for the current phase
@@ -227,7 +225,7 @@ if __name__ == "__main__":
             Path('.') / f'{Params.starName}' / 'Data' / 'PSGThermalSpectra' / f'phase{allModels.planetPhase:.3f}.rad',
             comment='#',
             delim_whitespace=True,
-            names=["wavelength", "total", "planet"],
+            names=["wavelength", "total", "noise", "planet"],
             )
         
         # Read in the noise model from PSG
@@ -252,7 +250,7 @@ if __name__ == "__main__":
         # now normalize (because of the interpolation)
         total = np.array(list(percentagesDict.values())).sum()
         for key in percentagesDict:
-            percentagesDict[key] = percentagesDict[key] *100.0/total
+            percentagesDict[key] = percentagesDict[key] /total
         percentagesDictTowardsPlanet = {
             'phot': phot_interp(tempPhaseFacingPlanet),
             'spot': spot_interp(tempPhaseFacingPlanet),
@@ -261,12 +259,11 @@ if __name__ == "__main__":
         # now normalize (because of the interpolation)
         total = np.array(list(percentagesDictTowardsPlanet.values())).sum()
         for key in percentagesDictTowardsPlanet:
-            percentagesDictTowardsPlanet[key] = percentagesDictTowardsPlanet[key] *100.0/total
+            percentagesDictTowardsPlanet[key] = percentagesDictTowardsPlanet[key] /total
             
         calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, index)
 
         calculate_planet_flux(allModels, index)
-
         calculate_noise(allModels, index)
 
         allModels.allModelSpectra.to_csv(Path('.') / f'{Params.starName}' / 'Data' / 'AllModelSpectraValues' / f'phase{index}.csv', index=False, sep=',')

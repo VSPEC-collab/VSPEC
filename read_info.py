@@ -7,6 +7,7 @@ import pandas as pd
 from pathlib import Path
 import time
 from scipy.interpolate import interp2d
+from astropy import units
 
 class ReadStarModels():
     def __init__(self,
@@ -465,6 +466,7 @@ class ParamModel():
         self.cmTOum = 1e4
         self.cm2TOm2 = 1e-4
         self.erg_sTOwatts = 1e-7
+        self.unit_conversion = (units.Unit('erg m-2 s-1 um-1')/units.Unit('W m-2 um-1')).to(units.Unit(''))
 
         # Plotting booleans; decide what plots to create during an execution of the program.
         self.plotLightCurve = configParser.getboolean('Plots', 'plotLightCurve')
