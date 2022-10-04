@@ -171,109 +171,32 @@ class ReadStarModels():
 
         # Works for reading h5 files
         # print('Reading File: <'+self.photModelFile+'>')
-        for Teff in [teffStar,teffSpot,teffFac]:
-            if isinstance(self.photModelFile,list):
-                teffs = [int(teffStar - teffStar%100),int(teffStar - teffStar%100+100)]
-                interp_data = {}
-                for i in [0,1]:
-                    fh5 = h5py.File(self.photModelFile[i],'r')
-                    wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-                    #wl in angstroms. We can take off some of it that we don't need
-                    # for now, lets cut off anything short of 0.5 um
-                    # if you still get a segmentation fault, you can allocate more memory:
-                    # ulimit -s
-                    # ulimit -s <new limit>
-                    # perhaps double the limit you got from the first line
-                    fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-                    fh5.close()
-                    del fh5
-                    interp_data[teffs[i]] = {'wl':wl[wl >= 5000],'fl':fl[wl >= 5000]}
-                    del wl, fl
-                assert np.all(interp_data[teffs[0]]['wl'] == interp_data[teffs[0]]['wl'])
-                interp_func = interp2d(interp_data[teffs[0]]['wl'],
-                teffs,[interp_data[teffs[0]]['fl'],interp_data[teffs[1]]['fl']])
-                data = {'wavelength': interp_data[teffs[0]]['wl'],
-                    'flux': interp_func(interp_data[teffs[0]]['wl'],teffStar)
-                }
-                del interp_func
-                del interp_data
-                if Teff==teffStar:
-                    self.photModel = pd.DataFrame(data)
-                elif Teff==teffSpot:
-                    self.spotModel = pd.DataFrame(data)
-                elif Teff==teffFac:
-                    self.facModel = pd.DataFrame(data)
-                else:
-                    raise ValueError('Teffs did not match up')
-            else:
-                fh5 = h5py.File(self.photModelFile,'r')
-                wl = fh5['PHOENIX_SPECTRUM/wl'][()]
-                fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
-                data = {'wavelength': wl, 'flux': fl}
-                if Teff==teffStar:
-                    self.photModel = pd.DataFrame(data)
-                elif Teff==teffSpot:
-                    self.spotModel = pd.DataFrame(data)
-                elif Teff==teffFac:
-                    self.facModel = pd.DataFrame(data)
-                else:
-                    raise ValueError('Teffs did not match up')
-                fh5.close()
-
-        # lets convert to micron
-        self.photModel.wavelength /= 1.0e4
-        self.spotModel.wavelength /= 1.0e4
-        self.facModel.wavelength /= 1.0e4
-        
-        # cut the wavelength values tot he specified cut range (.1999-20.5 microns)
-        self.photModel = self.photModel.loc[
-            (self.photModel.wavelength >= self.rangeMin) & (self.photModel.wavelength <= self.rangeMax)
+        Teffs = np.unique([int(teffStar - teffStar%100),int(teffStar - teffStar%100 +100),
+                            int(teffSpot - teffSpot%100),int(teffSpot - teffSpot%100 +100),
+                            int(teffFac - teffFac%100),int(teffFac - teffFac%100 +100)
+                        ])
+        print('Model Teffs to load: ', Teffs)
+        for Teff in Teffs:
+            filename = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{Teff}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            fh5 = h5py.File(filename,'r')
+            wl = fh5['PHOENIX_SPECTRUM/wl'][()]
+            fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
+            data = pd.DataFrame({'wavelength': wl, 'flux': fl})
+            data.wavelength /= 1.0e4
+            data = data.loc[
+            (data.wavelength >= self.rangeMin) & (data.wavelength <= self.rangeMax)
         ]
-        self.spotModel = self.spotModel.loc[
-            (self.spotModel.wavelength >= self.rangeMin) & (self.spotModel.wavelength <= self.rangeMax)
-        ]
-        self.facModel = self.facModel.loc[
-            (self.facModel.wavelength >= self.rangeMin) & (self.facModel.wavelength <= self.rangeMax)
-        ]
-
-        print("\nBinning Photosphere Data to Specified Resolving Power...")
-        print("----------------------------------------------------------")
-        self.photModel, self.photModelStrings = self.bin(self.photModel)
-        print("\nBinning Spot Data to Specified Resolving Power...")
-        print("----------------------------------------------------------")
-        self.spotModel, self.spotModelStrings = self.bin(self.spotModel)
-        print("\nBinning Faculae Data to Specified Resolving Power...")
-        print("----------------------------------------------------------")
-        self.facModel, self.facModelStrings = self.bin(self.facModel)
-
-        if not np.all(self.photModel.wavelength == self.spotModel.wavelength) or not np.all(self.photModel.wavelength == self.facModel.wavelength):
-            raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale and currently are not.")
-        data = {'wavelength': self.photModel.wavelength, 'photflux': self.photModel.flux, 'spotflux': self.spotModel.flux, 'facflux': self.facModel.flux}
-        self.mainDataFrame = pd.DataFrame(data)
-
-        # make sure NextGenModels/BinnedData exists --> This is a problem the first time the code is ran
-        binned_path = Path('.') / 'NextGenModels' / 'BinnedData'
-        if not binned_path.exists():
-            binned_path.mkdir()
-
-        binnedPhotStringCSV = self.photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{teffStar}StellarModel.txt'
-        file = open(file_to_open,'w')
-        file.write(binnedPhotStringCSV)
-        file.close()
-
-        binnedSpotspectrumCSV = self.spotModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{teffSpot}StellarModel.txt'
-        file = open(file_to_open,'w')
-        file.write(binnedSpotspectrumCSV)
-        file.close()
-
-        binnedFaculaespectrumCSV = self.facModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-        file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{teffFac}StellarModel.txt'
-        file = open(file_to_open,'w')
-        file.write(binnedFaculaespectrumCSV)
-        file.close()
-
+            print(f"\nBinning Teff = {Teff} Data to Specified Resolving Power...")
+            print("----------------------------------------------------------")
+            photModel, photModelStrings = self.bin(data)
+            binned_path = Path('.') / 'NextGenModels' / 'BinnedData'
+            if not binned_path.exists():
+                binned_path.mkdir()
+            binnedPhotStringCSV = photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
+            file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Teff}StellarModel.txt'
+            file = open(file_to_open,'w')
+            file.write(binnedPhotStringCSV)
+            file.close()
         return self
 
 class ParamModel():

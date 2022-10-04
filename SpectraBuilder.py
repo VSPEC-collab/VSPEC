@@ -6,7 +6,7 @@ import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, interp2d
 
 # 3rd file to run.
 
@@ -46,7 +46,7 @@ def calculate_planet_flux(allModels, phase):
     # Calculate the fraction (contrast) of the PSG planet's reflected flux to PSG's stellar flux.
     # Will apply this fraction to the NextGen stellar flux to obtain the equivalent planet reflection flux
     # values as if calculated while the planet was around the NextGen star
-    planetFluxFraction = planetReflectionOnly / allModels.PSGplanetReflectionModel.stellar
+    planetFluxFraction = np.array(planetReflectionOnly / allModels.PSGplanetReflectionModel.stellar)
 
     # Multiply the reflection fraction from the PSG data by the NextGen star's variable sumflux values
     # This simulates the planet's reflection flux if it were created around this varaiable NextGen star,
@@ -68,12 +68,25 @@ def calculate_noise(allModels,phase):
     new stellar model and add the other sources.
     """
     PSGnoise = allModels.noiseModel
-    PSGsource = allModels.PSGplanetReflectedModel.total.values
+    PSGsource = allModels.PSGplanetReflectionModel.total.values
     Modelsource = allModels.allModelSpectra['sourceTotal']
     Modelnoise_source = PSGnoise['Source'] * np.sqrt(Modelsource/PSGsource)
     # Now add in quadrature
     Noise_sq = Modelnoise_source**2 + PSGnoise['Detector']**2 + PSGnoise['Telescope']**2 + PSGnoise['Background']**2
     allModels.allModelSpectra['Noise'] = np.sqrt(Noise_sq)
+
+def interpolate_stellar_spectrum(Teff):
+    model_teffs = [int(Teff - Teff%100),int(Teff - Teff%100 +100)]
+    interp_data = {}
+    for T in model_teffs:
+        dat = pd.read_csv(Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{T}StellarModel.txt',
+                                names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
+        interp_data[T] = dat
+    interp = interp2d(interp_data[model_teffs[0]]['wavelength'],model_teffs,
+    [interp_data[model_teffs[0]]['flux'],interp_data[model_teffs[1]]['flux']])
+    return pd.DataFrame({'wavelength': interp_data[model_teffs[0]]['wavelength'],
+                        'flux': interp(interp_data[model_teffs[0]]['wavelength'],Teff)
+                        })
 
 
 # 3rd file to run.
@@ -86,20 +99,14 @@ if __name__ == "__main__":
     allModels = read_info.ReadStarModels(Params.starName)
 
     # Load in the NextGen Stellar Data for photosphere, spot, and faculae temperatures
-    allModels.photModel = pd.read_csv(Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Params.teffStar}StellarModel.txt',
-                                names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
-
-    allModels.spotModel = pd.read_csv(Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Params.teffSpot}StellarModel.txt',
-                                names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
-    
-    allModels.facModel = pd.read_csv(Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Params.teffFac}StellarModel.txt',
-                                    names=['wavelength', 'flux'], delimiter=' ', skiprows=1)
-
+    allModels.photModel = interpolate_stellar_spectrum(Params.teffStar)
+    allModels.spotModel = interpolate_stellar_spectrum(Params.teffSpot)
+    allModels.facModel = interpolate_stellar_spectrum(Params.teffFac)
     if not np.all(allModels.photModel.wavelength == allModels.spotModel.wavelength) or not np.all(allModels.photModel.wavelength == allModels.facModel.wavelength):
         raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale, and currently are not.")
     data = {'wavelength': allModels.photModel.wavelength, 'photflux': allModels.photModel.flux, 'spotflux': allModels.spotModel.flux, 'facflux': allModels.facModel.flux}
     allModels.allModelSpectra = pd.DataFrame(data)
-
+    print(f'Stellar Model Spectrum length: {len(allModels.allModelSpectra)}')
     # EDIT LATER: Currently hard-coded to convert into W/m2/um
     conversion = Params.erg_sTOwatts * Params.cm2TOm2 * Params.cmTOum * Params.distanceFluxCorrection
 
