@@ -57,9 +57,24 @@ def calculate_planet_flux(allModels, phase):
     # Add back on the planet's thermal flux values to the adjusted reflection flux values
     allModels.allModelSpectra["planetReflection"] = adjustedReflectionFlux + allModels.planetThermalModel.planet.values
     # allModels.allModelSpectra.planetReflection.to_csv('./%s/Data/VariablePlanetFlux/phase%d.txt' % (Params.starName, phase), index=False)
-    
+    allModels.allModelSpectra['sourceTotal'] = allModels.allModelSpectra['sumflux'] + adjustedReflectionFlux + allModels.planetThermalModel.planet.values
     # Add the planet's thermal value to the allModelSpectra dataframe
     allModels.allModelSpectra["planetThermal"] = allModels.planetThermalModel.planet.values
+
+
+def calculate_noise(allModels,phase):
+    """
+    Load in the noise model from PSG. Scale the source noise with the
+    new stellar model and add the other sources.
+    """
+    PSGnoise = allModels.noiseModel
+    PSGsource = allModels.PSGplanetReflectedModel.total.values
+    Modelsource = allModels.allModelSpectra['sourceTotal']
+    Modelnoise_source = PSGnoise['Source'] * np.sqrt(Modelsource/PSGsource)
+    # Now add in quadrature
+    Noise_sq = Modelnoise_source**2 + PSGnoise['Detector']**2 + PSGnoise['Telescope']**2 + PSGnoise['Background']**2
+    allModels.allModelSpectra['Noise'] = np.sqrt(Noise_sq)
+
 
 # 3rd file to run.
 
@@ -202,6 +217,14 @@ if __name__ == "__main__":
             delim_whitespace=True,
             names=["wavelength", "total", "planet"],
             )
+        
+        # Read in the noise model from PSG
+        allModels.noiseModel = pd.read_csv(
+            Path('.') / f'{Params.starName}' / 'Data' / 'PSGNoise' / f'phase{allModels.planetPhase:.3f}.noi',
+            comment='#',
+            delim_whitespace=True,
+            names=['Wave/freq','Total','Source','Detector','Telescope','Background'],
+            )
 
         # Calculate the total output flux of this star's phase by computing a linear combination of the photosphere,
         # spot, and flux models based on what percent of the surface area those components take up
@@ -231,6 +254,8 @@ if __name__ == "__main__":
         calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, index)
 
         calculate_planet_flux(allModels, index)
+
+        calculate_noise(allModels, index)
 
         allModels.allModelSpectra.to_csv(Path('.') / f'{Params.starName}' / 'Data' / 'AllModelSpectraValues' / f'phase{index}.csv', index=False, sep=',')
 
