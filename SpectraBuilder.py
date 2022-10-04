@@ -71,6 +71,7 @@ def calculate_noise(allModels,phase):
     PSGsource = allModels.PSGplanetReflectionModel.total.values
     Modelsource = allModels.allModelSpectra['sourceTotal']
     Modelnoise_source = PSGnoise['Source'] * np.sqrt(Modelsource/PSGsource)
+    print('conversion = ', np.mean(Modelsource/PSGsource))
     # Now add in quadrature
     Noise_sq = Modelnoise_source**2 + PSGnoise['Detector']**2 + PSGnoise['Telescope']**2 + PSGnoise['Background']**2
     allModels.allModelSpectra['Noise'] = np.sqrt(Noise_sq)
@@ -104,15 +105,19 @@ if __name__ == "__main__":
     allModels.facModel = interpolate_stellar_spectrum(Params.teffFac)
     if not np.all(allModels.photModel.wavelength == allModels.spotModel.wavelength) or not np.all(allModels.photModel.wavelength == allModels.facModel.wavelength):
         raise ValueError("The star, spot, and faculae spectra should be on the same wavelength scale, and currently are not.")
-    data = {'wavelength': allModels.photModel.wavelength, 'photflux': allModels.photModel.flux, 'spotflux': allModels.spotModel.flux, 'facflux': allModels.facModel.flux}
-    allModels.allModelSpectra = pd.DataFrame(data)
-    print(f'Stellar Model Spectrum length: {len(allModels.allModelSpectra)}')
     # EDIT LATER: Currently hard-coded to convert into W/m2/um
     conversion = Params.erg_sTOwatts * Params.cm2TOm2 * Params.cmTOum * Params.distanceFluxCorrection
+    print(f'Unit conversion factor = {conversion}')
+    data = {'wavelength': allModels.photModel.wavelength,
+            'photflux': allModels.photModel.flux*conversion,
+            'spotflux': allModels.spotModel.flux*conversion,
+            'facflux': allModels.facModel.flux*conversion}
+    allModels.allModelSpectra = pd.DataFrame(data)
+    print(f'Stellar Model Spectrum length: {len(allModels.allModelSpectra)}')
 
-    allModels.allModelSpectra.photflux *= conversion
-    allModels.allModelSpectra.spotflux *= conversion
-    allModels.allModelSpectra.facflux *= conversion
+    # allModels.allModelSpectra.photflux *= conversion
+    # allModels.allModelSpectra.spotflux *= conversion
+    # allModels.allModelSpectra.facflux *= conversion
 
     # Load in the dictionary of surface coverage percentages for each of the star's phases
     # Actually, load into arrays for scipy.interp
