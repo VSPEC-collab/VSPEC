@@ -8,6 +8,8 @@ from pathlib import Path
 
 import time
 
+import faulthandler; faulthandler.enable()
+
 # 1st file to run.
 
 if __name__ == "__main__":

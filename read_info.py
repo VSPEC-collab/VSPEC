@@ -185,14 +185,18 @@ class ReadStarModels():
                     # ulimit -s <new limit>
                     # perhaps double the limit you got from the first line
                     fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
+                    fh5.close()
+                    del fh5
                     interp_data[teffs[i]] = {'wl':wl[wl >= 5000],'fl':fl[wl >= 5000]}
+                    del wl, fl
                 assert np.all(interp_data[teffs[0]]['wl'] == interp_data[teffs[0]]['wl'])
-                wavelen = interp_data[teffs[0]]['wl']
-                interp_func = interp2d(wavelen,
+                interp_func = interp2d(interp_data[teffs[0]]['wl'],
                 teffs,[interp_data[teffs[0]]['fl'],interp_data[teffs[1]]['fl']])
-                data = {'wavelength': wavelen,
-                    'flux': interp_func(wavelen,teffStar)
+                data = {'wavelength': interp_data[teffs[0]]['wl'],
+                    'flux': interp_func(interp_data[teffs[0]]['wl'],teffStar)
                 }
+                del interp_func
+                del interp_data
                 if Teff==teffStar:
                     self.photModel = pd.DataFrame(data)
                 elif Teff==teffSpot:
@@ -201,7 +205,6 @@ class ReadStarModels():
                     self.facModel = pd.DataFrame(data)
                 else:
                     raise ValueError('Teffs did not match up')
-                fh5.close()
             else:
                 fh5 = h5py.File(self.photModelFile,'r')
                 wl = fh5['PHOENIX_SPECTRUM/wl'][()]
