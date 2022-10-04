@@ -173,7 +173,7 @@ class ReadStarModels():
         # print('Reading File: <'+self.photModelFile+'>')
         for Teff in [teffStar,teffSpot,teffFac]:
             if isinstance(self.photModelFile,list):
-                teffs = [int(teffStar - teffStar%100),int(teffStar - teffStar%100)]
+                teffs = [int(teffStar - teffStar%100),int(teffStar - teffStar%100+100)]
                 interp_data = {}
                 for i in [0,1]:
                     fh5 = h5py.File(self.photModelFile[i],'r')
