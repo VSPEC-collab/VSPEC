@@ -271,7 +271,7 @@ class Star:
     Returns:
         None
     """
-    def __init__(self,Teff,radius,period,spots,name='',distance = 1*u.pc,resolution = {'lat':500,'lon':1000}):
+    def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,resolution = {'lat':500,'lon':1000}):
         self.name = name
         assert isinstance(Teff,quant)
         self.Teff = Teff
@@ -283,7 +283,8 @@ class Star:
         self.period = period
         assert isinstance(spots,SpotCollection)
         self.spots = spots
-        
+        assert isinstance(faculae,FaculaCollection)
+        self.faculae = faculae
         self.resolution = resolution
         self.map = self.get_pixelmap(Nlat=self.resolution['lat'],Nlon=self.resolution['lon'])
         
@@ -329,9 +330,19 @@ class Star:
         Returns:
             None
         """
-        assert isinstance(spot,StarSpot)
         self.spots.add_spot(spot)
         self.map = self.get_pixelmap(self.resolution['lat'],self.resolution['lon'])
+    def add_fac(self,facula):
+        """add facula(e)
+        Add a facula or faculae
+
+        Args:
+            facula (Facula or series of Faculae): Facula objects to add
+        
+        Returns:
+            None
+        """
+        self.faculae.add_faculae(facula)
     def calc_coverage(self,sub_obs_coords,Nlat=500,Nlon=1000):
         """Calculate coverage
         Calculate coverage fractions of various Teffs on stellar surface
@@ -355,14 +366,31 @@ class Star:
                  * np.cos(sub_obs_coords['lon']-longrid) )
         cos_c[cos_c < 0] = 0
         jacobian = np.sin(latgrid + 90*u.deg)
+
+        int_map, map_keys = self.faculae.map_pixels(latgrid,longrid,self.map,self.radius,self.Teff)
+
         Teffs = np.unique(self.map)
         data = {}
         total = 0
+        # spots and photosphere
         for teff in Teffs:
             pix = self.map == teff
-            pix_sum = (pix.astype('float32') * cos_c * jacobian).sum()
+            pix_sum = ((pix.astype('float32') * cos_c * jacobian)[int_map==0]).sum()
             total += pix_sum
             data[teff] = pix_sum
+        for i in map_keys.keys():
+            facula = self.faculae.faculae[i]
+            angle = 2 * np.arcsin(np.sqrt(np.sin(0.5*(facula.lat - sub_obs_coords['lat']))**2
+                                + np.cos(facula.lat)*np.cos(sub_obs_coords['lat']) * np.sin(0.5*(facula.lon - sub_obs_coords['lon']))**2 ))
+            frac_area_dict = facula.fractional_effective_area(angle)
+            loc = int_map == map_keys[i]
+            pix_sum = loc.astype('float32') * cos_c * jacobian
+            for teff in frac_area_dict.keys():
+                if teff in data:
+                    data[teff] = data[teff] + pix_sum * frac_area_dict[teff]
+                else:
+                    data[teff] = pix_sum * frac_area_dict[teff]
+
         # normalize
         for teff in Teffs:
             data[teff] = data[teff]/total
