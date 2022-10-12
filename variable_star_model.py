@@ -103,7 +103,7 @@ class StarSpot:
             N (int): number of points to use in numerical integration. N=1000 is not so different from N=100000.
         
         Returns:
-            (floar): fraction of observed disk covered by spot
+            (float): fraction of observed disk covered by spot
         """
         cos_c0 = (np.sin(sub_obs_coords['lat']) * np.sin(self.coords['lat'])
                 + np.cos(sub_obs_coords['lat'])* np.cos(self.coords['lat'])
@@ -501,3 +501,214 @@ class SpotGenerator:
         for i in range(N):
             spots.append(StarSpot(lat[i],lon[i],new_max_areas[i],starting_size,umbra_teff,penumbra_teff))
         return tuple(spots)
+
+class Facula:
+    """facula
+    Class containing model parameters of stellar faculae using the 'hot wall' model
+    
+    Args:
+        lat (astropy.units.quantity.Quantity [angle]): latitude of facula center
+        lon (astropy.units.quantity.Quantity [angle]): longitude of facula center
+        Dmax (astropy.units.quantity.Quantity [length]): maximum radius of facula
+        D0 (astropy.units.quantity.Quantity [length]): current radius of facula
+        Zw (astropy.units.quantity.Quantity [length]): depth of the depression
+        Teff_floor (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'cool floor'
+        Teff_wall (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'hot wall'
+        T (astropy.units.quantity.Quantity [time]): facula lifetime
+        growing (bool): whether or not the facula is still growing
+        floor_threshold (astropy.units.quantity.Quantity [length]): facula radius under which the floor is no longer visible
+    
+    Returns:
+        None
+    """
+    def __init__(self,lat,lon,Rmax,R0,Teff_floor,Teff_wall,T,growing=True,floor_threshold = 20*u.km,Zw=100*u.km):
+        assert u.get_physical_type(lat) == 'angle'
+        assert u.get_physical_type(lon) == 'angle'
+        self.lat = lat
+        self.lon = lon
+        assert u.get_physical_type(Rmax) == 'length'
+        assert u.get_physical_type(R0) == 'length'
+        assert u.get_physical_type(Zw) == 'length'
+        self.Rmax = Rmax
+        self.current_R = R0
+        self.Zw = Zw
+        assert u.get_physical_type(Teff_floor) == 'temperature'
+        assert u.get_physical_type(Teff_wall) == 'temperature'
+        self.Teff_floor = Teff_floor
+        self.Teff_wall = Teff_wall
+        assert u.get_physical_type(T) == 'time'
+        assert isinstance(growing,bool)
+        self.lifetime = T
+        self.is_growing = growing
+        assert u.get_physical_type(floor_threshold) == 'length'
+        self.floor_threshold = floor_threshold
+    
+    def age(self,time):
+        """age
+        progress the development of the facula by an amount of time
+        
+        Args:
+            time (astropy.units.quantity.Quantity [time]): amount of time to progress facula
+        
+        Returns:
+            None
+        """
+        assert u.get_physical_type(time) == 'time'
+        if self.is_growing:
+            T_from_max = -1*np.log(self.current_R/self.Rmax)*self.lifetime*0.5
+            if T_from_max <= time:
+                self.is_growing = False
+                time = time - T_from_max
+                self.current_R = self.Rmax * np.exp(-2*time/self.lifetime)
+            else:
+                self.current_R = self.current_R * np.exp(2*time/self.lifetime)
+        else:
+            self.current_R = self.current_R * np.exp(-2*time/self.lifetime)
+    
+    def effective_area(self,angle,N=101):
+        """effective area
+        Calculate the effective area of the floor and walls when projected on a disk
+        
+        Args:
+            angle (astropy.units.quantity.Quantity [angle]): angle from disk center
+            N (int): number of points to sample the facula with
+        
+        Returns:
+            (dict): effective area of the wall and floor. Keys are Teff, values are [km]**2
+        """
+        if self.current_R < self.floor_threshold:
+            return {self.Teff_floor:0.0,self.Teff_wall:1.0}
+        else:
+            x = np.linspace(0,1,N) * self.current_R #distance from center along azmuth of disk
+            h = np.sqrt(self.current_R**2 - x**2) # effective radius of the 1D facula approximation
+            critical_angles = np.arctan(2*h/self.Zw)
+            Zeffs = np.sin(angle)*np.ones(N) * self.Zw
+            Reffs = np.cos(angle)*h*2 - self.Zw * np.sin(angle)
+            no_floor = critical_angles < angle
+            Zeffs[no_floor] = h[no_floor]*np.cos(angle)
+            Reffs[no_floor] = 0
+            
+            return {self.Teff_wall: np.trapz(Zeffs,x),self.Teff_floor: np.trapz(Reffs,x)}
+    
+    def fractional_effective_area(self,angle,N=101):
+        """fractional effective area
+        effective area as a fraction of the projected area of a region of quiet photosphere with the same radius
+        and distance from limb
+        
+        Args:
+            angle (astropy.units.quantity.Quantity [angle]): angle from disk center
+            
+        Returns:
+            (dict): fractional effective area of the wall and floor. Keys are Teff
+        """
+        effective_area = self.effective_area(angle,N=N)
+        frac_eff_area = {}
+        total = 0
+        for teff in effective_area.keys():
+            total = total + effective_area[teff]
+        for teff in effective_area.keys():
+            frac_eff_area[teff] = (effective_area[teff]/total).to(u.Unit(''))
+        return frac_eff_area
+    def angular_radius(self,star_rad):
+        """angular radius
+        Calculate the anglular radius
+        
+        Args:
+            star_rad (astropy.units.qunatity.Quantity [length]): radius of the star
+        
+        Returns
+            (astropy.units.qunatity.Quantity [angle]): angular radius of the facula
+        """
+        return self.current_R/star_rad * 180/np.pi * u.deg
+    def map_pixels(self,latgrid,longrid,star_rad):
+        """map pixels
+        
+        """
+        lat0 = self.lat
+        lon0 = self.lon
+        rad = self.angular_radius(star_rad)
+        r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
+                         + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
+        pix_in_fac = r<=rad
+        return pix_in_fac
+
+class FaculaCollection:
+    """Facula Collection
+    Containter class to store faculae
+    
+    Args:
+        *faculae (tuple): series of faculae objects
+    
+    Returns:
+        None
+    """
+    def __init__(self,*faculae):
+        self.faculae = tuple(faculae)
+    def add_faculae(self,facula):
+        """add facula(e)
+        Add a facula or faculae
+
+        Args:
+            facula (Facula or series of Facula): Facula object(s) to add
+        
+        Returns:
+            None
+        """
+        self.faculae += tuple(facula)
+    def clean_faclist(self):
+        """clean faculae list
+        Remove faculae that have decayed to Rmax/e**2 radius.
+
+        Args:
+            None
+        
+        Returns:
+            None
+        """
+        faculae_to_keep = []
+        for facula in self.faculae:
+            if (facula.current_R <= facula.current_R/np.e**2) and (not facula.is_growing):
+                pass
+            else:
+                faculae_to_keep.append(facula)
+        self.faculae = faculae_to_keep
+    def age(self,time):
+        """age
+        Age spots according to its growth timescale and decay rate.
+        Remove spots that have decayed.
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): length of time to age the spot.
+                For most realistic behavior, time should be << spot lifetime
+        
+        Returns:
+            None
+        """
+        for facula in self.faculae:
+            facula.age(time)
+        self.clean_faclist()
+    def map_pixels(self,latgrid,longrid,pixmap,star_rad,star_teff):
+        """map_pixels
+        Map facula parameters to pixel locations
+        
+        Args:
+            latgrid (astropy.units.quantity.Quantity [angle], shape(M,N)): grid of latitude points
+            longrid (astropy.units.quantity.Quantity [angle], shape(M,N)): grid of longitude points
+            pixmap (astropy.units.quantity.Quantity [temperature], shape(M,N)): grid of effctive temperature
+            star_rad (astropy.units.quantity.Quantity [length]): radius of the star
+            star_teff (astropy.units.quantity.Quantity [temperature]): temperature of quiet stellar photosphere
+        
+        Returns:
+            (np.ndarray [int8], shape(M,N)): grid of integer keys showing facula loactions
+            (dict): dictionary maping index in self.faculae to the integer grid of facula locations
+        """
+        int_map = np.zeros(shape=pixmap.shape,dtype='int8')
+        map_dict = {}
+        for i in range(len(self.faculae)):
+            facula = self.faculae[i]
+            pix_in_fac = facula.map_pixels(latgrid,longrid,star_rad)
+            is_photosphere = pixmap == star_teff
+            int_map[pix_in_fac & is_photosphere] = i+1
+            map_dict[i] = i+1
+        return int_map, map_dict
+            
