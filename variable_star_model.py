@@ -371,12 +371,10 @@ class Star:
 
         Teffs = np.unique(self.map)
         data = {}
-        total = 0
         # spots and photosphere
         for teff in Teffs:
             pix = self.map == teff
             pix_sum = ((pix.astype('float32') * cos_c * jacobian)[int_map==0]).sum()
-            total += pix_sum
             data[teff] = pix_sum
         for i in map_keys.keys():
             facula = self.faculae.faculae[i]
@@ -384,15 +382,17 @@ class Star:
                                 + np.cos(facula.lat)*np.cos(sub_obs_coords['lat']) * np.sin(0.5*(facula.lon - sub_obs_coords['lon']))**2 ))
             frac_area_dict = facula.fractional_effective_area(angle)
             loc = int_map == map_keys[i]
-            pix_sum = loc.astype('float32') * cos_c * jacobian
+            pix_sum = (loc.astype('float32') * cos_c * jacobian).sum()
             for teff in frac_area_dict.keys():
                 if teff in data:
                     data[teff] = data[teff] + pix_sum * frac_area_dict[teff]
                 else:
                     data[teff] = pix_sum * frac_area_dict[teff]
-
+        total = 0
+        for teff in data.keys():
+            total += data[teff]
         # normalize
-        for teff in Teffs:
+        for teff in data.keys():
             data[teff] = data[teff]/total
         return data
     
