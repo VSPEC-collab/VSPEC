@@ -441,7 +441,7 @@ class Star:
         Returns:
             None
         """
-        self.faculae.add_faculae(self.fac_generator.birth_spots(time,self.radius,self.Teff))
+        self.faculae.add_faculae(self.fac_generator.birth_faculae(time,self.radius,self.Teff))
     def average_teff(self,sub_obs_coords):
         """Average Teff
         Calculate the average Teff of the star given a sub-observation point
