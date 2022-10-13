@@ -774,12 +774,12 @@ class FaculaGenerator:
         assert u.get_physical_type(R_HWHM) == 'length'
         assert u.get_physical_type(T_peak) == 'time'
         assert u.get_physical_type(T_HWHM) == 'time'
-        radius_unit = u.km
-        lifetime_unit = u.hr
-        self.R0 = np.log10(R_peak/radius_unit)
-        self.sig_R = np.log10((R_peak + R_HWHM)/radius_unit) - self.R0
-        self.T0 = np.log10(T_peak/lifetime_unit)
-        self.sig_T = np.log10((T_peak + T_HWHM)/lifetime_unit) - self.T0
+        self.radius_unit = u.km
+        self.lifetime_unit = u.hr
+        self.R0 = np.log10(R_peak/self.radius_unit)
+        self.sig_R = np.log10((R_peak + R_HWHM)/self.radius_unit) - self.R0
+        self.T0 = np.log10(T_peak/self.lifetime_unit)
+        self.sig_T = np.log10((T_peak + T_HWHM)/self.lifetime_unit) - self.T0
         assert isinstance(coverage,float)
         self.coverage = coverage
         self.dist = dist
