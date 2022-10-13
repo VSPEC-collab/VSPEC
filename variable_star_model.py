@@ -537,8 +537,8 @@ class Facula:
     Args:
         lat (astropy.units.quantity.Quantity [angle]): latitude of facula center
         lon (astropy.units.quantity.Quantity [angle]): longitude of facula center
-        Dmax (astropy.units.quantity.Quantity [length]): maximum radius of facula
-        D0 (astropy.units.quantity.Quantity [length]): current radius of facula
+        Rmax (astropy.units.quantity.Quantity [length]): maximum radius of facula
+        R0 (astropy.units.quantity.Quantity [length]): current radius of facula
         Zw (astropy.units.quantity.Quantity [length]): depth of the depression
         Teff_floor (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'cool floor'
         Teff_wall (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'hot wall'
@@ -739,4 +739,111 @@ class FaculaCollection:
             int_map[pix_in_fac & is_photosphere] = i+1
             map_dict[i] = i+1
         return int_map, map_dict
-            
+
+class FaculaGenerator:
+    """ Facula generator
+    Class controling the birth rates and properties of new faculae.
+    Radius distribution from K. P. Topka et al 1997 ApJ 484 479
+    Lifetime distribution from 2022SoPh..297...48H
+    
+    Args:
+        R_peak (astropy.unit.quantity.Quantity [length]): Radius to use as the peak of the distribution
+        R_HWHM (astropy.unit.quantity.Quantity [length]): Radius half width half maximum. Difference between
+            the peak of the radius distribution and the half maximum in the positive direction
+        T_peak (astropy.unit.quantity.Quantity [time]): Lifetime to use as the peak of the distribution
+        T_HWHM (astropy.unit.quantity.Quantity [time]): Lifetime half width half maximum. Difference between
+            the peak of the lifetime distribution and the half maximum in the positive direction
+        coverage (float): fraction of the stellar surface covered by faculae
+        dist (str): type of distribution
+        
+    """
+    def __init__(self,R_peak = 100*u.km, R_HWHM = 50*u.km,
+                 T_peak = 3.2*u.hr, T_HWHM = 2.7*u.hr,coverage=0.01,dist = 'even'):
+        assert u.get_physical_type(R_peak) == 'length'
+        assert u.get_physical_type(R_HWHM) == 'length'
+        assert u.get_physical_type(T_peak) == 'time'
+        assert u.get_physical_type(T_HWHM) == 'time'
+        radius_unit = u.km
+        lifetime_unit = u.hr
+        self.R0 = np.log10(R_peak/radius_unit)
+        self.sig_R = np.log10((R_peak + R_HWHM)/radius_unit) - self.R0
+        self.T0 = np.log10(T_peak/lifetime_unit)
+        self.sig_T = np.log10((T_peak + T_HWHM)/lifetime_unit) - self.T0
+        assert isinstance(coverage,float)
+        self.coverage = coverage
+        self.dist = dist
+        
+    def get_floor_teff(R,Teff_star):
+        """Get floor Teff
+        Get the Teff of the faculae floor based on the radius and photosphere Teff
+        Based on K. P. Topka et al 1997 ApJ 484 479
+        
+        Args:
+            R (astropy.unit.quantity.Quantity [length]): radius of the facula[e]
+            Teff_star (astropy.unit.quantity.Quantity [temperature]): effective temperature of the photosphere
+        
+        Returns:
+            (astropy.unit.quantity.Quantity [temperature]): floor temperature of faculae
+        """
+        d_teff = np.zeros(len(R))
+        reg = R <= 150*u.km
+        d_teff[reg] = -1 * u.K * R[reg]/u.km/5
+        reg = (R > 150*u.km) & (R <= 175*u.km )
+        d_teff[reg] = 510 * u.K - 18*R[reg]/5/u.km*u.K
+        reg = (R > 175*u.km)
+        d_teff[reg] = -4*u.K*R[reg]/7/u.km - 20 * u.K
+        
+        return d_teff + Teff_star
+    
+    def get_wall_teff(R,Teff_floor):
+        """Get wall Teff
+        Get the Teff of the faculae wall based on the radius and floor Teff
+        Based on K. P. Topka et al 1997 ApJ 484 479
+        
+        Args:
+            R (astropy.unit.quantity.Quantity [length]): radius of the facula[e]
+            Teff_floor (astropy.unit.quantity.Quantity [temperature]): effective temperature of the cool floor
+        
+        Returns:
+            (astropy.unit.quantity.Quantity [temperature]): wall temperature of faculae
+        """
+        return Teff_floor + R/u.km * u.K + 125*u.K
+        
+        
+    def birth_faculae(self,time, rad_star, Teff_star):
+        """birth faculae
+        determine the number and parameters of faculae to create in an amount of time
+        
+        Args:
+            time (astropy.unit.quantity.Quantity [time]): time over which to create faculae
+            rad_star (astropy.unit.quantity.Quantity [length]): radius of the star
+            Teff_star (astropy.unit.quantity.Quantity [temperature]): temperature of the star
+        
+        Returns:
+            (tuple): tuple of new faculae
+        """
+        N_exp = (self.coverage * 4*np.pi*rad_star**2 / ((10**self.R0*self.radius_unit)**2 * np.pi)
+                        * time/(10**self.T0 * self.lifetime_unit)).to(u.Unit(''))
+        # N_exp is the expectation value of N, but this is a poisson process
+        N = max(0,round(np.random.normal(loc=N_exp,scale = np.sqrt(N_exp))))
+        print(f'{N_exp:.2f}-->{N}')
+        mu = np.random.normal(loc=0,scale=1,size=N)
+        max_radii = 10**(self.R0 + self.sig_R * mu) * self.radius_unit
+        lifetimes = 10**(self.T0 + self.sig_T * mu) * self.lifetime_unit
+        starting_radii = max_radii / np.e**2
+        lats = None
+        lons = None
+        if self.dist == 'even':
+            x = np.linspace(-90,90,180,endpoint=False)
+            p = np.cos(x)
+            lats = (np.random.choice(x,p=p/p.sum(),size=N) + np.random.random(size=N)) * u.deg
+            lon = np.random.random(size=N) * 360 * u.deg
+        else:
+            raise NotImplementedError(f'{self.dist} has not been implemented as a distribution')
+        teff_floor = self.get_floor_teff(max_radii,Teff_star)
+        teff_wall = self.get_wall_teff(max_radii,teff_floor)
+        new_faculae = []
+        for i in range(N):
+            new_faculae.append(Facula(lats[i], lons[i], max_radii[i], starting_radii[i], teff_floor[i],
+                                     teff_wall[i], growing=True, floor_threshold=20*u.km, Zw = 100*u.km))
+        return tuple(new_faculae)
