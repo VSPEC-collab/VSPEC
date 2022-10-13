@@ -289,7 +289,7 @@ class Star:
         self.map = self.get_pixelmap(Nlat=self.resolution['lat'],Nlon=self.resolution['lon'])
         
         self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15)
-        
+        self.fac_generator = FaculaGenerator()
     def get_pixelmap(self,Nlat=500,Nlon=1000):
         """get pixelmap
         Create map of stellar surface based on spots:
@@ -431,6 +431,17 @@ class Star:
             None
         """
         self.spots.add_spot(self.spot_generator.birth_spots(time,self.radius,self.period,self.Teff))
+    def birth_faculae(self,time):
+        """birth faculae
+        Create new faculae from a facula generator.
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): time over which these faculae should be created.
+        
+        Returns:
+            None
+        """
+        self.faculae.add_faculae(self.fac_generator.birth_spots(time,self.radius,self.Teff))
     def average_teff(self,sub_obs_coords):
         """Average Teff
         Calculate the average Teff of the star given a sub-observation point
