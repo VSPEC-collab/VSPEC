@@ -23,11 +23,14 @@ class StarSpot:
         growing (bool): Whether or not the spot is growing.
         growth_rate (astropy.units.quantity.Quantity [1/time]): Fractional growth of the spot for a given unit time.
             From 2013PhDT.......359G can be 0.52/day to 1.83/day (compiled form various sources)
+        Nlat (int): number of latitude points. Default 500
+        Nlon (int): number of longitude points Default 1000
+        gridmake (CoordinateGrid): grid maker object. Default None
 
     Returns:
         None
     """
-    def __init__(self,lat,lon,Amax,A0,Teff_umbra,Teff_penumbra,T = 1*u.day,r_A=5,growing=True,growth_rate = 0.52/u.day):
+    def __init__(self,lat,lon,Amax,A0,Teff_umbra,Teff_penumbra,T = 1*u.day,r_A=5,growing=True,growth_rate = 0.52/u.day,Nlat=500,Nlon=1000,gridmaker=None):
         assert isinstance(lat,quant)
         assert isinstance(lon,quant)
         self.coords = {'lat':lat,'lon':lon}
@@ -45,6 +48,16 @@ class StarSpot:
         self.total_area_over_umbra_area = r_A
         self.is_growing = growing
         self.growth_rate = growth_rate
+
+        if not gridmaker:
+            self.gridmaker = CoordinateGrid(Nlat,Nlon)
+        else:
+            self.gridmaker = gridmaker
+        latgrid,longrid = self.gridmaker.grid()
+        lat0 = self.coords['lat']
+        lon0 = self.coords['lon']
+        self.r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
+                         + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
     def radius(self):
         """radius
         Get the radius of the spot.
@@ -70,7 +83,7 @@ class StarSpot:
         angle_in_rad = radius/star_rad
         return angle_in_rad/np.pi * 180 *u.deg
     
-    def map_pixels(self,latgrid,longrid,star_rad):
+    def map_pixels(self,star_rad):
         """map pixels
         Map latitude and longituide points continaing the umbra and penumbra
 
@@ -84,12 +97,12 @@ class StarSpot:
         """
         radius = self.angular_radius(star_rad)
         radius_umbra = radius/np.sqrt(self.total_area_over_umbra_area)
-        lat0 = self.coords['lat']
-        lon0 = self.coords['lon']
-        r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
-                         + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
-        return {self.Teff_umbra:r < radius_umbra,
-                self.Teff_penumbra: r < radius}
+        # lat0 = self.coords['lat']
+        # lon0 = self.coords['lon']
+        # r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
+                        #  + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
+        return {self.Teff_umbra:self.r < radius_umbra,
+                self.Teff_penumbra: self.r < radius}
     def surface_fraction(self,sub_obs_coords,star_rad,N=1001):
         """surface fraction
         Determine the surface fraction covered by a spot from a given angle of observation.
@@ -183,12 +196,21 @@ class SpotCollection:
 
     Args:
         *spots (StarSpot): series of StarSpot objects
+        Nlat (int): number of latitude points. Default 500
+        Nlon (int): number of longitude points Default 1000
+        gridmake (CoordinateGrid): grid maker object. Default None
     
     Returns:
         None
     """
-    def __init__(self,*spots):
+    def __init__(self,*spots,Nlat=500,Nlon=1000,gridmaker=None):
         self.spots = spots
+        if not gridmaker:
+            self.gridmaker = CoordinateGrid(Nlat,Nlon)
+        else:
+            self.gridmaker = gridmaker
+        for spot in spots:
+            spot.gridmaker = self.gridmaker
     def add_spot(self,spot):
         """add spot
         Add a spot
@@ -199,6 +221,11 @@ class SpotCollection:
         Returns:
             None
         """
+        if isinstance(spot, StarSpot):
+            spot.gridmaker = self.gridmaker
+        else:
+            for s in spot:
+                s.gridmaker = self.gridmaker
         self.spots += tuple(spot)
     def clean_spotlist(self):
         """clean spotlist
@@ -292,6 +319,7 @@ class Star:
             self.gridmaker = gridmaker
         self.map = self.get_pixelmap()
         self.faculae.gridmaker = self.gridmaker
+        self.spots.gridmaker = self.gridmaker
 
         
         self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15)
