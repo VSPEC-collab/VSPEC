@@ -10,10 +10,14 @@ import numpy as np
 import os
 from pathlib import Path
 import read_info
+from astropy import units as u
 
 api_key = open('/Users/tjohns39/psg_key.txt','r').read()
 
 # 2nd file to run.
+
+def to_float(quant,unit):
+    return (quant/unit).to(u.Unit('')).value
 
 if __name__ == "__main__":
     
@@ -37,7 +41,7 @@ if __name__ == "__main__":
 
     # Define parameters of this run
     with open(Path('.') / 'Configs' / 'GCMs' / 'config.txt', "w") as fr:
-        fr.write('<OBJECT-DIAMETER>%f\n' % Params.objDiam)
+        fr.write('<OBJECT-DIAMETER>%f\n' % (Params.objDiam))
         fr.write('<OBJECT-GRAVITY>%f\n' % Params.objGrav)
         fr.write('<OBJECT-GRAVITY-UNIT>g\n')
         fr.write('<OBJECT-STAR-TYPE>%s\n' % Params.starType)
@@ -60,7 +64,7 @@ if __name__ == "__main__":
         fr.write('<GENERATOR-BEAM>%d\n' % Params.beamValue)
         fr.write('<GENERATOR-BEAM-UNIT>%s\n'% Params.beamUnit)
         fr.write('<GENERATOR-CONT-STELLAR>Y\n')
-        fr.write('<OBJECT-INCLINATION>%s\n' % Params.inclinationPSG)
+        fr.write('<OBJECT-INCLINATION>%s\n' % to_float(Params.inclinationPSG,u.deg))
         fr.write('<OBJECT-SOLAR-LATITUDE>0.0\n')
         fr.write('<OBJECT-OBS-LATITUDE>0.0\n')
         fr.write('<GENERATOR-RADUNITS>%s\n' % Params.radunit)
@@ -98,20 +102,20 @@ if __name__ == "__main__":
     final_phase = Params.total_images * Params.delta_phase_planet
     # print(np.arange(0,final_phase,Params.delta_phase_planet))
     
-    phases = ((np.arange(Params.total_images) * Params.delta_phase_planet + Params.phase1) % 360)
+    phases = ((np.arange(Params.total_images) * Params.delta_phase_planet + Params.phase1) % (360*u.deg))
     print(phases)
     count = 0
     for phase in (phases):
-        if phase>178 and phase<182:
-            phase=182.0 # Add transit phase;
-        if phase == 185:
-            phase = 186.0
+        if phase>178*u.deg and phase<182*u.deg:
+            phase=182.0*u.deg # Add transit phase;
+        if phase == 185*u.deg:
+            phase = 186.0*u.deg
         
         # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
         with open(Path('.') / 'Configs' / 'Stellar' / 'config.txt', 'w') as fr:
             fr.write('<OBJECT-STAR-TYPE>%s\n' % Params.starType)
-            fr.write('<OBJECT-SEASON>%f\n' % phase)
-            fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % phase)
+            fr.write('<OBJECT-SEASON>%f\n' % to_float(phase,u.deg))
+            fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(phase,u.deg))
             fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
             fr.close()
         
@@ -130,7 +134,7 @@ if __name__ == "__main__":
         with open(f'{file_path}', 'w') as fr:
             phase *= -1
             fr.write('<OBJECT-STAR-TYPE>-\n')
-            fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % phase)
+            fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(phase,u.deg))
             phase *= -1
             fr.close()
         

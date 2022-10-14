@@ -7,7 +7,7 @@ import pandas as pd
 from pathlib import Path
 import time
 from scipy.interpolate import interp2d
-from astropy import units
+from astropy import units as u, constants as c
 
 class ReadStarModels():
     def __init__(self,
@@ -163,7 +163,7 @@ class ReadStarModels():
         # print('Reading File: <'+self.photModelFile+'>')
         print('Model Teffs to load: ', Teffs)
         for Teff in Teffs:
-            filename = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{Teff:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            filename = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{Teff.to(u.K)/u.K:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
             fh5 = h5py.File(filename,'r')
             wl = fh5['PHOENIX_SPECTRUM/wl'][()]
             fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
@@ -179,7 +179,7 @@ class ReadStarModels():
             if not binned_path.exists():
                 binned_path.mkdir()
             binnedPhotStringCSV = photModelStrings.to_csv(index=False, header=['WAVELENGTH (MICRONS)','FLUX (ERG/CM2/S/A)'], sep=' ')
-            file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Teff}StellarModel.txt'
+            file_to_open = Path('.') / 'NextGenModels' / 'BinnedData' / f'binned{Teff.to(u.K)/u.K:.0f}StellarModel.txt'
             file = open(file_to_open,'w')
             file.write(binnedPhotStringCSV)
             file.close()
@@ -193,33 +193,33 @@ class ParamModel():
             delta_time = observation_param_dict['time_between_exposures']
             
             # Convert minutes to days
-            self.delta_time = delta_time * (1/ 60) * (1/24)
+            self.delta_time = delta_time.to(u.day)
             
             # The delta_phase_planet between images will be calculated based on the rotation of the planet
             # given the amount of time between exposures.
 
-            self.delta_phase_planet = float((self.delta_time / self.rotPlanet) * 360)
+            self.delta_phase_planet = ((self.delta_time / self.rotPlanet) * 360*u.deg)
             print(f'delta_time = {self.delta_time}')
             print(f'rotPlanet = {self.rotPlanet}')
             print("delta_phase_planet = ", self.delta_phase_planet)
             
-            self.delta_phase_star = float((self.delta_time / self.rotstar) * 360)
+            self.delta_phase_star = ((self.delta_time / self.rotstar) * 360*u.deg)
         
         # This scenario is if the uer has elected to image the planet every 'n' degrees of its rotation
         elif 'image_per_degree_rotation_planet' in observation_param_dict:
             degrees_rotate = observation_param_dict['image_per_degree_rotation_planet']
             
-            self.delta_phase_planet = float(degrees_rotate)
-            print(f"Image every {degrees_rotate} planet rotation degrees")
+            self.delta_phase_planet = degrees_rotate
+            print(f"Image every {degrees_rotate} of planet rotation")
             
             # First, take the percentage of the planet delta phase out of 360 and apply it to the planet's rotation period.
             # This gives the number of days the planet has taken to rotate delta_phase_planet degrees.
             # Take that number of days and apply it to the star's rotation period to get the percent that these days take up.
             # Multiply that by 360 degrees to see how many degrees the star rotates during the same time period as the
             # delta_planet_phase.
-            delta_planet_phase_in_days = (self.delta_phase_planet / 360) * self.rotPlanet
-            self.delta_phase_star = float((delta_planet_phase_in_days / self.rotstar) * 360)
-            self.delta_time = self.delta_phase_planet / 360.0 * self.rotPlanet
+            delta_planet_phase_in_days = (self.delta_phase_planet / 360/u.deg) * self.rotPlanet
+            self.delta_phase_star = ((delta_planet_phase_in_days / self.rotstar) * 360*u.deg)
+            self.delta_time = self.delta_phase_planet / 360.0/u.deg * self.rotPlanet
             
             print('done')
         
@@ -228,48 +228,48 @@ class ParamModel():
         elif 'image_per_degree_rotation_star' in observation_param_dict:
             degrees_rotate = observation_param_dict['image_per_degree_rotation_star']
             
-            self.delta_phase_star = float(degrees_rotate)
-            print(f"Image every {degrees_rotate} star rotation degrees")
+            self.delta_phase_star = (degrees_rotate)
+            print(f"Image every {degrees_rotate} of stellar rotation")
             
             # First, take the percentage of the star delta phase out of 360 and apply it to the star's rotation period.
             # This gives the number of days the star has taken to rotate delta_phase_star degrees.
             # Take that number of days and apply it to the planet's rotation period to get the percent that these days take up.
             # Multiply that by 360 degrees to see how many degrees the planet rotates during the same time period as the
             # delta_planet_star.
-            delta_star_phase_in_days = (self.delta_phase_star / 360) * self.rotstar
-            self.delta_phase_planet = float((delta_star_phase_in_days / self.rotPlanet) * 360)
-            self.delta_time = self.delta_phase_star / 360.0 * self.rotstar
+            delta_star_phase_in_days = (self.delta_phase_star / 360/u.deg) * self.rotstar
+            self.delta_phase_planet = ((delta_star_phase_in_days / self.rotPlanet) * 360*u.deg)
+            self.delta_time = self.delta_phase_star / 360.0/u.deg * self.rotstar
 
 
             print('done')
             
         if 'observing_time' in observation_param_dict:
-            total_time = observation_param_dict['observing_time'] * (1/60) * (1/24)
+            total_time = observation_param_dict['observing_time'].to(u.day)
             
             if 'time_between_exposures' in observation_param_dict:
-                total_images = math.floor(total_time / self.delta_time)
+                total_images = math.floor((total_time / self.delta_time).to(u.Unit('')))
                 print("TOTAL IMAGES = ", total_images)
 
             elif 'image_per_degree_rotation_planet' in observation_param_dict:
-                total_images = math.floor(total_time / ((self.delta_phase_planet / 360) * self.rotPlanet))
+                total_images = math.floor((total_time / ((self.delta_phase_planet / 360/u.deg) * self.rotPlanet)).to(u.Unit('')))
                 print("TOTAL IMAGES = ", total_images)
                 
             elif 'image_per_degree_rotation_star' in observation_param_dict:
-                total_images = math.floor(total_time / ((self.delta_phase_star / 360) * self.rotstar))
+                total_images = math.floor((total_time / ((self.delta_phase_star / 360/u.deg) * self.rotstar)).to(u.Unit('')))
                 print("TOTAL IMAGES = ", total_images)
             
             self.total_images = total_images
             print(f'total_image = {self.total_images}')
         elif 'num_planet_rotations' in observation_param_dict:
             total_rotations = observation_param_dict['num_planet_rotations']
-            total_images = math.floor((360 / self.delta_phase_planet) * total_rotations)
+            total_images = math.floor(((360*u.deg / self.delta_phase_planet) * total_rotations).to(u.Unit('')))
             self.total_images = total_images + 1
         
         elif 'num_star_rotations' in observation_param_dict:
             total_rotations = observation_param_dict['num_star_rotations']
-            total_images = math.floor((360 / self.delta_phase_star) * total_rotations)
+            total_images = math.floor(((360*u.deg / self.delta_phase_star) * total_rotations).to(u.Unit('')))
             self.total_images = total_images + 1
-        self.detector_number_of_integrations = self.delta_time * 24*60*60/self.detector_integration_time
+        self.detector_number_of_integrations = self.delta_time.to(u.s)/self.detector_integration_time / u.s
 
     def __init__(self):
         configParser = configparser.RawConfigParser()
@@ -294,31 +294,31 @@ class ParamModel():
         self.defaultModelType = configParser.getboolean('Star', 'defaultModelType')
 
         # Temperature values for the star, spots, and faculae
-        self.teffStar = int(configParser.get('Star', 'teffStar'))
-        self.binningRange = int(configParser.get('Star', 'binningRange'))
+        self.teffStar = int(configParser.get('Star', 'teffStar')) * u.K
+        self.binningRange = int(configParser.get('Star', 'binningRange')) * u.K
 
-        self.starRadius = float(configParser.get('Star', 'starRadius'))
-        self.starRadiusMeters = self.starRadius * 6.957e8
+        self.starRadius = float(configParser.get('Star', 'starRadius')) * u.R_sun
+        self.starRadiusMeters = self.starRadius.to(u.m).value
 
-        self.starDistance = float(configParser.get('Star', 'starDistance'))
-        self.starDistanceMeters = self.starDistance * 3.086e16
+        self.starDistance = float(configParser.get('Star', 'starDistance')) * u.pc
+        self.starDistanceMeters = self.starDistance.to(u.m).value
 
         # Rotation of star in days
-        self.rotstar = float(configParser.get('Star', 'Rotstar'))
+        self.rotstar = float(configParser.get('Star', 'Rotstar')) * u.day
 
         # Inclination of the star
-        self.inclination = int(configParser.get('Star', 'Inclination'))
-        self.inclinationPSG = self.inclination + 90
+        self.inclination = int(configParser.get('Star', 'Inclination')) * u.deg
+        self.inclinationPSG = self.inclination + 90*u.deg
 
         # Total number of exposures to be takn
         # self.total_images = int(configParser.get('HemiMap', 'total_images'))
         
         # self.final_stellar_phase = int(configParser.get('HemiMap', 'final_stellar_phase'))
         
-        self.revPlanet = configParser.getfloat('PSG', 'revPlanet')
+        self.revPlanet = configParser.getfloat('PSG', 'revPlanet')*u.day
         # The planet rotation is equivalent to the planet revolution for tidally locked planets
         self.rotPlanet = self.revPlanet
-        self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')
+        self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')*u.deg
 
         # Noise
         self.detector_type = configParser.get('PSG','detector_type')
@@ -333,15 +333,15 @@ class ParamModel():
 
         self.observation_style = str(configParser.get('HemiMap', 'Chosen_Observation_Style'))
         if self.observation_style == 'time_between_exposures':
-            self.observation_param_dict = {'time_between_exposures':int(configParser.get('HemiMap', 'time_between_exposures'))}
+            self.observation_param_dict = {'time_between_exposures':int(configParser.get('HemiMap', 'time_between_exposures'))*u.min}
         elif self.observation_style == 'image_per_degree_rotation_planet':
-            self.observation_param_dict = {'image_per_degree_rotation_planet':int(configParser.get('HemiMap', 'image_per_degree_rotation_planet'))}
+            self.observation_param_dict = {'image_per_degree_rotation_planet':int(configParser.get('HemiMap', 'image_per_degree_rotation_planet'))*u.deg}
         elif self.observation_style == 'image_per_degree_rotation_star':
-            self.observation_param_dict = {'image_per_degree_rotation_star':int(configParser.get('HemiMap', 'image_per_degree_rotation_star'))}
+            self.observation_param_dict = {'image_per_degree_rotation_star':int(configParser.get('HemiMap', 'image_per_degree_rotation_star'))*u.deg}
         
         self.observation_length = str(configParser.get('HemiMap', 'Chosen_Observation_Length'))
         if self.observation_length == 'observing_time':
-            self.observation_param_dict['observing_time'] = int(configParser.get('HemiMap', 'observing_time'))
+            self.observation_param_dict['observing_time'] = int(configParser.get('HemiMap', 'observing_time'))*u.min
         elif self.observation_length == 'num_planet_rotations':
             self.observation_param_dict['num_planet_rotations'] = int(configParser.get('HemiMap', 'num_planet_rotations'))
         elif self.observation_length == 'num_star_rotations':
@@ -366,9 +366,9 @@ class ParamModel():
 
         # Load in the NextGen Stellar Info
         if self.defaultModelType:
-            self.teffs = 100*np.arange(np.floor(self.teffStar/100 - self.binningRange/100),
-                                np.ceil(self.teffStar/100 + self.binningRange/100)+1)
-            self.model_files = [Path('.') / 'NextGenModels' / 'RawData' / f'lte0{t:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5' for t in self.teffs]
+            self.teffs = 100*np.arange(np.floor(self.teffStar.to(u.K)/100/u.K - self.binningRange.to(u.K)/100/u.K),
+                                np.ceil(self.teffStar.to(u.K)/100/u.K + self.binningRange.to(u.K)/100/u.K)+1) * u.K
+            self.model_files = [Path('.') / 'NextGenModels' / 'RawData' / f'lte0{t.to(u.K)/u.K:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5' for t in self.teffs]
         else:
             raise NotImplementedError
             # phot_model_file = configParser.get('Star', 'phot_model_file')
@@ -424,7 +424,7 @@ class ParamModel():
         self.cmTOum = 1e4
         self.cm2TOm2 = 1e-4
         self.erg_sTOwatts = 1e-7
-        self.unit_conversion = (units.Unit('erg m-2 s-1 um-1')/units.Unit('W m-2 um-1')).to(units.Unit(''))
+        self.unit_conversion = (u.Unit('erg m-2 s-1 um-1')/u.Unit('W m-2 um-1')).to(u.Unit(''))
 
         # Plotting booleans; decide what plots to create during an execution of the program.
         self.plotLightCurve = configParser.getboolean('Plots', 'plotLightCurve')
