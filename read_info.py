@@ -16,14 +16,9 @@ class ReadStarModels():
         binnedWavelengthMax=None,
         imageResolution=None,
         resolvingPower=None,
-        photModelFile=None,
-        spotModelFile=None,
-        facModelFile=None,
+        filenames=None,
         topValues=None,
-        cwValues=None,
-        photModel=None,
-        spotModel=None,
-        facModel=None,
+        cwValues=None
         ):
 
         self.starName = starName
@@ -34,15 +29,9 @@ class ReadStarModels():
             self.rangeMax = binnedWavelengthMax + (binnedWavelengthMax / (binnedWavelengthMax * 1.5))
         self.ngridpoints = imageResolution
         self.resolvingPower = resolvingPower
-        self.photModelFile = photModelFile
-        self.spotModelFile = spotModelFile
-        self.facModelFile = facModelFile
+        self.filenames = filenames
         self.topValues = topValues
         self.cwValues = cwValues
-        self.photModel = photModel
-        self.spotModel = spotModel
-        self.facModel = facModel
-
     # EDIT: Move Bin into it's own program file
     # Bin the photosphere, spot, and faculae stellar model flux values
     def bin(self, model):
@@ -161,7 +150,7 @@ class ReadStarModels():
 
         return model, modelStrings
 
-    def read_model(self, teffStar, teffSpot, teffFac, loadData = False):
+    def read_model(self, Teffs, loadData = False):
         
         modelStrings = None
 
@@ -172,13 +161,9 @@ class ReadStarModels():
 
         # Works for reading h5 files
         # print('Reading File: <'+self.photModelFile+'>')
-        Teffs = np.unique([int(teffStar - teffStar%100),int(teffStar - teffStar%100 +100),
-                            int(teffSpot - teffSpot%100),int(teffSpot - teffSpot%100 +100),
-                            int(teffFac - teffFac%100),int(teffFac - teffFac%100 +100)
-                        ])
         print('Model Teffs to load: ', Teffs)
         for Teff in Teffs:
-            filename = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{Teff}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
+            filename = Path('.') / 'NextGenModels' / 'RawData' / f'lte0{Teff:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
             fh5 = h5py.File(filename,'r')
             wl = fh5['PHOENIX_SPECTRUM/wl'][()]
             fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()]
@@ -302,37 +287,21 @@ class ParamModel():
         # Read in the information of the star from the config file
         self.starName = configParser.get('Star', 'starName')
 
-        self.spotCoverage = int(configParser.get('Star', 'spotCoverage'))
-        # Turn spot coverage into a percentage
-        self.spotCoverage = self.spotCoverage/100
-        self.spotNumber = int(configParser.get('Star', 'spotNumber'))
+        self.spotCoverage = float(configParser.get('Star', 'spotCoverage'))
         
         self.facCoverage = int(configParser.get('Star', 'facCoverage'))
-        # Turn facCoverage into a percentage
-        self.facCoverage = self.facCoverage/100
-        self.facNumber = int(configParser.get('Star', 'facNumber'))
-
         # Load in 
         self.defaultModelType = configParser.getboolean('Star', 'defaultModelType')
 
         # Temperature values for the star, spots, and faculae
         self.teffStar = int(configParser.get('Star', 'teffStar'))
-        self.teffSpot = int(configParser.get('Star', 'teffSpot'))
-        self.teffFac = int(configParser.get('Star', 'teffFac'))
+        self.binningRange = int(configParser.get('Star', 'binningRange'))
 
         self.starRadius = float(configParser.get('Star', 'starRadius'))
         self.starRadiusMeters = self.starRadius * 6.957e8
 
         self.starDistance = float(configParser.get('Star', 'starDistance'))
         self.starDistanceMeters = self.starDistance * 3.086e16
-
-        # Booleaan that decides whether to generate the hemisphere data or not (if already generated for example)
-        self.generateHemispheres = configParser.getboolean('HemiMap', 'generateHemispheres')
-
-        # Boolean that decides whether to create high resolution hemisphere maps or not
-        # Default imageResolution of 300
-        self.highResHemispheres = configParser.getboolean('HemiMap', 'high_res')
-        self.imageResolution = 180
 
         # Rotation of star in days
         self.rotstar = float(configParser.get('Star', 'Rotstar'))
@@ -344,7 +313,7 @@ class ParamModel():
         # Total number of exposures to be takn
         # self.total_images = int(configParser.get('HemiMap', 'total_images'))
         
-        self.final_stellar_phase = int(configParser.get('HemiMap', 'final_stellar_phase'))
+        # self.final_stellar_phase = int(configParser.get('HemiMap', 'final_stellar_phase'))
         
         self.revPlanet = configParser.getfloat('PSG', 'revPlanet')
         # The planet rotation is equivalent to the planet revolution for tidally locked planets
@@ -397,28 +366,17 @@ class ParamModel():
 
         # Load in the NextGen Stellar Info
         if self.defaultModelType:
-            teffs = [int(self.teffStar - self.teffStar%100),int(self.teffStar - self.teffStar%100)]
-            self.phot_model_file = [
-                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
-                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            ]
-            teffs = [int(self.teffSpot - self.teffSpot%100),int(self.teffSpot - self.teffSpot%100)]
-            self.spot_model_file = [
-                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
-                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            ]
-            teffs = [int(self.teffFac - self.teffFac%100),int(self.teffFac - self.teffFac%100)]
-            self.fac_model_file = [
-                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[0])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5',
-                Path('.') / 'NextGenModels' / 'RawData' / f'lte0{str(teffs[1])}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
-            ]
+            self.teffs = 100*np.arange(np.floor(self.teffStar/100 - self.binningRange),
+                                np.ceil(self.teffStar/100 + self.binningRange)+1)
+            self.model_files = [Path('.') / 'NextGenModels' / 'RawData' / f'lte0{t:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5' for t in self.teffs]
         else:
-            phot_model_file = configParser.get('Star', 'phot_model_file')
-            self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove
-            spot_model_file = configParser.get('Star', 'spot_model_file')
-            self.spot_model_file = spot_model_file.strip('"')
-            fac_model_file = configParser.get('Star', 'fac_model_file')
-            self.fac_model_file = fac_model_file.strip('"')
+            raise NotImplementedError
+            # phot_model_file = configParser.get('Star', 'phot_model_file')
+            # self.phot_model_file = phot_model_file.strip('"') # configParser adds extra "" that I remove
+            # spot_model_file = configParser.get('Star', 'spot_model_file')
+            # self.spot_model_file = spot_model_file.strip('"')
+            # fac_model_file = configParser.get('Star', 'fac_model_file')
+            # self.fac_model_file = fac_model_file.strip('"')
 
         # Boolean which says whether or not the user wishes to bin the data to a certain resolving power
         self.binData = configParser.getboolean('Star', 'binData')
