@@ -741,7 +741,7 @@ class FaculaCollection:
             None
         """
         if isinstance(facula, Facula):
-            faculae.gridmaker = self.gridmaker
+            facula.gridmaker = self.gridmaker
         else:
             for fac in facula:
                 fac.gridmaker = self.gridmaker
