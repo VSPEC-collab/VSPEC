@@ -143,9 +143,9 @@ if __name__ == "__main__":
             cwValues.append(CW)
             CW += deltaLambda
 
-        allModels = read_info.ReadStarModels(Params.starName, Params.binnedWavelengthMin, Params.binnedWavelengthMax,
-                                             Params.imageResolution, Params.resolvingPower, Params.phot_model_file,
-                                             Params.spot_model_file, Params.fac_model_file, topValues, cwValues)
+        allModels = read_info.ReadStarModels(Params.starName, binnedWavelengthMin=Params.binnedWavelengthMin,
+                binnedWavelengthMax=Params.binnedWavelengthMax,filenames=Params.model_files,
+                resolvingPower = Params.resolvingPower, topValues=topValues, cwValues=cwValues)
         allModels.read_model(Params.teffs)
         print("Done")
 

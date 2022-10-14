@@ -289,7 +289,7 @@ class ParamModel():
 
         self.spotCoverage = float(configParser.get('Star', 'spotCoverage'))
         
-        self.facCoverage = int(configParser.get('Star', 'facCoverage'))
+        self.facCoverage = float(configParser.get('Star', 'facCoverage'))
         # Load in 
         self.defaultModelType = configParser.getboolean('Star', 'defaultModelType')
 
@@ -366,8 +366,8 @@ class ParamModel():
 
         # Load in the NextGen Stellar Info
         if self.defaultModelType:
-            self.teffs = 100*np.arange(np.floor(self.teffStar/100 - self.binningRange),
-                                np.ceil(self.teffStar/100 + self.binningRange)+1)
+            self.teffs = 100*np.arange(np.floor(self.teffStar/100 - self.binningRange/100),
+                                np.ceil(self.teffStar/100 + self.binningRange/100)+1)
             self.model_files = [Path('.') / 'NextGenModels' / 'RawData' / f'lte0{t:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5' for t in self.teffs]
         else:
             raise NotImplementedError
