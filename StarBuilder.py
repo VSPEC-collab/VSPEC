@@ -1,5 +1,5 @@
 from multiprocessing import Pool, cpu_count, Array
-import read_info, star_functions
+import read_info
 import csv
 import numpy as np
 import os
