@@ -7,6 +7,8 @@ import os
 import pandas as pd
 from pathlib import Path
 from scipy.interpolate import interp1d, interp2d
+import variable_star_model as vsm
+from astropy import units as u, constants as c
 
 # 3rd file to run.
 
@@ -97,6 +99,34 @@ if __name__ == "__main__":
 
     # Create an object to store all of the spectra flux values
     allModels = read_info.ReadStarModels(Params.starName)
+
+    # create the star
+    vstar = vsm.Star(Params.teffStar*u.K,Params.starRadius,Params.rotstar,vsm.SpotCollection(),
+    vsm.FaculaCollection(),Params.starName,Params.starDistance)
+    vstar.spot_generator.coverage=Params.spotCoverage
+    vstar.fac_generator.coverage=Params.facCoverage
+
+    # create some spots --> want a steady state before we take spectra
+    spot_warm_up_step = 1*u.day
+    prev_nspots = 0
+    while True:
+        vstar.birth_spots(spot_warm_up_step)
+        vstar.age(spot_warm_up_step)
+        if len(vstar.spots.spots) < prev_nspots:
+            break
+        prev_nspots = len(vstar.spots.spots)
+    
+    # create some faculae
+    facula_warm_up_step = 1*u.hr
+    prev_nfac = 0
+    while True:
+        vstar.birth_faculae(facula_warm_up_step)
+        vstar.age(facula_warm_up_step)
+        if len(vstar.faculae.faculae) < prev_nfac:
+            break
+        prev_nfac = len(vstar.faculae.faculae)
+
+
 
     # Load in the NextGen Stellar Data for photosphere, spot, and faculae temperatures
     allModels.photModel = interpolate_stellar_spectrum(Params.teffStar)
