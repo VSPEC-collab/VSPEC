@@ -309,6 +309,7 @@ class ParamModel():
         # Inclination of the star
         self.inclination = int(configParser.get('Star', 'Inclination')) * u.deg
         self.inclinationPSG = self.inclination + 90*u.deg
+        self.offsetFromOrbitalPlane = int(configParser.get('Star','offsetFromOrbitalPlanet'))
 
         # Total number of exposures to be takn
         # self.total_images = int(configParser.get('HemiMap', 'total_images'))
