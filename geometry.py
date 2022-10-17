@@ -100,7 +100,7 @@ class SystemGeometry:
         sub_planet_lats = []
         sub_planet_lons = []
         for time in start_times:
-            phase = self.phase(time)
+            phase = self.phase(time) % (360*u.deg)
             phases.append(phase)
             sub_obs = self.sub_obs(time)
             sub_obs_lats.append(sub_obs['lat'])
