@@ -201,7 +201,7 @@ class ParamModel():
             self.delta_phase_planet = ((self.delta_time / self.rotPlanet) * 360*u.deg)
             print(f'delta_time = {self.delta_time}')
             print(f'rotPlanet = {self.rotPlanet}')
-            print("delta_phase_planet = ", self.delta_phase_planet)
+            print("approx delta_phase_planet = ", self.delta_phase_planet)
             
             self.delta_phase_star = ((self.delta_time / self.rotstar) * 360*u.deg)
         
@@ -259,7 +259,7 @@ class ParamModel():
                 print("TOTAL IMAGES = ", total_images)
             
             self.total_images = total_images
-            print(f'total_image = {self.total_images}')
+            # print(f'total_image = {self.total_images}')
         elif 'num_planet_rotations' in observation_param_dict:
             total_rotations = observation_param_dict['num_planet_rotations']
             total_images = math.floor(((360*u.deg / self.delta_phase_planet) * total_rotations).to(u.Unit('')))
@@ -309,7 +309,7 @@ class ParamModel():
         # Inclination of the star
         self.inclination = int(configParser.get('Star', 'Inclination')) * u.deg
         self.inclinationPSG = self.inclination + 90*u.deg
-        self.offsetFromOrbitalPlane = int(configParser.get('Star','offsetFromOrbitalPlanet')) * u.deg
+        self.offsetFromOrbitalPlane = int(configParser.get('Star','offsetFromOrbitalPlane')) * u.deg
         self.offsetDirection = int(configParser.get('Star','offsetDirection')) * u.deg
 
 
