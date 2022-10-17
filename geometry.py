@@ -74,3 +74,13 @@ class SystemGeometry:
         lon = sub_obs['lon'] + phase - 90*u.deg + self.beta
         lat = -1*self.alpha * np.cos(self.beta + phase)
         return {'lat':lat,'lon':lon}
+
+    def get_time_since_periasteron(self,phase):
+        true_anomaly = phase - 90*u.deg - self.omega
+        true_anomaly = true_anomaly % (360*u.deg)
+        guess = true_anomaly/360/u.deg * self.orbital_period
+        def func(guess):
+            val = (self.true_anomaly(guess*u.day) - true_anomaly).to(u.rad).value
+            return val
+        time = newton(func,(guess/u.day).to(u.Unit(''))) * u.day
+        return time.to(u.day)
