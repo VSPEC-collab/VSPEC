@@ -1,6 +1,7 @@
 import numpy as np
 from astropy import units as u, constants as c
 from scipy.optimize import newton
+import pandas as pd
 
 def to_float(quant,unit):
     return (quant/unit).to(u.Unit('')).value
@@ -68,9 +69,10 @@ class SystemGeometry:
         """
         return self.true_anomaly(time) + self.omega + 90*u.deg
 
-    def sub_planet(self,time):
+    def sub_planet(self,time,phase = None):
         sub_obs = self.sub_obs(time)
-        phase = self.phase(time)
+        if not phase:
+            phase = self.phase(time)
         lon = sub_obs['lon'] + phase - 90*u.deg + self.beta
         lat = -1*self.alpha * np.cos(self.beta + phase)
         return {'lat':lat,'lon':lon}
@@ -84,3 +86,31 @@ class SystemGeometry:
             return val
         time = newton(func,(guess/u.day).to(u.Unit(''))) * u.day
         return time.to(u.day)
+    
+    def get_observation_plan(self, phase0,total_time, time_step = None, N_obs = 10):
+        if not time_step:
+            N_obs = int(N_obs)
+        else:
+            N_obs = int(total_time/time_step)
+        t0 = self.get_time_since_periasteron(phase0)
+        start_times = np.linspace(to_float(t0,u.s),to_float(t0+total_time,u.s),N_obs,endpoint=False)
+        phases = []
+        sub_obs_lats = []
+        sub_obs_lons = []
+        sub_planet_lats = []
+        sub_planet_lons = []
+        for time in start_times:
+            phase = self.phase(time)
+            phases.append(phase)
+            sub_obs = self.sub_obs(time)
+            sub_obs_lats.append(sub_obs['lats'])
+            sub_obs_lons.append(sub_obs['lons'])
+            sub_planet = self.sub_planet(time,phase=phase)
+            sub_planet_lats.append(sub_planet['lats'])
+            sub_planet_lons.append(sub_planet['lons'])
+        return pd.DataFrame({'time':start_times,
+                            'phase':phases,
+                            'sub_obs_lat':sub_obs_lats,
+                            'sub_obs_lon': sub_obs_lons,
+                            'sub_planet_lat': sub_planet_lats,
+                            'sub_planet_lon': sub_planet_lons})
