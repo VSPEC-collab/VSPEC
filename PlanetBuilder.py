@@ -49,7 +49,7 @@ if __name__ == "__main__":
         fr.write('<OBJECT-STAR-DISTANCE>%f\n' % Params.semMajAx)
         fr.write('<OBJECT-PERIOD>%f\n' % Params.objPer)
         fr.write('<OBJECT-ECCENTRICITY>%f\n' % Params.objEcc)
-        fr.write('<OBJECT-PERIAPSIS>%f\n' % Params.objArgOfPeriapsis)
+        fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(Params.objArgOfPeriapsis,u.deg))
         fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % Params.starTemp)
         fr.write('<OBJECT-STAR-RADIUS>%f\n' % Params.starRad)
         fr.write('<GEOMETRY>Observatory\n')
@@ -102,11 +102,11 @@ if __name__ == "__main__":
     print("=================")
     # Calculate the total number of planet rotations given the observing time frame
     observation_parameters = SystemGeometry(Params.inclinationPSG,0*u.deg,
-                    Params.phase1,Params.rotstar,Params.revPlanet,Params.rotPlanet,
+                    Params.phase1*u.deg,Params.rotstar,Params.revPlanet,Params.rotPlanet,
                     Params.offsetFromOrbitalPlane,Params.offsetDirection,Params.objEcc,
                     Params.objArgOfPeriapsis)
-    phases = observation_parameters.get_observation_plan(Params.phase1,
-            Params.observation_param_dict['observing time'],N_obs=Params.total_images)
+    phases = observation_parameters.get_observation_plan(Params.phase1*u.deg,
+            Params.observation_param_dict['observing_time'],N_obs=Params.total_images)['phase']
     # final_phase = Params.total_images * Params.delta_phase_planet
     # print(np.arange(0,final_phase,Params.delta_phase_planet))
     

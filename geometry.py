@@ -88,12 +88,12 @@ class SystemGeometry:
         return time.to(u.day)
     
     def get_observation_plan(self, phase0,total_time, time_step = None, N_obs = 10):
-        if not time_step:
+        if time_step is None:
             N_obs = int(N_obs)
         else:
             N_obs = int(total_time/time_step)
         t0 = self.get_time_since_periasteron(phase0)
-        start_times = np.linspace(to_float(t0,u.s),to_float(t0+total_time,u.s),N_obs,endpoint=False)
+        start_times = np.linspace(to_float(t0,u.s),to_float(t0+total_time,u.s),N_obs,endpoint=False)*u.s
         phases = []
         sub_obs_lats = []
         sub_obs_lons = []
@@ -103,11 +103,11 @@ class SystemGeometry:
             phase = self.phase(time)
             phases.append(phase)
             sub_obs = self.sub_obs(time)
-            sub_obs_lats.append(sub_obs['lats'])
-            sub_obs_lons.append(sub_obs['lons'])
+            sub_obs_lats.append(sub_obs['lat'])
+            sub_obs_lons.append(sub_obs['lon'])
             sub_planet = self.sub_planet(time,phase=phase)
-            sub_planet_lats.append(sub_planet['lats'])
-            sub_planet_lons.append(sub_planet['lons'])
+            sub_planet_lats.append(sub_planet['lat'])
+            sub_planet_lons.append(sub_planet['lon'])
         return pd.DataFrame({'time':start_times,
                             'phase':phases,
                             'sub_obs_lat':sub_obs_lats,
