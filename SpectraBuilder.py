@@ -181,18 +181,20 @@ if __name__ == "__main__":
         # by the nuber of exposures taken so far (index)
         # Example: 180
         # Planet phase change is specified by the user; how many degrees it turns between "images" of the star
-        planetPhase = (Params.phase1 + Params.delta_phase_planet * index) % 360
-        if planetPhase>178 and planetPhase<182:
-            planetPhase=182.0 # Add transit phase;
-        if planetPhase == 185:
-            planetPhase = 186.0
+        planetPhase = (Params.phase1 + Params.delta_phase_planet * index) % (360*u.deg)
+        sub_obs_lon = (0*u.deg + Params.delta_phase_star*index) % (360*u.deg)
+        sub_obs_lat = 90*u.deg - Params.inclinationPSG
+        if planetPhase>178*u.deg and planetPhase<182*u.deg:
+            planetPhase=182.0*u.deg # Add transit phase;
+        if planetPhase == 185*u.deg:
+            planetPhase = 186.0*u.deg
 
 
         allModels.planetPhase = planetPhase
         # The current phase of the star is the star phase change value (between exposures) multiplied
         # by the nuber of exposures taken so far (index)
         # Example: 30
-        allModels.starPhase = (Params.delta_phase_star * index) % 360
+        allModels.starPhase = (Params.delta_phase_star * index) % (360*u.deg)
         
         # In PSG's models, phase 0 for the planet is "behind" the star from the viewer's perspective,
         # in secondary eclipse.
