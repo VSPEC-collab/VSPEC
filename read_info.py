@@ -312,6 +312,7 @@ class ParamModel():
         self.offsetFromOrbitalPlane = int(configParser.get('Star','offsetFromOrbitalPlanet')) * u.deg
         self.offsetDirection = int(configParser.get('Star','offsetDirection')) * u.deg
 
+
         # Total number of exposures to be takn
         # self.total_images = int(configParser.get('HemiMap', 'total_images'))
         
@@ -403,6 +404,7 @@ class ParamModel():
         self.objPer = configParser.getfloat('PSG', 'objPer')       # Period of planet (days)
         self.objRev = self.objPer                             # planet revolution is equal to planet rev for tidally locked planets
         self.objEcc = configParser.getfloat('PSG', 'objEcc')       # Eccentricity of planet
+        self.objArgOfPeriapsis = configParser.getfloat('PSG','objArgOfPeriapsis') * u.deg
         self.objDis = configParser.getfloat('PSG', 'objDis')       # Distance to system (uses distance to star) (pc)
         self.starTemp = configParser.getint('PSG', 'starTemp')   # Temperature of star; ProxCen's temp is really 3042, but need to use 3000 for later conversion
         self.starRad = configParser.getfloat('PSG', 'starRad')     # Radius of the star
