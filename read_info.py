@@ -395,7 +395,7 @@ class ParamModel():
         self.planetName = configParser.get('PSG', 'planetName') # Name of planet, used for graphing/save name purposes
         # self.noStar = configParser.getboolean('PSG', 'noStar')  # Set to true if you want to retrieve strictly the planet thermal values
         self.phase1 = configParser.getfloat('PSG', 'phase1')         # Initial phase (degrees) for the simulation, 0 is sub-solar point, 180 is night-side
-        self.phase2 = configParser.getfloat('PSG', 'phase2')         # Final phase (degrees)
+        # self.phase2 = configParser.getfloat('PSG', 'phase2')         # Final phase (degrees)
         self.binning= configParser.getfloat('PSG', 'binning')        # Binning applied to the GCM data for each radiative-transfer (greater is faster, minimum is 1)
         self.objDiam = configParser.getfloat('PSG', 'objDiam')       # Diamater of prox-cen b (km)
         self.objGrav = configParser.getfloat('PSG', 'objGrav')       # Surface Grav of prox cen b (m/s^2)

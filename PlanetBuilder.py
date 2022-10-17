@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import read_info
 from astropy import units as u
+from geometry import SystemGeometry
 
 api_key = open('/Users/tjohns39/psg_key.txt','r').read()
 
@@ -48,6 +49,7 @@ if __name__ == "__main__":
         fr.write('<OBJECT-STAR-DISTANCE>%f\n' % Params.semMajAx)
         fr.write('<OBJECT-PERIOD>%f\n' % Params.objPer)
         fr.write('<OBJECT-ECCENTRICITY>%f\n' % Params.objEcc)
+        fr.write('<OBJECT-PERIAPSIS>%f\n' % Params.objArgOfPeriapsis)
         fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % Params.starTemp)
         fr.write('<OBJECT-STAR-RADIUS>%f\n' % Params.starRad)
         fr.write('<GEOMETRY>Observatory\n')
@@ -99,10 +101,16 @@ if __name__ == "__main__":
     print("\nPERCENT DONE")
     print("=================")
     # Calculate the total number of planet rotations given the observing time frame
-    final_phase = Params.total_images * Params.delta_phase_planet
+    observation_parameters = SystemGeometry(Params.inclinationPSG,0*u.deg,
+                    Params.phase1,Params.rotstar,Params.revPlanet,Params.rotPlanet,
+                    Params.offsetFromOrbitalPlane,Params.offsetDirection,Params.objEcc,
+                    Params.objArgOfPeriapsis)
+    phases = observation_parameters.get_observation_plan(Params.phase1,
+            Params.observation_param_dict['observing time'],N_obs=Params.total_images)
+    # final_phase = Params.total_images * Params.delta_phase_planet
     # print(np.arange(0,final_phase,Params.delta_phase_planet))
     
-    phases = ((np.arange(Params.total_images) * Params.delta_phase_planet + Params.phase1) % (360*u.deg))
+    # phases = ((np.arange(Params.total_images) * Params.delta_phase_planet + Params.phase1) % (360*u.deg))
     print(phases)
     count = 0
     for phase in (phases):
