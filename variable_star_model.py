@@ -244,7 +244,7 @@ class SpotCollection:
             else:
                 spots_to_keep.append(spot)
         self.spots = spots_to_keep
-    def map_pixels(self,latgrid,longrid,star_rad,star_teff):
+    def map_pixels(self,star_rad,star_teff):
         """map pixels
         Map latitude and longituide points continaing the umbra and penumbra of each spot.
         For pixels with coverage from multiple spots, assign coolest Teff to that pixel.
@@ -257,9 +257,9 @@ class SpotCollection:
         Returns:
             (array of astropy.units.quantity.Quantity [temperature], Shape(M,N)): Map of stellar surface with Teff assigned to each pixel.
         """
-        surface_map = np.ones(shape=latgrid.shape) * star_teff
+        surface_map = self.gridmaker.zeros()*star_teff.unit + star_teff
         for spot in self.spots:
-            teff_dict = spot.map_pixels(latgrid,longrid,star_rad)
+            teff_dict = spot.map_pixels(star_rad)
             #penumbra
             assign = teff_dict[spot.Teff_penumbra] & (surface_map > spot.Teff_penumbra)
             surface_map[assign] = spot.Teff_penumbra
@@ -337,7 +337,7 @@ class Star:
 
         """
         latgrid,longrid = self.gridmaker.grid()
-        return self.spots.map_pixels(latgrid,longrid,self.radius,self.Teff)
+        return self.spots.map_pixels(self.radius,self.Teff)
     def age(self,time):
         """age
         Age spots according to its growth timescale and decay rate.
@@ -556,15 +556,15 @@ class SpotGenerator:
                         * time/self.average_spot_lifetime).to(u.Unit(''))
         # N_exp is the expectation value of N, but this is a poisson process
         N = max(0,round(np.random.normal(loc=N_exp,scale = np.sqrt(N_exp))))
-        print(f'{N_exp:.2f}-->{N}')
+        # print(f'{N_exp:.2f}-->{N}')
         new_max_areas = np.random.lognormal(mean=np.log(self.average_spot_area/MSH),sigma=sigma,size=N)*MSH
         # now assign lat and lon (dist approx from 2017ApJ...851...70M)
         hemi = np.random.choice([-1,1],size = N)
         lat = np.random.normal(15,5,size=N)*hemi*u.deg
         lon = np.random.random(size=N)*360*u.deg
         
-        penumbra_teff = Teff_star*0.8
-        umbra_teff = penumbra_teff*0.8
+        penumbra_teff = Teff_star*0.86
+        umbra_teff = Teff_star*0.77
         
         spots = []
         for i in range(N):
@@ -939,114 +939,7 @@ class FaculaGenerator:
             new_faculae.append(Facula(lats[i], lons[i], max_radii[i], starting_radii[i], teff_floor[i],
                                      teff_wall[i],lifetimes[i], growing=True, floor_threshold=20*u.km, Zw = 100*u.km))
         return tuple(new_faculae)
-    """ Facula generator
-    Class controling the birth rates and properties of new faculae.
-    Radius distribution from K. P. Topka et al 1997 ApJ 484 479
-    Lifetime distribution from 2022SoPh..297...48H
-    
-    Args:
-        R_peak (astropy.unit.quantity.Quantity [length]): Radius to use as the peak of the distribution
-        R_HWHM (astropy.unit.quantity.Quantity [length]): Radius half width half maximum. Difference between
-            the peak of the radius distribution and the half maximum in the positive direction
-        T_peak (astropy.unit.quantity.Quantity [time]): Lifetime to use as the peak of the distribution
-        T_HWHM (astropy.unit.quantity.Quantity [time]): Lifetime half width half maximum. Difference between
-            the peak of the lifetime distribution and the half maximum in the positive direction
-        coverage (float): fraction of the stellar surface covered by faculae
-        dist (str): type of distribution
         
-    """
-    def __init__(self,R_peak = 100*u.km, R_HWHM = 50*u.km,
-                 T_peak = 3.2*u.hr, T_HWHM = 2.7*u.hr,coverage=0.01,dist = 'even'):
-        assert u.get_physical_type(R_peak) == 'length'
-        assert u.get_physical_type(R_HWHM) == 'length'
-        assert u.get_physical_type(T_peak) == 'time'
-        assert u.get_physical_type(T_HWHM) == 'time'
-        self.radius_unit = u.km
-        self.lifetime_unit = u.hr
-        self.R0 = np.log10(R_peak/self.radius_unit)
-        self.sig_R = np.log10((R_peak + R_HWHM)/self.radius_unit) - self.R0
-        self.T0 = np.log10(T_peak/self.lifetime_unit)
-        self.sig_T = np.log10((T_peak + T_HWHM)/self.lifetime_unit) - self.T0
-        assert isinstance(coverage,float)
-        self.coverage = coverage
-        self.dist = dist
-        
-    def get_floor_teff(self,R,Teff_star):
-        """Get floor Teff
-        Get the Teff of the faculae floor based on the radius and photosphere Teff
-        Based on K. P. Topka et al 1997 ApJ 484 479
-        
-        Args:
-            R (astropy.unit.quantity.Quantity [length]): radius of the facula[e]
-            Teff_star (astropy.unit.quantity.Quantity [temperature]): effective temperature of the photosphere
-        
-        Returns:
-            (astropy.unit.quantity.Quantity [temperature]): floor temperature of faculae
-        """
-        d_teff = np.zeros(len(R))
-        reg = R <= 150*u.km
-        d_teff[reg] = -1 * u.K * R[reg]/u.km/5
-        reg = (R > 150*u.km) & (R <= 175*u.km )
-        d_teff[reg] = 510 * u.K - 18*R[reg]/5/u.km*u.K
-        reg = (R > 175*u.km)
-        d_teff[reg] = -4*u.K*R[reg]/7/u.km - 20 * u.K
-        
-        return d_teff + Teff_star
-    
-    def get_wall_teff(self,R,Teff_floor):
-        """Get wall Teff
-        Get the Teff of the faculae wall based on the radius and floor Teff
-        Based on K. P. Topka et al 1997 ApJ 484 479
-        
-        Args:
-            R (astropy.unit.quantity.Quantity [length]): radius of the facula[e]
-            Teff_floor (astropy.unit.quantity.Quantity [temperature]): effective temperature of the cool floor
-        
-        Returns:
-            (astropy.unit.quantity.Quantity [temperature]): wall temperature of faculae
-        """
-        return Teff_floor + R/u.km * u.K + 125*u.K
-        
-        
-    def birth_faculae(self,time, rad_star, Teff_star):
-        """birth faculae
-        determine the number and parameters of faculae to create in an amount of time
-        
-        Args:
-            time (astropy.unit.quantity.Quantity [time]): time over which to create faculae
-            rad_star (astropy.unit.quantity.Quantity [length]): radius of the star
-            Teff_star (astropy.unit.quantity.Quantity [temperature]): temperature of the star
-        
-        Returns:
-            (tuple): tuple of new faculae
-        """
-        N_exp = (self.coverage * 4*np.pi*rad_star**2 / ((10**self.R0*self.radius_unit)**2 * np.pi)
-                        * time/(10**self.T0 * self.lifetime_unit)).to(u.Unit(''))
-        # N_exp is the expectation value of N, but this is a poisson process
-        N = max(0,round(np.random.normal(loc=N_exp,scale = np.sqrt(N_exp))))
-        print(f'{N_exp:.2f}-->{N}')
-        mu = np.random.normal(loc=0,scale=1,size=N)
-        max_radii = 10**(self.R0 + self.sig_R * mu) * self.radius_unit
-        lifetimes = 10**(self.T0 + self.sig_T * mu) * self.lifetime_unit
-        starting_radii = max_radii / np.e**2
-        lats = None
-        lons = None
-        if self.dist == 'even':
-            x = np.linspace(-90,90,180,endpoint=False)*u.deg
-            p = np.cos(x)
-            lats = (np.random.choice(x,p=p/p.sum(),size=N) + np.random.random(size=N)) * u.deg
-            lon = np.random.random(size=N) * 360 * u.deg
-        else:
-            raise NotImplementedError(f'{self.dist} has not been implemented as a distribution')
-        teff_floor = self.get_floor_teff(max_radii,Teff_star)
-        teff_wall = self.get_wall_teff(max_radii,teff_floor)
-        new_faculae = []
-        for i in range(N):
-            new_faculae.append(Facula(lats[i], lons[i], max_radii[i], starting_radii[i], teff_floor[i],
-                                     teff_wall[i], growing=True, floor_threshold=20*u.km, Zw = 100*u.km))
-        return tuple(new_faculae)
-
-
 class CoordinateGrid:
     """Coordinate Grid
     Class to standardize the creation of latitude and longitude grids

@@ -131,8 +131,8 @@ if __name__ == "__main__":
         file_path = Path('.') / 'Configs' / 'Stellar' / 'config.txt'
         # -d wgeo=y (After type=cfg)
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
-        os.system(f'curl -s -d key={api_key} -d type=noi -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGnoiseFolder}/phase{phase:.3f}.noi')
-        os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.rad')
+        os.system(f'curl -s -d key={api_key} -d type=noi -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGnoiseFolder}/phase{to_float(phase,u.deg):.3f}.noi')
+        os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{to_float(phase,u.deg):.3f}.rad')
         # os.system(f'curl -v -d type=all -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGcombinedSpectraFolder}/phase{phase:.3f}.txt')
         
         # with open(f'{file_path}', 'r') as fr:
@@ -146,9 +146,9 @@ if __name__ == "__main__":
             phase *= -1
             fr.close()
         
-        os.system(f'curl -s -d key={api_key} -d type=lyr -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGlayersFolder}/phase{phase:.3f}.lyr')
+        os.system(f'curl -s -d key={api_key} -d type=lyr -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGlayersFolder}/phase{to_float(phase,u.deg):.3f}.lyr')
         # os.system(f'curl -s -d key=3c8f608c3c5059f79a59 -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.txt')
-        os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{phase:.3f}.rad')
+        os.system(f'curl -s -d key={api_key} -d app=globes --data-urlencode file@{file_path} {Params.psgurl}/api.php > {Params.PSGthermalSpectraFolder}/phase{to_float(phase,u.deg):.3f}.rad')
 
         print(round(((count/Params.total_images) * 100), 2), "%")
         print(count)
