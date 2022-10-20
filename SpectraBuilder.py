@@ -248,4 +248,9 @@ if __name__ == "__main__":
 
         allModels.allModelSpectra.to_csv(Path('.') / f'{Params.starName}' / 'Data' / 'AllModelSpectraValues' / f'phase{index}.csv', index=False, sep=',')
 
+        # Now age the star and all of its surface features
+        vstar.birth_spots(time_step)
+        vstar.birth_faculae(time_step)
+        vstar.age(time_step)
+
 print("Done")
