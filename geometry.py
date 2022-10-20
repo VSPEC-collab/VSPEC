@@ -38,7 +38,7 @@ class SystemGeometry:
     def mean_motion(self):
         return 360*u.deg / self.orbital_period
     def mean_anomaly(self, time):
-        return time * self.mean_motion()
+        return (time * self.mean_motion()) % (360*u.deg)
     def eccentric_anomaly(self,time):
         M = self.mean_anomaly(time)
         def func(E):
@@ -46,7 +46,7 @@ class SystemGeometry:
         E = newton(func,x0=30)*u.deg
         return E
     def true_anomaly(self,time):
-        E = self.eccentric_anomaly(time)
+        E = self.eccentric_anomaly(time) % (360*u.deg)
         if np.abs((180*u.deg - E)/u.deg) < 0.1:
             return E
         elif np.abs((0*u.deg - E)/u.deg) < 0.1:
@@ -67,11 +67,11 @@ class SystemGeometry:
         """
         FUTURE: make this work correctly for e > 0
         """
-        return self.true_anomaly(time) + self.omega + 90*u.deg
+        return (self.true_anomaly(time) + self.omega + 90*u.deg) % (360*u.deg)
 
     def sub_planet(self,time,phase = None):
         sub_obs = self.sub_obs(time)
-        if not phase:
+        if isinstance(phase,type(None)):
             phase = self.phase(time)
         lon = sub_obs['lon'] + phase - 90*u.deg + self.beta
         lat = -1*self.alpha * np.cos(self.beta + phase)
@@ -88,7 +88,7 @@ class SystemGeometry:
         return time.to(u.day)
     
     def get_observation_plan(self, phase0,total_time, time_step = None, N_obs = 10):
-        if time_step is None:
+        if isinstance(time_step, type(None)):
             N_obs = int(N_obs)
         else:
             N_obs = int(total_time/time_step)
@@ -99,18 +99,19 @@ class SystemGeometry:
         sub_obs_lons = []
         sub_planet_lats = []
         sub_planet_lons = []
+        u_angle = u.deg
         for time in start_times:
-            phase = self.phase(time) % (360*u.deg)
+            phase = to_float(self.phase(time),u_angle) #% (360*u.deg)
             phases.append(phase)
             sub_obs = self.sub_obs(time)
-            sub_obs_lats.append(sub_obs['lat'])
-            sub_obs_lons.append(sub_obs['lon'])
-            sub_planet = self.sub_planet(time,phase=phase)
-            sub_planet_lats.append(sub_planet['lat'])
-            sub_planet_lons.append(sub_planet['lon'])
-        return pd.DataFrame({'time':start_times,
-                            'phase':phases,
-                            'sub_obs_lat':sub_obs_lats,
-                            'sub_obs_lon': sub_obs_lons,
-                            'sub_planet_lat': sub_planet_lats,
-                            'sub_planet_lon': sub_planet_lons})
+            sub_obs_lats.append(to_float(sub_obs['lat'],u_angle))
+            sub_obs_lons.append(to_float(sub_obs['lon'],u_angle))
+            sub_planet = self.sub_planet(time,phase=phase*u_angle)
+            sub_planet_lats.append(to_float(sub_planet['lat'],u_angle))
+            sub_planet_lons.append(to_float(sub_planet['lon'],u_angle))
+        return {'time':start_times,
+                            'phase':phases*u_angle,
+                            'sub_obs_lat':sub_obs_lats*u_angle,
+                            'sub_obs_lon': sub_obs_lons*u_angle,
+                            'sub_planet_lat': sub_planet_lats*u_angle,
+                            'sub_planet_lon': sub_planet_lons*u_angle}

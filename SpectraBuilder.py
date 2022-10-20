@@ -150,9 +150,9 @@ if __name__ == "__main__":
     print("------------------------------------------------------------------------------")
     for index in range(Params.total_images):
 
-        planetPhase = observation_info.loc[index,'phase']
-        sub_obs_lon = observation_info.loc[index,'sub_obs_lon']
-        sub_obs_lat = observation_info.loc[index,'sub_obs_lat']
+        planetPhase = observation_info['phase'][index]
+        sub_obs_lon = observation_info['sub_obs_lon'][index]
+        sub_obs_lat = observation_info['sub_obs_lat'][index]
         if planetPhase>178*u.deg and planetPhase<182*u.deg:
             planetPhase=182.0*u.deg # Add transit phase;
         if planetPhase == 185*u.deg:
@@ -182,13 +182,13 @@ if __name__ == "__main__":
         # temp = int(180 / Params.delta_phase_planet)
         # allModels.starPhaseFacingPlanet = ((Params.delta_phase_planet * (temp + 1)) - allModels.starPhase) % 360
         # allModels.starPhaseFacingPlanet = ((allModels.planetPhase + 180) - (allModels.starPhase % 360)) % 360
-        sub_planet_lon = observation_info.loc[index,'sub_planet_lon']
-        sub_planet_lat = observation_info.loc[index,'sub_planet_lat']
+        sub_planet_lon = observation_info['sub_planet_lon'][index]
+        sub_planet_lat = observation_info['sub_planet_lat'][index]
         percent = int((index/Params.total_images) * 100)
         # print(percent)
         if percent % 10 == 0:
             print(f'{percent:.1f}% Complete')
-            print(f'planet phase = {observation_info.loc[index,"phase"]:.2f}')
+            print(f'planet phase = {observation_info["phase"][index]:.2f}')
         # Example:
         # deltaPlanetPhase = 10
         # deltaStellarPhase = 6.666
@@ -214,7 +214,7 @@ if __name__ == "__main__":
 
         # Read in the planet's reflected spectrum (in W/sr/m^2/um) for the current phase
         allModels.PSGplanetReflectionModel = pd.read_csv(
-            Path('.') / f'{Params.starName}' / 'Data' / 'PSGCombinedSpectra' / f'phase{to_float(observation_info.loc[index,"phase"],u.deg):.3f}.rad',
+            Path('.') / f'{Params.starName}' / 'Data' / 'PSGCombinedSpectra' / f'phase{to_float(observation_info["phase"][index],u.deg):.3f}.rad',
             comment='#',
             delim_whitespace=True,
             names=["wavelength", "total", "noise", "stellar", "planet"],
@@ -222,7 +222,7 @@ if __name__ == "__main__":
 
         # Read in the planet's thermal spectrum (in W/m^2/um) for the current phase
         allModels.planetThermalModel = pd.read_csv(
-            Path('.') / f'{Params.starName}' / 'Data' / 'PSGThermalSpectra' / f'phase{to_float(observation_info.loc[index,"phase"],u.deg):.3f}.rad',
+            Path('.') / f'{Params.starName}' / 'Data' / 'PSGThermalSpectra' / f'phase{to_float(observation_info["phase"][index],u.deg):.3f}.rad',
             comment='#',
             delim_whitespace=True,
             names=["wavelength", "total", "noise", "planet"],
@@ -230,7 +230,7 @@ if __name__ == "__main__":
         
         # Read in the noise model from PSG
         allModels.noiseModel = pd.read_csv(
-            Path('.') / f'{Params.starName}' / 'Data' / 'PSGNoise' / f'phase{to_float(observation_info.loc[index,"phase"],u.deg):.3f}.noi',
+            Path('.') / f'{Params.starName}' / 'Data' / 'PSGNoise' / f'phase{to_float(observation_info["phase"][index],u.deg):.3f}.noi',
             comment='#',
             delim_whitespace=True,
             names=['Wave/freq','Total','Source','Detector','Telescope','Background'],

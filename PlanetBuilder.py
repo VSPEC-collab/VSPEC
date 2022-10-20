@@ -111,7 +111,8 @@ if __name__ == "__main__":
     # print(np.arange(0,final_phase,Params.delta_phase_planet))
     
     # phases = ((np.arange(Params.total_images) * Params.delta_phase_planet + Params.phase1) % (360*u.deg))
-    print(phases)
+    print(f'Starting at phase {Params.phase1*u.deg}, observe for {Params.observation_param_dict["observing_time"]} in {Params.total_images} steps')
+    print('Phases = ' + str(np.round(np.asarray((phases/u.deg).to(u.Unit(''))),2)) + ' deg')
     count = 0
     for phase in (phases):
         if phase>178*u.deg and phase<182*u.deg:
