@@ -7,7 +7,24 @@ def to_float(quant,unit):
     return (quant/unit).to(u.Unit('')).value
 
 class SystemGeometry:
-    """
+    """System Geometry
+
+    Class to store and calculate information on the geometry of a star-planet-observer system
+
+    Args:
+        inclination (astropy.units.quantity.Quantity [angle]): Defined the same as in PSG. Transit is i=90 deg
+        init_stellar_lon (astropy.units.quantity.Quantity [angle]): sub-observer longitude at the beginning of observation
+        init_phase_planet (astropy.units.quantity.Quantity [angle]): planet phase at beginning of observation
+        stellar_period (astropy.units.quantity.Quantity [time]): rotational period of the star
+        orbital_period (astropy.units.quantity.Quantity [time]): orbital period of the planet
+        planetary_rot_period (astropy.units.quantity.Quantity [time]): rotational period of the planet
+        stellar_offset_amp (astropy.units.quantity.Quantity [angle]): offset between stellar rotation axis and normal to orbital plane
+        stellar_offset_phase (astropy.units.quantity.Quantity [angle]): direction of stellar offset, 0 defined as facing observer. Right hand direction is positive
+        eccentricity (float): orbital eccentricity of the planet
+        argument_of_pariapsis (astropy.units.quantity.Quantity [angle]): Angle between the observer and the point of pariapsis
+    
+    Returns:
+        None
     """
     def __init__(self,inclination=0*u.deg,
                     init_stellar_lon = 0*u.deg,
@@ -31,21 +48,65 @@ class SystemGeometry:
         self.omega = argument_of_pariapsis
     
     def sub_obs(self,time):
+        """sub-obs
+        Get the coordinates of the sub-observer point
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): time since start of observations
+        
+        Returns:
+            (dict): Coordinates in the form {'lat':lat,'lon':lon}
+        """
         lon = self.init_stellar_lon + time *360*u.deg/self.stellar_period + self.beta
         lat = 90*u.deg - self.i + self.alpha*np.cos(self.beta)
         return {'lat':lat,'lon':lon}
 
     def mean_motion(self):
+        """mean motion
+        Get the mean motion of the orbit
+
+        Args:
+            None
+
+        Returns:
+            (astropy.units.quantity.Quantity [angular frequency]): the mean motion of the orbit
+        """
         return 360*u.deg / self.orbital_period
     def mean_anomaly(self, time):
+        """mean anomaly
+        Get the mean anomaly of the orbit at a given time
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): time since periasteron
+
+        Returns:
+            (astropy.units.quantity.Quantity [angle]): the mean anomaly
+        """
         return (time * self.mean_motion()) % (360*u.deg)
     def eccentric_anomaly(self,time):
+        """Eccentric Anomaly
+        Calculate the eccentric anomaly of the system
+        Args:
+            time (astropy.units.quantity.Quantity [time]): time since periasteron
+        
+        Returns:
+            (astropy.units.quantity.Quantity [angle]): the eccentric anomaly
+        """
         M = self.mean_anomaly(time)
         def func(E):
             return to_float(M,u.rad) - to_float(E*u.deg,u.rad) + self.e*np.sin(to_float(E*u.deg,u.rad))
         E = newton(func,x0=30)*u.deg
         return E
     def true_anomaly(self,time):
+        """true anomaly
+        Calculate the true anomaly.
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): time since periasteron
+        
+        Returns:
+            (astropy.units.quantity.Quantity [angle]): the true anomaly
+        """
         E = self.eccentric_anomaly(time) % (360*u.deg)
         if np.abs((180*u.deg - E)/u.deg) < 0.1:
             return E
@@ -64,12 +125,29 @@ class SystemGeometry:
 
 
     def phase(self,time):
-        """
-        FUTURE: make this work correctly for e > 0
+        """phase
+        Calculate the phase at a given time
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): time since periasteron
+        
+        Returns:
+            (astropy.units.quantity.Quantity [angle]): the phase
         """
         return (self.true_anomaly(time) + self.omega + 90*u.deg) % (360*u.deg)
 
     def sub_planet(self,time,phase = None):
+        """sub-planet point
+        Get the coordinates of the sub-planet point
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): time since periasteron
+            phase = None (astropy.units.quantity.Quantity [angle]): if known, the current phase,
+                otherwise the phase is calculated based on `time`
+            
+        Returns:
+            (dict): Coordinates in the form {'lat':lat,'lon':lon}
+        """
         sub_obs = self.sub_obs(time)
         if isinstance(phase,type(None)):
             phase = self.phase(time)
@@ -78,6 +156,15 @@ class SystemGeometry:
         return {'lat':lat,'lon':lon}
 
     def get_time_since_periasteron(self,phase):
+        """get time since periasteron
+        Calculate the time since the last periasteron for a given phase
+
+        Args:
+            phase (astropy.units.quantity.Quantity [angle]): current phase of the planet
+        
+        Returns:
+            (astropy.units.quantity.Quantity [time]): time since periasteron
+        """
         true_anomaly = phase - 90*u.deg - self.omega
         true_anomaly = true_anomaly % (360*u.deg)
         guess = true_anomaly/360/u.deg * self.orbital_period
@@ -88,6 +175,18 @@ class SystemGeometry:
         return time.to(u.day)
     
     def get_observation_plan(self, phase0,total_time, time_step = None, N_obs = 10):
+        """get observation plan
+        Calculate information describing the state of the system for a series of observations
+
+        Args:
+            phase0 (astropy.units.quantity.Quantity [angle]): initial phase of the planet
+            total_time (astropy.units.quantity.Quantity [time]): time over which the full observation is carried out
+            time_step = None (astropy.units.quantity.Quantity [time]): step between each epoch of observation
+            N_obs (int): number of epochs to observe
+        
+        Returns:
+            (dict): dict where values are Quantity array objects giving the state of the system at each epoch
+        """
         if isinstance(time_step, type(None)):
             N_obs = int(N_obs)
         else:
