@@ -96,6 +96,19 @@ def get_phoenix_path(teff):
     filename =  f'lte0{teff:.0f}-5.00-0.0.PHOENIX-ACES-AGSS-COND-2011.HR.h5'
     return RAW_PHOENIX_PATH / filename
 
+def get_binned_filename(teff):
+    """get binned filename
+    Get the filename of a binned spectrum
+
+    Args:
+        teff (float or int): effective temperature in Kelvin
+    
+    Returns:
+        (str) filename
+    """
+    return f'binned{teff:.0f}StellarModel.txt'
+
+
 def write_binned_spectrum(wavelength, flux, filename,
                             path = Path('./binned_data/')):
     """write binned spectrum
@@ -141,3 +154,35 @@ def read_binned_spectrum(filename, path = Path('./binned_data/')):
     flux = data[flux_col].values * u.Unit(flux_unit_str)
     return wavelength, flux
 
+def bin_phoenix_model(teff,file_name_writer = get_binned_filename,
+                binned_path = Path('./binned_data/'),
+                R=50,lam1=None, lam2=None,
+                model_unit_wavelength = u.AA,
+                model_unit_flux = u.Unit('erg cm-s s-1 AA-1'),
+                target_unit_wavelength = u.um,
+                target_unit_flux = u.Unit('W m-2 um-1')):
+    """bin phoenix model
+    Bin a raw PHOENIX model and write it to file
+
+    Args:
+        teff (float or int): effective temperature in Kelvin
+        file_name_writer=VSPEC.stellar_spectra.get_binned_filename (callable): method that maps teff to filename
+        binned_path (pathlib.Path): path to binned data
+        R=50 (int): resolving power of the binned spectrum
+        lam1=None (astropy.units.quantity.Quantity [length]): starting wavelength of binned spectrum
+        lam2=None (astropy.units.quantity.Quantity [length]): ending wavelength of binned spectrum
+        model_unit_wavelength (astropy.units.Unit [length]): wavelength unit of the model
+        model_unit_flux (astropy.units.Unit [flux]): flux unit of the model
+        target_unit_wavelength (astropy.units.Unit [length]): wavelength unit of the binned spectrum
+        target_unit_flux (astropy.units.Unit [flux]): flux unit of the binned spectrum
+
+    Returns:
+        None
+    """
+    raw_path = get_phoenix_path(teff)
+    wavelength, flux = bin_raw_data(raw_path,R=R,lam1=lam1,lam2=lam2,
+                                    model_unit_wavelength=model_unit_wavelength,
+                                    model_unit_flux=model_unit_flux,
+                                    target_unit_wavelength=target_unit_wavelength,
+                                    target_unit_flux=target_unit_flux)
+    write_binned_spectrum(wavelength,flux,file_name_writer(teff), path=binned_path)
