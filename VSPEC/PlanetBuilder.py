@@ -12,13 +12,12 @@ from pathlib import Path
 import VSPEC.read_info as read_info
 from astropy import units as u
 from VSPEC.geometry import SystemGeometry
+from VSPEC.helpers import to_float
+
 
 api_key = open('/Users/tjohns39/psg_key.txt','r').read()
 
 # 2nd file to run.
-
-def to_float(quant,unit):
-    return (quant/unit).to(u.Unit('')).value
 
 if __name__ == "__main__":
     

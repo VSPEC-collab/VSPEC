@@ -10,11 +10,8 @@ from scipy.interpolate import interp1d, interp2d
 import VSPEC.variable_star_model as vsm
 from astropy import units as u, constants as c
 from VSPEC.geometry import SystemGeometry
-
+from VSPEC.helpers import to_float
 # 3rd file to run.
-
-def to_float(quant,unit):
-    return (quant/unit).to(u.Unit('')).value
 
 def calculate_combined_spectrum(allModels, Params, percentagesDict, percentagesDictTowardsPlanet, phase):
     # Creates a new column of the allModels.allModelSpectra dataframe that contains 'sumflux,' the linearly combined
