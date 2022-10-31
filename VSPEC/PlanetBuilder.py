@@ -9,9 +9,9 @@ from sys import api_version
 import numpy as np
 import os
 from pathlib import Path
-import read_info
+import VSPEC.read_info as read_info
 from astropy import units as u
-from geometry import SystemGeometry
+from VSPEC.geometry import SystemGeometry
 
 api_key = open('/Users/tjohns39/psg_key.txt','r').read()
 

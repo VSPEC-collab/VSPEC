@@ -1,4 +1,4 @@
-import read_info
+import VSPEC.read_info as read_info
 from pathlib import Path
 
 # 1st file to run.

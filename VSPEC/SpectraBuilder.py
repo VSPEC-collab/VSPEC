@@ -1,15 +1,15 @@
 import ast
 import csv
-import read_info
+import VSPEC.read_info as read_info
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
 from pathlib import Path
 from scipy.interpolate import interp1d, interp2d
-import variable_star_model as vsm
+import VSPEC.variable_star_model as vsm
 from astropy import units as u, constants as c
-from geometry import SystemGeometry
+from VSPEC.geometry import SystemGeometry
 
 # 3rd file to run.
 
