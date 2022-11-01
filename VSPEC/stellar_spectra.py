@@ -7,7 +7,7 @@ from scipy.interpolate import interp2d
 
 from VSPEC.helpers import to_float
 
-RAW_PHOENIX_PATH = Path(__file__) / '..' / 'NextGenModels' / 'RawData'
+RAW_PHOENIX_PATH = Path(__file__).parent / '..' / 'NextGenModels' / 'RawData'
 
 def get_wavelengths(R, lam1,lam2):
     """get wavelengths
