@@ -31,6 +31,10 @@ class ParamModel:
         self.starDistanceMeters = self.starDistance.to(u.m).value
         self.rotstar = float(configParser.get('Star', 'Rotstar')) * u.day
 
+        #update this later
+        self.Nlat = 500
+        self.Nlon = 1000
+
         # Inclination of the star
         self.inclination = int(configParser.get('Star', 'Inclination')) * u.deg
         self.inclinationPSG = self.inclination + 90*u.deg
@@ -57,15 +61,23 @@ class ParamModel:
         # Observation information
         self.time_between_exposures = int(configParser.get('HemiMap', 'time_between_exposures'))*u.min
         self.total_observation_time = int(configParser.get('HemiMap', 'observing_time'))*u.min
+        self.total_images = int(round((self.total_observation_time/self.time_between_exposures).to(u.Unit(''))))
 
         # Binned spectrum
         self.loadData = configParser.getboolean('Star', 'loadData')
         self.lam1   = configParser.getfloat('PSG', 'lam1')         # Initial wavelength of the simulations (um)
         self.lam2   = configParser.getfloat('PSG', 'lam2')         # Final wavelength of the simulations (um)
         self.lamRP  = configParser.getfloat('PSG', 'lamRP')        # Resolving power
+        self.target_wavelength_unit = u.Unit(configParser.get('Spectra','wavelengthUnit'))
+        self.target_flux_unit = u.Unit(configParser.get('Spectra','desiredFluxUnit'))
 
         # PSG
         # Paramaters sent to PSG to retrieve planet spectra
+        self.gcm_file_path = configParser.get('PSG', 'GCM')
+        try:
+            self.api_key_path = configParser.get('PSG', 'api_key_path')
+        except:
+            self.api_key_path = None
         self.planetName = configParser.get('PSG', 'planetName') # Name of planet, used for graphing/save name purposes
         self.initial_planet_phase = configParser.getfloat('PSG', 'phase1')         # Initial phase (degrees) for the simulation, 0 is sub-solar point, 180 is night-side
         self.binning= configParser.getfloat('PSG', 'binning')        # Binning applied to the GCM data for each radiative-transfer (greater is faster, minimum is 1)
@@ -89,7 +101,7 @@ class ParamModel:
         self.PSGnoiseFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGNoise'
         self.PSGlayersFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGLayers'
 
-# Some unit conversions
+        # Some unit conversions
         self.distanceFluxCorrection = (self.starRadiusMeters/self.starDistanceMeters)**2
 
         # Units are hard-fast, EDIT LATER

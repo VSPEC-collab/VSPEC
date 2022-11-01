@@ -7,14 +7,7 @@
 # ---------------------------------------------------------------
 # Adapted by Ted Johnson to run as a package, Nov 2022
 
-import numpy as np
 import os
-from pathlib import Path
-import VSPEC.read_info as read_info
-from astropy import units as u
-from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import to_float
-
 
 def call_api(config_path,psg_url='https://psg.gsfc.nasa.gov',
             api_key=None,type=None,app=None,outfile=None):

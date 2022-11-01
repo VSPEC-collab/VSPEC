@@ -3,6 +3,8 @@ from astropy import units as u, constants as c
 import numpy as np
 import pandas as pd
 import h5py
+from scipy.interpolate import interp2d
+
 from VSPEC.helpers import to_float
 
 RAW_PHOENIX_PATH = Path(__file__) / '..' / 'NextGenModels' / 'RawData'
@@ -186,3 +188,12 @@ def bin_phoenix_model(teff,file_name_writer = get_binned_filename,
                                     target_unit_wavelength=target_unit_wavelength,
                                     target_unit_flux=target_unit_flux)
     write_binned_spectrum(wavelength,flux,file_name_writer(teff), path=binned_path)
+
+
+def interpolate_spectra(target_teff,
+                        teff1,wave1,flux1,
+                        teff2,wave2,flux2):
+    assert np.all(wave1==wave2)
+    interp = interp2d(wave1,[to_float(teff1,u.K),to_float(teff2,u.K)],
+                    [flux1,flux2])
+    return wave1, interp(wave1,to_float(target_teff,u.K))

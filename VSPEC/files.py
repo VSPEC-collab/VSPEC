@@ -35,6 +35,8 @@ def build_directories(name_of_run,path=Path('.')):
     check_and_build_dir(parent_folder)
     data_folder = parent_folder / 'Data'
     check_and_build_dir(data_folder)
+    binned_spectra_folder = data_folder / 'binned_data'
+    check_and_build_dir(binned_spectra_folder)
     all_spectra_values_folder = data_folder / 'AllModelSpectraValues'
     check_and_build_dir(all_spectra_values_folder)
     PSG_combined_spectra_folder = data_folder / 'PSGCombinedSpectra'
@@ -48,6 +50,7 @@ def build_directories(name_of_run,path=Path('.')):
 
     directories_dict = {'parent':parent_folder,
                         'data':data_folder,
+                        'binned':binned_spectra_folder,
                         'all_model': all_spectra_values_folder,
                         'psg_combined': PSG_combined_spectra_folder,
                         'psg_thermal': PSG_thermal_spectra_folder,
