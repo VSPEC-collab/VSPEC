@@ -61,7 +61,7 @@ class ParamModel:
         # Observation information
         self.time_between_exposures = int(configParser.get('HemiMap', 'time_between_exposures'))*u.min
         self.total_observation_time = int(configParser.get('HemiMap', 'observing_time'))*u.min
-        self.total_images = int(round((self.total_observation_time/self.time_between_exposures).to(u.Unit(''))))
+        self.total_images = int(round(float((self.total_observation_time/self.time_between_exposures).to(u.Unit('')))))
 
         # Binned spectrum
         self.loadData = configParser.getboolean('Star', 'loadData')
