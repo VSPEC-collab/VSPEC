@@ -104,7 +104,7 @@ class ObservationModel:
             fr.write('<OBJECT-PERIOD>%f\n' % self.params.objPer)
             fr.write('<OBJECT-ECCENTRICITY>%f\n' % self.params.objEcc)
             fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(self.params.objArgOfPeriapsis,u.deg))
-            fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % self.params.starTemp)
+            fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % to_float(self.params.teffStar,u.K))
             fr.write('<OBJECT-STAR-RADIUS>%f\n' % self.params.starRad)
             fr.write('<GEOMETRY>Observatory\n')
             fr.write('<GEOMETRY-OBS-ALTITUDE>%f\n' % self.params.objDis)

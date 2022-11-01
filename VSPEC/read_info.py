@@ -23,7 +23,7 @@ class ParamModel:
         self.facCoverage = float(configParser.get('Star', 'facCoverage'))
 
         # Star Properties
-        self.teffStar = configParser.getint('PSG', 'starTemp')
+        self.teffStar = configParser.getint('PSG', 'starTemp') * u.K
         self.binningRange = int(configParser.get('Star', 'binningRange')) * u.K
         self.starRadius = float(configParser.get('Star', 'starRadius')) * u.R_sun
         self.starRadiusMeters = self.starRadius.to(u.m).value
