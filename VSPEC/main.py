@@ -4,11 +4,13 @@ from astropy import units as u
 import numpy as np
 import pandas as pd
 
+from tqdm.auto import tqdm
+
 from VSPEC.SpectraBuilder import calculate_combined_spectrum
 from VSPEC.read_info import ParamModel
 from VSPEC.files import build_directories
 from VSPEC.psg_api import call_api
-from VSPEC.helpers import to_float
+from VSPEC.helpers import to_float, isclose
 from VSPEC.geometry import SystemGeometry
 from VSPEC import variable_star_model as vsm
 from VSPEC import stellar_spectra
@@ -26,7 +28,8 @@ class ObservationModel:
         None
     """
 
-    def __init__(self,config_path):
+    def __init__(self,config_path, debug=False):
+        self.debug=debug
         self.params = ParamModel(config_path)
         self.build_directories()
     
@@ -39,7 +42,7 @@ class ObservationModel:
     def bin_spectra(self):
         teffs = 100*np.arange(np.floor(self.params.teffStar.to(u.K)/100/u.K - self.params.binningRange.to(u.K)/100/u.K),
                                 np.ceil(self.params.teffStar.to(u.K)/100/u.K + self.params.binningRange.to(u.K)/100/u.K)+1) * u.K
-        for teff in teffs:
+        for teff in tqdm(teffs,desc='Binning Spectra',total=len(teffs)):
             stellar_spectra.bin_phoenix_model(to_float(teff,u.K),
                 file_name_writer=stellar_spectra.get_binned_filename,
                 binned_path=self.dirs['binned'],R=self.params.lamRP,
@@ -65,12 +68,12 @@ class ObservationModel:
     
     def get_observation_parameters(self):
         return SystemGeometry(self.params.inclinationPSG,0*u.deg,
-                    self.params.phase1*u.deg,self.params.rotstar,self.params.revPlanet,self.params.rotPlanet,
+                    self.params.initial_planet_phase*u.deg,self.params.rotstar,self.params.revPlanet,self.params.rotPlanet,
                     self.params.offsetFromOrbitalPlane,self.params.offsetDirection,self.params.objEcc,
                     self.params.objArgOfPeriapsis)
     
     def get_observation_plan(self,observation_parameters):
-        return observation_parameters.get_observation_plan(self.params.phase1*u.deg,
+        return observation_parameters.get_observation_plan(self.params.initial_planet_phase*u.deg,
                 self.params.total_observation_time,N_obs=self.params.total_images)
 
 
@@ -91,7 +94,7 @@ class ObservationModel:
         else:
             api_key = None
         call_api(gcm_path,psg_url=url,api_key=api_key,
-                type=call_type,app=app,outfile=outfile)
+                type=call_type,app=app,outfile=outfile,verbose=self.debug)
         ####################################
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
@@ -109,8 +112,8 @@ class ObservationModel:
             fr.write('<GEOMETRY>Observatory\n')
             fr.write('<GEOMETRY-OBS-ALTITUDE>%f\n' % self.params.objDis)
             fr.write('<GEOMETRY-ALTITUDE-UNIT>pc\n')
-            fr.write('<GENERATOR-RANGE1>%f\n' % self.params.lam1)
-            fr.write('<GENERATOR-RANGE2>%f\n' % self.params.lam2)
+            fr.write('<GENERATOR-RANGE1>%f\n' % to_float(self.params.lam1,self.params.target_wavelength_unit))
+            fr.write('<GENERATOR-RANGE2>%f\n' % to_float(self.params.lam2,self.params.target_wavelength_unit))
             fr.write(f'<GENERATOR-RANGEUNIT>{self.params.target_wavelength_unit}\n')
             fr.write('<GENERATOR-RESOLUTION>%f\n' % self.params.lamRP)
             fr.write('<GENERATOR-RESOLUTIONUNIT>RP\n')
@@ -141,17 +144,21 @@ class ObservationModel:
         app = 'globes'
         outfile = None
         call_api(cfg_path,psg_url=url,api_key=api_key,
-                type=call_type,app=app,outfile=outfile)
+                type=call_type,app=app,outfile=outfile,verbose=self.debug)
+        # # debug
+        # call_api(cfg_path,psg_url=url,api_key=api_key,
+        #         type='all',app=app,outfile='temp_out.txt')
+
         ####################################
         # Calculate observation parameters
         observation_parameters = self.get_observation_parameters()
         phases = self.get_observation_plan(observation_parameters)['phase']
-        print(f'Starting at phase {self.params.phase1*u.deg}, observe for {self.params.observation_param_dict["observing_time"]} in {self.params.total_images} steps')
+        print(f'Starting at phase {self.params.initial_planet_phase*u.deg}, observe for {self.params.total_observation_time} in {self.params.total_images} steps')
         print('Phases = ' + str(np.round(np.asarray((phases/u.deg).to(u.Unit(''))),2)) + ' deg')
         ####################################
         # iterate through phases
         count = 0
-        for phase in (phases):
+        for phase in tqdm(phases,desc='Build Planet',total=self.params.total_images):
             if phase>178*u.deg and phase<182*u.deg:
                 phase=182.0*u.deg # Add transit phase;
             if phase == 185*u.deg:
@@ -168,15 +175,15 @@ class ObservationModel:
             call_type = None
             app = 'globes'
             outfile = Path(self.dirs['psg_combined']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-            call_api(gcm_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile)
+            call_api(cfg_path,psg_url=url,api_key=api_key,
+                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get noise
             url = self.params.psgurl
             call_type = 'noi'
             app = 'globes'
             outfile = Path(self.dirs['psg_noise']) / f'phase{to_float(phase,u.deg):.3f}.noi'
-            call_api(gcm_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile)
+            call_api(cfg_path,psg_url=url,api_key=api_key,
+                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # write updates to config file to remove star flux
             with open(cfg_path, 'w') as fr:
                 # phase *= -1
@@ -189,17 +196,16 @@ class ObservationModel:
             call_type = None
             app = 'globes'
             outfile = Path(self.dirs['psg_thermal']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-            call_api(gcm_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile)
+            call_api(cfg_path,psg_url=url,api_key=api_key,
+                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get layers
             url = self.params.psgurl
             call_type = 'lyr'
             app = 'globes'
             outfile = Path(self.dirs['psg_layers']) / f'phase{to_float(phase,u.deg):.3f}.lyr'
-            call_api(gcm_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile)
+            call_api(cfg_path,psg_url=url,api_key=api_key,
+                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
     
-
 
     def build_star(self):
         empty_spot_collection = vsm.SpotCollection(Nlat = self.params.Nlat,
@@ -217,12 +223,12 @@ class ObservationModel:
     def warm_up_star(self, spot_warmup_time=30*u.day, facula_warmup_time=3*u.day):
         spot_warm_up_step = 1*u.day
         facula_warm_up_step = 1*u.hr
-        N_steps_spot = int(round((spot_warmup_time/spot_warm_up_step).to(u.Unit(''))))
-        N_steps_facula = int(round((facula_warmup_time/facula_warm_up_step).to(u.Unit(''))))
-        for i in range(N_steps_spot):
+        N_steps_spot = int(round((spot_warmup_time/spot_warm_up_step).to(u.Unit('')).value))
+        N_steps_facula = int(round((facula_warmup_time/facula_warm_up_step).to(u.Unit('')).value))
+        for i in tqdm(range(N_steps_spot),desc='Spot Warmup',total=N_steps_spot):
             self.star.birth_spots(spot_warm_up_step)
             self.star.age(spot_warm_up_step)
-        for i in range(N_steps_facula):
+        for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
             self.star.birth_spots(facula_warm_up_step)
             self.star.age(facula_warm_up_step)
 
@@ -232,8 +238,8 @@ class ObservationModel:
         base_flux = base_flux * 0
         for teff, coverage in surface_dict.items():
             if coverage > 0:
-                wave, flux = self.get_model_spectrum()
-                assert np.all(base_wave==wave)
+                wave, flux = self.get_model_spectrum(teff)
+                assert np.all(isclose(base_wave,wave,1e-3*u.um))
                 base_flux = base_flux + flux * coverage
         return base_wave, base_flux
 
@@ -257,11 +263,11 @@ class ObservationModel:
             raise NotImplementedError('That flux unit is not implemented')
         
         #validate
-        assert np.all((sub_planet_wavelength==combined_df['Wave/freq']*self.params.target_wavelength_unit)
-                        & (sub_planet_wavelength==thermal_df['Wave/freq']*self.params.target_wavelength_unit))
+        assert np.all(isclose(sub_planet_wavelength,combined_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um)
+                        & isclose(sub_planet_wavelength,thermal_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um))
         
-        planet_reflection_only = combined_df['Planet'] * flux_unit - thermal_df['Planet']*flux_unit
-        planet_reflection_fraction = planet_reflection_only / (combined_df['Stellar']*flux_unit)
+        planet_reflection_only = combined_df['Planet'].values * flux_unit - thermal_df['Planet'].values*flux_unit
+        planet_reflection_fraction = planet_reflection_only / (combined_df['Stellar'].values*flux_unit)
         planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
         return sub_planet_wavelength, planet_reflection_adj
 
@@ -284,14 +290,14 @@ class ObservationModel:
             raise NotImplementedError('That flux unit is not implemented')
 
         # validate
-        assert np.all((cmb_wavelength==combined_df['Wave/freq']*self.params.target_wavelength_unit)
-                        & (cmb_wavelength==noise_df['Wave/freq']*self.params.target_wavelength_unit))
+        assert np.all(isclose(cmb_wavelength,combined_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um)
+                        & isclose(cmb_wavelength,noise_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um))
         
-        psg_noise_source = noise_df['Source'] * flux_unit
-        psg_source = combined_df['Total'] * flux_unit
+        psg_noise_source = noise_df['Source'].values * flux_unit
+        psg_source = combined_df['Total'].values * flux_unit
         model_noise = psg_noise_source * np.sqrt(cmb_flux/psg_source)
 
-        noise_sq = model_noise**2 + (noise_df['Detector']*flux_unit)**2 + (noise_df['Telescope']*flux_unit)**2 + (noise_df['Background']*flux_unit)**2
+        noise_sq = model_noise**2 + (noise_df['Detector'].values*flux_unit)**2 + (noise_df['Telescope'].values*flux_unit)**2 + (noise_df['Background'].values*flux_unit)**2
         return cmb_wavelength, np.sqrt(noise_sq)
 
 
@@ -306,7 +312,7 @@ class ObservationModel:
             flux_unit = u.Unit('W m-2 um-1')
         else:
             raise NotImplementedError('That flux unit is not implemented')
-        return thermal_df['Wave/freq'] * self.params.target_wavelength_unit, thermal_df['Planet']*flux_unit
+        return thermal_df['Wave/freq'].values * self.params.target_wavelength_unit, thermal_df['Planet'].values*flux_unit
 
     def build_spectra(self):
         """build spectra"""
@@ -316,7 +322,7 @@ class ObservationModel:
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(observation_parameters)
         time_step = self.params.total_observation_time / self.params.total_images
-        for index in range(time_step):
+        for index in tqdm(range(self.params.total_images),desc='Build Spectra',total=self.params.total_images):
 
             percent = int((index/self.params.total_images) * 100)
             if percent % 10 == 0:
@@ -336,19 +342,19 @@ class ObservationModel:
                                                             'lon':sub_obs_lon})
             wave, to_planet_flux = self.calculate_composite_stellar_spectrum({'lat':sub_planet_lat,
                                                             'lon':sub_planet_lon})
-            assert np.all(comp_wave==wave)
+            assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
             wave, reflection_flux_adj = self.calculate_reflected_spectra(planetPhase,comp_wave,to_planet_flux)
-            assert np.all(comp_wave==wave)
+            assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
             wave, thermal_spectrum = self.get_thermal_spectrum(planetPhase)
-            assert np.all(comp_wave==wave)
+            assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
             combined_flux = comp_flux + reflection_flux_adj + thermal_spectrum
 
 
             wave, noise_flux_adj = self.calculate_noise(planetPhase,comp_wave, combined_flux)
-            assert np.all(comp_wave==wave)
+            assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
             df = pd.DataFrame({
                 f'wavelength[{str(comp_wave.unit)}]': comp_wave.value,

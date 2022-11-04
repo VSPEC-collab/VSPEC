@@ -62,15 +62,16 @@ class ParamModel:
         self.time_between_exposures = int(configParser.get('HemiMap', 'time_between_exposures'))*u.min
         self.total_observation_time = int(configParser.get('HemiMap', 'observing_time'))*u.min
         self.total_images = int(round(float((self.total_observation_time/self.time_between_exposures).to(u.Unit('')))))
+        self.detector_number_of_integrations = int(round((self.time_between_exposures/self.detector_integration_time/u.s).to(u.Unit('')).value))
 
         # Binned spectrum
         self.loadData = configParser.getboolean('Star', 'loadData')
-        self.lam1   = configParser.getfloat('PSG', 'lam1')         # Initial wavelength of the simulations (um)
-        self.lam2   = configParser.getfloat('PSG', 'lam2')         # Final wavelength of the simulations (um)
-        self.lamRP  = configParser.getfloat('PSG', 'lamRP')        # Resolving power
         self.target_wavelength_unit = u.Unit(configParser.get('Spectra','wavelengthUnit'))
         self.target_flux_unit = u.Unit(configParser.get('Spectra','desiredFluxUnit'))
-
+        self.lam1   = configParser.getfloat('PSG', 'lam1')*self.target_wavelength_unit         # Initial wavelength of the simulations (um)
+        self.lam2   = configParser.getfloat('PSG', 'lam2')*self.target_wavelength_unit         # Final wavelength of the simulations (um)
+        self.lamRP  = configParser.getfloat('PSG', 'lamRP')        # Resolving power
+        
         # PSG
         # Paramaters sent to PSG to retrieve planet spectra
         self.gcm_file_path = configParser.get('PSG', 'GCM')

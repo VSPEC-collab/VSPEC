@@ -10,7 +10,7 @@
 import os
 
 def call_api(config_path,psg_url='https://psg.gsfc.nasa.gov',
-            api_key=None,type=None,app=None,outfile=None):
+            api_key=None,type=None,app=None,outfile=None,verbose=False):
     """call api
     Call the PSG api
 
@@ -25,7 +25,10 @@ def call_api(config_path,psg_url='https://psg.gsfc.nasa.gov',
     Returns:
         None
     """
-    cmd = 'curl -s'
+    if verbose:
+        cmd = 'curl'
+    else:
+        cmd = 'curl -s'
     if api_key:
         cmd = cmd + f' -d key={api_key}'
     if app:
@@ -36,4 +39,6 @@ def call_api(config_path,psg_url='https://psg.gsfc.nasa.gov',
     cmd = cmd + f' {psg_url}/api.php'
     if outfile:
         cmd = cmd + f' > {outfile}'
+    if verbose:
+        print(cmd)
     os.system(cmd)

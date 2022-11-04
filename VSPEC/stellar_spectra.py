@@ -60,9 +60,9 @@ def bin_raw_data(path,R=50,lam1=None, lam2=None,
     fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()] * model_unit_flux
     wl = wl.to(target_unit_wavelength)
     fl = fl.to(target_unit_flux)
-    if not lam1:
+    if lam1 is None:
         lam1 = min(wl)
-    if not lam2:
+    if lam2 is None:
         lam2 = max(wl)
     binned_wavelengths = get_wavelengths(R,
                     to_float(lam1,target_unit_wavelength),
@@ -82,7 +82,7 @@ def bin_raw_data(path,R=50,lam1=None, lam2=None,
         reg = (wl >= lower) & (wl < upper)
         binned_flux.append(to_float(fl[reg].mean(),target_unit_flux))
     binned_flux = np.array(binned_flux) * target_unit_flux
-    binned_wavelengths = np.array(binned_wavelengths[:-1])
+    binned_wavelengths = binned_wavelengths[:-1]
     return binned_wavelengths, binned_flux
 
 def get_phoenix_path(teff):
@@ -194,6 +194,7 @@ def interpolate_spectra(target_teff,
                         teff1,wave1,flux1,
                         teff2,wave2,flux2):
     assert np.all(wave1==wave2)
+    flux_unit = flux1.unit
     interp = interp2d(wave1,[to_float(teff1,u.K),to_float(teff2,u.K)],
-                    [flux1,flux2])
-    return wave1, interp(wave1,to_float(target_teff,u.K))
+                    [to_float(flux1,flux_unit),to_float(flux2,flux_unit)])
+    return wave1, interp(wave1,to_float(target_teff,u.K)) * flux_unit
