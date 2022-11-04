@@ -34,7 +34,7 @@ def get_wavelengths(R, lam1,lam2):
 
 def bin_raw_data(path,R=50,lam1=None, lam2=None,
                 model_unit_wavelength = u.AA,
-                model_unit_flux = u.Unit('erg cm-1 s-1 AA-1'),
+                model_unit_flux = u.Unit('erg cm-2 s-1 AA-1'),
                 target_unit_wavelength = u.um,
                 target_unit_flux = u.Unit('W m-2 um-1')):
     """bin raw data
@@ -160,7 +160,7 @@ def bin_phoenix_model(teff,file_name_writer = get_binned_filename,
                 binned_path = Path('./binned_data/'),
                 R=50,lam1=None, lam2=None,
                 model_unit_wavelength = u.AA,
-                model_unit_flux = u.Unit('erg cm-1 s-1 AA-1'),
+                model_unit_flux = u.Unit('erg cm-2 s-1 AA-1'),
                 target_unit_wavelength = u.um,
                 target_unit_flux = u.Unit('W m-2 um-1')):
     """bin phoenix model
