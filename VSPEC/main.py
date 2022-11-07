@@ -320,6 +320,15 @@ class ObservationModel:
         self.warm_up_star()
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(observation_parameters)
+        # write observation info to file
+        obs_info_filename = Path(self.dirs['all_model']) / 'observation_info.csv'
+        obs_df = pd.DataFrame()
+        for key in observation_info.keys():
+            unit  = observation_info[key].unit
+            name = f'{key}[{str(unit)}]'
+            obs_df[name] = observation_info[key].value
+        obs_df.to_csv(obs_info_filename,sep=',',index=False)
+
         time_step = self.params.total_observation_time / self.params.total_images
         for index in tqdm(range(self.params.total_images),desc='Build Spectra',total=self.params.total_images,position=0,leave=True):
 
