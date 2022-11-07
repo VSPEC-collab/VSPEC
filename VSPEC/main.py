@@ -318,16 +318,12 @@ class ObservationModel:
         """build spectra"""
         self.build_star()
         self.warm_up_star()
-
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(observation_parameters)
         time_step = self.params.total_observation_time / self.params.total_images
-        for index in tqdm(range(self.params.total_images),desc='Build Spectra',total=self.params.total_images):
+        for index in tqdm(range(self.params.total_images),desc='Build Spectra',total=self.params.total_images,position=0,leave=True):
 
-            percent = int((index/self.params.total_images) * 100)
-            if percent % 10 == 0:
-                print(f'{percent:.1f}% Complete')
-
+            
             planetPhase = observation_info['phase'][index]
             sub_obs_lon = observation_info['sub_obs_lon'][index]
             sub_obs_lat = observation_info['sub_obs_lat'][index]
@@ -363,10 +359,10 @@ class ObservationModel:
                 f'reflected[{str(reflection_flux_adj.unit)}]': reflection_flux_adj.value,
                 f'planet_thermal[{str(thermal_spectrum.unit)}]': thermal_spectrum.value,
                 f'total[{str(combined_flux.unit)}]': combined_flux.value,
-                f'noise[{str(noise_flux_adj)}]': noise_flux_adj.value
+                f'noise[{str(noise_flux_adj.unit)}]': noise_flux_adj.value
             })
             outfile = Path(self.dirs['all_model']) / f'phase{str(index).zfill(3)}.csv'
-            df.to_csv(outfile,index=False)
+            df.to_csv(outfile,index=False,sep=',')
 
             self.star.birth_spots(time_step)
             self.star.birth_faculae(time_step)
