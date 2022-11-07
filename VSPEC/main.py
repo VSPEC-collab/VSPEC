@@ -47,7 +47,7 @@ class ObservationModel:
                 file_name_writer=stellar_spectra.get_binned_filename,
                 binned_path=self.dirs['binned'],R=self.params.lamRP,
                 lam1=self.params.lam1,lam2=self.params.lam2,
-                model_unit_wavelength=u.AA,model_unit_flux=u.Unit('erg s-1 cm-2 AA-1'),
+                model_unit_wavelength=u.AA,model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
                 target_unit_wavelength=self.params.target_wavelength_unit,
                 target_unit_flux = self.params.target_flux_unit)
     
