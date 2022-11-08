@@ -141,6 +141,8 @@ Configs/Stellar/config.txt
 Configs/
 test/
 proxCen0spot/
+newproxcen/
+examples/
 testPlots.py
 
 .DS_store

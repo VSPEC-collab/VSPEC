@@ -1,7 +1,7 @@
 from copyreg import constructor
 from csv import writer
 from os import remove
-import SpectraBuilder
+import VSPEC.SpectraBuilder as SpectraBuilder
 import math
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
@@ -12,7 +12,7 @@ from PIL import Image
 from pathlib import Path
 import glob
 
-import read_info
+import VSPEC.read_info as read_info
 
 # 4th file to run.
 
