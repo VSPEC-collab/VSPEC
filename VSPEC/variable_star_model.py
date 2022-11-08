@@ -376,7 +376,7 @@ class Star:
             None
         """
         self.faculae.add_faculae(facula)
-    def calc_coverage(self,sub_obs_coords,Nlat=500,Nlon=1000):
+    def calc_coverage(self,sub_obs_coords):
         """Calculate coverage
         Calculate coverage fractions of various Teffs on stellar surface
         give coordinates of the sub-observation point.

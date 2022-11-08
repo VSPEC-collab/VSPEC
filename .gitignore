@@ -142,6 +142,7 @@ Configs/
 test/
 proxCen0spot/
 newproxcen/
+examples/
 testPlots.py
 
 .DS_store
