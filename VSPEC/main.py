@@ -1,12 +1,10 @@
 from pathlib import Path
-from pyexpat import model
 from astropy import units as u
 import numpy as np
 import pandas as pd
 
 from tqdm.auto import tqdm
 
-from VSPEC.SpectraBuilder import calculate_combined_spectrum
 from VSPEC.read_info import ParamModel
 from VSPEC.files import build_directories
 from VSPEC.psg_api import call_api
