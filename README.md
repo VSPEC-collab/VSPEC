@@ -1,65 +1,291 @@
-# Variable Star PhasE Curve
+# VSPEC: Variable Star PhasE Curve
 
-This code links variable stellar model output to GCM output and creates realistic, synthetic data of a star/planet system. It returns spectra of the star, planet, and combined star/planet. The data sets made with this tool will be used to create a method of separating the planet's flux (reflected and thermal) from the combined system flux as observed by a telescope, in order to study the planet's atmosphere based on its spectra.
+## A python package to simulate Planetary Infrared Excess (PIE) observations of rocky planets around variable M dwarfs
+
+#### Cameron Kelehan and Ted Johnson
+
+VSPEC uses a dynamic model of stellar spots and faculae combined with simultations from the Planetary Spectrum Generator (PSG, [Villanueva et al, 2018](https://ui.adsabs.harvard.edu/abs/2018JQSRT.217...86V/abstract)) to simulate phase resolved observations of planetary thermal emission spectra. This package was designed for the Mid-IR Exoplanet CLimate Explorer mission concept (MIRECLE, [Mandell et al, 2022](https://ui.adsabs.harvard.edu/abs/2022AJ....164..176M/abstract)), but was build to be used more generally.
+
+### Installation
+
+For now it is best to clone this repository, but we would like to use pypi in the future.
+
+`git clone https://github.com/tedjohnson12/VSPEC.git`
+
+`cd VSPEC`
+
+`pip install -e .`
+
+### Using VSPEC
+
+#### Quick start guide
+
+The parameters of a VSPEC model are specified in a configuration file. Before we run the model we will read these parameters into memory. The fundamental object in VSPEC is `VSPEC.ObservationalModel`.
 
 
-## Requirements
+```python
+import VSPEC
+from pathlib import Path
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from astropy import units as u
+```
 
-This code was designed using Python 3.8
 
-## Installation
+```python
+config_path = 'example.cfg'
+model = VSPEC.ObservationModel(config_path)
+```
 
-The code doesn't require any special installation, and can be directly downloaded from the Github page or, in alternative, the repository can be cloned via
+This created a new directory called `example_star/` that will store all the data from this model run.
 
-    https://github.com/cameronkelahan/VSPEC
+Let's look at where our model parameters are stored. For example we can look at the effective temperature of quiet photosphere.
+
+
+```python
+model.params.teffStar
+```
+
+
+
+
+$3300 \; \mathrm{K}$
+
+
+
+Now we need to bin the spectra to the desired resolution. In the configureation file we specified:
+
+
+```python
+print(f'starting wavelength = {model.params.lam1}')
+print(f'ending wavelength = {model.params.lam2}')
+print(f'resolving power = {model.params.lamRP}')
+```
+
+    starting wavelength = 1.0 um
+    ending wavelength = 18.0 um
+    resolving power = 50.0
+
+
+We can ask the model to bin spectra from a grid of PHOENIX models. The $T_{eff}$ range is specified in the configuration file.
+
+
+```python
+model.bin_spectra()
+```
+
+
+    Binning Spectra:   0%|          | 0/13 [00:00<?, ?it/s]
+
+
+Now we make a series of API calls to PSG to retrive spectra of the planet model. The configuration file specifies a GCM file that is uploaded to PSG in `model.params.gcm_file_path`.
+
+
+```python
+model.build_planet()
+```
+
+    Starting at phase 0.0 deg, observe for 17000.0 min in 28 steps
+    Phases = [  0.    13.23  26.93  41.11  55.69  70.59  85.69 100.83 115.85 130.63
+     145.05 159.02 172.53 185.55 198.11 210.26 222.05 233.55 244.82 255.92
+     266.94 277.94 288.99 300.16 311.52 323.14 335.08 347.41] deg
+
+
+
+    Build Planet:   0%|          | 0/28 [00:00<?, ?it/s]
+
+
+Lastly, we need to run our variable star model. PSG uses its own stellar templates, but we will replace those with our own model. This allows us to accurately model the affect that variability has on reflected light as well as noise.
+
+
+```python
+model.build_spectra()
+```
+
+
+    Spot Warmup:   0%|          | 0/30 [00:00<?, ?it/s]
+
+
+
+    Facula Warmup:   0%|          | 0/72 [00:00<?, ?it/s]
+
+
+
+    Build Spectra:   0%|          | 0/28 [00:00<?, ?it/s]
+
+
+#### Analysis
+
+All of our data produced by this model run is stored in `example_star/Data/AllModelSpectraValues`. We can store that data in the `PhaseAnayzer` object.
+
+
+```python
+data_path = Path('example_star/Data/AllModelSpectraValues')
+sim_data = VSPEC.PhaseAnalyzer(data_path)
+```
+
+
+```python
+plt.contourf(sim_data.phase,sim_data.wavelength,sim_data.thermal,levels=60)
+plt.xlabel('phase (deg)')
+plt.ylabel('wavelength (um)')
+plt.title('Planetary Thermal Emission')
+cbar = plt.colorbar()
+cbar.set_label('flux (W m-2 um-1)')
+```
+
 
     
-## Directories and files
-
-The code is made up of 4 main programs:
-* StarBuilder.py
-* PlanetBuilder.py
-* SpectraBuilder.py
-* PlotBuilder.py
-
-The code is executed based on a user-specified/curated config file:
-* Config files are stored in `/Configs`
-* Users can create their own configs based on the template provided in the repository (ProxCenTemplate)
-* The code also relies on a GCM config file which can be found in `/Configs/GCMs/`
-* Users are free to create new configs for the star based on the template, or introduce new GCM configs
-
-All directories are created when the code is run, based on the chosen stellar config file:
-* A folder with the user-defined name of the star (based on config) is created.
-* This folder contains two major sub-directories: Data saves all necessary data arrays and Figures stores all produced images/plots.
-
-
-## Using the code
-
-The Code is split into 4 main executable programs, all named ____Builder.py, that you run individually and, to start, in this order.
-
-1. StarBuilder.py
-   - Creates the variable star model with spots and faculae. Must be run first as the program needs a star.
-   - Calculates the coverage fractions of the photosphere, spots, and faculae for each phase of the star.
-   - It also bins the supplied stellar flux models (NextGen stellar dataset by default) to a resolving power specified in the config.
-2. PlanetBuilder.py
-   - Calls the Globes application of the Planetary Spectrum Generator web-tool.
-   - Run second, after building th star; this produces a planet for the program.
-   - The program sends information based on the user-defined config file including stellar and planetray parameters to PSG, starting with a General Circulation Model, and returns theoretical flux spectra of the planet's reflected and thermal flux.
-3. SpectraBuilder.py
-   - Run third; it needs saved planetary spectra and stellar spectra.
-   - Uses the output of the StarBuilder.py and PlanetBuilder.py to create a synthetic timeseries of flux data that applies the planet flux from PSG to the star model created in StarBuilder.py, so the data we see is of the planet's flux as if it were revolving around the newly created, variable star.
-4. GraphBuilder.py
-   - Creates many graphs showing lightcurves, stellar flux output, planet flux output, planet thermal flux output, total system output, etc. across a timeseries.
-
-Once you have built and saved all of the models, re-running any part of the code can be done individually.
-* Modularization of this code makes it easy to quickly correct graphs without re-running the whole process, or re-creating the variable 3D stellar model with a different inclination.
-* Any time the StarBuilder or PlanetBuilder are changed, the SpectraBuilder must also be re-run, since it relies on the output of those two programs.
+![png](readme_files/readme_17_0.png)
+    
 
 
 
-<!-- ## Output files
+```python
+plt.contourf(sim_data.phase,sim_data.wavelength,sim_data.reflected,levels=60)
+plt.xlabel('phase (deg)')
+plt.ylabel('wavelength (um)')
+plt.title('Reflected light')
+cbar = plt.colorbar()
+cbar.set_label('flux (W m-2 um-1)')
+```
 
-## References
-<a id="1">[1]</a> 
-Caldiroli, A., Haardt, F., Gallo, E., Spinelli, R., Malsky, I., Rauscher, E., 2021, "Irradiation-driven escape of primordial planetary atmospheres I. The ATES photoionization hydrodynamics code", arXiv:2106.10294
- -->
+
+    
+![png](readme_files/readme_18_0.png)
+    
+
+
+We can also create lightcurves
+
+
+```python
+pixel = (0,10)
+bandpass = sim_data.wavelength[slice(*pixel)]
+plt.plot(*sim_data.lightcurve('total',(0,10),'phase'))
+plt.xlabel('time since periasteron (s)')
+plt.ylabel('flux (W m-2 um-1)')
+plt.title(f'Source total with\nbandpass from {bandpass.min()} to {bandpass.max()}')
+```
+
+
+
+
+    Text(0.5, 1.0, 'Source total with\nbandpass from 1.0 um to 1.195093 um')
+
+
+
+
+    
+![png](readme_files/readme_20_1.png)
+    
+
+
+
+```python
+pixel = (100,150)
+bandpass = sim_data.wavelength[slice(*pixel)]
+plt.plot(*sim_data.lightcurve('thermal',(0,10),'phase'))
+plt.xlabel('time since periasteron (s)')
+plt.ylabel('flux (W m-2 um-1)')
+plt.title(f'thermal with\nbandpass from {bandpass.min()} to {bandpass.max()}')
+```
+
+
+
+
+    Text(0.5, 1.0, 'thermal with\nbandpass from 7.244646 um to 17.66139 um')
+
+
+
+
+    
+![png](readme_files/readme_21_1.png)
+    
+
+
+
+```python
+pixel = (100,150)
+bandpass = sim_data.wavelength[slice(*pixel)]
+plt.plot(*sim_data.lightcurve('reflected',(0,10),'phase'))
+plt.xlabel('time since periasteron (s)')
+plt.ylabel('flux (W m-2 um-1)')
+plt.title(f'reflected with\nbandpass from {bandpass.min()} to {bandpass.max()}')
+```
+
+
+
+
+    Text(0.5, 1.0, 'reflected with\nbandpass from 7.244646 um to 17.66139 um')
+
+
+
+
+    
+![png](readme_files/readme_22_1.png)
+    
+
+
+We can also look at the spectra produced at each phase step and combine multiple steps to improve SNR
+
+
+```python
+x = sim_data.wavelength
+reg = x > 5*u.um
+cmap = cm.get_cmap('viridis')
+for i in range(sim_data.N_images):
+    ytrue=sim_data.combine('thermal',(i,i+1),noise=False)
+    plt.plot(x[reg],ytrue[reg],c=cmap(i/sim_data.N_images))
+phases = (0,sim_data.N_images)
+ytrue=sim_data.combine('thermal',phases,noise=False)
+y = sim_data.combine('thermal',phases,noise=True)
+yerr = sim_data.combine('noise',phases,noise=True)
+plt.errorbar(x[reg],y[reg],yerr=yerr[reg],fmt='o',c='C1',label='noise added')
+plt.plot(x[reg],ytrue[reg],c='C1',label='phase-average')
+plt.axis([5,18,0,6e-19])
+plt.xlabel('wavelength (um)')
+plt.ylabel('flux (W m-2 um-1)')
+plt.legend()
+plt.title('Planetary thermal emission')
+```
+
+
+
+
+    Text(0.5, 1.0, 'Planetary thermal emission')
+
+
+
+
+    
+![png](readme_files/readme_24_1.png)
+    
+
+
+
+```python
+x = sim_data.wavelength
+cmap = cm.get_cmap('viridis')
+yavg = sim_data.combine('total',(0,sim_data.N_images),noise=False)
+for i in range(sim_data.N_images):
+    ytrue=sim_data.combine('total',(i,i+1),noise=False)
+    plt.plot(x,100*(ytrue-yavg)/ytrue,c=cmap(i/sim_data.N_images))
+plt.xlabel('wavelength (um)')
+plt.ylabel('variation from mean (%)')
+plt.title('Stellar spectrum')
+
+```
+
+
+
+
+    Text(0.5, 1.0, 'Stellar spectrum')
+
+
+
+
+    
+![png](readme_files/readme_25_1.png)
+    
+
