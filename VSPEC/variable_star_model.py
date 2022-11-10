@@ -80,7 +80,7 @@ class StarSpot:
             (astropy.units.quantity.Quantity [angle]): angular radius of the spot
         """
         cos_angle = 1 - self.area_current/(2*np.pi*star_rad**2)
-        return (np.arccos(cos_angle)*u.rad).to(u.deg)
+        return (np.arccos(cos_angle)).to(u.deg)
     
     def map_pixels(self,star_rad):
         """map pixels
