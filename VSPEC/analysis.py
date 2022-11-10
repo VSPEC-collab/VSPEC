@@ -1,7 +1,10 @@
+import re
+from copy import deepcopy
+
 import numpy as np
 import pandas as pd
 from astropy import units as u
-import re
+
 from VSPEC.helpers import to_float
 
 
@@ -22,6 +25,12 @@ class PhaseAnalyzer:
         self.N_images = len(self.observation_data)
         self.time = self.observation_data['time[s]'].values * u.s
         self.phase = self.observation_data['phase[deg]'].values * u.deg
+        self.unique_phase = deepcopy(self.phase)
+        for i in range(len(self.unique_phase) - 1):
+            while self.unique_phase[i] > self.unique_phase[i+1]:
+                self.unique_phase[i+1] += 360*u.deg_C
+
+
 
         star = pd.DataFrame()
         # star_facing_planet = pd.DataFrame() # not super interesting
@@ -64,7 +73,7 @@ class PhaseAnalyzer:
         self.total = total.values * fluxunit
         self.noise = noise.values * fluxunit
 
-    def lightcurve(self,source,pixel,xvar='phase',normalize='none',noise=False):
+    def lightcurve(self,source,pixel,normalize='none',noise=False):
         """lightcurve
         Produce a lightcurve of the data
 
@@ -81,13 +90,7 @@ class PhaseAnalyzer:
         if isinstance(pixel,tuple):
             pixel = slice(*pixel)
         y = getattr(self,source)[pixel,:]
-        x = None
-        if xvar == 'pixel':
-            x = np.arange(len(y.value))
-        else:
-            x = getattr(self,xvar)
         if noise:
-            
             y = y + np.random.normal(scale=self.noise.value[pixel,:])*self.noise.unit
         if y.ndim > 1:
             y = y.mean(axis=0)
@@ -95,7 +98,7 @@ class PhaseAnalyzer:
             y = to_float(y/y[normalize],u.Unit(''))
         elif str(normalize)=='max':
             y = to_float(y/y.max(),u.Unit(''))
-        return x,y
+        return y
 
     def combine(self,source,images,noise=False):
         """combine
