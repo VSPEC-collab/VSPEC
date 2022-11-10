@@ -68,7 +68,7 @@ class StarSpot:
         Returns:
             (astropy.units.quantity.Quantity [length]): Radius of spot.
         """
-        return np.sqrt(self.area_current/np.pi).to(u.km)
+        return np.sqrt(self.area_current).to(u.km)/np.pi
     def angular_radius(self,star_rad):
         """angular radius
         Get the angular radius of the spot
@@ -364,7 +364,7 @@ class Star:
             None
         """
         self.spots.add_spot(spot)
-        self.map = self.get_pixelmap(self.resolution['lat'],self.resolution['lon'])
+        self.map = self.get_pixelmap()
     def add_fac(self,facula):
         """add facula(e)
         Add a facula or faculae
