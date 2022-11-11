@@ -321,8 +321,8 @@ class Star:
         self.spots.gridmaker = self.gridmaker
 
         
-        self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15)
-        self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km)
+        self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15,Nlon=Nlon,Nlat=Nlat)
+        self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km,Nlon=Nlon,Nlat=Nlat)
     def get_pixelmap(self):
         """get pixelmap
         Create map of stellar surface based on spots:
@@ -508,12 +508,14 @@ class SpotGenerator:
     Returns:
         None
     """
-    def __init__(self,average_area,area_spread,coverage=None):
+    def __init__(self,average_area,area_spread,coverage=None,Nlat=500,Nlon=1000):
         self.average_spot_area = average_area
         self.spot_area_spread = area_spread
         self.decay_rate = 10.89 * MSH/u.day
         self.average_spot_lifetime = 2*(self.average_spot_area / self.decay_rate).to(u.hr)
         self.coverage = coverage
+        self.Nlon = Nlon
+        self.Nlat = Nlat
     def get_variability(self,rotation_period):
         """get variability
         Get variability from stellar rotaion period based on imperical relation
@@ -567,7 +569,7 @@ class SpotGenerator:
         
         spots = []
         for i in range(N):
-            spots.append(StarSpot(lat[i],lon[i],new_max_areas[i],starting_size,umbra_teff,penumbra_teff))
+            spots.append(StarSpot(lat[i],lon[i],new_max_areas[i],starting_size,umbra_teff,penumbra_teff,Nlat=self.Nlat,Nlon=self.Nlon))
         return tuple(spots)
 
 class Facula:
@@ -848,7 +850,7 @@ class FaculaGenerator:
         
     """
     def __init__(self,R_peak = 400*u.km, R_HWHM = 200*u.km,
-                 T_peak = 6.2*u.hr, T_HWHM = 4.7*u.hr,coverage=0.0001,dist = 'even'):
+                 T_peak = 6.2*u.hr, T_HWHM = 4.7*u.hr,coverage=0.0001,dist = 'even',Nlon=1000,Nlat=500):
         assert u.get_physical_type(R_peak) == 'length'
         assert u.get_physical_type(R_HWHM) == 'length'
         assert u.get_physical_type(T_peak) == 'time'
@@ -862,6 +864,8 @@ class FaculaGenerator:
         assert isinstance(coverage,float)
         self.coverage = coverage
         self.dist = dist
+        self.Nlon = Nlon
+        self.Nlat = Nlat
         
     def get_floor_teff(self,R,Teff_star):
         """Get floor Teff
@@ -936,7 +940,8 @@ class FaculaGenerator:
         new_faculae = []
         for i in range(N):
             new_faculae.append(Facula(lats[i], lons[i], max_radii[i], starting_radii[i], teff_floor[i],
-                                     teff_wall[i],lifetimes[i], growing=True, floor_threshold=20*u.km, Zw = 100*u.km))
+                                     teff_wall[i],lifetimes[i], growing=True, floor_threshold=20*u.km, Zw = 100*u.km,
+                                     Nlon=self.Nlon,Nlat=self.Nlat))
         return tuple(new_faculae)
         
 class CoordinateGrid:
