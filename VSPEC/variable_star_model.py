@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from astropy import units as u, constants as c
 from astropy.units.quantity import Quantity as quant
+import cartopy.crs as ccrs
+
 MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
 
 class StarSpot:
@@ -492,6 +494,37 @@ class Star:
             num += teff**4 * dat[teff]
             den += dat[teff]
         return ((num/den)**(0.25)).to(u.K)
+
+
+    def plot(self,view_angle, sub_obs_point = None):
+        pmap = self.get_pixelmap().value
+        lats,lons = self.gridmaker.grid()
+        proj = ccrs.Orthographic(
+                    central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
+        fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
+        ax = plt.axes(projection=proj, fc="r")
+        ax.outline_patch.set_linewidth(0.0)
+        ax.imshow(
+            pmap.T,
+            origin="upper",
+            transform=ccrs.PlateCarree(),
+            extent=[0, 360, -90, 90],
+            interpolation="none",
+            regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon)
+        )
+        if sub_obs_point is not None:
+            mask = self.calc_orthographic_mask(sub_obs_point)
+            ax.imshow(
+            mask.T,
+            origin="upper",
+            transform=ccrs.PlateCarree(),
+            extent=[0, 360, -90, 90],
+            interpolation="none",
+            regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon),
+            cmap='gray',
+            alpha=0.7
+        )
+
 
 class SpotGenerator:
     """Spot Generator
