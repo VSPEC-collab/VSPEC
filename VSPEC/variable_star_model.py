@@ -871,7 +871,7 @@ class FaculaCollection:
             (np.ndarray [int8], shape(M,N)): grid of integer keys showing facula loactions
             (dict): dictionary maping index in self.faculae to the integer grid of facula locations
         """
-        int_map = self.gridmaker.zeros(dtype='int8')
+        int_map = self.gridmaker.zeros(dtype='int16')
         map_dict = {}
         for i in range(len(self.faculae)):
             facula = self.faculae[i]
