@@ -227,7 +227,7 @@ class ObservationModel:
             self.star.birth_spots(spot_warm_up_step)
             self.star.age(spot_warm_up_step)
         for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
-            self.star.birth_spots(facula_warm_up_step)
+            self.star.birth_faculae(facula_warm_up_step)
             self.star.age(facula_warm_up_step)
 
     def calculate_composite_stellar_spectrum(self,sub_obs_coords):

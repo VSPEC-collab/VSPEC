@@ -337,7 +337,6 @@ class Star:
             (array of astropy.units.quantity.Quantity [temperature], Shape(Nlon,Nlat)): Map of stellar surface with Teff assigned to each pixel.
 
         """
-        latgrid,longrid = self.gridmaker.grid()
         return self.spots.map_pixels(self.radius,self.Teff)
     def age(self,time):
         """age
