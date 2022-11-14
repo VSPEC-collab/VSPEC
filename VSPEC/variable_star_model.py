@@ -898,7 +898,7 @@ class FaculaGenerator:
         dist (str): type of distribution
         
     """
-    def __init__(self,R_peak = 400*u.km, R_HWHM = 200*u.km,
+    def __init__(self,R_peak = 800*u.km, R_HWHM = 300*u.km,
                  T_peak = 6.2*u.hr, T_HWHM = 4.7*u.hr,coverage=0.0001,dist = 'even',Nlon=1000,Nlat=500):
         assert u.get_physical_type(R_peak) == 'length'
         assert u.get_physical_type(R_HWHM) == 'length'
