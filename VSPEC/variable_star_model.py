@@ -524,6 +524,7 @@ class Star:
             cmap='gray',
             alpha=0.7
         )
+        return fig
 
 
 class SpotGenerator:
