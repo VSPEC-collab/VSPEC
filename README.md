@@ -289,3 +289,10 @@ plt.title('Stellar spectrum')
 ![png](readme_files/readme_25_1.png)
     
 
+
+
+## TODO
+
+* limb-darkenging parameter
+* Fibonacci spiral to evenly space points
+*flares
