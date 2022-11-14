@@ -496,9 +496,8 @@ class Star:
         return ((num/den)**(0.25)).to(u.K)
 
 
-    def plot(self,view_angle, sub_obs_point = None):
+    def plot_spots(self,view_angle, sub_obs_point = None):
         pmap = self.get_pixelmap().value
-        lats,lons = self.gridmaker.grid()
         proj = ccrs.Orthographic(
                     central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
         fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
@@ -523,6 +522,23 @@ class Star:
             regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon),
             cmap='gray',
             alpha=0.7
+        )
+        return fig
+
+    def plot_faculae(self,view_angle):
+        int_map, map_keys = self.faculae.map_pixels(self.map,self.radius,self.Teff)
+        proj = ccrs.Orthographic(
+                    central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
+        fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
+        ax = plt.axes(projection=proj, fc="r")
+        ax.outline_patch.set_linewidth(0.0)
+        ax.imshow(
+            int_map.T,
+            origin="upper",
+            transform=ccrs.PlateCarree(),
+            extent=[0, 360, -90, 90],
+            interpolation="none",
+            regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon)
         )
         return fig
 
