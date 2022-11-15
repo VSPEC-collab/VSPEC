@@ -139,7 +139,8 @@ ProxCenTemplate/
 Configs/GCMs/config.txt
 Configs/Stellar/config.txt
 Configs/
-test/
+test/*/
+test/*.png
 proxCen0spot/
 newproxcen/
 examples/
