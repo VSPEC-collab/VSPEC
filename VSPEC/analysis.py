@@ -28,7 +28,7 @@ class PhaseAnalyzer:
         self.unique_phase = deepcopy(self.phase)
         for i in range(len(self.unique_phase) - 1):
             while self.unique_phase[i] > self.unique_phase[i+1]:
-                self.unique_phase[i+1] += 360*u.deg_C
+                self.unique_phase[i+1] += 360*u.deg
 
 
 
