@@ -44,7 +44,7 @@ class ParamModel:
         # Planet periodic properties
         self.revPlanet = configParser.getfloat('PSG', 'revPlanet')*u.day
         # The planet rotation is equivalent to the planet revolution for tidally locked planets
-        self.rotPlanet = self.revPlanet
+        self.rotPlanet = configParser.getfloat('PSG', 'rotPlanet')*u.day
         self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')*u.deg
         
         # Noise
@@ -87,7 +87,7 @@ class ParamModel:
         self.starType = configParser.get('PSG', 'starType')         # Star type
         self.semMajAx = configParser.getfloat('PSG', 'semMajAx')   # Semi Major Axis of planet (AU)
         self.objPer = configParser.getfloat('PSG', 'objPer')       # Period of planet (days)
-        self.objRev = self.objPer                             # planet revolution is equal to planet rev for tidally locked planets
+        self.objRev = self.revPlanet                             # planet revolution is equal to planet rev for tidally locked planets
         self.objEcc = configParser.getfloat('PSG', 'objEcc')       # Eccentricity of planet
         self.objArgOfPeriapsis = configParser.getfloat('PSG','objArgOfPeriapsis') * u.deg
         self.objDis = configParser.getfloat('PSG', 'objDis')       # Distance to system (uses distance to star) (pc)
