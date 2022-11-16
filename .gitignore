@@ -141,6 +141,7 @@ Configs/Stellar/config.txt
 Configs/
 test/*/*/
 test/*/*.png
+test/*/*.ipynb
 test/test_gcms
 proxCen0spot/
 newproxcen/

@@ -37,7 +37,7 @@ class ParamModel:
 
         # Inclination of the star
         self.inclination = int(configParser.get('Star', 'Inclination')) * u.deg
-        self.inclinationPSG = self.inclination + 90*u.deg
+        self.inclinationPSG = 90*u.deg -  self.inclination
         self.offsetFromOrbitalPlane = int(configParser.get('Star','offsetFromOrbitalPlane')) * u.deg
         self.offsetDirection = int(configParser.get('Star','offsetDirection')) * u.deg
 
@@ -75,6 +75,7 @@ class ParamModel:
         # PSG
         # Paramaters sent to PSG to retrieve planet spectra
         self.gcm_file_path = configParser.get('PSG', 'GCM')
+        self.use_globes = configParser.getboolean('PSG','use_globes')
         try:
             self.api_key_path = configParser.get('PSG', 'api_key_path')
         except:
@@ -88,6 +89,7 @@ class ParamModel:
         self.semMajAx = configParser.getfloat('PSG', 'semMajAx')   # Semi Major Axis of planet (AU)
         self.objPer = configParser.getfloat('PSG', 'objPer')       # Period of planet (days)
         self.objRev = self.revPlanet                             # planet revolution is equal to planet rev for tidally locked planets
+        self.init_substellar_lon = configParser.getfloat('PSG', 'init_substellar_lon') * u.deg
         self.objEcc = configParser.getfloat('PSG', 'objEcc')       # Eccentricity of planet
         self.objArgOfPeriapsis = configParser.getfloat('PSG','objArgOfPeriapsis') * u.deg
         self.objDis = configParser.getfloat('PSG', 'objDis')       # Distance to system (uses distance to star) (pc)

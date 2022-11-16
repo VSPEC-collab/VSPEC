@@ -1,18 +1,18 @@
 from pathlib import Path
-from astropy import units as u
+from os import system
+
 import numpy as np
 import pandas as pd
-
+from astropy import units as u
 from tqdm.auto import tqdm
 
-from VSPEC.read_info import ParamModel
-from VSPEC.files import build_directories
-from VSPEC.psg_api import call_api
-from VSPEC.helpers import to_float, isclose
-from VSPEC.geometry import SystemGeometry
-from VSPEC import variable_star_model as vsm
 from VSPEC import stellar_spectra
-
+from VSPEC import variable_star_model as vsm
+from VSPEC.files import build_directories
+from VSPEC.geometry import SystemGeometry
+from VSPEC.helpers import isclose, to_float
+from VSPEC.psg_api import call_api
+from VSPEC.read_info import ParamModel
 
 
 class ObservationModel:
@@ -65,10 +65,17 @@ class ObservationModel:
         return wavelength, flux*self.params.distanceFluxCorrection
     
     def get_observation_parameters(self):
-        return SystemGeometry(self.params.inclinationPSG,0*u.deg,
-                    self.params.initial_planet_phase*u.deg,self.params.rotstar,self.params.revPlanet,self.params.rotPlanet,
-                    self.params.offsetFromOrbitalPlane,self.params.offsetDirection,self.params.objEcc,
-                    self.params.objArgOfPeriapsis)
+        return SystemGeometry(self.params.inclinationPSG,
+                            0*u.deg,
+                            self.params.initial_planet_phase*u.deg,
+                            self.params.rotstar,
+                            self.params.revPlanet,
+                            self.params.rotPlanet,
+                            self.params.init_substellar_lon,
+                            self.params.offsetFromOrbitalPlane,
+                            self.params.offsetDirection,
+                            self.params.objEcc,
+                            self.params.objArgOfPeriapsis)
     
     def get_observation_plan(self,observation_parameters):
         return observation_parameters.get_observation_plan(self.params.initial_planet_phase*u.deg,
@@ -80,12 +87,25 @@ class ObservationModel:
         Follow steps in original PlanetBuilder.py file
         """
 
+        # for not using globes, append all configurations instead of rewritting
+
+        if self.params.use_globes:
+            file_mode = 'w'
+        else:
+            file_mode = 'a'
+
         ####################################
         # Initial upload of GCM
         gcm_path = self.params.gcm_file_path
+        cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
+        if not self.params.use_globes:
+            system(f'cp {gcm_path} {cfg_path}')
         url = self.params.psgurl
         call_type = 'set'
-        app = 'globes'
+        if self.params.use_globes:
+            app = 'globes'
+        else:
+            app = None
         outfile = None
         if self.params.api_key_path:
             api_key = open(self.params.api_key_path,'r').read()
@@ -96,7 +116,7 @@ class ObservationModel:
         ####################################
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
-        with open(cfg_path, "w") as fr:
+        with open(cfg_path, file_mode) as fr:
             fr.write('<OBJECT-DIAMETER>%f\n' % (self.params.objDiam))
             fr.write('<OBJECT-GRAVITY>%f\n' % self.params.objGrav)
             fr.write('<OBJECT-GRAVITY-UNIT>g\n')
@@ -139,7 +159,10 @@ class ObservationModel:
             fr.write(f'<GENERATOR-TELESCOPE3>1.0\n')
         url = self.params.psgurl
         call_type = 'upd'
-        app = 'globes'
+        if self.params.use_globes:
+            app = 'globes'
+        else:
+            app = None
         outfile = None
         call_api(cfg_path,psg_url=url,api_key=api_key,
                 type=call_type,app=app,outfile=outfile,verbose=self.debug)
@@ -150,56 +173,89 @@ class ObservationModel:
         ####################################
         # Calculate observation parameters
         observation_parameters = self.get_observation_parameters()
-        phases = self.get_observation_plan(observation_parameters)['phase']
+        obs_plan = self.get_observation_plan(observation_parameters)
         print(f'Starting at phase {self.params.initial_planet_phase*u.deg}, observe for {self.params.total_observation_time} in {self.params.total_images} steps')
-        print('Phases = ' + str(np.round(np.asarray((phases/u.deg).to(u.Unit(''))),2)) + ' deg')
+        print('Phases = ' + str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))),2)) + ' deg')
         ####################################
         # iterate through phases
         count = 0
-        for phase in tqdm(phases,desc='Build Planet',total=self.params.total_images):
+        for i in tqdm(range(self.params.total_images),desc='Build Planet',total=self.params.total_images):
+            phase = obs_plan['phase'][i]
+            sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
+            orbit_radius_coeff = obs_plan['orbit_radius'][i]
+            
+            
             if phase>178*u.deg and phase<182*u.deg:
                 phase=182.0*u.deg # Add transit phase;
             if phase == 185*u.deg:
                 phase = 186.0*u.deg
+            
+            pl_sub_obs_lon = sub_stellar_lon - phase
+            pl_sub_obs_lat =  -1*self.params.inclination
             # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
-            with open(cfg_path, 'w') as fr:
+            with open(cfg_path, file_mode) as fr:
                 fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.starType)
                 fr.write('<OBJECT-SEASON>%f\n' % to_float(phase,u.deg))
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(phase,u.deg))
-                fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
+                fr.write('<OBJECT-STAR-DISTANCE>%f\n' % (orbit_radius_coeff*self.params.semMajAx))
+                fr.write(f'<OBJECT-SOLAR-LONGITUDE>{to_float(sub_stellar_lon,u.deg)}\n')
+                fr.write(f'<OBJECT-SOLAR-LATITUDE>{to_float(0*u.deg,u.deg)}\n') # Add this option later
+                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
+                fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg))
+                # fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
                 fr.close()
             # call api to get combined spectra
             url = self.params.psgurl
             call_type = None
-            app = 'globes'
+            if self.params.use_globes:
+                app = 'globes'
+            else:
+                app = None
             outfile = Path(self.dirs['psg_combined']) / f'phase{to_float(phase,u.deg):.3f}.rad'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get noise
             url = self.params.psgurl
             call_type = 'noi'
-            app = 'globes'
+            if self.params.use_globes:
+                app = 'globes'
+            else:
+                app = None
             outfile = Path(self.dirs['psg_noise']) / f'phase{to_float(phase,u.deg):.3f}.noi'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
+
+            # call api to get config
+            url = self.params.psgurl
+            call_type = 'cfg'
+            app = 'globes'
+            outfile = Path(self.dirs['psg_configs']) / f'phase{to_float(phase,u.deg):.3f}.cfg'
+            call_api(cfg_path,psg_url=url,api_key=api_key,
+                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
+
             # write updates to config file to remove star flux
-            with open(cfg_path, 'w') as fr:
+            with open(cfg_path, file_mode) as fr:
                 # phase *= -1
                 fr.write('<OBJECT-STAR-TYPE>-\n')
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(phase,u.deg))
-                # phase *= -1
+                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
+                fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg))                # phase *= -1
                 fr.close()
             # call api to get thermal spectra
             url = self.params.psgurl
             call_type = None
-            app = 'globes'
+            if self.params.use_globes:
+                app = 'globes'
+            else:
+                app = None
             outfile = Path(self.dirs['psg_thermal']) / f'phase{to_float(phase,u.deg):.3f}.rad'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get layers
             url = self.params.psgurl
             call_type = 'lyr'
-            app = 'globes'
+            if self.params.use_globes:
+                app = 'globes'
+            else:
+                app = None
             outfile = Path(self.dirs['psg_layers']) / f'phase{to_float(phase,u.deg):.3f}.lyr'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
@@ -322,9 +378,14 @@ class ObservationModel:
         obs_info_filename = Path(self.dirs['all_model']) / 'observation_info.csv'
         obs_df = pd.DataFrame()
         for key in observation_info.keys():
-            unit  = observation_info[key].unit
-            name = f'{key}[{str(unit)}]'
-            obs_df[name] = observation_info[key].value
+            try:
+                unit  = observation_info[key].unit
+                name = f'{key}[{str(unit)}]'
+                obs_df[name] = observation_info[key].value
+            except AttributeError:
+                unit = ''
+                name = f'{key}[{str(unit)}]'
+                obs_df[name] = observation_info[key]
         obs_df.to_csv(obs_info_filename,sep=',',index=False)
 
         time_step = self.params.total_observation_time / self.params.total_images

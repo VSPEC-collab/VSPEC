@@ -47,6 +47,8 @@ def build_directories(name_of_run,path=Path('.')):
     check_and_build_dir(PSG_noise_folder)
     PSG_layers_folder = data_folder / 'PSGLayers'
     check_and_build_dir(PSG_layers_folder)
+    PSG_configs_folder = data_folder / 'PSGConfig'
+    check_and_build_dir(PSG_configs_folder)
 
     directories_dict = {'parent':parent_folder,
                         'data':data_folder,
@@ -55,5 +57,6 @@ def build_directories(name_of_run,path=Path('.')):
                         'psg_combined': PSG_combined_spectra_folder,
                         'psg_thermal': PSG_thermal_spectra_folder,
                         'psg_noise': PSG_noise_folder,
-                        'psg_layers': PSG_layers_folder}
+                        'psg_layers': PSG_layers_folder,
+                        'psg_configs': PSG_configs_folder}
     return directories_dict

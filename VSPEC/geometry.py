@@ -32,6 +32,7 @@ class SystemGeometry:
                     stellar_period = 80*u.day,
                     orbital_period = 11*u.day,
                     planetary_rot_period = 11*u.day,
+                    planetary_init_substellar_lon = 0*u.deg,
                     stellar_offset_amp = 0*u.deg,
                     stellar_offset_phase = 0*u.deg,
                     eccentricity = 0,
@@ -42,10 +43,11 @@ class SystemGeometry:
         self.stellar_period = stellar_period
         self.orbital_period = orbital_period
         self.planetary_rot_period = planetary_rot_period
+        self.planetary_init_substellar_lon = planetary_init_substellar_lon
         self.alpha = stellar_offset_amp
         self.beta = stellar_offset_phase
         self.e = eccentricity
-        self.omega = argument_of_pariapsis
+        self.omega = argument_of_pariapsis + 180*u.deg
     
     def sub_obs(self,time):
         """sub-obs
@@ -174,7 +176,27 @@ class SystemGeometry:
         time = newton(func,(guess/u.day).to(u.Unit(''))) * u.day
         return time.to(u.day)
     
-    def get_observation_plan(self, phase0,total_time, time_step = None, N_obs = 10):
+    def get_substellar_lon(self,dtime: u.quantity.Quantity,phase:u.quantity.Quantity) -> u.quantity.Quantity:
+        """
+        dtime is time since initial substellar longitude
+        phase is current phase
+        """
+        dphase = phase - self.init_planet_phase
+        rotated = to_float(dtime/self.planetary_rot_period,u.Unit('')) * 360*u.deg
+        lon = self.planetary_init_substellar_lon + dphase - rotated
+        return lon
+
+    def get_radius_coeff(self,phase:u.quantity.Quantity) -> float:
+        true_anomaly = phase - 90*u.deg - self.omega
+        num = 1 - self.e**2
+        den = 1 + self.e*np.cos(true_anomaly)
+        return to_float(num/den,u.Unit(''))
+
+    
+    def get_observation_plan(self, phase0:u.quantity.Quantity,
+                            total_time:u.quantity.Quantity,
+                            time_step:u.quantity.Quantity = None,
+                            N_obs:int = 10) -> dict:
         """get observation plan
         Calculate information describing the state of the system for a series of observations
 
@@ -198,6 +220,8 @@ class SystemGeometry:
         sub_obs_lons = []
         sub_planet_lats = []
         sub_planet_lons = []
+        sub_stellar_lons = []
+        orbit_radii = []
         u_angle = u.deg
         for time in start_times:
             phase = to_float(self.phase(time),u_angle) #% (360*u.deg)
@@ -208,9 +232,15 @@ class SystemGeometry:
             sub_planet = self.sub_planet(time,phase=phase*u_angle)
             sub_planet_lats.append(to_float(sub_planet['lat'],u_angle))
             sub_planet_lons.append(to_float(sub_planet['lon'],u_angle))
+            sub_stellar_lon = self.get_substellar_lon(time-t0,phase*u_angle)
+            sub_stellar_lons.append(to_float(sub_stellar_lon,u_angle))
+            orbit_rad = self.get_radius_coeff(phase*u_angle)
+            orbit_radii.append(orbit_rad)
         return {'time':start_times,
                             'phase':phases*u_angle,
                             'sub_obs_lat':sub_obs_lats*u_angle,
                             'sub_obs_lon': sub_obs_lons*u_angle,
                             'sub_planet_lat': sub_planet_lats*u_angle,
-                            'sub_planet_lon': sub_planet_lons*u_angle}
+                            'sub_planet_lon': sub_planet_lons*u_angle,
+                            'sub_stellar_lon':sub_stellar_lons*u_angle,
+                            'orbit_radius':orbit_radii}
