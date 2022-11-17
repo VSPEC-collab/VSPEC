@@ -1,5 +1,9 @@
 Benchmark the following tests:
 
+### Geometry
+
+* plots and visualizations
+
 #### Globes
 
 * reflected light phase dependence

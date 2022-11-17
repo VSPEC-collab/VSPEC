@@ -18,12 +18,12 @@ CONFIG_PATH = WORKING_DIRECTORY / CONFIG_FILENAME
 
 chdir(WORKING_DIRECTORY)
 
-model = ObservationModel(CONFIG_PATH,debug=True)
+model = ObservationModel(CONFIG_PATH,debug=False)
 model.build_directories()
 model.build_star()
 model.warm_up_star(0*u.day,0*u.day)
 # model.bin_spectra()
-model.build_planet()
+# model.build_planet()
 model.build_spectra()
 
 data_path = model.dirs['all_model']

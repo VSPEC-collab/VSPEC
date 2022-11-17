@@ -35,16 +35,16 @@ class ObservationModel:
         """build directories
         Build the file system for this run
         """
-        self.dirs = build_directories(self.params.starName)
+        self.dirs = build_directories(self.params.star_name)
     
     def bin_spectra(self):
-        teffs = 100*np.arange(np.floor(self.params.teffStar.to(u.K)/100/u.K - self.params.binningRange.to(u.K)/100/u.K),
-                                np.ceil(self.params.teffStar.to(u.K)/100/u.K + self.params.binningRange.to(u.K)/100/u.K)+1) * u.K
+        teffs = 100*np.arange(np.floor(self.params.star_teff_min.to(u.K)/100/u.K),
+                                np.ceil(self.params.star_teff_max.to(u.K)/100/u.K)+1) * u.K
         for teff in tqdm(teffs,desc='Binning Spectra',total=len(teffs)):
             stellar_spectra.bin_phoenix_model(to_float(teff,u.K),
                 file_name_writer=stellar_spectra.get_binned_filename,
-                binned_path=self.dirs['binned'],R=self.params.lamRP,
-                lam1=self.params.lam1,lam2=self.params.lam2,
+                binned_path=self.dirs['binned'],R=self.params.resolving_power,
+                lam1=self.params.lambda_min,lam2=self.params.lambda_max,
                 model_unit_wavelength=u.AA,model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
                 target_unit_wavelength=self.params.target_wavelength_unit,
                 target_unit_flux = self.params.target_flux_unit)
@@ -65,20 +65,20 @@ class ObservationModel:
         return wavelength, flux*self.params.distanceFluxCorrection
     
     def get_observation_parameters(self):
-        return SystemGeometry(self.params.inclinationPSG,
+        return SystemGeometry(self.params.system_inclination_psg,
                             0*u.deg,
-                            self.params.initial_planet_phase*u.deg,
-                            self.params.rotstar,
-                            self.params.revPlanet,
-                            self.params.rotPlanet,
-                            self.params.init_substellar_lon,
-                            self.params.offsetFromOrbitalPlane,
-                            self.params.offsetDirection,
-                            self.params.objEcc,
-                            self.params.objArgOfPeriapsis)
+                            self.params.planet_initial_phase,
+                            self.params.star_rot_period,
+                            self.params.planet_orbital_period,
+                            self.params.planet_rotational_period,
+                            self.params.planet_init_substellar_lon,
+                            self.params.star_rot_offset_from_orbital_plane,
+                            self.params.star_rot_offset_angle_from_pariapse,
+                            self.params.planet_eccentricity,
+                            self.params.system_argument_of_pariapsis)
     
     def get_observation_plan(self,observation_parameters):
-        return observation_parameters.get_observation_plan(self.params.initial_planet_phase*u.deg,
+        return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                 self.params.total_observation_time,N_obs=self.params.total_images)
 
 
@@ -96,11 +96,11 @@ class ObservationModel:
 
         ####################################
         # Initial upload of GCM
-        gcm_path = self.params.gcm_file_path
+        gcm_path = self.params.gcm_path
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
         if not self.params.use_globes:
             system(f'cp {gcm_path} {cfg_path}')
-        url = self.params.psgurl
+        url = self.params.psg_url
         call_type = 'set'
         if self.params.use_globes:
             app = 'globes'
@@ -117,32 +117,32 @@ class ObservationModel:
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
         with open(cfg_path, file_mode) as fr:
-            fr.write('<OBJECT-DIAMETER>%f\n' % (self.params.objDiam))
-            fr.write('<OBJECT-GRAVITY>%f\n' % self.params.objGrav)
-            fr.write('<OBJECT-GRAVITY-UNIT>g\n')
-            fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.starType)
-            fr.write('<OBJECT-STAR-DISTANCE>%f\n' % self.params.semMajAx)
-            fr.write('<OBJECT-PERIOD>%f\n' % self.params.objPer)
-            fr.write('<OBJECT-ECCENTRICITY>%f\n' % self.params.objEcc)
-            fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(self.params.objArgOfPeriapsis,u.deg))
-            fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % to_float(self.params.teffStar,u.K))
-            fr.write('<OBJECT-STAR-RADIUS>%f\n' % self.params.starRad)
+            fr.write('<OBJECT-DIAMETER>%f\n' % to_float(2*self.params.planet_radius,u.km))
+            fr.write('<OBJECT-GRAVITY>%f\n' % self.params.planet_grav)
+            fr.write(f'<OBJECT-GRAVITY-UNIT>{self.params.planet_grav_mode}\n')
+            fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.psg_star_template)
+            fr.write('<OBJECT-STAR-DISTANCE>%f\n' % to_float(self.params.planet_semimajor_axis,u.AU))
+            fr.write('<OBJECT-PERIOD>%f\n' % to_float(self.params.planet_orbital_period,u.day))
+            fr.write('<OBJECT-ECCENTRICITY>%f\n' % self.params.planet_eccentricity)
+            fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(self.params.system_argument_of_pariapsis,u.deg))
+            fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % to_float(self.params.star_teff,u.K))
+            fr.write('<OBJECT-STAR-RADIUS>%f\n' % to_float(self.params.star_radius,u.R_sun))
             fr.write('<GEOMETRY>Observatory\n')
-            fr.write('<GEOMETRY-OBS-ALTITUDE>%f\n' % self.params.objDis)
+            fr.write('<GEOMETRY-OBS-ALTITUDE>%f\n' % to_float(self.params.system_distance,u.pc))
             fr.write('<GEOMETRY-ALTITUDE-UNIT>pc\n')
-            fr.write('<GENERATOR-RANGE1>%f\n' % to_float(self.params.lam1,self.params.target_wavelength_unit))
-            fr.write('<GENERATOR-RANGE2>%f\n' % to_float(self.params.lam2,self.params.target_wavelength_unit))
+            fr.write('<GENERATOR-RANGE1>%f\n' % to_float(self.params.lambda_min,self.params.target_wavelength_unit))
+            fr.write('<GENERATOR-RANGE2>%f\n' % to_float(self.params.lambda_max,self.params.target_wavelength_unit))
             fr.write(f'<GENERATOR-RANGEUNIT>{self.params.target_wavelength_unit}\n')
-            fr.write('<GENERATOR-RESOLUTION>%f\n' % self.params.lamRP)
+            fr.write('<GENERATOR-RESOLUTION>%f\n' % self.params.resolving_power)
             fr.write('<GENERATOR-RESOLUTIONUNIT>RP\n')
             fr.write('<GENERATOR-BEAM>%d\n' % self.params.beamValue)
             fr.write('<GENERATOR-BEAM-UNIT>%s\n'% self.params.beamUnit)
             fr.write('<GENERATOR-CONT-STELLAR>Y\n')
-            fr.write('<OBJECT-INCLINATION>%s\n' % to_float(self.params.inclinationPSG,u.deg))
+            fr.write('<OBJECT-INCLINATION>%s\n' % to_float(self.params.system_inclination_psg,u.deg))
             fr.write('<OBJECT-SOLAR-LATITUDE>0.0\n')
             fr.write('<OBJECT-OBS-LATITUDE>0.0\n')
-            fr.write('<GENERATOR-RADUNITS>%s\n' % self.params.radunit)
-            fr.write('<GENERATOR-GCM-BINNING>%d\n' % self.params.binning)
+            fr.write('<GENERATOR-RADUNITS>%s\n' % self.params.psg_rad_unit)
+            fr.write('<GENERATOR-GCM-BINNING>%d\n' % self.params.gcm_binning)
             fr.write(f'<GENERATOR-NOISE>{self.params.detector_type}\n')
             fr.write(f'<GENERATOR-NOISE2>{self.params.detector_dark_current}\n')
             fr.write(f'<GENERATOR-NOISETIME>{self.params.detector_integration_time}\n')
@@ -157,7 +157,7 @@ class ObservationModel:
             fr.write(f'<GENERATOR-TELESCOPE1>1\n')
             fr.write(f'<GENERATOR-TELESCOPE2>1.0\n')
             fr.write(f'<GENERATOR-TELESCOPE3>1.0\n')
-        url = self.params.psgurl
+        url = self.params.psg_url
         call_type = 'upd'
         if self.params.use_globes:
             app = 'globes'
@@ -174,11 +174,10 @@ class ObservationModel:
         # Calculate observation parameters
         observation_parameters = self.get_observation_parameters()
         obs_plan = self.get_observation_plan(observation_parameters)
-        print(f'Starting at phase {self.params.initial_planet_phase*u.deg}, observe for {self.params.total_observation_time} in {self.params.total_images} steps')
+        print(f'Starting at phase {self.params.planet_initial_phase}, observe for {self.params.total_observation_time} in {self.params.total_images} steps')
         print('Phases = ' + str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))),2)) + ' deg')
         ####################################
         # iterate through phases
-        count = 0
         for i in tqdm(range(self.params.total_images),desc='Build Planet',total=self.params.total_images):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
@@ -191,12 +190,12 @@ class ObservationModel:
                 phase = 186.0*u.deg
             
             pl_sub_obs_lon = sub_stellar_lon - phase
-            pl_sub_obs_lat =  -1*self.params.inclination
+            pl_sub_obs_lat =  -1*self.params.system_inclination
             # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
             with open(cfg_path, file_mode) as fr:
-                fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.starType)
+                fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.psg_star_template)
                 fr.write('<OBJECT-SEASON>%f\n' % to_float(phase,u.deg))
-                fr.write('<OBJECT-STAR-DISTANCE>%f\n' % (orbit_radius_coeff*self.params.semMajAx))
+                fr.write('<OBJECT-STAR-DISTANCE>%f\n' % to_float(orbit_radius_coeff*self.params.planet_semimajor_axis,u.AU))
                 fr.write(f'<OBJECT-SOLAR-LONGITUDE>{to_float(sub_stellar_lon,u.deg)}\n')
                 fr.write(f'<OBJECT-SOLAR-LATITUDE>{to_float(0*u.deg,u.deg)}\n') # Add this option later
                 fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
@@ -204,7 +203,7 @@ class ObservationModel:
                 # fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
                 fr.close()
             # call api to get combined spectra
-            url = self.params.psgurl
+            url = self.params.psg_url
             call_type = None
             if self.params.use_globes:
                 app = 'globes'
@@ -214,7 +213,7 @@ class ObservationModel:
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get noise
-            url = self.params.psgurl
+            url = self.params.psg_url
             call_type = 'noi'
             if self.params.use_globes:
                 app = 'globes'
@@ -225,7 +224,7 @@ class ObservationModel:
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
             # call api to get config
-            url = self.params.psgurl
+            url = self.params.psg_url
             call_type = 'cfg'
             app = 'globes'
             outfile = Path(self.dirs['psg_configs']) / f'phase{to_float(phase,u.deg):.3f}.cfg'
@@ -237,10 +236,10 @@ class ObservationModel:
                 # phase *= -1
                 fr.write('<OBJECT-STAR-TYPE>-\n')
                 fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
-                fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg))                # phase *= -1
+                fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg)) 
                 fr.close()
             # call api to get thermal spectra
-            url = self.params.psgurl
+            url = self.params.psg_url
             call_type = None
             if self.params.use_globes:
                 app = 'globes'
@@ -250,7 +249,7 @@ class ObservationModel:
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get layers
-            url = self.params.psgurl
+            url = self.params.psg_url
             call_type = 'lyr'
             if self.params.use_globes:
                 app = 'globes'
@@ -266,12 +265,12 @@ class ObservationModel:
                                                     Nlon = self.params.Nlon)
         empty_fac_collection = vsm.FaculaCollection(Nlat = self.params.Nlat,
                                                     Nlon = self.params.Nlon)
-        self.star = vsm.Star(self.params.teffStar,self.params.starRadius,
-                            self.params.rotstar,empty_spot_collection,empty_fac_collection,
-                            name = self.params.starName,distance = self.params.starDistance,
+        self.star = vsm.Star(self.params.star_teff,self.params.star_radius,
+                            self.params.star_rot_period,empty_spot_collection,empty_fac_collection,
+                            name = self.params.star_name,distance = self.params.system_distance,
                             Nlat = self.params.Nlat, Nlon = self.params.Nlon)
-        self.star.spot_generator.coverage=self.params.spotCoverage
-        self.star.fac_generator.coverage=self.params.facCoverage
+        self.star.spot_generator.coverage=self.params.star_spot_coverage
+        self.star.fac_generator.coverage=self.params.star_fac_coverage
 
 
     def warm_up_star(self, spot_warmup_time=30*u.day, facula_warmup_time=3*u.day):
@@ -288,7 +287,7 @@ class ObservationModel:
 
     def calculate_composite_stellar_spectrum(self,sub_obs_coords):
         surface_dict = self.star.calc_coverage(sub_obs_coords)
-        base_wave, base_flux = self.get_model_spectrum(self.params.teffStar)
+        base_wave, base_flux = self.get_model_spectrum(self.params.star_teff)
         base_flux = base_flux * 0
         for teff, coverage in surface_dict.items():
             if coverage > 0:
@@ -311,7 +310,7 @@ class ObservationModel:
             delim_whitespace=True,
             names=["Wave/freq", "Total", "Noise", "Planet"],
             )
-        if self.params.radunit == 'Wm2um':
+        if self.params.psg_rad_unit == 'Wm2um':
             flux_unit = u.Unit('W m-2 um-1')
         else:
             raise NotImplementedError('That flux unit is not implemented')
@@ -338,7 +337,7 @@ class ObservationModel:
             delim_whitespace=True,
             names=['Wave/freq','Total','Source','Detector','Telescope','Background'],
             )
-        if self.params.radunit == 'Wm2um':
+        if self.params.psg_rad_unit == 'Wm2um':
             flux_unit = u.Unit('W m-2 um-1')
         else:
             raise NotImplementedError('That flux unit is not implemented')
@@ -362,7 +361,7 @@ class ObservationModel:
             delim_whitespace=True,
             names=["Wave/freq", "Total", "Noise", "Planet"],
             )
-        if self.params.radunit == 'Wm2um':
+        if self.params.psg_rad_unit == 'Wm2um':
             flux_unit = u.Unit('W m-2 um-1')
         else:
             raise NotImplementedError('That flux unit is not implemented')
