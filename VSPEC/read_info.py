@@ -76,6 +76,7 @@ class ParamModel:
         self.gcm_path = configParser.get('Model','gcm_path')
         self.use_globes = configParser.getboolean('Model','use_globes')
         self.gcm_binning = configParser.getint('Model','gcm_binning')
+        self.use_molec_signatures = configParser.getboolean('Model','use_molec_signatures')
         self.psg_url = configParser.get('Model','psg_url')
         try:
             self.api_key_path = configParser.get('PSG', 'api_key_path')

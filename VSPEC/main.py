@@ -70,12 +70,14 @@ class ObservationModel:
                             self.params.planet_initial_phase,
                             self.params.star_rot_period,
                             self.params.planet_orbital_period,
+                            self.params.planet_semimajor_axis,
                             self.params.planet_rotational_period,
                             self.params.planet_init_substellar_lon,
                             self.params.star_rot_offset_from_orbital_plane,
                             self.params.star_rot_offset_angle_from_pariapse,
                             self.params.planet_eccentricity,
-                            self.params.system_argument_of_pariapsis)
+                            self.params.system_argument_of_pariapsis,
+                            self.params.system_distance)
     
     def get_observation_plan(self,observation_parameters):
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
@@ -117,6 +119,9 @@ class ObservationModel:
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
         with open(cfg_path, file_mode) as fr:
+            bool_to_str = {True:'Y',False:'N'}
+            fr.write('<OBJECT>Exoplanet\n')
+            fr.write('<OBJECT-NAME>Planet\n')
             fr.write('<OBJECT-DIAMETER>%f\n' % to_float(2*self.params.planet_radius,u.km))
             fr.write('<OBJECT-GRAVITY>%f\n' % self.params.planet_grav)
             fr.write(f'<OBJECT-GRAVITY-UNIT>{self.params.planet_grav_mode}\n')
@@ -143,6 +148,7 @@ class ObservationModel:
             fr.write('<OBJECT-OBS-LATITUDE>0.0\n')
             fr.write('<GENERATOR-RADUNITS>%s\n' % self.params.psg_rad_unit)
             fr.write('<GENERATOR-GCM-BINNING>%d\n' % self.params.gcm_binning)
+            fr.write(f'<GENERATOR-GAS-MODEL>{bool_to_str[self.params.use_molec_signatures]}\n')
             fr.write(f'<GENERATOR-NOISE>{self.params.detector_type}\n')
             fr.write(f'<GENERATOR-NOISE2>{self.params.detector_dark_current}\n')
             fr.write(f'<GENERATOR-NOISETIME>{self.params.detector_integration_time}\n')
@@ -303,12 +309,12 @@ class ObservationModel:
         combined_df = pd.read_csv(psg_combined_path,
             comment='#',
             delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Stellar", "Planet"],
+            names=["Wave/freq", "Total", "Noise", "Stellar", "Planet",'_','__'],
             )
         thermal_df = pd.read_csv(psg_thermal_path,
             comment='#',
             delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Planet"],
+            names=["Wave/freq", "Total", "Noise", "Planet",'_','__'],
             )
         if self.params.psg_rad_unit == 'Wm2um':
             flux_unit = u.Unit('W m-2 um-1')
@@ -330,7 +336,7 @@ class ObservationModel:
         combined_df = pd.read_csv(psg_combined_path,
             comment='#',
             delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Stellar", "Planet"],
+            names=["Wave/freq", "Total", "Noise", "Stellar", "Planet",'_','__'],
             )
         noise_df = pd.read_csv(psg_noise_path,
             comment='#',
@@ -359,7 +365,7 @@ class ObservationModel:
         thermal_df = pd.read_csv(psg_thermal_path,
             comment='#',
             delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Planet"],
+            names=["Wave/freq", "Total", "Noise", "Planet",'_','__'],
             )
         if self.params.psg_rad_unit == 'Wm2um':
             flux_unit = u.Unit('W m-2 um-1')

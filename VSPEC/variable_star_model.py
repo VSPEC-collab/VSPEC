@@ -526,6 +526,8 @@ class Star:
 
     def plot_faculae(self,view_angle):
         int_map, map_keys = self.faculae.map_pixels(self.map,self.radius,self.Teff)
+        is_fac = ~(int_map==0)
+        int_map[is_fac]=1
         proj = ccrs.Orthographic(
                     central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
         fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
