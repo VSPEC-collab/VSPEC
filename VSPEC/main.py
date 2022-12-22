@@ -194,76 +194,87 @@ class ObservationModel:
                 phase=182.0*u.deg # Add transit phase;
             if phase == 185*u.deg:
                 phase = 186.0*u.deg
-            
-            pl_sub_obs_lon = sub_stellar_lon - phase
-            pl_sub_obs_lat =  -1*self.params.system_inclination
-            # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
-            with open(cfg_path, file_mode) as fr:
-                fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.psg_star_template)
-                fr.write('<OBJECT-SEASON>%f\n' % to_float(phase,u.deg))
-                fr.write('<OBJECT-STAR-DISTANCE>%f\n' % to_float(orbit_radius_coeff*self.params.planet_semimajor_axis,u.AU))
-                fr.write(f'<OBJECT-SOLAR-LONGITUDE>{to_float(sub_stellar_lon,u.deg)}\n')
-                fr.write(f'<OBJECT-SOLAR-LATITUDE>{to_float(0*u.deg,u.deg)}\n') # Add this option later
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
-                fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg))
-                # fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
-                fr.close()
-            # call api to get combined spectra
-            url = self.params.psg_url
-            call_type = None
-            if self.params.use_globes:
-                app = 'globes'
+            if self.params.omit_planet and (i > 1):
+                phase0 = obs_plan['phase'][0]
+                if phase0>178*u.deg and phase0<182*u.deg:
+                    phase0=182.0*u.deg # Add transit phase;
+                if phase0 == 185*u.deg:
+                    phase0 = 186.0*u.deg
+                # copy combined
+                for dir, ext in zip(['psg_combined','psg_noise','psg_configs','psg_thermal','psg_layers'],['rad','noi','cfg','rad','lyr']):
+                    file = Path(self.dirs[dir]) / f'phase{to_float(phase0,u.deg):.3f}.{ext}'
+                    target = Path(self.dirs[dir]) / f'phase{to_float(phase,u.deg):.3f}.{ext}'
+                    system(f'cp {file} {target}')
             else:
-                app = None
-            outfile = Path(self.dirs['psg_combined']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-            call_api(cfg_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
-            # call api to get noise
-            url = self.params.psg_url
-            call_type = 'noi'
-            if self.params.use_globes:
-                app = 'globes'
-            else:
-                app = None
-            outfile = Path(self.dirs['psg_noise']) / f'phase{to_float(phase,u.deg):.3f}.noi'
-            call_api(cfg_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
+                pl_sub_obs_lon = sub_stellar_lon - phase
+                pl_sub_obs_lat =  -1*self.params.system_inclination
+                # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
+                with open(cfg_path, file_mode) as fr:
+                    fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.psg_star_template)
+                    fr.write('<OBJECT-SEASON>%f\n' % to_float(phase,u.deg))
+                    fr.write('<OBJECT-STAR-DISTANCE>%f\n' % to_float(orbit_radius_coeff*self.params.planet_semimajor_axis,u.AU))
+                    fr.write(f'<OBJECT-SOLAR-LONGITUDE>{to_float(sub_stellar_lon,u.deg)}\n')
+                    fr.write(f'<OBJECT-SOLAR-LATITUDE>{to_float(0*u.deg,u.deg)}\n') # Add this option later
+                    fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
+                    fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg))
+                    # fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
+                    fr.close()
+                # call api to get combined spectra
+                url = self.params.psg_url
+                call_type = None
+                if self.params.use_globes:
+                    app = 'globes'
+                else:
+                    app = None
+                outfile = Path(self.dirs['psg_combined']) / f'phase{to_float(phase,u.deg):.3f}.rad'
+                call_api(cfg_path,psg_url=url,api_key=api_key,
+                        type=call_type,app=app,outfile=outfile,verbose=self.debug)
+                # call api to get noise
+                url = self.params.psg_url
+                call_type = 'noi'
+                if self.params.use_globes:
+                    app = 'globes'
+                else:
+                    app = None
+                outfile = Path(self.dirs['psg_noise']) / f'phase{to_float(phase,u.deg):.3f}.noi'
+                call_api(cfg_path,psg_url=url,api_key=api_key,
+                        type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
-            # call api to get config
-            url = self.params.psg_url
-            call_type = 'cfg'
-            app = 'globes'
-            outfile = Path(self.dirs['psg_configs']) / f'phase{to_float(phase,u.deg):.3f}.cfg'
-            call_api(cfg_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
+                # call api to get config
+                url = self.params.psg_url
+                call_type = 'cfg'
+                app = 'globes'
+                outfile = Path(self.dirs['psg_configs']) / f'phase{to_float(phase,u.deg):.3f}.cfg'
+                call_api(cfg_path,psg_url=url,api_key=api_key,
+                        type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
-            # write updates to config file to remove star flux
-            with open(cfg_path, file_mode) as fr:
-                # phase *= -1
-                fr.write('<OBJECT-STAR-TYPE>-\n')
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
-                fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg)) 
-                fr.close()
-            # call api to get thermal spectra
-            url = self.params.psg_url
-            call_type = None
-            if self.params.use_globes:
-                app = 'globes'
-            else:
-                app = None
-            outfile = Path(self.dirs['psg_thermal']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-            call_api(cfg_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
-            # call api to get layers
-            url = self.params.psg_url
-            call_type = 'lyr'
-            if self.params.use_globes:
-                app = 'globes'
-            else:
-                app = None
-            outfile = Path(self.dirs['psg_layers']) / f'phase{to_float(phase,u.deg):.3f}.lyr'
-            call_api(cfg_path,psg_url=url,api_key=api_key,
-                    type=call_type,app=app,outfile=outfile,verbose=self.debug)
+                # write updates to config file to remove star flux
+                with open(cfg_path, file_mode) as fr:
+                    # phase *= -1
+                    fr.write('<OBJECT-STAR-TYPE>-\n')
+                    fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
+                    fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg)) 
+                    fr.close()
+                # call api to get thermal spectra
+                url = self.params.psg_url
+                call_type = None
+                if self.params.use_globes:
+                    app = 'globes'
+                else:
+                    app = None
+                outfile = Path(self.dirs['psg_thermal']) / f'phase{to_float(phase,u.deg):.3f}.rad'
+                call_api(cfg_path,psg_url=url,api_key=api_key,
+                        type=call_type,app=app,outfile=outfile,verbose=self.debug)
+                # call api to get layers
+                url = self.params.psg_url
+                call_type = 'lyr'
+                if self.params.use_globes:
+                    app = 'globes'
+                else:
+                    app = None
+                outfile = Path(self.dirs['psg_layers']) / f'phase{to_float(phase,u.deg):.3f}.lyr'
+                call_api(cfg_path,psg_url=url,api_key=api_key,
+                        type=call_type,app=app,outfile=outfile,verbose=self.debug)
     
 
     def build_star(self):

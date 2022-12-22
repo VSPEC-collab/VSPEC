@@ -4,6 +4,8 @@ import pandas as pd
 from astropy import units as u, constants as c
 from astropy.units.quantity import Quantity as quant
 import cartopy.crs as ccrs
+from xoflares.xoflares import _flareintegralnp as flareintergral
+from VSPEC.helpers import to_float
 
 MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
 
@@ -1065,3 +1067,66 @@ class CoordinateGrid:
             return False
         else:
             return (self.Nlat == other.Nlat) & (self.Nlon == other.Nlon)
+
+class StellarFlare:
+    """ Class to store and control stellar flare information
+    
+    """
+    def __init__(self,fwhm: quant,energy:quant,lat:quant,lon:quant):
+        self.fwhm = fwhm
+        self.energy = energy
+        self.lat = lat
+        self.lon = lon
+    
+class FlareGenerator:
+    """ Class to decide when a flare occurs and its magnitude
+
+    """
+    p_followed = 0.5
+    def __init__(self,stellar_teff:quant,stellar_rot_period:quant):
+        self.stellar_teff = stellar_teff
+        self.stellar_rot_period = stellar_rot_period
+    def powerlaw(self, E:quant):
+        """ Gao+2022 TESS corrected
+        """
+        alpha = -0.829
+        beta = 26.87
+        logfreq = beta + alpha*np.log10(E/u.erg)
+        freq = 10**logfreq / u.day
+        return freq
+    def get_flare(self,Es:quant,time:quant):
+        freq = self.powerlaw(Es) * time
+        f_previous = 1
+        E_final = 0*u.erg
+        for e, f in zip(Es,freq):
+            if np.random.random() < f/f_previous:
+                f_previous = f
+                E_final = e
+            else:
+                break
+        return E_final
+    def generate_flares(self,Es:quant,time:quant):
+        """ valid if flare length is much less than time
+        """
+        unit=u.erg
+        flare_energies = []
+        E = self.get_flare(Es,time)
+        if E == 0*u.erg:
+            return flare_energies
+        else:
+            flare_energies.append(to_float(E,unit))
+            cont = np.random.random() < self.p_followed
+            while cont:
+                while True:
+                    E = self.get_flare(Es,time)
+                    if E == 0*u.erg:
+                        pass
+                    else:
+                        flare_energies.append(to_float(E,unit))
+                        cont = np.random.random() < self.p_followed
+                        break
+            return flare_energies*unit
+
+
+        
+
