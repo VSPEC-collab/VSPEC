@@ -202,7 +202,7 @@ def interpolate_spectra(target_teff,
 
 def blackbody(wavelength,teff,area,distance,
                 target_unit_flux = u.Unit('W m-2 um-1')):
-    angular_size = (np.pi * area/distance**2 * u.steradian).to(u.arcsec)
+    angular_size = (np.pi * area/distance**2 * u.steradian).to(u.arcsec**2)
     A = 2 * c.h * c.c**2/wavelength**5
     B = np.exp( (c.h*c.c)/(wavelength*c.k_B*teff) ) - 1
     flux = (A/B * angular_size/u.steradian).to(target_unit_flux)

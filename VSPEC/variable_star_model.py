@@ -4,7 +4,7 @@ import pandas as pd
 from astropy import units as u, constants as c
 from astropy.units.quantity import Quantity
 import cartopy.crs as ccrs
-from xoflares.xoflares import _flareintegralnp as flareintegral, eval_get_light_curve
+from xoflares.xoflares import _flareintegralnp as flareintegral, eval_get_light_curve,get_light_curvenp
 from VSPEC.helpers import to_float
 from copy import deepcopy
 from typing import List
@@ -1111,7 +1111,7 @@ class StellarFlare:
         t_unit = u.day # this is the unit of xoflares
         a_unit = u.km**2
         peak_area = self.calc_peak_area()
-        areas = eval_get_light_curve(to_float(time,t_unit),
+        areas = get_light_curvenp(to_float(time,t_unit),
                                         [to_float(self.tpeak,t_unit)],
                                         [to_float(self.fwhm,t_unit)],
                                         [to_float(peak_area,a_unit)])
@@ -1274,11 +1274,12 @@ class FlareCollection:
         self.fwhms = fwhm
     
     def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
-        padding = 2 # number of fwhm ouside this range a flare peak can be to still be included
-        after_start = self.peaks + padding*self.fwhms > tstart
-        before_end = self.peaks - padding*self.fwhms < tfinish
+        padding_after = 6 # number of fwhm ouside this range a flare peak can be to still be included
+        padding_before = 2
+        after_start = self.peaks + padding_before*self.fwhms > tstart
+        before_end = self.peaks - padding_after*self.fwhms < tfinish
         
-        return after_start | before_end
+        return after_start & before_end
     
     def get_flares_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr])-> List[StellarFlare]:
         mask = self.mask(tstart,tfinish)
