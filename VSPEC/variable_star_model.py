@@ -305,7 +305,8 @@ class Star:
     Returns:
         None
     """
-    def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None):
+    def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None,
+                    flare_generator = None):
         self.name = name
         assert isinstance(Teff,Quantity)
         self.Teff = Teff
@@ -326,6 +327,11 @@ class Star:
         self.map = self.get_pixelmap()
         self.faculae.gridmaker = self.gridmaker
         self.spots.gridmaker = self.gridmaker
+
+        if flare_generator is None:
+            self.flare_generator = FlareGenerator(self.Teff,self.period)
+        else:
+            self.flare_generator = flare_generator
 
         
         self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15,Nlon=Nlon,Nlat=Nlat)
@@ -547,6 +553,17 @@ class Star:
             regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon)
         )
         return fig
+    
+
+    def get_flares_over_observation(self,time_duration:Quantity[u.hr]):
+        energy_dist = self.flare_generator.generage_E_dist()
+        flares = self.flare_generator.generate_flare_series(energy_dist,time_duration)
+        self.flares = FlareCollection(flares)
+    
+    def get_flare_int_over_timeperiod(self,tstart:Quantity[u.hr],tfinish:Quantity[u.hr],sub_obs_coords):
+        flare_timeareas = self.flares.get_flare_integral_in_timeperiod(tstart,tfinish,sub_obs_coords)
+        return flare_timeareas
+
 
 
 class SpotGenerator:
