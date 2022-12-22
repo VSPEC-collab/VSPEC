@@ -7,6 +7,8 @@ import cartopy.crs as ccrs
 from xoflares.xoflares import _flareintegralnp as flareintergral
 from VSPEC.helpers import to_float
 from copy import deepcopy
+from typing import List
+import typing as Typing
 
 MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
 
@@ -1073,12 +1075,13 @@ class StellarFlare:
     """ Class to store and control stellar flare information
     
     """
-    def __init__(self,fwhm: quant,energy:quant,lat:quant,lon:quant,Teff:quant):
+    def __init__(self,fwhm: quant,energy:quant,lat:quant,lon:quant,Teff:quant,tpeak:quant):
         self.fwhm = fwhm
         self.energy = energy
         self.lat = lat
         self.lon = lon
         self.Teff = Teff
+        self.tpeak = tpeak
     
 class FlareGenerator:
     """ Class to decide when a flare occurs and its magnitude
@@ -1195,7 +1198,7 @@ class FlareGenerator:
                         lat,lon = self.generate_coords()
                         fwhm = self.generate_fwhm()
                         teff = self.generate_teff()
-                        flares.append(StellarFlare(fwhm,energy,lat,lon,Teff=teff))
+                        flares.append(StellarFlare(fwhm,energy,lat,lon,teff,base_tpeak))
                     next_timesets.append([timeset[0],min(peaks)])
                     next_timesets.append([max(peaks),timeset[1]])
                 else:
@@ -1208,8 +1211,55 @@ class FlareGenerator:
 class FlareCollection:
     """ This class stores a series of flares and does math to turn them into lightcurves
     """
-    def __init__(self,flares):
-        self.flares=flares
+    def __init__(self,flares:Typing.Union(List[StellarFlare],StellarFlare)):
+        if isinstance(flares,StellarFlare):
+            self.flares = [flares]
+        else:
+            self.flares=flares
+        self.index()
+
+    
+    def index(self):
+        tpeak = []
+        fwhm = []
+        unit = u.hr
+        for flare in self.flares:
+            tpeak.append(to_float(flare.tpeak,unit))
+            fwhm.append(to_float(flare.fwhm,unit))
+        tpeak = np.array(tpeak)*unit
+        fwhm = np.array(fwhm)*unit
+        self.peaks = tpeak
+        self.fwhms = fwhm
+    
+    def mask(self, tstart: quant[u.hr], tfinish: quant[u.hr]):
+        padding = 2 # number of fwhm ouside this range a flare peak can be to still be included
+        after_start = self.tpeaks + padding*self.fwhms > tstart
+        before_end = self.tpeaks - padding*self.fwhms < tfinish
+        
+        return after_start | before_end
+    
+    def get_flares_in_timeperiod(self,tstart: quant[u.hr], tfinish: quant[u.hr])-> List[StellarFlare]:
+        mask = self.mask(tstart,tfinish)
+        masked_flares = [flare for flare, include in zip(self.flares,mask) if include]
+        # essentially the same as self.flares[mask], but without casting to ndarray
+        return masked_flares
+    
+    def get_visible_flares_in_timeperiod(self,tstart: quant[u.hr], tfinish: quant[u.hr],
+                                        sub_obs_coords={'lat':0*u.deg,'lon':0*u.deg})-> List[StellarFlare]:
+        masked_flares = self.get_flares_in_timeperiod(tstart,tfinish)
+        visible_flares = []
+        for flare in masked_flares:
+            cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(flare.lat)
+                + np.cos(sub_obs_coords['lat'])* np.cos(flare.lat)
+                 * np.cos(sub_obs_coords['lon']-flare.lon) )
+            if cos_c > 0: # proxy for angular radius that has low computation time
+                visible_flares.append(flare)
+        return visible_flares
+    
+    
+
+
+
             
                         
 
