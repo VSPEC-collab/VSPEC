@@ -32,6 +32,17 @@ class ParamModel:
         self.star_spot_warmup = configParser.getfloat('Star','star_spot_warmup') * u.day
         self.star_fac_warmup = configParser.getfloat('Star','star_fac_warmup') * u.hr
 
+        self.star_flare_group_prob = configParser.getfloat('Star','star_flare_group_prob')
+        self.star_flare_mean_teff = configParser.getfloat('Star','star_flare_mean_teff') * u.K
+        self.star_flare_sigma_teff = configParser.getfloat('Star','star_flare_sigma_teff') * u.K
+        self.star_flare_mean_log_fwhm_days = configParser.getfloat('Star','star_flare_mean_log_fwhm_days')
+        self.star_flare_sigma_log_fwhm_days = configParser.getfloat('Star','star_flare_sigma_log_fwhm_days')
+        self.star_flare_log_E_erg_max = configParser.getfloat('Star','star_flare_log_E_erg_max')
+        self.star_flare_log_E_erg_min = configParser.getfloat('Star','star_flare_log_E_erg_min')
+        self.star_flare_log_E_erg_Nsteps = configParser.getint('Star','star_flare_log_E_erg_Nsteps')
+
+
+
         self.star_mass = configParser.getfloat('Star', 'star_mass') * u.M_sun
         self.star_radius = configParser.getfloat('Star', 'star_radius') * u.R_sun
 

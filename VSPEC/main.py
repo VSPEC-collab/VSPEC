@@ -282,10 +282,14 @@ class ObservationModel:
                                                     Nlon = self.params.Nlon)
         empty_fac_collection = vsm.FaculaCollection(Nlat = self.params.Nlat,
                                                     Nlon = self.params.Nlon)
+        flare_generator = vsm.FlareGenerator(self.params.star_teff,self.params.star_rot_period,self.params.star_flare_group_prob,
+                                            self.params.star_flare_mean_teff,self.params.star_flare_sigma_teff,
+                                            self.params.star_flare_mean_log_fwhm_days,self.params.star_flare_sigma_log_fwhm_days,
+                                            self.params.star_flare_log_E_erg_max,self.params.star_flare_log_E_erg_min,self.params.star_flare_log_E_erg_Nsteps)
         self.star = vsm.Star(self.params.star_teff,self.params.star_radius,
                             self.params.star_rot_period,empty_spot_collection,empty_fac_collection,
                             name = self.params.star_name,distance = self.params.system_distance,
-                            Nlat = self.params.Nlat, Nlon = self.params.Nlon)
+                            Nlat = self.params.Nlat, Nlon = self.params.Nlon,flare_generator=flare_generator)
         self.star.spot_generator.coverage=self.params.star_spot_coverage
         self.star.fac_generator.coverage=self.params.star_fac_coverage
 
@@ -301,9 +305,11 @@ class ObservationModel:
         for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
             self.star.birth_faculae(facula_warm_up_step)
             self.star.age(facula_warm_up_step)
+        self.star.get_flares_over_observation(self.params.total_observation_time)
 
-    def calculate_composite_stellar_spectrum(self,sub_obs_coords):
+    def calculate_composite_stellar_spectrum(self,sub_obs_coords,tstart,tfinish):
         surface_dict = self.star.calc_coverage(sub_obs_coords)
+        visible_flares = self.star.get_flare_int_over_timeperiod(tstart,tfinish,sub_obs_coords)
         base_wave, base_flux = self.get_model_spectrum(self.params.star_teff)
         base_flux = base_flux * 0
         for teff, coverage in surface_dict.items():
@@ -311,6 +317,14 @@ class ObservationModel:
                 wave, flux = self.get_model_spectrum(teff)
                 assert np.all(isclose(base_wave,wave,1e-3*u.um))
                 base_flux = base_flux + flux * coverage
+        for flare in visible_flares:
+            teff = flare['Teff']
+            timearea = flare['timearea']
+            eff_area = (timearea/(tfinish-tstart)).to(u.km**2)
+            flux = stellar_spectra.blackbody(base_wave,teff,eff_area,self.params.system_distance,
+                                            target_unit_flux=self.params.target_flux_unit)
+            base_flux = base_flux + flux
+
         return base_wave, base_flux
 
     def calculate_reflected_spectra(self,phase,
@@ -407,7 +421,8 @@ class ObservationModel:
         time_step = self.params.total_observation_time / self.params.total_images
         for index in tqdm(range(self.params.total_images),desc='Build Spectra',total=self.params.total_images,position=0,leave=True):
 
-            
+            tstart = observation_info['time'][index] - observation_info['time'][0]
+            tfinish = tstart + time_step
             planetPhase = observation_info['phase'][index]
             sub_obs_lon = observation_info['sub_obs_lon'][index]
             sub_obs_lat = observation_info['sub_obs_lat'][index]
@@ -419,9 +434,9 @@ class ObservationModel:
             sub_planet_lat = observation_info['sub_planet_lat'][index]
         
             comp_wave, comp_flux = self.calculate_composite_stellar_spectrum({'lat':sub_obs_lat,
-                                                            'lon':sub_obs_lon})
+                                                            'lon':sub_obs_lon},tstart,tfinish)
             wave, to_planet_flux = self.calculate_composite_stellar_spectrum({'lat':sub_planet_lat,
-                                                            'lon':sub_planet_lon})
+                                                            'lon':sub_planet_lon},tstart,tfinish)
             assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
             wave, reflection_flux_adj = self.calculate_reflected_spectra(planetPhase,comp_wave,to_planet_flux)
