@@ -6,6 +6,7 @@ from astropy.units.quantity import Quantity as quant
 import cartopy.crs as ccrs
 from xoflares.xoflares import _flareintegralnp as flareintergral
 from VSPEC.helpers import to_float
+from copy import deepcopy
 
 MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
 
@@ -1072,20 +1073,32 @@ class StellarFlare:
     """ Class to store and control stellar flare information
     
     """
-    def __init__(self,fwhm: quant,energy:quant,lat:quant,lon:quant):
+    def __init__(self,fwhm: quant,energy:quant,lat:quant,lon:quant,Teff:quant):
         self.fwhm = fwhm
         self.energy = energy
         self.lat = lat
         self.lon = lon
+        self.Teff = Teff
     
 class FlareGenerator:
     """ Class to decide when a flare occurs and its magnitude
 
     """
-    p_followed = 0.5
-    def __init__(self,stellar_teff:quant,stellar_rot_period:quant):
+    def __init__(self,stellar_teff:quant,stellar_rot_period:quant, prob_following = 0.5,
+                mean_teff = 9000*u.K, sigma_teff = 500*u.K,mean_log_fwhm_days=-0.85,sigma_log_fwhm_days=0.3,
+                log_E_erg_max=33, log_E_erg_min = 36, log_E_erg_Nsteps=100):
+        """ FWHM data from Table 2 of Gunther et al. 2020, AJ 159 60
+        """
         self.stellar_teff = stellar_teff
         self.stellar_rot_period = stellar_rot_period
+        self.prob_following = prob_following
+        self.mean_teff = mean_teff
+        self.sigma_teff = sigma_teff
+        self.mean_log_fwhm_days = mean_log_fwhm_days
+        self.sigma_log_fwhm_days = sigma_log_fwhm_days
+        self.log_E_erg_max = log_E_erg_max
+        self.log_E_erg_min = log_E_erg_min
+        self.log_E_erg_Nsteps = log_E_erg_Nsteps
     def powerlaw(self, E:quant):
         """ Gao+2022 TESS corrected
         """
@@ -1115,7 +1128,7 @@ class FlareGenerator:
             return flare_energies
         else:
             flare_energies.append(to_float(E,unit))
-            cont = np.random.random() < self.p_followed
+            cont = np.random.random() < self.prob_following
             while cont:
                 while True:
                     E = self.get_flare(Es,time)
@@ -1123,9 +1136,86 @@ class FlareGenerator:
                         pass
                     else:
                         flare_energies.append(to_float(E,unit))
-                        cont = np.random.random() < self.p_followed
+                        cont = np.random.random() < self.prob_following
                         break
             return flare_energies*unit
+    
+    def generate_coords(self):
+        lon = np.random.random()*360*u.deg
+        lats = np.arange(90)*u.deg
+        w = np.cos(lats)
+        lat = np.random.choice(lats,p=w) + np.random.random()*u.deg
+        return lat,lon
+    
+    def generate_fwhm(self):
+        log_fwhm_days = np.random.normal(loc=self.mean_log_fwhm_days,scale=self.sigma_log_fwhm_days)
+        fwhm = 10**log_fwhm_days * u.day
+        return fwhm
+    
+    def generate_flare_set_spacing(self):
+        """ isolated flares are random events, but if you see one flare, it is likely you will see another
+            soon after. How soon? This distribution will tell you.
+            
+            The hope is that as we learn more this will be set by the user
+        """
+        while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
+            spacing = np.random.normal(loc=4,scale=2)*u.hr
+            if spacing > 0*u.hr:
+                return spacing
+    def generage_E_dist(self):
+        return np.logspace(self.log_E_erg_min,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
+
+    def generate_teff(self):
+        assert self.mean_teff > 0*u.K # prevent looping forever if user gives bad parameters
+        while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
+            spacing = np.random.normal(loc=self.mean_teff,scale=self.sigma_teff)*u.K
+            if spacing > 0*u.K:
+                return spacing
+
+    def generate_flare_series(self,Es:quant,time:quant):
+        flares = []
+        tmin=0*u.s
+        tmax = time
+        timesets = [[tmin,tmax]]
+        while True:
+            next_timesets = []
+            N  = len(timesets)
+            for i in range(N): # loop thought blocks of time
+                timeset = timesets[i]
+                dtime = timeset[1] - timeset[0]
+                flare_energies = self.generate_flares(Es,dtime)
+                if len(flare_energies) > 0:
+                    base_tpeak = np.random.random()*dtime + timeset[0]
+                    peaks = [deepcopy(base_tpeak)]
+                    for j in range(len(flare_energies)): #loop through flares
+                        if j > 0:
+                            base_tpeak = base_tpeak + self.generate_flare_set_spacing()
+                            peaks.append(deepcopy(base_tpeak))
+                        energy = flare_energies[j]
+                        lat,lon = self.generate_coords()
+                        fwhm = self.generate_fwhm()
+                        teff = self.generate_teff()
+                        flares.append(StellarFlare(fwhm,energy,lat,lon,Teff=teff))
+                    next_timesets.append([timeset[0],min(peaks)])
+                    next_timesets.append([max(peaks),timeset[1]])
+                else:
+                    pass # there are no flares during this time
+            timesets = next_timesets
+            if len(timesets) == 0:
+                return flares
+        
+
+class FlareCollection:
+    """ This class stores a series of flares and does math to turn them into lightcurves
+    """
+    def __init__(self,flares):
+        self.flares=flares
+            
+                        
+
+
+
+
 
 
         
