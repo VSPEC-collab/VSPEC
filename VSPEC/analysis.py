@@ -4,6 +4,8 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from io import StringIO
+import xarray
 
 from VSPEC.helpers import to_float
 
@@ -28,7 +30,7 @@ class PhaseAnalyzer:
         self.unique_phase = deepcopy(self.phase)
         for i in range(len(self.unique_phase) - 1):
             while self.unique_phase[i] > self.unique_phase[i+1]:
-                self.unique_phase[i+1] += 360*u.deg_C
+                self.unique_phase[i+1] += 360*u.deg
 
 
 
@@ -72,6 +74,53 @@ class PhaseAnalyzer:
         self.thermal = thermal.values * fluxunit
         self.total = total.values * fluxunit
         self.noise = noise.values * fluxunit
+
+        try:
+            layer_path = path.parent / 'PSGLayers'
+            layers = []
+            first = True
+            for phase in self.phase:
+                if phase>178*u.deg and phase<182*u.deg:
+                    phase=182.0*u.deg # Add transit phase;
+                filename = layer_path / f'phase{to_float(phase,u.deg):.3f}.lyr'
+                dat = self.read_lyr(filename)
+                if not first:
+                    assert np.all(dat.columns == cols)
+                else:
+                    first = False
+                cols = dat.columns
+                layers.append(dat.values)
+            index = np.arange(layers[0].shape[0])
+            self.layers = xarray.DataArray(np.array(layers),dims = ['phase','layer','var'],coords={'phase':self.unique_phase,'layer':index,'var':cols})
+        except IndexError:
+            print('No Layer info, maybe globes is off')
+            self.layers = None
+
+
+    def read_lyr(self,filename):
+        """ read layer file
+        """
+        lines = []
+        with open(filename,'r') as f:
+            save = False
+            for line in f:
+                if 'Alt[km]' in line:
+                    save = True
+                if save:
+                    if '--' in line:
+                        if len(lines) > 2:
+                            save = False
+                        else:
+                            pass
+                    else:
+                        lines.append(line[2:-1])
+        dat = StringIO('\n'.join(lines[1:]))
+        names = lines[0].split()
+        for i in range(len(names)):
+            if 'size' in names[i]:
+                names[i] = names[i-1] + '_' + names[i]
+        return pd.read_csv(dat,delim_whitespace=True,names = names)
+
 
     def lightcurve(self,source,pixel,normalize='none',noise=False):
         """lightcurve

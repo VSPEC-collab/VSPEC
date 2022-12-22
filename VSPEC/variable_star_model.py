@@ -2,7 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from astropy import units as u, constants as c
-from astropy.units.quantity import Quantity as quant
+from astropy.units.quantity import Quantity
+import cartopy.crs as ccrs
+from xoflares.xoflares import _flareintegralnp as flareintegral, eval_get_light_curve,get_light_curvenp
+from VSPEC.helpers import to_float
+from copy import deepcopy
+from typing import List
+import typing as Typing
+
 MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
 
 class StarSpot:
@@ -31,18 +38,18 @@ class StarSpot:
         None
     """
     def __init__(self,lat,lon,Amax,A0,Teff_umbra,Teff_penumbra,T = 1*u.day,r_A=5,growing=True,growth_rate = 0.52/u.day,Nlat=500,Nlon=1000,gridmaker=None):
-        assert isinstance(lat,quant)
-        assert isinstance(lon,quant)
+        assert isinstance(lat,Quantity)
+        assert isinstance(lon,Quantity)
         self.coords = {'lat':lat,'lon':lon}
-        assert isinstance(Amax,quant)
-        assert isinstance(A0,quant)
+        assert isinstance(Amax,Quantity)
+        assert isinstance(A0,Quantity)
         self.area_max = Amax
         self.area_current = A0
-        assert isinstance(Teff_umbra,quant)
-        assert isinstance(Teff_penumbra,quant)
+        assert isinstance(Teff_umbra,Quantity)
+        assert isinstance(Teff_penumbra,Quantity)
         self.Teff_umbra = Teff_umbra
         self.Teff_penumbra = Teff_penumbra
-        assert isinstance(T,quant)
+        assert isinstance(T,Quantity)
         self.decay_timescale = T
         self.decay_rate = 10.89 * MSH/u.day
         self.total_area_over_umbra_area = r_A
@@ -79,9 +86,8 @@ class StarSpot:
         Returns:
             (astropy.units.quantity.Quantity [angle]): angular radius of the spot
         """
-        radius = self.radius()
-        angle_in_rad = radius/star_rad
-        return angle_in_rad/np.pi * 180 *u.deg
+        cos_angle = 1 - self.area_current/(2*np.pi*star_rad**2)
+        return (np.arccos(cos_angle)).to(u.deg)
     
     def map_pixels(self,star_rad):
         """map pixels
@@ -299,15 +305,16 @@ class Star:
     Returns:
         None
     """
-    def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None):
+    def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None,
+                    flare_generator = None):
         self.name = name
-        assert isinstance(Teff,quant)
+        assert isinstance(Teff,Quantity)
         self.Teff = Teff
-        assert isinstance(radius,quant)
+        assert isinstance(radius,Quantity)
         self.radius = radius
-        assert isinstance(distance,quant)
+        assert isinstance(distance,Quantity)
         self.distance = distance
-        assert isinstance(period,quant)
+        assert isinstance(period,Quantity)
         self.period = period
         assert isinstance(spots,SpotCollection)
         self.spots = spots
@@ -321,9 +328,14 @@ class Star:
         self.faculae.gridmaker = self.gridmaker
         self.spots.gridmaker = self.gridmaker
 
+        if flare_generator is None:
+            self.flare_generator = FlareGenerator(self.Teff,self.period)
+        else:
+            self.flare_generator = flare_generator
+
         
-        self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15)
-        self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km)
+        self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15,Nlon=Nlon,Nlat=Nlat)
+        self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km,Nlon=Nlon,Nlat=Nlat)
     def get_pixelmap(self):
         """get pixelmap
         Create map of stellar surface based on spots:
@@ -336,7 +348,6 @@ class Star:
             (array of astropy.units.quantity.Quantity [temperature], Shape(Nlon,Nlat)): Map of stellar surface with Teff assigned to each pixel.
 
         """
-        latgrid,longrid = self.gridmaker.grid()
         return self.spots.map_pixels(self.radius,self.Teff)
     def age(self,time):
         """age
@@ -364,7 +375,7 @@ class Star:
             None
         """
         self.spots.add_spot(spot)
-        self.map = self.get_pixelmap(self.resolution['lat'],self.resolution['lon'])
+        self.map = self.get_pixelmap()
     def add_fac(self,facula):
         """add facula(e)
         Add a facula or faculae
@@ -494,6 +505,67 @@ class Star:
             den += dat[teff]
         return ((num/den)**(0.25)).to(u.K)
 
+
+    def plot_spots(self,view_angle, sub_obs_point = None):
+        pmap = self.get_pixelmap().value
+        proj = ccrs.Orthographic(
+                    central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
+        fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
+        ax = plt.axes(projection=proj, fc="r")
+        ax.outline_patch.set_linewidth(0.0)
+        ax.imshow(
+            pmap.T,
+            origin="upper",
+            transform=ccrs.PlateCarree(),
+            extent=[0, 360, -90, 90],
+            interpolation="none",
+            regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon)
+        )
+        if sub_obs_point is not None:
+            mask = self.calc_orthographic_mask(sub_obs_point)
+            ax.imshow(
+            mask.T,
+            origin="upper",
+            transform=ccrs.PlateCarree(),
+            extent=[0, 360, -90, 90],
+            interpolation="none",
+            regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon),
+            cmap='gray',
+            alpha=0.7
+        )
+        return fig
+
+    def plot_faculae(self,view_angle):
+        int_map, map_keys = self.faculae.map_pixels(self.map,self.radius,self.Teff)
+        is_fac = ~(int_map==0)
+        int_map[is_fac]=1
+        proj = ccrs.Orthographic(
+                    central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
+        fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
+        ax = plt.axes(projection=proj, fc="r")
+        ax.outline_patch.set_linewidth(0.0)
+        ax.imshow(
+            int_map.T,
+            origin="upper",
+            transform=ccrs.PlateCarree(),
+            extent=[0, 360, -90, 90],
+            interpolation="none",
+            regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon)
+        )
+        return fig
+    
+
+    def get_flares_over_observation(self,time_duration:Quantity[u.hr]):
+        energy_dist = self.flare_generator.generage_E_dist()
+        flares = self.flare_generator.generate_flare_series(energy_dist,time_duration)
+        self.flares = FlareCollection(flares)
+    
+    def get_flare_int_over_timeperiod(self,tstart:Quantity[u.hr],tfinish:Quantity[u.hr],sub_obs_coords):
+        flare_timeareas = self.flares.get_flare_integral_in_timeperiod(tstart,tfinish,sub_obs_coords)
+        return flare_timeareas
+
+
+
 class SpotGenerator:
     """Spot Generator
     Class controling the birth rates and properties of new spots.
@@ -509,12 +581,14 @@ class SpotGenerator:
     Returns:
         None
     """
-    def __init__(self,average_area,area_spread,coverage=None):
+    def __init__(self,average_area,area_spread,coverage=None,Nlat=500,Nlon=1000):
         self.average_spot_area = average_area
         self.spot_area_spread = area_spread
         self.decay_rate = 10.89 * MSH/u.day
         self.average_spot_lifetime = 2*(self.average_spot_area / self.decay_rate).to(u.hr)
         self.coverage = coverage
+        self.Nlon = Nlon
+        self.Nlat = Nlat
     def get_variability(self,rotation_period):
         """get variability
         Get variability from stellar rotaion period based on imperical relation
@@ -568,7 +642,7 @@ class SpotGenerator:
         
         spots = []
         for i in range(N):
-            spots.append(StarSpot(lat[i],lon[i],new_max_areas[i],starting_size,umbra_teff,penumbra_teff))
+            spots.append(StarSpot(lat[i],lon[i],new_max_areas[i],starting_size,umbra_teff,penumbra_teff,Nlat=self.Nlat,Nlon=self.Nlon))
         return tuple(spots)
 
 class Facula:
@@ -821,7 +895,7 @@ class FaculaCollection:
             (np.ndarray [int8], shape(M,N)): grid of integer keys showing facula loactions
             (dict): dictionary maping index in self.faculae to the integer grid of facula locations
         """
-        int_map = self.gridmaker.zeros(dtype='int8')
+        int_map = self.gridmaker.zeros(dtype='int16')
         map_dict = {}
         for i in range(len(self.faculae)):
             facula = self.faculae[i]
@@ -848,8 +922,8 @@ class FaculaGenerator:
         dist (str): type of distribution
         
     """
-    def __init__(self,R_peak = 400*u.km, R_HWHM = 200*u.km,
-                 T_peak = 6.2*u.hr, T_HWHM = 4.7*u.hr,coverage=0.0001,dist = 'even'):
+    def __init__(self,R_peak = 800*u.km, R_HWHM = 300*u.km,
+                 T_peak = 6.2*u.hr, T_HWHM = 4.7*u.hr,coverage=0.0001,dist = 'even',Nlon=1000,Nlat=500):
         assert u.get_physical_type(R_peak) == 'length'
         assert u.get_physical_type(R_HWHM) == 'length'
         assert u.get_physical_type(T_peak) == 'time'
@@ -863,6 +937,8 @@ class FaculaGenerator:
         assert isinstance(coverage,float)
         self.coverage = coverage
         self.dist = dist
+        self.Nlon = Nlon
+        self.Nlat = Nlat
         
     def get_floor_teff(self,R,Teff_star):
         """Get floor Teff
@@ -937,7 +1013,8 @@ class FaculaGenerator:
         new_faculae = []
         for i in range(N):
             new_faculae.append(Facula(lats[i], lons[i], max_radii[i], starting_radii[i], teff_floor[i],
-                                     teff_wall[i],lifetimes[i], growing=True, floor_threshold=20*u.km, Zw = 100*u.km))
+                                     teff_wall[i],lifetimes[i], growing=True, floor_threshold=20*u.km, Zw = 100*u.km,
+                                     Nlon=self.Nlon,Nlat=self.Nlat))
         return tuple(new_faculae)
         
 class CoordinateGrid:
@@ -1010,3 +1087,242 @@ class CoordinateGrid:
             return False
         else:
             return (self.Nlat == other.Nlat) & (self.Nlon == other.Nlon)
+
+class StellarFlare:
+    """ Class to store and control stellar flare information
+    
+    """
+    def __init__(self,fwhm:Quantity,energy:Quantity,lat:Quantity,lon:Quantity,Teff:Quantity,tpeak:Quantity):
+        self.fwhm = fwhm
+        self.energy = energy
+        self.lat = lat
+        self.lon = lon
+        self.Teff = Teff
+        self.tpeak = tpeak
+    
+    def calc_peak_area(self):
+        time_area = self.energy/c.sigma_sb/(self.Teff**4)
+        area_std = 1*u.km**2
+        time_area_std = flareintegral(self.fwhm,area_std)
+        area = time_area/time_area_std * area_std
+        return area.to(u.km**2)
+    
+    def areacurve(self,time:Quantity[u.hr]):
+        t_unit = u.day # this is the unit of xoflares
+        a_unit = u.km**2
+        peak_area = self.calc_peak_area()
+        areas = get_light_curvenp(to_float(time,t_unit),
+                                        [to_float(self.tpeak,t_unit)],
+                                        [to_float(self.fwhm,t_unit)],
+                                        [to_float(peak_area,a_unit)])
+        return areas * a_unit
+    
+    def get_timearea(self,time:Quantity[u.hr]):
+        areas = self.areacurve(time)
+        timearea = np.trapz(areas,time)
+        return timearea.to(u.Unit('hr km2'))
+    
+class FlareGenerator:
+    """ Class to decide when a flare occurs and its magnitude
+
+    """
+    def __init__(self,stellar_teff:Quantity,stellar_rot_period:Quantity, prob_following = 0.5,
+                mean_teff = 9000*u.K, sigma_teff = 500*u.K,mean_log_fwhm_days=-0.85,sigma_log_fwhm_days=0.3,
+                log_E_erg_max=36, log_E_erg_min = 33, log_E_erg_Nsteps=100):
+        """ FWHM data from Table 2 of Gunther et al. 2020, AJ 159 60
+        """
+        self.stellar_teff = stellar_teff
+        self.stellar_rot_period = stellar_rot_period
+        self.prob_following = prob_following
+        self.mean_teff = mean_teff
+        self.sigma_teff = sigma_teff
+        self.mean_log_fwhm_days = mean_log_fwhm_days
+        self.sigma_log_fwhm_days = sigma_log_fwhm_days
+        self.log_E_erg_max = log_E_erg_max
+        self.log_E_erg_min = log_E_erg_min
+        self.log_E_erg_Nsteps = log_E_erg_Nsteps
+    def powerlaw(self, E:Quantity):
+        """ Gao+2022 TESS corrected
+        """
+        alpha = -0.829
+        beta = 26.87
+        logfreq = beta + alpha*np.log10(E/u.erg)
+        freq = 10**logfreq / u.day
+        return freq
+    def get_flare(self,Es:Quantity,time:Quantity):
+        freq = self.powerlaw(Es) * time
+        f_previous = 1
+        E_final = 0*u.erg
+        for e, f in zip(Es,freq):
+            if np.random.random() < f/f_previous:
+                f_previous = f
+                E_final = e
+            else:
+                break
+        return E_final
+    def generate_flares(self,Es:Quantity,time:Quantity):
+        """ valid if flare length is much less than time
+        """
+        unit=u.erg
+        flare_energies = []
+        E = self.get_flare(Es,time)
+        if E == 0*u.erg:
+            return flare_energies
+        else:
+            flare_energies.append(to_float(E,unit))
+            cont = np.random.random() < self.prob_following
+            while cont:
+                while True:
+                    E = self.get_flare(Es,time)
+                    if E == 0*u.erg:
+                        pass
+                    else:
+                        flare_energies.append(to_float(E,unit))
+                        cont = np.random.random() < self.prob_following
+                        break
+            return flare_energies*unit
+    
+    def generate_coords(self):
+        lon = np.random.random()*360*u.deg
+        lats = np.arange(90)
+        w = np.cos(lats*u.deg)
+        lat = (np.random.choice(lats,p=w/w.sum()) + np.random.random())*u.deg * np.random.choice([1,-1])
+        return lat,lon
+    
+    def generate_fwhm(self):
+        log_fwhm_days = np.random.normal(loc=self.mean_log_fwhm_days,scale=self.sigma_log_fwhm_days)
+        fwhm = 10**log_fwhm_days * u.day
+        return fwhm
+    
+    def generate_flare_set_spacing(self):
+        """ isolated flares are random events, but if you see one flare, it is likely you will see another
+            soon after. How soon? This distribution will tell you.
+            
+            The hope is that as we learn more this will be set by the user
+        """
+        while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
+            spacing = np.random.normal(loc=4,scale=2)*u.hr
+            if spacing > 0*u.hr:
+                return spacing
+    def generage_E_dist(self):
+        return np.logspace(self.log_E_erg_min,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
+
+    def generate_teff(self):
+        """ randomly generate teff, round to int
+        """
+        assert self.mean_teff > 0*u.K # prevent looping forever if user gives bad parameters
+        while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
+            teff = np.random.normal(loc=to_float(self.mean_teff,u.K),scale=to_float(self.sigma_teff,u.K))
+            teff = int(np.round(teff)) * u.K
+            if teff > 0*u.K:
+                return teff
+
+    def generate_flare_series(self,Es:Quantity,time:Quantity):
+        flares = []
+        tmin=0*u.s
+        tmax = time
+        timesets = [[tmin,tmax]]
+        while True:
+            next_timesets = []
+            N  = len(timesets)
+            for i in range(N): # loop thought blocks of time
+                timeset = timesets[i]
+                dtime = timeset[1] - timeset[0]
+                flare_energies = self.generate_flares(Es,dtime)
+                if len(flare_energies) > 0:
+                    base_tpeak = np.random.random()*dtime + timeset[0]
+                    peaks = [deepcopy(base_tpeak)]
+                    for j in range(len(flare_energies)): #loop through flares
+                        if j > 0:
+                            base_tpeak = base_tpeak + self.generate_flare_set_spacing()
+                            peaks.append(deepcopy(base_tpeak))
+                        energy = flare_energies[j]
+                        lat,lon = self.generate_coords()
+                        fwhm = self.generate_fwhm()
+                        teff = self.generate_teff()
+                        flares.append(StellarFlare(fwhm,energy,lat,lon,teff,base_tpeak))
+                    next_timesets.append([timeset[0],min(peaks)])
+                    next_timesets.append([max(peaks),timeset[1]])
+                else:
+                    pass # there are no flares during this time
+            timesets = next_timesets
+            if len(timesets) == 0:
+                return flares
+        
+
+class FlareCollection:
+    """ This class stores a series of flares and does math to turn them into lightcurves
+    """
+    def __init__(self,flares:Typing.Union[List[StellarFlare],StellarFlare]):
+        if isinstance(flares,StellarFlare):
+            self.flares = [flares]
+        else:
+            self.flares=flares
+        self.index()
+
+    
+    def index(self):
+        tpeak = []
+        fwhm = []
+        unit = u.hr
+        for flare in self.flares:
+            tpeak.append(to_float(flare.tpeak,unit))
+            fwhm.append(to_float(flare.fwhm,unit))
+        tpeak = np.array(tpeak)*unit
+        fwhm = np.array(fwhm)*unit
+        self.peaks = tpeak
+        self.fwhms = fwhm
+    
+    def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
+        padding_after = 6 # number of fwhm ouside this range a flare peak can be to still be included
+        padding_before = 2
+        after_start = self.peaks + padding_before*self.fwhms > tstart
+        before_end = self.peaks - padding_after*self.fwhms < tfinish
+        
+        return after_start & before_end
+    
+    def get_flares_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr])-> List[StellarFlare]:
+        mask = self.mask(tstart,tfinish)
+        masked_flares = [flare for flare, include in zip(self.flares,mask) if include]
+        # essentially the same as self.flares[mask], but without casting to ndarray
+        return masked_flares
+    
+    def get_visible_flares_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
+                                        sub_obs_coords={'lat':0*u.deg,'lon':0*u.deg})-> List[StellarFlare]:
+        masked_flares = self.get_flares_in_timeperiod(tstart,tfinish)
+        visible_flares = []
+        for flare in masked_flares:
+            cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(flare.lat)
+                + np.cos(sub_obs_coords['lat'])* np.cos(flare.lat)
+                 * np.cos(sub_obs_coords['lon']-flare.lon) )
+            if cos_c > 0: # proxy for angular radius that has low computation time
+                visible_flares.append(flare)
+        return visible_flares
+    
+    def get_flare_integral_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
+                                        sub_obs_coords={'lat':0*u.deg,'lon':0*u.deg}):
+        visible_flares = self.get_visible_flares_in_timeperiod(tstart,tfinish,sub_obs_coords)
+        flare_timeareas = []
+        time_resolution = 10*u.min
+        N_steps = int(((tfinish-tstart)/time_resolution).to(u.Unit('')).value)
+        time = np.linspace(tstart,tfinish,N_steps)
+        for flare in visible_flares:
+            timearea = flare.get_timearea(time)
+            flare_timeareas.append(dict(Teff=flare.Teff,timearea=timearea))
+        return flare_timeareas
+
+    
+
+
+
+
+            
+                        
+
+
+
+
+
+
+        
+

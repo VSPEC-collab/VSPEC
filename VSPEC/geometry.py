@@ -2,6 +2,8 @@ import numpy as np
 from astropy import units as u, constants as c
 from scipy.optimize import newton
 import pandas as pd
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
 
 def to_float(quant,unit):
     return (quant/unit).to(u.Unit('')).value
@@ -31,21 +33,27 @@ class SystemGeometry:
                     init_planet_phase = 0*u.deg,
                     stellar_period = 80*u.day,
                     orbital_period = 11*u.day,
+                    semimajor_axis = 0.05*u.AU,
                     planetary_rot_period = 11*u.day,
+                    planetary_init_substellar_lon = 0*u.deg,
                     stellar_offset_amp = 0*u.deg,
                     stellar_offset_phase = 0*u.deg,
                     eccentricity = 0,
-                    argument_of_pariapsis = 0*u.deg):
+                    argument_of_pariapsis = 0*u.deg,
+                    system_distance = 1.3*u.pc):
         self.i = inclination
         self.init_stellar_lon = init_stellar_lon
         self.init_planet_phase = init_planet_phase
         self.stellar_period = stellar_period
         self.orbital_period = orbital_period
+        self.semimajor_axis = semimajor_axis
         self.planetary_rot_period = planetary_rot_period
+        self.planetary_init_substellar_lon = planetary_init_substellar_lon
         self.alpha = stellar_offset_amp
         self.beta = stellar_offset_phase
         self.e = eccentricity
-        self.omega = argument_of_pariapsis
+        self.omega = argument_of_pariapsis + 180*u.deg
+        self.system_distance = system_distance
     
     def sub_obs(self,time):
         """sub-obs
@@ -134,7 +142,7 @@ class SystemGeometry:
         Returns:
             (astropy.units.quantity.Quantity [angle]): the phase
         """
-        return (self.true_anomaly(time) + self.omega + 90*u.deg) % (360*u.deg)
+        return (self.true_anomaly(time) + self.omega) % (360*u.deg)
 
     def sub_planet(self,time,phase = None):
         """sub-planet point
@@ -165,7 +173,7 @@ class SystemGeometry:
         Returns:
             (astropy.units.quantity.Quantity [time]): time since periasteron
         """
-        true_anomaly = phase - 90*u.deg - self.omega
+        true_anomaly = phase - self.omega
         true_anomaly = true_anomaly % (360*u.deg)
         guess = true_anomaly/360/u.deg * self.orbital_period
         def func(guess):
@@ -174,7 +182,27 @@ class SystemGeometry:
         time = newton(func,(guess/u.day).to(u.Unit(''))) * u.day
         return time.to(u.day)
     
-    def get_observation_plan(self, phase0,total_time, time_step = None, N_obs = 10):
+    def get_substellar_lon(self,dtime: u.quantity.Quantity,phase:u.quantity.Quantity) -> u.quantity.Quantity:
+        """
+        dtime is time since initial substellar longitude
+        phase is current phase
+        """
+        dphase = phase - self.init_planet_phase
+        rotated = to_float(dtime/self.planetary_rot_period,u.Unit('')) * 360*u.deg
+        lon = self.planetary_init_substellar_lon - dphase + rotated
+        return lon
+
+    def get_radius_coeff(self,phase:u.quantity.Quantity) -> float:
+        true_anomaly = phase - 90*u.deg - self.omega
+        num = 1 - self.e**2
+        den = 1 + self.e*np.cos(true_anomaly)
+        return to_float(num/den,u.Unit(''))
+
+    
+    def get_observation_plan(self, phase0:u.quantity.Quantity,
+                            total_time:u.quantity.Quantity,
+                            time_step:u.quantity.Quantity = None,
+                            N_obs:int = 10) -> dict:
         """get observation plan
         Calculate information describing the state of the system for a series of observations
 
@@ -198,6 +226,8 @@ class SystemGeometry:
         sub_obs_lons = []
         sub_planet_lats = []
         sub_planet_lons = []
+        sub_stellar_lons = []
+        orbit_radii = []
         u_angle = u.deg
         for time in start_times:
             phase = to_float(self.phase(time),u_angle) #% (360*u.deg)
@@ -208,9 +238,87 @@ class SystemGeometry:
             sub_planet = self.sub_planet(time,phase=phase*u_angle)
             sub_planet_lats.append(to_float(sub_planet['lat'],u_angle))
             sub_planet_lons.append(to_float(sub_planet['lon'],u_angle))
+            sub_stellar_lon = self.get_substellar_lon(time-t0,phase*u_angle)
+            sub_stellar_lons.append(to_float(sub_stellar_lon,u_angle))
+            orbit_rad = self.get_radius_coeff(phase*u_angle)
+            orbit_radii.append(orbit_rad)
         return {'time':start_times,
                             'phase':phases*u_angle,
                             'sub_obs_lat':sub_obs_lats*u_angle,
                             'sub_obs_lon': sub_obs_lons*u_angle,
                             'sub_planet_lat': sub_planet_lats*u_angle,
-                            'sub_planet_lon': sub_planet_lons*u_angle}
+                            'sub_planet_lon': sub_planet_lons*u_angle,
+                            'sub_stellar_lon':sub_stellar_lons*u_angle,
+                            'orbit_radius':orbit_radii}
+    
+    def plot(self,phase:u.Quantity) -> plt.figure:
+        fig = plt.figure()
+        axes = {}
+        axes['orbit'] = fig.add_subplot(1,2,1)
+        axes['orbit'].set_aspect('equal',adjustable='box')
+        axes['orbit'].scatter(0,0,c='xkcd:tangerine',s=150)
+
+        theta = np.linspace(0,360,180,endpoint=False)*u.deg
+        r_dist = (1-self.e**2)/(1+self.e*np.cos(theta- self.omega - 90*u.deg))
+        curr_theta = phase + 90*u.deg
+        x_dist = self.semimajor_axis * np.cos(theta)*r_dist
+        y_dist = self.semimajor_axis * np.sin(theta)*r_dist*np.cos(self.i)
+
+        current_r = (1-self.e**2)/(1+self.e*np.cos(curr_theta- self.omega - 90*u.deg))
+        current_x_dist = self.semimajor_axis * np.cos(curr_theta)*current_r
+        current_y_dist = self.semimajor_axis * np.sin(curr_theta)*current_r*np.cos(self.i)
+        behind = np.sin(theta) >= 0
+        x_angle = np.arctan(x_dist/self.system_distance).to(u.mas)
+        y_angle = np.arctan(y_dist/self.system_distance).to(u.mas)
+        plotlim = np.arctan(self.semimajor_axis/self.system_distance).to(u.mas).value * (1+self.e)*1.05
+        current_x_angle = np.arctan(current_x_dist/self.system_distance).to(u.mas)
+        current_y_angle = np.arctan(current_y_dist/self.system_distance).to(u.mas)
+        z_order_mapper = {True:-99,False:100}
+
+        axes['orbit'].plot(x_angle[behind],y_angle[behind],zorder=-100,c='C0',alpha=1,ls=(0,(2,2)))
+        axes['orbit'].plot(x_angle[~behind],y_angle[~behind],zorder=99,c='C0')
+        axes['orbit'].scatter(current_x_angle,current_y_angle,zorder = z_order_mapper[np.sin(curr_theta) >= 0],c='k')
+
+        axes['orbit'].set_xlim(-plotlim,plotlim)
+        axes['orbit'].set_ylim(-plotlim,plotlim)
+        axes['orbit'].set_xlabel('sep (mas)')
+        axes['orbit'].set_ylabel('sep (mas)')
+
+        time_since_periasteron = self.get_time_since_periasteron(phase)
+        substellar_lon = self.get_substellar_lon(time_since_periasteron,phase)
+        substellar_lat = 0*u.deg
+        subobs_lon = substellar_lon - phase
+        subobs_lat =  -1*(self.i-90*u.deg)
+        proj = ccrs.Orthographic(
+                    central_longitude=subobs_lon, central_latitude=subobs_lat)
+        axes['planet'] = fig.add_subplot(1,2,2,projection=proj, fc="r")
+        lats = np.linspace(-90,90,181)*u.deg
+        lons = np.linspace(0,360,181)*u.deg
+        latgrid,longrid = np.meshgrid(lats,lons)
+        latgrid = latgrid
+        longrid = longrid
+        cos_c = (np.sin(substellar_lat) * np.sin(latgrid)
+                        + np.cos(substellar_lat)* np.cos(latgrid)
+                        * np.cos(substellar_lon-longrid) )
+        dayside = (cos_c > 0).astype('int')
+        axes['planet'].imshow(
+                    dayside.T,
+                    origin="upper",
+                    transform=ccrs.PlateCarree(),
+                    extent=[0, 360, -90, 90],
+                    interpolation="none",
+                    regrid_shape = (500,1000)
+                )
+        axes['planet'].plot(
+            lons,lons*0,
+            transform=ccrs.PlateCarree(),
+            c='k'
+        )
+        axes['planet'].scatter(
+            0,90,
+            transform=ccrs.PlateCarree(),
+        )
+        lats = np.linspace(-90,90)
+        axes['planet'].plot(lats*0,lats,transform=ccrs.PlateCarree(),c='k')
+
+        return fig

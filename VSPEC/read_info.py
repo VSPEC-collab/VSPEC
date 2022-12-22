@@ -2,6 +2,8 @@ import configparser
 from astropy import units as u, constants as c
 from pathlib import Path
 
+from VSPEC.helpers import to_float
+
 
 class ParamModel:
     """Parameter Model
@@ -18,109 +20,117 @@ class ParamModel:
         configParser = configparser.RawConfigParser()
         configParser.read_file(open(filename))
         # Read in the information of the star from the config file
-        self.starName = configParser.get('Star', 'starName')
-        self.spotCoverage = float(configParser.get('Star', 'spotCoverage'))
-        self.facCoverage = float(configParser.get('Star', 'facCoverage'))
+        self.star_name = configParser.get('Star', 'star_name')
 
         # Star Properties
-        self.teffStar = configParser.getint('PSG', 'starTemp') * u.K
-        self.binningRange = int(configParser.get('Star', 'binningRange')) * u.K
-        self.starRadius = float(configParser.get('Star', 'starRadius')) * u.R_sun
-        self.starRadiusMeters = self.starRadius.to(u.m).value
-        self.starDistance = float(configParser.get('Star', 'starDistance')) * u.pc
-        self.starDistanceMeters = self.starDistance.to(u.m).value
-        self.rotstar = float(configParser.get('Star', 'Rotstar')) * u.day
+        self.star_teff = configParser.getint('Star', 'star_teff') * u.K
+        self.star_teff_min = configParser.getint('Star', 'star_teff_min') * u.K
+        self.star_teff_max = configParser.getint('Star', 'star_teff_max') * u.K
 
-        #update this later
-        self.Nlat = 500
-        self.Nlon = 1000
+        self.star_spot_coverage = float(configParser.get('Star', 'star_spot_coverage'))
+        self.star_fac_coverage = float(configParser.get('Star', 'star_fac_coverage'))
+        self.star_spot_warmup = configParser.getfloat('Star','star_spot_warmup') * u.day
+        self.star_fac_warmup = configParser.getfloat('Star','star_fac_warmup') * u.hr
 
-        # Inclination of the star
-        self.inclination = int(configParser.get('Star', 'Inclination')) * u.deg
-        self.inclinationPSG = self.inclination + 90*u.deg
-        self.offsetFromOrbitalPlane = int(configParser.get('Star','offsetFromOrbitalPlane')) * u.deg
-        self.offsetDirection = int(configParser.get('Star','offsetDirection')) * u.deg
+        self.star_flare_group_prob = configParser.getfloat('Star','star_flare_group_prob')
+        self.star_flare_mean_teff = configParser.getfloat('Star','star_flare_mean_teff') * u.K
+        self.star_flare_sigma_teff = configParser.getfloat('Star','star_flare_sigma_teff') * u.K
+        self.star_flare_mean_log_fwhm_days = configParser.getfloat('Star','star_flare_mean_log_fwhm_days')
+        self.star_flare_sigma_log_fwhm_days = configParser.getfloat('Star','star_flare_sigma_log_fwhm_days')
+        self.star_flare_log_E_erg_max = configParser.getfloat('Star','star_flare_log_E_erg_max')
+        self.star_flare_log_E_erg_min = configParser.getfloat('Star','star_flare_log_E_erg_min')
+        self.star_flare_log_E_erg_Nsteps = configParser.getint('Star','star_flare_log_E_erg_Nsteps')
 
-        # Planet periodic properties
-        self.revPlanet = configParser.getfloat('PSG', 'revPlanet')*u.day
-        # The planet rotation is equivalent to the planet revolution for tidally locked planets
-        self.rotPlanet = self.revPlanet
-        self.planetPhaseChange = configParser.getfloat('PSG', 'planetPhaseChange')*u.deg
-        
-        # Noise
-        self.detector_type = configParser.get('PSG','detector_type')
-        self.detector_integration_time = configParser.getfloat('PSG','detector_integration_time')
-        self.detector_pixel_sampling = configParser.getint('PSG','detector_pixel_sampling')
-        self.detector_read_noise = configParser.getint('PSG','detector_read_noise')
-        self.detector_dark_current = configParser.getint('PSG','detector_dark_current')
-        self.detector_throughput = configParser.getfloat('PSG','detector_throughput')
-        self.detector_emissivity = configParser.getfloat('PSG','detector_emissivity')
-        self.detector_temperature = configParser.getfloat('PSG','detector_temperature')
-        self.telescope_diameter = configParser.getfloat('PSG','telescope_diameter')
 
-        # Observation information
-        self.time_between_exposures = int(configParser.get('HemiMap', 'time_between_exposures'))*u.min
-        self.total_observation_time = int(configParser.get('HemiMap', 'observing_time'))*u.min
-        self.total_images = int(round(float((self.total_observation_time/self.time_between_exposures).to(u.Unit('')))))
-        self.detector_number_of_integrations = int(round((self.time_between_exposures/self.detector_integration_time/u.s).to(u.Unit('')).value))
 
-        # Binned spectrum
-        self.loadData = configParser.getboolean('Star', 'loadData')
-        self.target_wavelength_unit = u.Unit(configParser.get('Spectra','wavelengthUnit'))
-        self.target_flux_unit = u.Unit(configParser.get('Spectra','desiredFluxUnit'))
-        self.lam1   = configParser.getfloat('PSG', 'lam1')*self.target_wavelength_unit         # Initial wavelength of the simulations (um)
-        self.lam2   = configParser.getfloat('PSG', 'lam2')*self.target_wavelength_unit         # Final wavelength of the simulations (um)
-        self.lamRP  = configParser.getfloat('PSG', 'lamRP')        # Resolving power
-        
-        # PSG
-        # Paramaters sent to PSG to retrieve planet spectra
-        self.gcm_file_path = configParser.get('PSG', 'GCM')
+        self.star_mass = configParser.getfloat('Star', 'star_mass') * u.M_sun
+        self.star_radius = configParser.getfloat('Star', 'star_radius') * u.R_sun
+
+        self.star_rot_period = configParser.getfloat('Star', 'star_rot_period') * u.day
+        self.star_rot_offset_from_orbital_plane = configParser.getfloat('Star','star_rot_offset_from_orbital_plane') * u.deg
+        self.star_rot_offset_angle_from_pariapse = configParser.getfloat('Star','star_rot_offset_angle_from_pariapse') * u.deg
+
+        self.psg_star_template = configParser.get('Star','psg_star_template')
+
+
+        self.planet_name = configParser.get('Planet','planet_name')
+        self.planet_initial_phase = configParser.getfloat('Planet','planet_initial_phase') * u.deg
+        self.planet_init_substellar_lon = configParser.getfloat('Planet','planet_init_substellar_lon') * u.deg
+
+        planet_radius_unit = configParser.get('Planet','planet_radius_unit')
+        self.planet_radius = configParser.getfloat('Planet','planet_radius') * u.Unit(planet_radius_unit)
+
+        planet_grav_mode = configParser.get('Planet','planet_mass_den_grav_mode')
+        planet_grav_unit = u.Unit(configParser.get('Planet','planet_mass_den_grav_unit'))
+        mode_parser = {
+            'gravity': {'kw':'g','base_unit':u.Unit('m s-2')},
+            'density': {'kw':'rho','base_unit':u.Unit('g cm-3')},
+            'mass': {'kw':'kg','base_unit':u.Unit('kg')}
+        }
+        self.planet_grav_mode = mode_parser[planet_grav_mode]['kw']
+        self.planet_grav = to_float(configParser.getfloat('Planet','planet_mass_den_grav') * planet_grav_unit,mode_parser[planet_grav_mode]['base_unit'])
+
+        self.planet_semimajor_axis = configParser.getfloat('Planet','planet_semimajor_axis')*u.AU
+        self.planet_orbital_period = configParser.getfloat('Planet','planet_orbital_period')*u.day
+        self.planet_eccentricity = configParser.getfloat('Planet','planet_eccentricity')
+        self.planet_rotational_period = configParser.getfloat('Planet','planet_rotational_period')*u.day
+
+
+        self.system_distance = configParser.getfloat('System','system_distance') * u.pc
+        self.system_inclination = configParser.getfloat('System','system_inclination') * u.deg
+        self.system_inclination_psg = 90*u.deg - self.system_inclination
+        self.system_argument_of_pariapsis = configParser.getfloat('System','system_argument_of_pariapsis') * u.deg
+
+
+        self.Nlat = configParser.getint('Model','map_Nlat')    
+        self.Nlon = configParser.getint('Model','map_Nlon')
+        self.gcm_path = configParser.get('Model','gcm_path')
+        self.use_globes = configParser.getboolean('Model','use_globes')
+        self.gcm_binning = configParser.getint('Model','gcm_binning')
+        self.omit_planet = configParser.getboolean('Model','omit_planet')
+        self.use_molec_signatures = configParser.getboolean('Model','use_molec_signatures')
+        self.psg_url = configParser.get('Model','psg_url')
         try:
             self.api_key_path = configParser.get('PSG', 'api_key_path')
         except:
             self.api_key_path = None
-        self.planetName = configParser.get('PSG', 'planetName') # Name of planet, used for graphing/save name purposes
-        self.initial_planet_phase = configParser.getfloat('PSG', 'phase1')         # Initial phase (degrees) for the simulation, 0 is sub-solar point, 180 is night-side
-        self.binning= configParser.getfloat('PSG', 'binning')        # Binning applied to the GCM data for each radiative-transfer (greater is faster, minimum is 1)
-        self.objDiam = configParser.getfloat('PSG', 'objDiam')       # Diamater of prox-cen b (km)
-        self.objGrav = configParser.getfloat('PSG', 'objGrav')       # Surface Grav of prox cen b (m/s^2)
-        self.starType = configParser.get('PSG', 'starType')         # Star type
-        self.semMajAx = configParser.getfloat('PSG', 'semMajAx')   # Semi Major Axis of planet (AU)
-        self.objPer = configParser.getfloat('PSG', 'objPer')       # Period of planet (days)
-        self.objRev = self.objPer                             # planet revolution is equal to planet rev for tidally locked planets
-        self.objEcc = configParser.getfloat('PSG', 'objEcc')       # Eccentricity of planet
-        self.objArgOfPeriapsis = configParser.getfloat('PSG','objArgOfPeriapsis') * u.deg
-        self.objDis = configParser.getfloat('PSG', 'objDis')       # Distance to system (uses distance to star) (pc)
-        self.starRad = configParser.getfloat('PSG', 'starRad')     # Radius of the star
-        self.beamValue = configParser.getfloat('PSG', 'beamValue') # Beam value and unit used to also retrieve stellar flux values, not just planet
-        self.beamUnit = configParser.get('PSG', 'beamUnit')
-        self.radunit = configParser.get('PSG', 'radunit')     # Desired spectral irradiance unit for planet and star combo
-        self.psgurl = configParser.get('PSG', 'psgurl')       # URL of the PSG server
 
-        self.PSGcombinedSpectraFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGCombinedSpectra'
-        self.PSGthermalSpectraFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGThermalSpectra'
-        self.PSGnoiseFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGNoise'
-        self.PSGlayersFolder = Path('.') / f'{self.starName}' / 'Data' / 'PSGLayers'
+        self.target_wavelength_unit = u.Unit(configParser.get('Observation','wavelength_unit'))
+        self.target_flux_unit = u.Unit(configParser.get('Observation','flux_unit'))
+        psg_rad_mapper = {u.Unit('W m-2 um-1'):'Wm2um'}
+        self.psg_rad_unit = psg_rad_mapper[self.target_flux_unit]
+        self.resolving_power = configParser.getfloat('Observation','resolving_power')
+        self.lambda_min = configParser.getfloat('Observation','lambda_min') * self.target_wavelength_unit
+        self.lambda_max = configParser.getfloat('Observation','lambda_max') * self.target_wavelength_unit
 
+        image_integration_time_unit = u.Unit(configParser.get('Observation','image_integration_time_unit'))
+        self.image_integration_time = configParser.getfloat('Observation','image_integration_time')*image_integration_time_unit
+
+        total_observing_time_unit = u.Unit(configParser.get('Observation','total_observation_time_unit'))
+        self.total_observation_time = configParser.getfloat('Observation','total_observation_time')*total_observing_time_unit
+
+
+        # Noise
+        self.detector_type = configParser.get('Observation','detector_type')
+        self.detector_integration_time = configParser.getfloat('Observation','detector_integration_time')
+        self.detector_pixel_sampling = configParser.getint('Observation','detector_pixel_sampling')
+        self.detector_read_noise = configParser.getint('Observation','detector_read_noise')
+        self.detector_dark_current = configParser.getint('Observation','detector_dark_current')
+        self.detector_throughput = configParser.getfloat('Observation','detector_throughput')
+        self.detector_emissivity = configParser.getfloat('Observation','detector_emissivity')
+        self.detector_temperature = configParser.getfloat('Observation','detector_temperature')
+        self.telescope_diameter = configParser.getfloat('Observation','telescope_diameter')
+
+        self.total_images = int(round(float((self.total_observation_time/self.image_integration_time).to(u.Unit('')))))
+        self.detector_number_of_integrations = int(round((self.image_integration_time/self.detector_integration_time/u.s).to(u.Unit('')).value))
+
+        self.beamValue = configParser.getfloat('Observation', 'beamValue') # Beam value and unit used to also retrieve stellar flux values, not just planet
+        self.beamUnit = configParser.get('Observation', 'beamUnit')
         # Some unit conversions
-        self.distanceFluxCorrection = (self.starRadiusMeters/self.starDistanceMeters)**2
+        self.distanceFluxCorrection = (self.star_radius.to(u.m)/self.system_distance.to(u.m)).to(u.Unit('')).value**2
 
         # Units are hard-fast, EDIT LATER
         self.cmTOum = 1e4
         self.cm2TOm2 = 1e-4
         self.erg_sTOwatts = 1e-7
         self.unit_conversion = (u.Unit('erg m-2 s-1 um-1')/u.Unit('W m-2 um-1')).to(u.Unit(''))
-
-        # Plotting booleans; decide what plots to create during an execution of the program.
-        self.plotLightCurve = configParser.getboolean('Plots', 'plotLightCurve')
-        self.plotPlanetContrast = configParser.getboolean('Plots', 'plotPlanetContrast')
-        self.plotPlanetVariationContrast = configParser.getboolean('Plots', 'plotPlanetVariationContrast')
-        self.plotMaxFluxChange = configParser.getboolean('Plots', 'plotMaxFluxChange')
-        self.plotStellarFlux = configParser.getboolean('Plots', 'plotStellarFlux')
-        self.plotAdjustedPlanetFlux = configParser.getboolean('Plots', 'plotAdjustedPlanetFlux')
-        self.plotPlanetFluxVariation = configParser.getboolean('Plots', 'plotPlanetFluxVariation')
-        self.plotLightCurveHemiCombo = configParser.getboolean('Plots', 'plotLightCurveHemiMapCombo')
-        self.plotLightCurveContrastCombo = configParser.getboolean('Plots', 'plotLightCurveContrastCombo')
-        self.plotBinnedVariations = configParser.getboolean('Plots', 'plotBinnedVariations')
-        
-        self.makeGifs = configParser.getboolean('Gifs', 'makeGifs')
