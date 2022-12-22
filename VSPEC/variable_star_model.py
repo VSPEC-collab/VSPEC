@@ -1094,7 +1094,7 @@ class StellarFlare:
         t_unit = u.day # this is the unit of xoflares
         a_unit = u.km**2
         peak_area = self.calc_peak_area()
-        areas = (a_unit)*eval_get_light_curve(to_float(time,t_unit),
+        areas = eval_get_light_curve(to_float(time,t_unit),
                                         [to_float(self.tpeak,t_unit)],
                                         [to_float(self.fwhm,t_unit)],
                                         [to_float(peak_area,a_unit)])
@@ -1111,7 +1111,7 @@ class FlareGenerator:
     """
     def __init__(self,stellar_teff:Quantity,stellar_rot_period:Quantity, prob_following = 0.5,
                 mean_teff = 9000*u.K, sigma_teff = 500*u.K,mean_log_fwhm_days=-0.85,sigma_log_fwhm_days=0.3,
-                log_E_erg_max=33, log_E_erg_min = 36, log_E_erg_Nsteps=100):
+                log_E_erg_max=36, log_E_erg_min = 33, log_E_erg_Nsteps=100):
         """ FWHM data from Table 2 of Gunther et al. 2020, AJ 159 60
         """
         self.stellar_teff = stellar_teff
@@ -1167,9 +1167,9 @@ class FlareGenerator:
     
     def generate_coords(self):
         lon = np.random.random()*360*u.deg
-        lats = np.arange(90)*u.deg
-        w = np.cos(lats)
-        lat = np.random.choice(lats,p=w) + np.random.random()*u.deg
+        lats = np.arange(90)
+        w = np.cos(lats*u.deg)
+        lat = (np.random.choice(lats,p=w/w.sum()) + np.random.random())*u.deg * np.random.choice([1,-1])
         return lat,lon
     
     def generate_fwhm(self):
@@ -1195,9 +1195,10 @@ class FlareGenerator:
         """
         assert self.mean_teff > 0*u.K # prevent looping forever if user gives bad parameters
         while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
-            spacing = int(np.round(np.random.normal(loc=self.mean_teff,scale=self.sigma_teff)))*u.K
-            if spacing > 0*u.K:
-                return spacing
+            teff = np.random.normal(loc=to_float(self.mean_teff,u.K),scale=to_float(self.sigma_teff,u.K))
+            teff = int(np.round(teff)) * u.K
+            if teff > 0*u.K:
+                return teff
 
     def generate_flare_series(self,Es:Quantity,time:Quantity):
         flares = []
@@ -1235,7 +1236,7 @@ class FlareGenerator:
 class FlareCollection:
     """ This class stores a series of flares and does math to turn them into lightcurves
     """
-    def __init__(self,flares:Typing.Union(List[StellarFlare],StellarFlare)):
+    def __init__(self,flares:Typing.Union[List[StellarFlare],StellarFlare]):
         if isinstance(flares,StellarFlare):
             self.flares = [flares]
         else:
@@ -1257,8 +1258,8 @@ class FlareCollection:
     
     def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
         padding = 2 # number of fwhm ouside this range a flare peak can be to still be included
-        after_start = self.tpeaks + padding*self.fwhms > tstart
-        before_end = self.tpeaks - padding*self.fwhms < tfinish
+        after_start = self.peaks + padding*self.fwhms > tstart
+        before_end = self.peaks - padding*self.fwhms < tfinish
         
         return after_start | before_end
     
