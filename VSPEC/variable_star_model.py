@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from astropy import units as u, constants as c
-from astropy.units.quantity import Quantity as quant
+from astropy.units.quantity import Quantity
 import cartopy.crs as ccrs
-from xoflares.xoflares import _flareintegralnp as flareintergral
+from xoflares.xoflares import _flareintegralnp as flareintegral, eval_get_light_curve
 from VSPEC.helpers import to_float
 from copy import deepcopy
 from typing import List
@@ -38,18 +38,18 @@ class StarSpot:
         None
     """
     def __init__(self,lat,lon,Amax,A0,Teff_umbra,Teff_penumbra,T = 1*u.day,r_A=5,growing=True,growth_rate = 0.52/u.day,Nlat=500,Nlon=1000,gridmaker=None):
-        assert isinstance(lat,quant)
-        assert isinstance(lon,quant)
+        assert isinstance(lat,Quantity)
+        assert isinstance(lon,Quantity)
         self.coords = {'lat':lat,'lon':lon}
-        assert isinstance(Amax,quant)
-        assert isinstance(A0,quant)
+        assert isinstance(Amax,Quantity)
+        assert isinstance(A0,Quantity)
         self.area_max = Amax
         self.area_current = A0
-        assert isinstance(Teff_umbra,quant)
-        assert isinstance(Teff_penumbra,quant)
+        assert isinstance(Teff_umbra,Quantity)
+        assert isinstance(Teff_penumbra,Quantity)
         self.Teff_umbra = Teff_umbra
         self.Teff_penumbra = Teff_penumbra
-        assert isinstance(T,quant)
+        assert isinstance(T,Quantity)
         self.decay_timescale = T
         self.decay_rate = 10.89 * MSH/u.day
         self.total_area_over_umbra_area = r_A
@@ -307,13 +307,13 @@ class Star:
     """
     def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None):
         self.name = name
-        assert isinstance(Teff,quant)
+        assert isinstance(Teff,Quantity)
         self.Teff = Teff
-        assert isinstance(radius,quant)
+        assert isinstance(radius,Quantity)
         self.radius = radius
-        assert isinstance(distance,quant)
+        assert isinstance(distance,Quantity)
         self.distance = distance
-        assert isinstance(period,quant)
+        assert isinstance(period,Quantity)
         self.period = period
         assert isinstance(spots,SpotCollection)
         self.spots = spots
@@ -1075,7 +1075,7 @@ class StellarFlare:
     """ Class to store and control stellar flare information
     
     """
-    def __init__(self,fwhm: quant,energy:quant,lat:quant,lon:quant,Teff:quant,tpeak:quant):
+    def __init__(self,fwhm:Quantity,energy:Quantity,lat:Quantity,lon:Quantity,Teff:Quantity,tpeak:Quantity):
         self.fwhm = fwhm
         self.energy = energy
         self.lat = lat
@@ -1083,11 +1083,33 @@ class StellarFlare:
         self.Teff = Teff
         self.tpeak = tpeak
     
+    def calc_peak_area(self):
+        time_area = self.energy/c.sigma_sb/(self.Teff**4)
+        area_std = 1*u.km**2
+        time_area_std = flareintegral(self.fwhm,area_std)
+        area = time_area/time_area_std * area_std
+        return area.to(u.km**2)
+    
+    def areacurve(self,time:Quantity[u.hr]):
+        t_unit = u.day # this is the unit of xoflares
+        a_unit = u.km**2
+        peak_area = self.calc_peak_area()
+        areas = (a_unit)*eval_get_light_curve(to_float(time,t_unit),
+                                        [to_float(self.tpeak,t_unit)],
+                                        [to_float(self.fwhm,t_unit)],
+                                        [to_float(peak_area,a_unit)])
+        return areas * a_unit
+    
+    def get_timearea(self,time:Quantity[u.hr]):
+        areas = self.areacurve(time)
+        timearea = np.trapz(areas,time)
+        return timearea.to(u.Unit('hr km2'))
+    
 class FlareGenerator:
     """ Class to decide when a flare occurs and its magnitude
 
     """
-    def __init__(self,stellar_teff:quant,stellar_rot_period:quant, prob_following = 0.5,
+    def __init__(self,stellar_teff:Quantity,stellar_rot_period:Quantity, prob_following = 0.5,
                 mean_teff = 9000*u.K, sigma_teff = 500*u.K,mean_log_fwhm_days=-0.85,sigma_log_fwhm_days=0.3,
                 log_E_erg_max=33, log_E_erg_min = 36, log_E_erg_Nsteps=100):
         """ FWHM data from Table 2 of Gunther et al. 2020, AJ 159 60
@@ -1102,7 +1124,7 @@ class FlareGenerator:
         self.log_E_erg_max = log_E_erg_max
         self.log_E_erg_min = log_E_erg_min
         self.log_E_erg_Nsteps = log_E_erg_Nsteps
-    def powerlaw(self, E:quant):
+    def powerlaw(self, E:Quantity):
         """ Gao+2022 TESS corrected
         """
         alpha = -0.829
@@ -1110,7 +1132,7 @@ class FlareGenerator:
         logfreq = beta + alpha*np.log10(E/u.erg)
         freq = 10**logfreq / u.day
         return freq
-    def get_flare(self,Es:quant,time:quant):
+    def get_flare(self,Es:Quantity,time:Quantity):
         freq = self.powerlaw(Es) * time
         f_previous = 1
         E_final = 0*u.erg
@@ -1121,7 +1143,7 @@ class FlareGenerator:
             else:
                 break
         return E_final
-    def generate_flares(self,Es:quant,time:quant):
+    def generate_flares(self,Es:Quantity,time:Quantity):
         """ valid if flare length is much less than time
         """
         unit=u.erg
@@ -1169,13 +1191,15 @@ class FlareGenerator:
         return np.logspace(self.log_E_erg_min,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
 
     def generate_teff(self):
+        """ randomly generate teff, round to int
+        """
         assert self.mean_teff > 0*u.K # prevent looping forever if user gives bad parameters
         while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
-            spacing = np.random.normal(loc=self.mean_teff,scale=self.sigma_teff)*u.K
+            spacing = int(np.round(np.random.normal(loc=self.mean_teff,scale=self.sigma_teff)))*u.K
             if spacing > 0*u.K:
                 return spacing
 
-    def generate_flare_series(self,Es:quant,time:quant):
+    def generate_flare_series(self,Es:Quantity,time:Quantity):
         flares = []
         tmin=0*u.s
         tmax = time
@@ -1231,20 +1255,20 @@ class FlareCollection:
         self.peaks = tpeak
         self.fwhms = fwhm
     
-    def mask(self, tstart: quant[u.hr], tfinish: quant[u.hr]):
+    def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
         padding = 2 # number of fwhm ouside this range a flare peak can be to still be included
         after_start = self.tpeaks + padding*self.fwhms > tstart
         before_end = self.tpeaks - padding*self.fwhms < tfinish
         
         return after_start | before_end
     
-    def get_flares_in_timeperiod(self,tstart: quant[u.hr], tfinish: quant[u.hr])-> List[StellarFlare]:
+    def get_flares_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr])-> List[StellarFlare]:
         mask = self.mask(tstart,tfinish)
         masked_flares = [flare for flare, include in zip(self.flares,mask) if include]
         # essentially the same as self.flares[mask], but without casting to ndarray
         return masked_flares
     
-    def get_visible_flares_in_timeperiod(self,tstart: quant[u.hr], tfinish: quant[u.hr],
+    def get_visible_flares_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
                                         sub_obs_coords={'lat':0*u.deg,'lon':0*u.deg})-> List[StellarFlare]:
         masked_flares = self.get_flares_in_timeperiod(tstart,tfinish)
         visible_flares = []
@@ -1256,7 +1280,20 @@ class FlareCollection:
                 visible_flares.append(flare)
         return visible_flares
     
+    def get_flare_integral_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
+                                        sub_obs_coords={'lat':0*u.deg,'lon':0*u.deg}):
+        visible_flares = self.get_visible_flares_in_timeperiod(tstart,tfinish,sub_obs_coords)
+        flare_timeareas = []
+        time_resolution = 10*u.min
+        N_steps = int(((tfinish-tstart)/time_resolution).to(u.Unit('')).value)
+        time = np.linspace(tstart,tfinish,N_steps)
+        for flare in visible_flares:
+            timearea = flare.get_timearea(time)
+            flare_timeareas.append(dict(Teff=flare.Teff,timearea=timearea))
+        return flare_timeareas
+
     
+
 
 
 
