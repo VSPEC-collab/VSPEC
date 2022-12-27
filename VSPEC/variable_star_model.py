@@ -25,7 +25,6 @@ class StarSpot:
         A0 (astropy.units.quantity.Quantity [area]): Current spot area.
         Teff_umbra (astropy.units.quantity.Quantity [temperature]): Effective temperature of spot umbra.
         Teff_penumbra (astropy.units.quantity.Quantity [temperature]): Effective temperature of spot penumbra.
-        T (astropy.units.quantity.Quantity [time]): Spt decay timescale (deprecated).
         r_A (float): Ratio of total spot area to umbra area. From 2013PhDT.......359G = 5+/-1 (compiled from various sources)
         growing (bool): Whether or not the spot is growing.
         growth_rate (astropy.units.quantity.Quantity [1/time]): Fractional growth of the spot for a given unit time.
@@ -37,26 +36,24 @@ class StarSpot:
     Returns:
         None
     """
-    def __init__(self,lat,lon,Amax,A0,Teff_umbra,Teff_penumbra,T = 1*u.day,r_A=5,growing=True,growth_rate = 0.52/u.day,Nlat=500,Nlon=1000,gridmaker=None):
-        assert isinstance(lat,Quantity)
-        assert isinstance(lon,Quantity)
+    def __init__(
+        self,lat:Quantity[u.deg],lon:Quantity[u.deg],Amax:Quantity[MSH],A0:Quantity[MSH],
+        Teff_umbra:Quantity[u.K],Teff_penumbra:Quantity[u.K],r_A:float=5,growing:bool=True,
+        growth_rate:Quantity[1/u.day] = 0.52/u.day,decay_rate:Quantity[MSH/u.day] = 10.89 * MSH/u.day,
+        Nlat:int =500,Nlon:int =1000,gridmaker=None
+        ):
+        
         self.coords = {'lat':lat,'lon':lon}
-        assert isinstance(Amax,Quantity)
-        assert isinstance(A0,Quantity)
         self.area_max = Amax
         self.area_current = A0
-        assert isinstance(Teff_umbra,Quantity)
-        assert isinstance(Teff_penumbra,Quantity)
         self.Teff_umbra = Teff_umbra
         self.Teff_penumbra = Teff_penumbra
-        assert isinstance(T,Quantity)
-        self.decay_timescale = T
-        self.decay_rate = 10.89 * MSH/u.day
+        self.decay_rate = decay_rate
         self.total_area_over_umbra_area = r_A
         self.is_growing = growing
         self.growth_rate = growth_rate
 
-        if not gridmaker:
+        if gridmaker is None:
             self.gridmaker = CoordinateGrid(Nlat,Nlon)
         else:
             self.gridmaker = gridmaker
@@ -65,8 +62,9 @@ class StarSpot:
         lon0 = self.coords['lon']
         self.r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
                          + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
-    def radius(self):
+    def radius(self)->Quantity[u.km]:
         """radius
+
         Get the radius of the spot.
 
         Args:
@@ -76,8 +74,9 @@ class StarSpot:
             (astropy.units.quantity.Quantity [length]): Radius of spot.
         """
         return np.sqrt(self.area_current/np.pi).to(u.km)
-    def angular_radius(self,star_rad):
+    def angular_radius(self,star_rad:Quantity[u.R_sun])->Quantity[u.deg]:
         """angular radius
+
         Get the angular radius of the spot
 
         Args:
@@ -89,8 +88,9 @@ class StarSpot:
         cos_angle = 1 - self.area_current/(2*np.pi*star_rad**2)
         return (np.arccos(cos_angle)).to(u.deg)
     
-    def map_pixels(self,star_rad):
+    def map_pixels(self,star_rad:Quantity[u.R_sun])->dict:
         """map pixels
+
         Map latitude and longituide points continaing the umbra and penumbra
 
         Args:
@@ -103,14 +103,11 @@ class StarSpot:
         """
         radius = self.angular_radius(star_rad)
         radius_umbra = radius/np.sqrt(self.total_area_over_umbra_area)
-        # lat0 = self.coords['lat']
-        # lon0 = self.coords['lon']
-        # r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
-                        #  + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
         return {self.Teff_umbra:self.r < radius_umbra,
                 self.Teff_penumbra: self.r < radius}
-    def surface_fraction(self,sub_obs_coords,star_rad,N=1001):
+    def surface_fraction(self,sub_obs_coords:dict,star_rad:Quantity[u.R_sun],N:int=1001)->float:
         """surface fraction
+
         Determine the surface fraction covered by a spot from a given angle of observation.
         This algorithm uses the orthographic projection.
 
@@ -133,39 +130,11 @@ class StarSpot:
         rad = a**2 - (c-c0)**2
         rad[rad<0] = 0
         integrand = 2 * np.cos(c)*np.sqrt(rad)
-        return (np.trapz(integrand,x=c)/(2*np.pi*u.steradian)).to(u.Unit(''))
-        
+        return to_float(np.trapz(integrand,x=c)/(2*np.pi*u.steradian),u.Unit(''))
     
-    def surface_fraction_old(self,sub_obs_coords,star_rad):
-        """surface fraction -- old version
-        Determine the surface fraction covered by a spot from a given angle of observation.
-        This algorithm diverges from reality for large spots and spots on the limbs.
-
-        Args:
-            sub_obs_coord (dict): dictionary giving coordinates of the sub-observation point.
-                This is the point that is at the center of the stellar disk from the view of
-                an observer. Format: {'lat':lat,'lon':lon} where lat and lon are astropy Quantity objects
-            star_rad (astropy.units.quantity.Quantity [length]): radius of the star.
-            N (int): number of points to use in numerical integration. N=1000 is not so different from N=100000.
-        
-        Returns:
-            (float): fraction of observed disk covered by spot
-        """
-        x0 = np.cos(self.coords['lat'])*np.cos(self.coords['lon'])
-        x1 = np.cos(sub_obs_coords['lat'])*np.cos(sub_obs_coords['lon'])
-        y0 = np.cos(self.coords['lat'])*np.sin(self.coords['lon'])
-        y1 = np.cos(sub_obs_coords['lat'])*np.sin(sub_obs_coords['lon'])
-        z0 = np.sin(self.coords['lat'])
-        z1 = np.sin(sub_obs_coords['lat'])
-        cos_alpha = x0*x1 + y0*y1 + z0*z1
-        if cos_alpha < 0:
-            return 0
-        else:
-            effective_size = self.area_current * cos_alpha
-            return (effective_size/(2*np.pi*star_rad**2)).to(u.Unit(''))
-    
-    def age(self,time):
+    def age(self,time:Quantity[u.s])->None:
         """age
+
         Age a spot according to its growth timescale and decay rate
 
         Args:
