@@ -248,7 +248,7 @@ class SpotCollection:
         return surface_map
     def age(self,time:Quantity[u.day]):
         """age
-        
+
         Age spots according to its growth timescale and decay rate.
         Remove spots that have decayed.
 
@@ -633,6 +633,7 @@ class SpotGenerator:
 
 class Facula:
     """facula
+
     Class containing model parameters of stellar faculae using the 'hot wall' model
     
     Args:
@@ -643,7 +644,7 @@ class Facula:
         Zw (astropy.units.quantity.Quantity [length]): depth of the depression
         Teff_floor (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'cool floor'
         Teff_wall (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'hot wall'
-        T (astropy.units.quantity.Quantity [time]): facula lifetime
+        lifetime (astropy.units.quantity.Quantity [time]): facula lifetime
         growing (bool): whether or not the facula is still growing
         floor_threshold (astropy.units.quantity.Quantity [length]): facula radius under which the floor is no longer visible
         Nlat (int): number of latitude points. Default 500
@@ -653,27 +654,21 @@ class Facula:
     Returns:
         None
     """
-    def __init__(self,lat,lon,Rmax,R0,Teff_floor,Teff_wall,T,growing=True,floor_threshold = 20*u.km,Zw=100*u.km,
-                 Nlat=500,Nlon=1000,gridmaker=None):
-        assert u.get_physical_type(lat) == 'angle'
-        assert u.get_physical_type(lon) == 'angle'
+    def __init__(self,
+    lat:Quantity[u.deg],lon:Quantity[u.deg],Rmax:Quantity[u.km],R0:Quantity[u.km],
+    Teff_floor:Quantity[u.K],Teff_wall:Quantity[u.K],lifetime:Quantity[u.day],
+    growing:bool=True,floor_threshold:Quantity[u.km] = 20*u.km,Zw:Quantity[u.km]=100*u.km,
+    Nlat:int=500,Nlon:int=1000,gridmaker=None
+    ):
         self.lat = lat
         self.lon = lon
-        assert u.get_physical_type(Rmax) == 'length'
-        assert u.get_physical_type(R0) == 'length'
-        assert u.get_physical_type(Zw) == 'length'
         self.Rmax = Rmax
         self.current_R = R0
         self.Zw = Zw
-        assert u.get_physical_type(Teff_floor) == 'temperature'
-        assert u.get_physical_type(Teff_wall) == 'temperature'
         self.Teff_floor = self.round_teff(Teff_floor)
         self.Teff_wall = self.round_teff(Teff_wall)
-        assert u.get_physical_type(T) == 'time'
-        assert isinstance(growing,bool)
-        self.lifetime = T
+        self.lifetime = lifetime
         self.is_growing = growing
-        assert u.get_physical_type(floor_threshold) == 'length'
         self.floor_threshold = floor_threshold
         
         if not gridmaker:
@@ -686,8 +681,9 @@ class Facula:
                          + np.cos(latgrid)*np.cos(lat)*np.sin(0.5*(lon - longrid))**2))
         
     
-    def age(self,time):
+    def age(self,time:Quantity[u.day]):
         """age
+        
         progress the development of the facula by an amount of time
         
         Args:
@@ -696,7 +692,6 @@ class Facula:
         Returns:
             None
         """
-        assert u.get_physical_type(time) == 'time'
         if self.is_growing:
             T_from_max = -1*np.log(self.current_R/self.Rmax)*self.lifetime*0.5
             if T_from_max <= time:
