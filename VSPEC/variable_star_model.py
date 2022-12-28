@@ -167,6 +167,7 @@ class StarSpot:
 
 class SpotCollection:
     """Spot Collection
+
     Containter holding spots
 
     Args:
@@ -178,7 +179,7 @@ class SpotCollection:
     Returns:
         None
     """
-    def __init__(self,*spots,Nlat=500,Nlon=1000,gridmaker=None):
+    def __init__(self,*spots:tuple[StarSpot],Nlat:int=500,Nlon:int=1000,gridmaker=None):
         self.spots = spots
         if gridmaker is None:
             self.gridmaker = CoordinateGrid(Nlat,Nlon)
@@ -186,8 +187,9 @@ class SpotCollection:
             self.gridmaker = gridmaker
         for spot in spots:
             spot.gridmaker = self.gridmaker
-    def add_spot(self,spot):
+    def add_spot(self,spot:Typing.Union[StarSpot,list[StarSpot]]):
         """add spot
+
         Add a spot
 
         Args:
@@ -204,6 +206,7 @@ class SpotCollection:
         self.spots += tuple(spot)
     def clean_spotlist(self):
         """clean spotlist
+
         Remove spots that have decayed to 0 area.
 
         Args:
@@ -219,8 +222,9 @@ class SpotCollection:
             else:
                 spots_to_keep.append(spot)
         self.spots = spots_to_keep
-    def map_pixels(self,star_rad,star_teff):
+    def map_pixels(self,star_rad:Quantity[u.R_sun],star_teff:Quantity[u.K]):
         """map pixels
+
         Map latitude and longituide points continaing the umbra and penumbra of each spot.
         For pixels with coverage from multiple spots, assign coolest Teff to that pixel.
 
@@ -242,8 +246,9 @@ class SpotCollection:
             assign = teff_dict[spot.Teff_umbra] & (surface_map > spot.Teff_umbra)
             surface_map[assign] = spot.Teff_umbra
         return surface_map
-    def age(self,time):
+    def age(self,time:Quantity[u.day]):
         """age
+        
         Age spots according to its growth timescale and decay rate.
         Remove spots that have decayed.
 
@@ -447,7 +452,7 @@ class Star:
         Returns:
             None
         """
-        self.spots.add_spot(self.spot_generator.birth_spots(time,self.radius,self.period,self.Teff))
+        self.spots.add_spot(self.spot_generator.birth_spots(time,self.radius))
     def birth_faculae(self,time):
         """birth faculae
         Create new faculae from a facula generator.
@@ -557,8 +562,9 @@ class SpotGenerator:
         None
     """
     def __init__(self,
-    average_area:Quantity[MSH],area_spread:Quantity[MSH],umbra_teff:Quantity[u.K],penumbra_teff:Quantity[u.K],
+    average_area:Quantity[MSH],area_spread:float,umbra_teff:Quantity[u.K],penumbra_teff:Quantity[u.K],
     growth_rate:Quantity[1/u.day]=0.52/u.day,decay_rate:Quantity[MSH/u.day]= 10.89 * MSH/u.day,
+    starting_size:Quantity[MSH]=10*MSH,distribution='solar',
     coverage:float=0.2,Nlat:int=500,Nlon:int=1000,gridmaker=None
     ):
         self.average_spot_area = average_area
@@ -567,6 +573,8 @@ class SpotGenerator:
         self.penumbra_teff = penumbra_teff
         self.growth_rate = growth_rate
         self.decay_rate = decay_rate
+        self.starting_size = starting_size
+        self.distribution = distribution
         self.average_spot_lifetime = 2*(self.average_spot_area / self.decay_rate).to(u.hr)
         self.coverage = coverage
         if gridmaker is None:
@@ -574,25 +582,7 @@ class SpotGenerator:
         else:
             self.gridmaker = gridmaker
 
-    def get_variability(self,rotation_period:Quantity[1/u.day])->float:
-        """get variability
-        Get variability from stellar rotaion period based on imperical relation
-        found by Nichols-Flemming & Blackman 2020, 2020MNRAS.491.2706N
-        
-        Args:
-            rotation_period (astropy.units.quantity.Quantity [time]): stellar rotation period.
-        
-        Returns:
-            (float) variability as a fraction for M dwarfs
-        """
-        x = (rotation_period/u.day).to(u.Unit(''))**2
-        y = 13.91 * x**(-0.30)
-        return y/100
-
-    def birth_spots(self,
-    time:Quantity[u.day],rad_star:Quantity[u.R_sun],size_sigma:float = 0.2,
-    starting_size:Quantity[MSH]=10*MSH,distribution:str='solar'
-    )->tuple[StarSpot]:
+    def birth_spots(self,time:Quantity[u.day],rad_star:Quantity[u.R_sun],)->tuple[StarSpot]:
         """birth spots
         Generate new StarSpot objects to be birthed in a given time.
 
@@ -612,22 +602,22 @@ class SpotGenerator:
         # N_exp is the expectation value of N, but this is a poisson process
         N = max(0,round(np.random.normal(loc=N_exp,scale = np.sqrt(N_exp))))
         # print(f'{N_exp:.2f}-->{N}')
-        new_max_areas = np.random.lognormal(mean=np.log(self.average_spot_area/MSH),sigma=size_sigma,size=N)*MSH
+        new_max_areas = np.random.lognormal(mean=np.log(self.average_spot_area/MSH),sigma=self.spot_area_spread,size=N)*MSH
         new_r_A = np.random.normal(loc=5,scale=1,size=N)
         while np.any(new_r_A <= 0):
             new_r_A = np.random.normal(loc=5,scale=1,size=N)
         # now assign lat and lon (dist approx from 2017ApJ...851...70M)
-        if distribution == 'solar':
+        if self.distribution == 'solar':
             hemi = np.random.choice([-1,1],size = N)
             lat = np.random.normal(15,5,size=N)*hemi*u.deg
             lon = np.random.random(size=N)*360*u.deg
-        elif distribution == 'iso':
+        elif self.distribution == 'iso':
             lon = np.random.random(size=N)*360*u.deg
             lats = np.arange(90)
             w = np.cos(lats*u.deg)
             lat = (np.random.choice(lats,p=w/w.sum(),size=N) + np.random.random(size=N))*u.deg * np.random.choice([1,-1],size=N)
         else:
-            raise ValueError(f'Unknown value {distribution} for distribution')
+            raise ValueError(f'Unknown value {self.distribution} for distribution')
         
         penumbra_teff = self.penumbra_teff
         umbra_teff = self.umbra_teff
@@ -635,9 +625,9 @@ class SpotGenerator:
         spots = []
         for i in range(N):
             spots.append(StarSpot(
-                lat[i],lon[i],new_max_areas[i],starting_size,umbra_teff,penumbra_teff,
+                lat[i],lon[i],new_max_areas[i],self.starting_size,umbra_teff,penumbra_teff,
                 growth_rate=self.growth_rate,decay_rate=self.decay_rate,
-                r_A = new_r_A[i],Nlat=self.Nlat,Nlon=self.Nlon,gridmaker=self.gridmaker
+                r_A = new_r_A[i],Nlat=self.gridmaker.Nlat,Nlon=self.gridmaker.Nlon,gridmaker=self.gridmaker
                 ))
         return tuple(spots)
 

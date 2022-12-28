@@ -289,6 +289,7 @@ class ObservationModel:
         spot_generator = vsm.SpotGenerator(
             self.params.star_spot_mean_area,self.params.star_spot_sigma_area,self.params.star_spot_umbra_teff,
             self.params.star_spot_penumbra_teff,self.params.star_spot_growth_rate,self.params.star_spot_decay_rate,
+            self.params.star_spot_initial_area,self.params.star_spot_distribution,
             self.params.star_spot_coverage,Nlat=self.params.Nlat,Nlon=self.params.Nlon
             )
         self.star = vsm.Star(self.params.star_teff,self.params.star_radius,
