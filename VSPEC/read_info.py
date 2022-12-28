@@ -30,6 +30,10 @@ class ParamModel:
 
         self.star_spot_initial_coverage = configParser.getfloat('Star','star_spot_initial_coverage')
         self.star_spot_distribution = configParser.get('Star','star_spot_distribution')
+        self.star_spot_mean_area = configParser.getfloat('Star','star_spot_mean_area') * MSH
+        self.star_spot_sigma_area = configParser.getfloat('Star','star_spot_sigma_area')
+        self.star_spot_umbra_teff = configParser.getfloat('Star','star_spot_umbra_teff')
+        self.star_spot_penumbra_teff = configParser.getfloat('Star','star_spot_penumbra_teff')
         self.star_spot_growth_rate = configParser.getfloat('Star','star_spot_growth_rate') / u.day
         self.star_spot_decay_rate = configParser.getfloat('Star','star_spot_decay_rate') * MSH / u.day
         self.star_spot_coverage = float(configParser.get('Star', 'star_spot_coverage'))

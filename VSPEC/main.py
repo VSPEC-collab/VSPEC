@@ -286,11 +286,16 @@ class ObservationModel:
                                             self.params.star_flare_mean_teff,self.params.star_flare_sigma_teff,
                                             self.params.star_flare_mean_log_fwhm_days,self.params.star_flare_sigma_log_fwhm_days,
                                             self.params.star_flare_log_E_erg_max,self.params.star_flare_log_E_erg_min,self.params.star_flare_log_E_erg_Nsteps)
+        spot_generator = vsm.SpotGenerator(
+            self.params.star_spot_mean_area,self.params.star_spot_sigma_area,self.params.star_spot_umbra_teff,
+            self.params.star_spot_penumbra_teff,self.params.star_spot_growth_rate,self.params.star_spot_decay_rate,
+            self.params.star_spot_coverage,Nlat=self.params.Nlat,Nlon=self.params.Nlon
+            )
         self.star = vsm.Star(self.params.star_teff,self.params.star_radius,
                             self.params.star_rot_period,empty_spot_collection,empty_fac_collection,
                             name = self.params.star_name,distance = self.params.system_distance,
-                            Nlat = self.params.Nlat, Nlon = self.params.Nlon,flare_generator=flare_generator)
-        self.star.spot_generator.coverage=self.params.star_spot_coverage
+                            Nlat = self.params.Nlat, Nlon = self.params.Nlon,flare_generator=flare_generator,
+                            spot_generator=spot_generator)
         self.star.fac_generator.coverage=self.params.star_fac_coverage
 
 
