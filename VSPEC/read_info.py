@@ -3,6 +3,7 @@ from astropy import units as u, constants as c
 from pathlib import Path
 
 from VSPEC.helpers import to_float
+from VSPEC.variable_star_model import MSH
 
 
 class ParamModel:
@@ -27,6 +28,10 @@ class ParamModel:
         self.star_teff_min = configParser.getint('Star', 'star_teff_min') * u.K
         self.star_teff_max = configParser.getint('Star', 'star_teff_max') * u.K
 
+        self.star_spot_initial_coverage = configParser.getfloat('Star','star_spot_initial_coverage')
+        self.star_spot_distribution = configParser.get('Star','star_spot_distribution')
+        self.star_spot_growth_rate = configParser.getfloat('Star','star_spot_growth_rate') / u.day
+        self.star_spot_decay_rate = configParser.getfloat('Star','star_spot_decay_rate') * MSH / u.day
         self.star_spot_coverage = float(configParser.get('Star', 'star_spot_coverage'))
         self.star_fac_coverage = float(configParser.get('Star', 'star_fac_coverage'))
         self.star_spot_warmup = configParser.getfloat('Star','star_spot_warmup') * u.day
