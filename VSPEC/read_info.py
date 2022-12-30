@@ -29,6 +29,8 @@ class ParamModel:
         self.star_teff_max = configParser.getint('Star', 'star_teff_max') * u.K
 
         self.star_spot_initial_coverage = configParser.getfloat('Star','star_spot_initial_coverage')
+        if self.star_spot_initial_coverage != 0.0:
+            raise NotImplementedError('No current functionality to use this parameter. Set to 0 please.')
         self.star_spot_distribution = configParser.get('Star','star_spot_distribution')
         self.star_spot_mean_area = configParser.getfloat('Star','star_spot_mean_area') * MSH
         self.star_spot_sigma_area = configParser.getfloat('Star','star_spot_sigma_area')
@@ -36,10 +38,16 @@ class ParamModel:
         self.star_spot_penumbra_teff = configParser.getfloat('Star','star_spot_penumbra_teff')
         self.star_spot_growth_rate = configParser.getfloat('Star','star_spot_growth_rate') / u.day
         self.star_spot_decay_rate = configParser.getfloat('Star','star_spot_decay_rate') * MSH / u.day
-        self.star_spot_initial_area = configParser.getfloat('Start','star_spot_initial_area') * MSH
+        self.star_spot_initial_area = configParser.getfloat('Star','star_spot_initial_area') * MSH
         self.star_spot_coverage = float(configParser.get('Star', 'star_spot_coverage'))
-        self.star_fac_coverage = float(configParser.get('Star', 'star_fac_coverage'))
         self.star_spot_warmup = configParser.getfloat('Star','star_spot_warmup') * u.day
+
+        self.star_fac_coverage = float(configParser.get('Star', 'star_fac_coverage'))
+        self.star_fac_mean_radius = configParser.getfloat('Star','star_fac_mean_radius') * u.km
+        self.star_fac_HWHM_radius = configParser.getfloat('Star','star_fac_HWMH_radius') * u.km
+        self.star_fac_mean_timescale = configParser.getfloat('Star','star_fac_mean_timescale') * u.hr
+        self.star_fac_HWHM_timescale = configParser.getfloat('Star','star_fac_HWMH_timescale') * u.hr
+        self.star_fac_distribution = configParser.get('Star','star_fac_distribution')
         self.star_fac_warmup = configParser.getfloat('Star','star_fac_warmup') * u.hr
 
         self.star_flare_group_prob = configParser.getfloat('Star','star_flare_group_prob')

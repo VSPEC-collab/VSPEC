@@ -683,7 +683,7 @@ class Facula:
     
     def age(self,time:Quantity[u.day]):
         """age
-        
+
         progress the development of the facula by an amount of time
         
         Args:
@@ -888,6 +888,7 @@ class FaculaCollection:
 
 class FaculaGenerator:
     """ Facula generator
+
     Class controling the birth rates and properties of new faculae.
     Radius distribution from K. P. Topka et al 1997 ApJ 484 479
     Lifetime distribution from 2022SoPh..297...48H
@@ -903,8 +904,9 @@ class FaculaGenerator:
         dist (str): type of distribution
         
     """
-    def __init__(self,R_peak = 800*u.km, R_HWHM = 300*u.km,
-                 T_peak = 6.2*u.hr, T_HWHM = 4.7*u.hr,coverage=0.0001,dist = 'even',Nlon=1000,Nlat=500):
+    def __init__(self,R_peak:Quantity[u.km] = 800*u.km, R_HWHM:Quantity[u.km] = 300*u.km,
+                 T_peak:Quantity[u.hr] = 6.2*u.hr, T_HWHM:Quantity[u.hr] = 4.7*u.hr,
+                 coverage:float=0.0001,dist:str = 'iso',Nlon:int=1000,Nlat:int=500,gridmaker=None):
         assert u.get_physical_type(R_peak) == 'length'
         assert u.get_physical_type(R_HWHM) == 'length'
         assert u.get_physical_type(T_peak) == 'time'
@@ -918,6 +920,10 @@ class FaculaGenerator:
         assert isinstance(coverage,float)
         self.coverage = coverage
         self.dist = dist
+        if gridmaker is None:
+            self.gridmaker = CoordinateGrid(Nlat,Nlon)
+        else:
+            self.gridmaker=gridmaker
         self.Nlon = Nlon
         self.Nlat = Nlat
         
@@ -982,7 +988,7 @@ class FaculaGenerator:
         starting_radii = max_radii / np.e**2
         lats = None
         lons = None
-        if self.dist == 'even':
+        if self.dist == 'iso':
             x = np.linspace(-90,90,180,endpoint=False)*u.deg
             p = np.cos(x)
             lats = (np.random.choice(x,p=p/p.sum(),size=N) + np.random.random(size=N)) * u.deg

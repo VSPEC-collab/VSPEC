@@ -1,0 +1,16 @@
+name,type,description
+\verb|star_name| & str & Name of directory to create model in. All spectra will be stored in \verb|./star_name/| \\ 
+\verb|star_teff| & float & \teff~of the star in K \\ 
+\verb|star_teff_min| & float & Minimum temperature spectrum to include in binning \\ 
+\verb|star_teff_max| & float & Maximum temperature spectrum to include in binning \\ 
+\verb|star_spot_initial_coverage| & float & Spot coverage to begin with. This should only be used when spot timescales are much longer than the length of the observation. \\ 
+\verb|star_spot_distribution| & str & Method to distribute spots. \verb|iso| or \verb|solar| \\ 
+\verb|star_spot_mean_area| & float & Mean peak starspot area in MSH \\ 
+\verb|star_spot_sigma_area| & float & Lognormal sigma for mean peak starspot area in dex \\ 
+\verb|star_spot_umbra_teff| & float & \teff~of the spot umbra \\ 
+\verb|star_spot_penumbra_teff| & float & \teff~of the spot penumbra \\ 
+\verb|star_spot_growth_rate| & float & Fractional growth of spot area in day$^{-1}$. 0 means no growth. \\ 
+\verb|star_spot_decay_rate| & float & Decay rate of spots in MSH day$^{-1}$. 0 means no decay. \\ 
+\verb|star_spot_initial_area| & float & Initial area for newly birthed spots is MSH \\ 
+\verb|star_spot_coverage| & float & Desired fractional surface coverage of star spots in growth-decay equillibrium \\ 
+\verb|star_spot_warmup| & float & Time (in days) to ``warm up'' the star to reach growth-decay equillibriu \\ 

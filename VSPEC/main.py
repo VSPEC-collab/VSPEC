@@ -292,12 +292,17 @@ class ObservationModel:
             self.params.star_spot_initial_area,self.params.star_spot_distribution,
             self.params.star_spot_coverage,Nlat=self.params.Nlat,Nlon=self.params.Nlon
             )
+        fac_generator = vsm.FaculaGenerator(
+            R_peak = self.params.star_fac_mean_radius,R_HWHM = self.params.star_fac_HWHM_radius,
+            T_peak=self.params.star_fac_mean_timescale,T_HWHM=self.params.star_fac_HWHM_timescale,
+            coverage = self.params.star_fac_coverage,dist=self.params.star_fac_distribution,
+            Nlat=self.params.Nlat,Nlon=self.params.Nlon
+        )
         self.star = vsm.Star(self.params.star_teff,self.params.star_radius,
                             self.params.star_rot_period,empty_spot_collection,empty_fac_collection,
                             name = self.params.star_name,distance = self.params.system_distance,
                             Nlat = self.params.Nlat, Nlon = self.params.Nlon,flare_generator=flare_generator,
-                            spot_generator=spot_generator)
-        self.star.fac_generator.coverage=self.params.star_fac_coverage
+                            spot_generator=spot_generator, fac_generator=fac_generator)
 
 
     def warm_up_star(self, spot_warmup_time=30*u.day, facula_warmup_time=3*u.day):
