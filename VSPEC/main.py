@@ -306,6 +306,10 @@ class ObservationModel:
 
 
     def warm_up_star(self, spot_warmup_time=30*u.day, facula_warmup_time=3*u.day):
+
+        if self.params.star_spot_initial_coverage > 0.0:
+            self.star.generate_mature_spots(self.params.star_spot_initial_coverage)
+            print(f'Generated {len(self.star.spots.spots)} mature spots')
         spot_warm_up_step = 1*u.day
         facula_warm_up_step = 1*u.hr
         N_steps_spot = int(round((spot_warmup_time/spot_warm_up_step).to(u.Unit('')).value))
@@ -316,6 +320,7 @@ class ObservationModel:
         for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
             self.star.birth_faculae(facula_warm_up_step)
             self.star.age(facula_warm_up_step)
+
         self.star.get_flares_over_observation(self.params.total_observation_time)
 
     def calculate_composite_stellar_spectrum(self,sub_obs_coords,tstart,tfinish):

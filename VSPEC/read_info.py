@@ -29,8 +29,6 @@ class ParamModel:
         self.star_teff_max = configParser.getint('Star', 'star_teff_max') * u.K
 
         self.star_spot_initial_coverage = configParser.getfloat('Star','star_spot_initial_coverage')
-        if self.star_spot_initial_coverage != 0.0:
-            raise NotImplementedError('No current functionality to use this parameter. Set to 0 please.')
         self.star_spot_distribution = configParser.get('Star','star_spot_distribution')
         self.star_spot_mean_area = configParser.getfloat('Star','star_spot_mean_area') * MSH
         self.star_spot_sigma_area = configParser.getfloat('Star','star_spot_sigma_area')

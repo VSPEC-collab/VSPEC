@@ -544,6 +544,11 @@ class Star:
     def get_flare_int_over_timeperiod(self,tstart:Quantity[u.hr],tfinish:Quantity[u.hr],sub_obs_coords):
         flare_timeareas = self.flares.get_flare_integral_in_timeperiod(tstart,tfinish,sub_obs_coords)
         return flare_timeareas
+    
+    def generate_mature_spots(self,coverage:float):
+        new_spots = self.spot_generator.generate_mature_spots(coverage,self.radius)
+        self.spots.add_spot(new_spots)
+
 
 
 
@@ -582,26 +587,17 @@ class SpotGenerator:
         else:
             self.gridmaker = gridmaker
 
-    def birth_spots(self,time:Quantity[u.day],rad_star:Quantity[u.R_sun],)->tuple[StarSpot]:
-        """birth spots
-        Generate new StarSpot objects to be birthed in a given time.
+    def generate_spots(self,N:int)->tuple[StarSpot]:
+        """ generate spots
+        
+        Create a specified number of StarSpot objects
 
         Args:
-            time (astropy.units.quantity.Quantity [time]): amount of time in which to birth spots.
-                The total number of new spots will consider this time and the birthrate
-            rad_star (astropy.units.quantity.Quantity [length]): radius of star
-            size_sigma (float): parameter controlling spot size distribution
-            starting_size: starting size for each spot. This defaults to 10 MSH
-            distribution (str): keyword controling the method for placing spots on the sphere
-        
+            N (int): Number of spots to create
+
         Returns:
             (tuple): tuple of new spots
-        """            
-        N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.average_spot_area
-                        * time/self.average_spot_lifetime).to(u.Unit(''))
-        # N_exp is the expectation value of N, but this is a poisson process
-        N = max(0,round(np.random.normal(loc=N_exp,scale = np.sqrt(N_exp))))
-        # print(f'{N_exp:.2f}-->{N}')
+        """
         new_max_areas = np.random.lognormal(mean=np.log(self.average_spot_area/MSH),sigma=self.spot_area_spread,size=N)*MSH
         new_r_A = np.random.normal(loc=5,scale=1,size=N)
         while np.any(new_r_A <= 0):
@@ -630,6 +626,49 @@ class SpotGenerator:
                 r_A = new_r_A[i],Nlat=self.gridmaker.Nlat,Nlon=self.gridmaker.Nlon,gridmaker=self.gridmaker
                 ))
         return tuple(spots)
+
+
+    def birth_spots(self,time:Quantity[u.day],rad_star:Quantity[u.R_sun],)->tuple[StarSpot]:
+        """birth spots
+        Generate new StarSpot objects to be birthed in a given time.
+
+        Args:
+            time (astropy.units.quantity.Quantity [time]): amount of time in which to birth spots.
+                The total number of new spots will consider this time and the birthrate
+            rad_star (astropy.units.quantity.Quantity [length]): radius of star
+            size_sigma (float): parameter controlling spot size distribution
+            starting_size: starting size for each spot. This defaults to 10 MSH
+            distribution (str): keyword controling the method for placing spots on the sphere
+        
+        Returns:
+            (tuple): tuple of new spots
+        """            
+        N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.average_spot_area
+                        * time/self.average_spot_lifetime).to(u.Unit(''))
+        # N_exp is the expectation value of N, but this is a poisson process
+        N = max(0,round(np.random.normal(loc=N_exp,scale = np.sqrt(N_exp))))
+
+        return self.generate_spots(N)        
+    
+
+    def generate_mature_spots(self,coverage:float,R_star:Quantity[u.R_sun])->List[StarSpot]:
+        spots = []
+        current_omega = 0*(u.deg**2)
+        target_omega = (4*np.pi*coverage*u.steradian).to(u.deg**2)
+        while current_omega < target_omega:
+            new_spot = self.generate_spots(1)[0]
+            decay_lifetime = (new_spot.area_max/new_spot.decay_rate).to(u.day)
+            tau = new_spot.growth_rate + 1*u.day
+            grow_lifetime = (np.log(to_float(new_spot.area_max/self.starting_size))/tau).to(u.day)
+            lifetime = grow_lifetime+decay_lifetime
+            age = np.random.random() * lifetime
+            new_spot.age(age)
+            spots.append(new_spot)
+            spot_solid_angle = new_spot.angular_radius(R_star)**2 * np.pi
+            current_omega += spot_solid_angle
+        return spots
+
+
 
 class Facula:
     """facula
