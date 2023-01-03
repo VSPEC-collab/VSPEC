@@ -146,7 +146,10 @@ class StarSpot:
         """
         if self.is_growing:
             tau = np.log((self.growth_rate * u.day).to(u.Unit('')) + 1)
-            time_to_max = np.log(self.area_max/self.area_current)/tau * u.day
+            if tau == 0:
+                time_to_max = np.inf*u.day
+            else:
+                time_to_max = np.log(self.area_max/self.area_current)/tau * u.day
             if time_to_max > time:
                 new_area = self.area_current * np.exp(tau * time/u.day)
                 self.area_current = new_area
@@ -657,12 +660,19 @@ class SpotGenerator:
         target_omega = (4*np.pi*coverage*u.steradian).to(u.deg**2)
         while current_omega < target_omega:
             new_spot = self.generate_spots(1)[0]
-            decay_lifetime = (new_spot.area_max/new_spot.decay_rate).to(u.day)
-            tau = new_spot.growth_rate + 1*u.day
-            grow_lifetime = (np.log(to_float(new_spot.area_max/self.starting_size))/tau).to(u.day)
-            lifetime = grow_lifetime+decay_lifetime
-            age = np.random.random() * lifetime
-            new_spot.age(age)
+            const_spot = (new_spot.decay_rate == 0*MSH/u.day) or (new_spot.growth_rate == 0/u.day)
+            if const_spot:
+                area0 = self.starting_size
+                area_range = new_spot.area_max - area0
+                area = np.random.random()*area_range + area0
+                new_spot.area_current = area
+            else:
+                decay_lifetime = (new_spot.area_max/new_spot.decay_rate).to(u.day)
+                tau = new_spot.growth_rate
+                grow_lifetime = (np.log(to_float(new_spot.area_max/self.starting_size,u.Unit('')))/tau).to(u.day)
+                lifetime = grow_lifetime+decay_lifetime
+                age = np.random.random() * lifetime
+                new_spot.age(age)
             spots.append(new_spot)
             spot_solid_angle = new_spot.angular_radius(R_star)**2 * np.pi
             current_omega += spot_solid_angle
@@ -1300,8 +1310,8 @@ class FlareCollection:
         self.fwhms = fwhm
     
     def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
-        padding_after = 6 # number of fwhm ouside this range a flare peak can be to still be included
-        padding_before = 2
+        padding_after = 10 # number of fwhm ouside this range a flare peak can be to still be included
+        padding_before = 20
         after_start = self.peaks + padding_before*self.fwhms > tstart
         before_end = self.peaks - padding_after*self.fwhms < tfinish
         
