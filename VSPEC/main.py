@@ -417,7 +417,8 @@ class ObservationModel:
     def build_spectra(self):
         """build spectra"""
         self.build_star()
-        self.warm_up_star()
+        self.warm_up_star(spot_warmup_time=self.params.star_spot_warmup,
+                            facula_warmup_time=self.params.star_fac_warmup)
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(observation_parameters)
         # write observation info to file
