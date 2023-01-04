@@ -34,12 +34,12 @@ class PhaseAnalyzer:
 
 
 
-        star = pd.DataFrame()
+        star = []
         # star_facing_planet = pd.DataFrame() # not super interesting
-        reflected = pd.DataFrame()
-        thermal = pd.DataFrame()
-        total = pd.DataFrame()
-        noise = pd.DataFrame()
+        reflected = []
+        thermal = []
+        total = []
+        noise = []
         for i in range(self.N_images):
             filename = path / f'phase{str(i).zfill(3)}.csv'
             spectra = pd.read_csv(filename)
@@ -52,28 +52,28 @@ class PhaseAnalyzer:
             # star
             col = cols[cols.str.contains('star\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            star[str(i)] = to_float(spectra[col].values * unit,fluxunit)
+            star.append(to_float(spectra[col].values * unit,fluxunit))
             # reflected
             col = cols[cols.str.contains('reflected\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            reflected[i] = to_float(spectra[col].values * unit,fluxunit)
+            reflected.append(to_float(spectra[col].values * unit,fluxunit))
             # reflected
             col = cols[cols.str.contains('planet_thermal\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            thermal[i] = to_float(spectra[col].values * unit,fluxunit)
+            thermal.append(to_float(spectra[col].values * unit,fluxunit))
             # total
             col = cols[cols.str.contains('total\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            total[i] = to_float(spectra[col].values * unit,fluxunit)
+            total.append(to_float(spectra[col].values * unit,fluxunit))
             # noise
             col = cols[cols.str.contains('noise\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            noise[i] = to_float(spectra[col].values * unit,fluxunit)
-        self.star = star.values * fluxunit
-        self.reflected = reflected.values * fluxunit
-        self.thermal = thermal.values * fluxunit
-        self.total = total.values * fluxunit
-        self.noise = noise.values * fluxunit
+            noise.append(to_float(spectra[col].values * unit,fluxunit))
+        self.star = np.asarray(star).T * fluxunit
+        self.reflected = np.asarray(reflected).T * fluxunit
+        self.thermal = np.asarray(thermal).T * fluxunit
+        self.total = np.asarray(total).T * fluxunit
+        self.noise = np.asarray(noise).T * fluxunit
 
         try:
             layer_path = path.parent / 'PSGLayers'
