@@ -456,6 +456,7 @@ class Star:
             None
         """
         self.spots.add_spot(self.spot_generator.birth_spots(time,self.radius))
+        self.map = self.get_pixelmap()
     def birth_faculae(self,time):
         """birth faculae
         Create new faculae from a facula generator.
@@ -551,6 +552,7 @@ class Star:
     def generate_mature_spots(self,coverage:float):
         new_spots = self.spot_generator.generate_mature_spots(coverage,self.radius)
         self.spots.add_spot(new_spots)
+        self.map = self.get_pixelmap()
 
 
 
