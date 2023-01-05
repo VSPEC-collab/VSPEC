@@ -1188,15 +1188,19 @@ class FlareGenerator:
         freq = 10**logfreq / u.day
         return freq
     def get_flare(self,Es:Quantity,time:Quantity):
-        freq = self.powerlaw(Es) * time
-        f_previous = 1
+        Nexp = to_float(self.powerlaw(Es) * time,u.Unit(''))
+        # N_previous = 1
         E_final = 0*u.erg
-        for e, f in zip(Es,freq):
-            if np.random.random() < f/f_previous:
-                f_previous = f
+        for e, N in zip(Es,Nexp):
+            if np.round(np.random.normal(loc=N,scale=np.sqrt(N))) > 0:
                 E_final = e
             else:
                 break
+            # if np.random.random() < N/N_previous:
+            #     # f_previous = f
+            #     E_final = e
+            # else:
+            #     break
         return E_final
     def generate_flares(self,Es:Quantity,time:Quantity):
         """ valid if flare length is much less than time
@@ -1243,7 +1247,7 @@ class FlareGenerator:
             if spacing > 0*u.hr:
                 return spacing
     def generage_E_dist(self):
-        return np.logspace(self.log_E_erg_min,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
+        return np.logspace(self.log_E_erg_min - 0.2,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
 
     def generate_teff(self):
         """ randomly generate teff, round to int
@@ -1278,7 +1282,8 @@ class FlareGenerator:
                         lat,lon = self.generate_coords()
                         fwhm = self.generate_fwhm()
                         teff = self.generate_teff()
-                        flares.append(StellarFlare(fwhm,energy,lat,lon,teff,base_tpeak))
+                        if np.log10(to_float(energy,u.erg)) >= self.log_E_erg_min:
+                            flares.append(StellarFlare(fwhm,energy,lat,lon,teff,base_tpeak))
                     next_timesets.append([timeset[0],min(peaks)])
                     next_timesets.append([max(peaks),timeset[1]])
                 else:
