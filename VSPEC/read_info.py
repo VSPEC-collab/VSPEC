@@ -74,6 +74,8 @@ class ParamModel:
         self.planet_orbital_period = configParser.getfloat('Planet','planet_orbital_period')*u.day
         self.planet_eccentricity = configParser.getfloat('Planet','planet_eccentricity')
         self.planet_rotational_period = configParser.getfloat('Planet','planet_rotational_period')*u.day
+        self.planet_obliquity = configParser.getfloat('Planet','planet_obliquity')*u.deg
+        self.planet_obliquity_direction = configParser.getfloat('Planet','planet_obliquity_direction')
 
 
         self.system_distance = configParser.getfloat('System','system_distance') * u.pc

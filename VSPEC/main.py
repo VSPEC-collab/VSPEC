@@ -77,9 +77,11 @@ class ObservationModel:
                             self.params.star_rot_offset_angle_from_pariapse,
                             self.params.planet_eccentricity,
                             self.params.system_argument_of_pariapsis,
-                            self.params.system_distance)
+                            self.params.system_distance,
+                            self.params.planet_obliquity,
+                            self.params.planet_obliquity_direction)
     
-    def get_observation_plan(self,observation_parameters):
+    def get_observation_plan(self,observation_parameters:SystemGeometry):
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                 self.params.total_observation_time,N_obs=self.params.total_images)
 
@@ -187,6 +189,7 @@ class ObservationModel:
         for i in tqdm(range(self.params.total_images),desc='Build Planet',total=self.params.total_images):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
+            sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
             orbit_radius_coeff = obs_plan['orbit_radius'][i]
             
             
@@ -207,7 +210,7 @@ class ObservationModel:
                     system(f'cp {file} {target}')
             else:
                 pl_sub_obs_lon = sub_stellar_lon - phase
-                pl_sub_obs_lat =  -1*self.params.system_inclination
+                pl_sub_obs_lat =  sub_stellar_lat - self.params.system_inclination
                 # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
                 with open(cfg_path, file_mode) as fr:
                     fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.psg_star_template)

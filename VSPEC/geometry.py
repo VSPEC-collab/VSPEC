@@ -40,7 +40,9 @@ class SystemGeometry:
                     stellar_offset_phase = 0*u.deg,
                     eccentricity = 0,
                     argument_of_pariapsis = 0*u.deg,
-                    system_distance = 1.3*u.pc):
+                    system_distance = 1.3*u.pc,
+                    obliquity = 0*u.deg,
+                    obliquity_direction = 0*u.deg):
         self.i = inclination
         self.init_stellar_lon = init_stellar_lon
         self.init_planet_phase = init_planet_phase
@@ -54,6 +56,9 @@ class SystemGeometry:
         self.e = eccentricity
         self.omega = argument_of_pariapsis + 180*u.deg
         self.system_distance = system_distance
+        self.obliquity = obliquity
+        self.obliquity_direction = obliquity_direction
+
     
     def sub_obs(self,time):
         """sub-obs
@@ -191,6 +196,15 @@ class SystemGeometry:
         rotated = to_float(dtime/self.planetary_rot_period,u.Unit('')) * 360*u.deg
         lon = self.planetary_init_substellar_lon - dphase + rotated
         return lon
+    
+    def get_substellar_lat(self,phase:u.Quantity[u.deg])->u.Quantity[u.deg]:
+        """
+        substellar latitude at particular phase
+        """
+        true_anomaly = phase - 90*u.deg - self.omega
+        north_season = (true_anomaly + self.obliquity_direction) % (360*u.deg)
+        lat = 0*u.deg + self.obliquity*np.cos(north_season)
+        return lat
 
     def get_radius_coeff(self,phase:u.quantity.Quantity) -> float:
         true_anomaly = phase - 90*u.deg - self.omega
@@ -227,6 +241,7 @@ class SystemGeometry:
         sub_planet_lats = []
         sub_planet_lons = []
         sub_stellar_lons = []
+        sub_stellar_lats = []
         orbit_radii = []
         u_angle = u.deg
         for time in start_times:
@@ -239,7 +254,9 @@ class SystemGeometry:
             sub_planet_lats.append(to_float(sub_planet['lat'],u_angle))
             sub_planet_lons.append(to_float(sub_planet['lon'],u_angle))
             sub_stellar_lon = self.get_substellar_lon(time-t0,phase*u_angle)
+            sub_stellar_lat = self.get_substellar_lat(phase*u_angle)
             sub_stellar_lons.append(to_float(sub_stellar_lon,u_angle))
+            sub_stellar_lats.append(to_float(sub_stellar_lat,u_angle))
             orbit_rad = self.get_radius_coeff(phase*u_angle)
             orbit_radii.append(orbit_rad)
         return {'time':start_times,
@@ -249,6 +266,7 @@ class SystemGeometry:
                             'sub_planet_lat': sub_planet_lats*u_angle,
                             'sub_planet_lon': sub_planet_lons*u_angle,
                             'sub_stellar_lon':sub_stellar_lons*u_angle,
+                            'sub_stellar_lat':sub_stellar_lats*u_angle,
                             'orbit_radius':orbit_radii}
     
     def plot(self,phase:u.Quantity) -> plt.figure:
@@ -286,7 +304,7 @@ class SystemGeometry:
 
         time_since_periasteron = self.get_time_since_periasteron(phase)
         substellar_lon = self.get_substellar_lon(time_since_periasteron,phase)
-        substellar_lat = 0*u.deg
+        substellar_lat = self.get_substellar_lat(phase)
         subobs_lon = substellar_lon - phase
         subobs_lat =  -1*(self.i-90*u.deg)
         proj = ccrs.Orthographic(
