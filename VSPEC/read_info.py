@@ -105,6 +105,7 @@ class ParamModel:
         self.gcm_path = configParser.get('Model','gcm_path')
         self.use_globes = configParser.getboolean('Model','use_globes')
         self.gcm_binning = configParser.getint('Model','gcm_binning')
+        self.planet_phase_binning = configParser.getint('Model','planet_phase_binning')
         self.omit_planet = configParser.getboolean('Model','omit_planet')
         self.use_molec_signatures = configParser.getboolean('Model','use_molec_signatures')
         self.psg_url = configParser.get('Model','psg_url')
