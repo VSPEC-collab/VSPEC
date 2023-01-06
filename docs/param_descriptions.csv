@@ -23,7 +23,7 @@ star_fac_distribution,str,Method to distribute faculae. Currently only \verb|iso
 star_fac_warmup,float, Time (in hr) to ``warm up'' the star to reach growth-decay equilibrium
 star_flare_group_prob,float,Probability that a randomly generated flare is closely followed by another flare
 star_flare_mean_teff,float,Mean \teff~in K of the generaeted flares
-star_flare_sigma_teff,float,Standard deviation, in K, of the flare \teff distribution
+star_flare_sigma_teff,float,Standard deviation in K of the flare \teff distribution
 star_flare_mean_log_fwhm_days,float,Mean log full width half maximum of the flares in days.
 star_flare_sigma_log_fwhm_days,float,Standard deviation log full width half maximum of the flares in days.
 star_flare_log_E_erg_max,float,Log of the maximum energy flares to be considered in ergs

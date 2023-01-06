@@ -14,4 +14,6 @@ with open(infilename,'r') as infile:
         for line in infile:
             name,data_type,desc = line.split(',')
             name = f'\\verb|{name}|'
-            outfile.write(f'{name} & {data_type} & {desc.replace("\n","")} \\\\ \n')
+            latex_newline = '\\\\'
+            endl = '\n'
+            outfile.write(f'{name} & {data_type} & {desc.replace(endl,"")} {latex_newline} {endl}')
