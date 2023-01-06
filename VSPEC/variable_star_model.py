@@ -25,7 +25,6 @@ class StarSpot:
         A0 (astropy.units.quantity.Quantity [area]): Current spot area.
         Teff_umbra (astropy.units.quantity.Quantity [temperature]): Effective temperature of spot umbra.
         Teff_penumbra (astropy.units.quantity.Quantity [temperature]): Effective temperature of spot penumbra.
-        T (astropy.units.quantity.Quantity [time]): Spt decay timescale (deprecated).
         r_A (float): Ratio of total spot area to umbra area. From 2013PhDT.......359G = 5+/-1 (compiled from various sources)
         growing (bool): Whether or not the spot is growing.
         growth_rate (astropy.units.quantity.Quantity [1/time]): Fractional growth of the spot for a given unit time.
@@ -37,26 +36,24 @@ class StarSpot:
     Returns:
         None
     """
-    def __init__(self,lat,lon,Amax,A0,Teff_umbra,Teff_penumbra,T = 1*u.day,r_A=5,growing=True,growth_rate = 0.52/u.day,Nlat=500,Nlon=1000,gridmaker=None):
-        assert isinstance(lat,Quantity)
-        assert isinstance(lon,Quantity)
+    def __init__(
+        self,lat:Quantity[u.deg],lon:Quantity[u.deg],Amax:Quantity[MSH],A0:Quantity[MSH],
+        Teff_umbra:Quantity[u.K],Teff_penumbra:Quantity[u.K],r_A:float=5,growing:bool=True,
+        growth_rate:Quantity[1/u.day] = 0.52/u.day,decay_rate:Quantity[MSH/u.day] = 10.89 * MSH/u.day,
+        Nlat:int =500,Nlon:int =1000,gridmaker=None
+        ):
+        
         self.coords = {'lat':lat,'lon':lon}
-        assert isinstance(Amax,Quantity)
-        assert isinstance(A0,Quantity)
         self.area_max = Amax
         self.area_current = A0
-        assert isinstance(Teff_umbra,Quantity)
-        assert isinstance(Teff_penumbra,Quantity)
         self.Teff_umbra = Teff_umbra
         self.Teff_penumbra = Teff_penumbra
-        assert isinstance(T,Quantity)
-        self.decay_timescale = T
-        self.decay_rate = 10.89 * MSH/u.day
+        self.decay_rate = decay_rate
         self.total_area_over_umbra_area = r_A
         self.is_growing = growing
         self.growth_rate = growth_rate
 
-        if not gridmaker:
+        if gridmaker is None:
             self.gridmaker = CoordinateGrid(Nlat,Nlon)
         else:
             self.gridmaker = gridmaker
@@ -65,8 +62,9 @@ class StarSpot:
         lon0 = self.coords['lon']
         self.r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
                          + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
-    def radius(self):
+    def radius(self)->Quantity[u.km]:
         """radius
+
         Get the radius of the spot.
 
         Args:
@@ -76,8 +74,9 @@ class StarSpot:
             (astropy.units.quantity.Quantity [length]): Radius of spot.
         """
         return np.sqrt(self.area_current/np.pi).to(u.km)
-    def angular_radius(self,star_rad):
+    def angular_radius(self,star_rad:Quantity[u.R_sun])->Quantity[u.deg]:
         """angular radius
+
         Get the angular radius of the spot
 
         Args:
@@ -89,8 +88,9 @@ class StarSpot:
         cos_angle = 1 - self.area_current/(2*np.pi*star_rad**2)
         return (np.arccos(cos_angle)).to(u.deg)
     
-    def map_pixels(self,star_rad):
+    def map_pixels(self,star_rad:Quantity[u.R_sun])->dict:
         """map pixels
+
         Map latitude and longituide points continaing the umbra and penumbra
 
         Args:
@@ -103,14 +103,11 @@ class StarSpot:
         """
         radius = self.angular_radius(star_rad)
         radius_umbra = radius/np.sqrt(self.total_area_over_umbra_area)
-        # lat0 = self.coords['lat']
-        # lon0 = self.coords['lon']
-        # r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
-                        #  + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
         return {self.Teff_umbra:self.r < radius_umbra,
                 self.Teff_penumbra: self.r < radius}
-    def surface_fraction(self,sub_obs_coords,star_rad,N=1001):
+    def surface_fraction(self,sub_obs_coords:dict,star_rad:Quantity[u.R_sun],N:int=1001)->float:
         """surface fraction
+
         Determine the surface fraction covered by a spot from a given angle of observation.
         This algorithm uses the orthographic projection.
 
@@ -133,39 +130,11 @@ class StarSpot:
         rad = a**2 - (c-c0)**2
         rad[rad<0] = 0
         integrand = 2 * np.cos(c)*np.sqrt(rad)
-        return (np.trapz(integrand,x=c)/(2*np.pi*u.steradian)).to(u.Unit(''))
-        
+        return to_float(np.trapz(integrand,x=c)/(2*np.pi*u.steradian),u.Unit(''))
     
-    def surface_fraction_old(self,sub_obs_coords,star_rad):
-        """surface fraction -- old version
-        Determine the surface fraction covered by a spot from a given angle of observation.
-        This algorithm diverges from reality for large spots and spots on the limbs.
-
-        Args:
-            sub_obs_coord (dict): dictionary giving coordinates of the sub-observation point.
-                This is the point that is at the center of the stellar disk from the view of
-                an observer. Format: {'lat':lat,'lon':lon} where lat and lon are astropy Quantity objects
-            star_rad (astropy.units.quantity.Quantity [length]): radius of the star.
-            N (int): number of points to use in numerical integration. N=1000 is not so different from N=100000.
-        
-        Returns:
-            (float): fraction of observed disk covered by spot
-        """
-        x0 = np.cos(self.coords['lat'])*np.cos(self.coords['lon'])
-        x1 = np.cos(sub_obs_coords['lat'])*np.cos(sub_obs_coords['lon'])
-        y0 = np.cos(self.coords['lat'])*np.sin(self.coords['lon'])
-        y1 = np.cos(sub_obs_coords['lat'])*np.sin(sub_obs_coords['lon'])
-        z0 = np.sin(self.coords['lat'])
-        z1 = np.sin(sub_obs_coords['lat'])
-        cos_alpha = x0*x1 + y0*y1 + z0*z1
-        if cos_alpha < 0:
-            return 0
-        else:
-            effective_size = self.area_current * cos_alpha
-            return (effective_size/(2*np.pi*star_rad**2)).to(u.Unit(''))
-    
-    def age(self,time):
+    def age(self,time:Quantity[u.s])->None:
         """age
+
         Age a spot according to its growth timescale and decay rate
 
         Args:
@@ -177,7 +146,10 @@ class StarSpot:
         """
         if self.is_growing:
             tau = np.log((self.growth_rate * u.day).to(u.Unit('')) + 1)
-            time_to_max = np.log(self.area_max/self.area_current)/tau * u.day
+            if tau == 0:
+                time_to_max = np.inf*u.day
+            else:
+                time_to_max = np.log(self.area_max/self.area_current)/tau * u.day
             if time_to_max > time:
                 new_area = self.area_current * np.exp(tau * time/u.day)
                 self.area_current = new_area
@@ -198,6 +170,7 @@ class StarSpot:
 
 class SpotCollection:
     """Spot Collection
+
     Containter holding spots
 
     Args:
@@ -209,16 +182,17 @@ class SpotCollection:
     Returns:
         None
     """
-    def __init__(self,*spots,Nlat=500,Nlon=1000,gridmaker=None):
+    def __init__(self,*spots:tuple[StarSpot],Nlat:int=500,Nlon:int=1000,gridmaker=None):
         self.spots = spots
-        if not gridmaker:
+        if gridmaker is None:
             self.gridmaker = CoordinateGrid(Nlat,Nlon)
         else:
             self.gridmaker = gridmaker
         for spot in spots:
             spot.gridmaker = self.gridmaker
-    def add_spot(self,spot):
+    def add_spot(self,spot:Typing.Union[StarSpot,list[StarSpot]]):
         """add spot
+
         Add a spot
 
         Args:
@@ -235,6 +209,7 @@ class SpotCollection:
         self.spots += tuple(spot)
     def clean_spotlist(self):
         """clean spotlist
+
         Remove spots that have decayed to 0 area.
 
         Args:
@@ -250,8 +225,9 @@ class SpotCollection:
             else:
                 spots_to_keep.append(spot)
         self.spots = spots_to_keep
-    def map_pixels(self,star_rad,star_teff):
+    def map_pixels(self,star_rad:Quantity[u.R_sun],star_teff:Quantity[u.K]):
         """map pixels
+
         Map latitude and longituide points continaing the umbra and penumbra of each spot.
         For pixels with coverage from multiple spots, assign coolest Teff to that pixel.
 
@@ -273,8 +249,9 @@ class SpotCollection:
             assign = teff_dict[spot.Teff_umbra] & (surface_map > spot.Teff_umbra)
             surface_map[assign] = spot.Teff_umbra
         return surface_map
-    def age(self,time):
+    def age(self,time:Quantity[u.day]):
         """age
+
         Age spots according to its growth timescale and decay rate.
         Remove spots that have decayed.
 
@@ -306,7 +283,7 @@ class Star:
         None
     """
     def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None,
-                    flare_generator = None):
+                    flare_generator = None,spot_generator = None,fac_generator=None):
         self.name = name
         assert isinstance(Teff,Quantity)
         self.Teff = Teff
@@ -333,9 +310,16 @@ class Star:
         else:
             self.flare_generator = flare_generator
 
-        
-        self.spot_generator = SpotGenerator(500*MSH,200*MSH,coverage=0.15,Nlon=Nlon,Nlat=Nlat)
-        self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km,Nlon=Nlon,Nlat=Nlat)
+        if spot_generator is None:
+            self.spot_generator = SpotGenerator(500*MSH,200*MSH,umbra_teff=self.Teff*0.75,
+            penumbra_teff=self.Teff*0.85,Nlon=Nlon,Nlat=Nlat,gridmaker=self.gridmaker)
+        else:
+            self.spot_generator = spot_generator
+
+        if fac_generator is None:
+            self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km,Nlon=Nlon,Nlat=Nlat)
+        else:
+            self.fac_generator = fac_generator
     def get_pixelmap(self):
         """get pixelmap
         Create map of stellar surface based on spots:
@@ -471,7 +455,8 @@ class Star:
         Returns:
             None
         """
-        self.spots.add_spot(self.spot_generator.birth_spots(time,self.radius,self.period,self.Teff))
+        self.spots.add_spot(self.spot_generator.birth_spots(time,self.radius))
+        self.map = self.get_pixelmap()
     def birth_faculae(self,time):
         """birth faculae
         Create new faculae from a facula generator.
@@ -563,6 +548,12 @@ class Star:
     def get_flare_int_over_timeperiod(self,tstart:Quantity[u.hr],tfinish:Quantity[u.hr],sub_obs_coords):
         flare_timeareas = self.flares.get_flare_integral_in_timeperiod(tstart,tfinish,sub_obs_coords)
         return flare_timeareas
+    
+    def generate_mature_spots(self,coverage:float):
+        new_spots = self.spot_generator.generate_mature_spots(coverage,self.radius)
+        self.spots.add_spot(new_spots)
+        self.map = self.get_pixelmap()
+
 
 
 
@@ -575,36 +566,74 @@ class SpotGenerator:
     Args:
         average_area (astropy.units.quantity.Quantity [area]): average max spot area.
         area_spread (astropy.units.quantity.Quantity [area]): spread in max spot area.
-        coverage (float): fractional coverage of surface by spots. Default None. In that
-            case the coverage is calculated based on the rotation rate.
+        coverage (float): fractional coverage of surface by spots.
     
     Returns:
         None
     """
-    def __init__(self,average_area,area_spread,coverage=None,Nlat=500,Nlon=1000):
+    def __init__(self,
+    average_area:Quantity[MSH],area_spread:float,umbra_teff:Quantity[u.K],penumbra_teff:Quantity[u.K],
+    growth_rate:Quantity[1/u.day]=0.52/u.day,decay_rate:Quantity[MSH/u.day]= 10.89 * MSH/u.day,
+    starting_size:Quantity[MSH]=10*MSH,distribution='solar',
+    coverage:float=0.2,Nlat:int=500,Nlon:int=1000,gridmaker=None
+    ):
         self.average_spot_area = average_area
         self.spot_area_spread = area_spread
-        self.decay_rate = 10.89 * MSH/u.day
+        self.umbra_teff = umbra_teff
+        self.penumbra_teff = penumbra_teff
+        self.growth_rate = growth_rate
+        self.decay_rate = decay_rate
+        self.starting_size = starting_size
+        self.distribution = distribution
         self.average_spot_lifetime = 2*(self.average_spot_area / self.decay_rate).to(u.hr)
         self.coverage = coverage
-        self.Nlon = Nlon
-        self.Nlat = Nlat
-    def get_variability(self,rotation_period):
-        """get variability
-        Get variability from stellar rotaion period based on imperical relation
-        found by Nichols-Flemming & Blackman 2020, 2020MNRAS.491.2706N
-        
-        Args:
-            rotation_period (astropy.units.quantity.Quantity [time]): stellar rotation period.
-        
-        Returns:
-            (float) variability as a fraction for M dwarfs
-        """
-        x = (rotation_period/u.day).to(u.Unit(''))**2
-        y = 13.91 * x**(-0.30)
-        return y/100
+        if gridmaker is None:
+            self.gridmaker = CoordinateGrid(Nlat,Nlon)
+        else:
+            self.gridmaker = gridmaker
 
-    def birth_spots(self,time,rad_star,rotation_period_star,Teff_star,sigma = 0.2,starting_size=10*MSH):
+    def generate_spots(self,N:int)->tuple[StarSpot]:
+        """ generate spots
+        
+        Create a specified number of StarSpot objects
+
+        Args:
+            N (int): Number of spots to create
+
+        Returns:
+            (tuple): tuple of new spots
+        """
+        new_max_areas = np.random.lognormal(mean=np.log(self.average_spot_area/MSH),sigma=self.spot_area_spread,size=N)*MSH
+        new_r_A = np.random.normal(loc=5,scale=1,size=N)
+        while np.any(new_r_A <= 0):
+            new_r_A = np.random.normal(loc=5,scale=1,size=N)
+        # now assign lat and lon (dist approx from 2017ApJ...851...70M)
+        if self.distribution == 'solar':
+            hemi = np.random.choice([-1,1],size = N)
+            lat = np.random.normal(15,5,size=N)*hemi*u.deg
+            lon = np.random.random(size=N)*360*u.deg
+        elif self.distribution == 'iso':
+            lon = np.random.random(size=N)*360*u.deg
+            lats = np.arange(90)
+            w = np.cos(lats*u.deg)
+            lat = (np.random.choice(lats,p=w/w.sum(),size=N) + np.random.random(size=N))*u.deg * np.random.choice([1,-1],size=N)
+        else:
+            raise ValueError(f'Unknown value {self.distribution} for distribution')
+        
+        penumbra_teff = self.penumbra_teff
+        umbra_teff = self.umbra_teff
+        
+        spots = []
+        for i in range(N):
+            spots.append(StarSpot(
+                lat[i],lon[i],new_max_areas[i],self.starting_size,umbra_teff,penumbra_teff,
+                growth_rate=self.growth_rate,decay_rate=self.decay_rate,
+                r_A = new_r_A[i],Nlat=self.gridmaker.Nlat,Nlon=self.gridmaker.Nlon,gridmaker=self.gridmaker
+                ))
+        return tuple(spots)
+
+
+    def birth_spots(self,time:Quantity[u.day],rad_star:Quantity[u.R_sun],)->tuple[StarSpot]:
         """birth spots
         Generate new StarSpot objects to be birthed in a given time.
 
@@ -612,41 +641,50 @@ class SpotGenerator:
             time (astropy.units.quantity.Quantity [time]): amount of time in which to birth spots.
                 The total number of new spots will consider this time and the birthrate
             rad_star (astropy.units.quantity.Quantity [length]): radius of star
-            rotation_period (astropy.units.quantity.Quantity [time]): stellar rotation period
-            Tef_star (astropy.units.quantity.Quantity [temperature]): effective temperature of the star
-            sigma (float): parameter controlling spot size distribution
+            size_sigma (float): parameter controlling spot size distribution
             starting_size: starting size for each spot. This defaults to 10 MSH
+            distribution (str): keyword controling the method for placing spots on the sphere
         
         Returns:
             (tuple): tuple of new spots
-        """    
-        N_exp=0
-        
-        if self.coverage:
-            N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.average_spot_area
-                        * time/self.average_spot_lifetime).to(u.Unit(''))
-        else:
-            N_exp = (4*np.pi*rad_star**2 * self.get_variability(rotation_period_star)/self.average_spot_area
+        """            
+        N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.average_spot_area
                         * time/self.average_spot_lifetime).to(u.Unit(''))
         # N_exp is the expectation value of N, but this is a poisson process
         N = max(0,round(np.random.normal(loc=N_exp,scale = np.sqrt(N_exp))))
-        # print(f'{N_exp:.2f}-->{N}')
-        new_max_areas = np.random.lognormal(mean=np.log(self.average_spot_area/MSH),sigma=sigma,size=N)*MSH
-        # now assign lat and lon (dist approx from 2017ApJ...851...70M)
-        hemi = np.random.choice([-1,1],size = N)
-        lat = np.random.normal(15,5,size=N)*hemi*u.deg
-        lon = np.random.random(size=N)*360*u.deg
-        
-        penumbra_teff = Teff_star*0.86
-        umbra_teff = Teff_star*0.77
-        
+
+        return self.generate_spots(N)        
+    
+
+    def generate_mature_spots(self,coverage:float,R_star:Quantity[u.R_sun])->List[StarSpot]:
         spots = []
-        for i in range(N):
-            spots.append(StarSpot(lat[i],lon[i],new_max_areas[i],starting_size,umbra_teff,penumbra_teff,Nlat=self.Nlat,Nlon=self.Nlon))
-        return tuple(spots)
+        current_omega = 0*(u.deg**2)
+        target_omega = (4*np.pi*coverage*u.steradian).to(u.deg**2)
+        while current_omega < target_omega:
+            new_spot = self.generate_spots(1)[0]
+            const_spot = (new_spot.decay_rate == 0*MSH/u.day) or (new_spot.growth_rate == 0/u.day)
+            if const_spot:
+                area0 = self.starting_size
+                area_range = new_spot.area_max - area0
+                area = np.random.random()*area_range + area0
+                new_spot.area_current = area
+            else:
+                decay_lifetime = (new_spot.area_max/new_spot.decay_rate).to(u.day)
+                tau = new_spot.growth_rate
+                grow_lifetime = (np.log(to_float(new_spot.area_max/self.starting_size,u.Unit('')))/tau).to(u.day)
+                lifetime = grow_lifetime+decay_lifetime
+                age = np.random.random() * lifetime
+                new_spot.age(age)
+            spots.append(new_spot)
+            spot_solid_angle = new_spot.angular_radius(R_star)**2 * np.pi
+            current_omega += spot_solid_angle
+        return spots
+
+
 
 class Facula:
     """facula
+
     Class containing model parameters of stellar faculae using the 'hot wall' model
     
     Args:
@@ -657,7 +695,7 @@ class Facula:
         Zw (astropy.units.quantity.Quantity [length]): depth of the depression
         Teff_floor (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'cool floor'
         Teff_wall (astropy.units.quantity.Quantity [temperature]): effective temperature of the 'hot wall'
-        T (astropy.units.quantity.Quantity [time]): facula lifetime
+        lifetime (astropy.units.quantity.Quantity [time]): facula lifetime
         growing (bool): whether or not the facula is still growing
         floor_threshold (astropy.units.quantity.Quantity [length]): facula radius under which the floor is no longer visible
         Nlat (int): number of latitude points. Default 500
@@ -667,27 +705,21 @@ class Facula:
     Returns:
         None
     """
-    def __init__(self,lat,lon,Rmax,R0,Teff_floor,Teff_wall,T,growing=True,floor_threshold = 20*u.km,Zw=100*u.km,
-                 Nlat=500,Nlon=1000,gridmaker=None):
-        assert u.get_physical_type(lat) == 'angle'
-        assert u.get_physical_type(lon) == 'angle'
+    def __init__(self,
+    lat:Quantity[u.deg],lon:Quantity[u.deg],Rmax:Quantity[u.km],R0:Quantity[u.km],
+    Teff_floor:Quantity[u.K],Teff_wall:Quantity[u.K],lifetime:Quantity[u.day],
+    growing:bool=True,floor_threshold:Quantity[u.km] = 20*u.km,Zw:Quantity[u.km]=100*u.km,
+    Nlat:int=500,Nlon:int=1000,gridmaker=None
+    ):
         self.lat = lat
         self.lon = lon
-        assert u.get_physical_type(Rmax) == 'length'
-        assert u.get_physical_type(R0) == 'length'
-        assert u.get_physical_type(Zw) == 'length'
         self.Rmax = Rmax
         self.current_R = R0
         self.Zw = Zw
-        assert u.get_physical_type(Teff_floor) == 'temperature'
-        assert u.get_physical_type(Teff_wall) == 'temperature'
         self.Teff_floor = self.round_teff(Teff_floor)
         self.Teff_wall = self.round_teff(Teff_wall)
-        assert u.get_physical_type(T) == 'time'
-        assert isinstance(growing,bool)
-        self.lifetime = T
+        self.lifetime = lifetime
         self.is_growing = growing
-        assert u.get_physical_type(floor_threshold) == 'length'
         self.floor_threshold = floor_threshold
         
         if not gridmaker:
@@ -700,8 +732,9 @@ class Facula:
                          + np.cos(latgrid)*np.cos(lat)*np.sin(0.5*(lon - longrid))**2))
         
     
-    def age(self,time):
+    def age(self,time:Quantity[u.day]):
         """age
+
         progress the development of the facula by an amount of time
         
         Args:
@@ -710,7 +743,6 @@ class Facula:
         Returns:
             None
         """
-        assert u.get_physical_type(time) == 'time'
         if self.is_growing:
             T_from_max = -1*np.log(self.current_R/self.Rmax)*self.lifetime*0.5
             if T_from_max <= time:
@@ -907,6 +939,7 @@ class FaculaCollection:
 
 class FaculaGenerator:
     """ Facula generator
+
     Class controling the birth rates and properties of new faculae.
     Radius distribution from K. P. Topka et al 1997 ApJ 484 479
     Lifetime distribution from 2022SoPh..297...48H
@@ -922,8 +955,9 @@ class FaculaGenerator:
         dist (str): type of distribution
         
     """
-    def __init__(self,R_peak = 800*u.km, R_HWHM = 300*u.km,
-                 T_peak = 6.2*u.hr, T_HWHM = 4.7*u.hr,coverage=0.0001,dist = 'even',Nlon=1000,Nlat=500):
+    def __init__(self,R_peak:Quantity[u.km] = 800*u.km, R_HWHM:Quantity[u.km] = 300*u.km,
+                 T_peak:Quantity[u.hr] = 6.2*u.hr, T_HWHM:Quantity[u.hr] = 4.7*u.hr,
+                 coverage:float=0.0001,dist:str = 'iso',Nlon:int=1000,Nlat:int=500,gridmaker=None):
         assert u.get_physical_type(R_peak) == 'length'
         assert u.get_physical_type(R_HWHM) == 'length'
         assert u.get_physical_type(T_peak) == 'time'
@@ -937,6 +971,10 @@ class FaculaGenerator:
         assert isinstance(coverage,float)
         self.coverage = coverage
         self.dist = dist
+        if gridmaker is None:
+            self.gridmaker = CoordinateGrid(Nlat,Nlon)
+        else:
+            self.gridmaker=gridmaker
         self.Nlon = Nlon
         self.Nlat = Nlat
         
@@ -1001,7 +1039,7 @@ class FaculaGenerator:
         starting_radii = max_radii / np.e**2
         lats = None
         lons = None
-        if self.dist == 'even':
+        if self.dist == 'iso':
             x = np.linspace(-90,90,180,endpoint=False)*u.deg
             p = np.cos(x)
             lats = (np.random.choice(x,p=p/p.sum(),size=N) + np.random.random(size=N)) * u.deg
@@ -1150,15 +1188,19 @@ class FlareGenerator:
         freq = 10**logfreq / u.day
         return freq
     def get_flare(self,Es:Quantity,time:Quantity):
-        freq = self.powerlaw(Es) * time
-        f_previous = 1
+        Nexp = to_float(self.powerlaw(Es) * time,u.Unit(''))
+        # N_previous = 1
         E_final = 0*u.erg
-        for e, f in zip(Es,freq):
-            if np.random.random() < f/f_previous:
-                f_previous = f
+        for e, N in zip(Es,Nexp):
+            if np.round(np.random.normal(loc=N,scale=np.sqrt(N))) > 0:
                 E_final = e
             else:
                 break
+            # if np.random.random() < N/N_previous:
+            #     # f_previous = f
+            #     E_final = e
+            # else:
+            #     break
         return E_final
     def generate_flares(self,Es:Quantity,time:Quantity):
         """ valid if flare length is much less than time
@@ -1205,7 +1247,7 @@ class FlareGenerator:
             if spacing > 0*u.hr:
                 return spacing
     def generage_E_dist(self):
-        return np.logspace(self.log_E_erg_min,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
+        return np.logspace(self.log_E_erg_min - 0.2,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
 
     def generate_teff(self):
         """ randomly generate teff, round to int
@@ -1240,7 +1282,8 @@ class FlareGenerator:
                         lat,lon = self.generate_coords()
                         fwhm = self.generate_fwhm()
                         teff = self.generate_teff()
-                        flares.append(StellarFlare(fwhm,energy,lat,lon,teff,base_tpeak))
+                        if np.log10(to_float(energy,u.erg)) >= self.log_E_erg_min:
+                            flares.append(StellarFlare(fwhm,energy,lat,lon,teff,base_tpeak))
                     next_timesets.append([timeset[0],min(peaks)])
                     next_timesets.append([max(peaks),timeset[1]])
                 else:
@@ -1274,8 +1317,8 @@ class FlareCollection:
         self.fwhms = fwhm
     
     def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
-        padding_after = 6 # number of fwhm ouside this range a flare peak can be to still be included
-        padding_before = 2
+        padding_after = 10 # number of fwhm ouside this range a flare peak can be to still be included
+        padding_before = 20
         after_start = self.peaks + padding_before*self.fwhms > tstart
         before_end = self.peaks - padding_after*self.fwhms < tfinish
         

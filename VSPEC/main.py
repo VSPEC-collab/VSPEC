@@ -289,15 +289,30 @@ class ObservationModel:
                                             self.params.star_flare_mean_teff,self.params.star_flare_sigma_teff,
                                             self.params.star_flare_mean_log_fwhm_days,self.params.star_flare_sigma_log_fwhm_days,
                                             self.params.star_flare_log_E_erg_max,self.params.star_flare_log_E_erg_min,self.params.star_flare_log_E_erg_Nsteps)
+        spot_generator = vsm.SpotGenerator(
+            self.params.star_spot_mean_area,self.params.star_spot_sigma_area,self.params.star_spot_umbra_teff,
+            self.params.star_spot_penumbra_teff,self.params.star_spot_growth_rate,self.params.star_spot_decay_rate,
+            self.params.star_spot_initial_area,self.params.star_spot_distribution,
+            self.params.star_spot_coverage,Nlat=self.params.Nlat,Nlon=self.params.Nlon
+            )
+        fac_generator = vsm.FaculaGenerator(
+            R_peak = self.params.star_fac_mean_radius,R_HWHM = self.params.star_fac_HWHM_radius,
+            T_peak=self.params.star_fac_mean_timescale,T_HWHM=self.params.star_fac_HWHM_timescale,
+            coverage = self.params.star_fac_coverage,dist=self.params.star_fac_distribution,
+            Nlat=self.params.Nlat,Nlon=self.params.Nlon
+        )
         self.star = vsm.Star(self.params.star_teff,self.params.star_radius,
                             self.params.star_rot_period,empty_spot_collection,empty_fac_collection,
                             name = self.params.star_name,distance = self.params.system_distance,
-                            Nlat = self.params.Nlat, Nlon = self.params.Nlon,flare_generator=flare_generator)
-        self.star.spot_generator.coverage=self.params.star_spot_coverage
-        self.star.fac_generator.coverage=self.params.star_fac_coverage
+                            Nlat = self.params.Nlat, Nlon = self.params.Nlon,flare_generator=flare_generator,
+                            spot_generator=spot_generator, fac_generator=fac_generator)
 
 
     def warm_up_star(self, spot_warmup_time=30*u.day, facula_warmup_time=3*u.day):
+
+        if self.params.star_spot_initial_coverage > 0.0:
+            self.star.generate_mature_spots(self.params.star_spot_initial_coverage)
+            print(f'Generated {len(self.star.spots.spots)} mature spots')
         spot_warm_up_step = 1*u.day
         facula_warm_up_step = 1*u.hr
         N_steps_spot = int(round((spot_warmup_time/spot_warm_up_step).to(u.Unit('')).value))
@@ -308,6 +323,7 @@ class ObservationModel:
         for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
             self.star.birth_faculae(facula_warm_up_step)
             self.star.age(facula_warm_up_step)
+
         self.star.get_flares_over_observation(self.params.total_observation_time)
 
     def calculate_composite_stellar_spectrum(self,sub_obs_coords,tstart,tfinish):
@@ -404,7 +420,8 @@ class ObservationModel:
     def build_spectra(self):
         """build spectra"""
         self.build_star()
-        self.warm_up_star()
+        self.warm_up_star(spot_warmup_time=self.params.star_spot_warmup,
+                            facula_warmup_time=self.params.star_fac_warmup)
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(observation_parameters)
         # write observation info to file
