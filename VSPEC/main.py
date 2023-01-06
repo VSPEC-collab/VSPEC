@@ -361,8 +361,8 @@ class ObservationModel:
         elif equal.sum() > 1:
             raise ValueError('There must be a duplicate time')
         elif equal.sum() == 0:
-            N1 = np.argwhere(after)[0][0]
-            N2 = N1 - 1
+            N2 = np.argwhere(after)[0][0]
+            N1 = N2 - 1
         return N1,N2
 
     def calculate_reflected_spectra(self,N1,N2, N1_frac,

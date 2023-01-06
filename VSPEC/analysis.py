@@ -74,27 +74,28 @@ class PhaseAnalyzer:
         self.thermal = np.asarray(thermal).T * fluxunit
         self.total = np.asarray(total).T * fluxunit
         self.noise = np.asarray(noise).T * fluxunit
-
-        try:
-            layer_path = path.parent / 'PSGLayers'
-            layers = []
-            first = True
-            for phase in self.phase:
-                if phase>178*u.deg and phase<182*u.deg:
-                    phase=182.0*u.deg # Add transit phase;
-                filename = layer_path / f'phase{to_float(phase,u.deg):.3f}.lyr'
-                dat = self.read_lyr(filename)
-                if not first:
-                    assert np.all(dat.columns == cols)
-                else:
-                    first = False
-                cols = dat.columns
-                layers.append(dat.values)
-            index = np.arange(layers[0].shape[0])
-            self.layers = xarray.DataArray(np.array(layers),dims = ['phase','layer','var'],coords={'phase':self.unique_phase,'layer':index,'var':cols})
-        except IndexError:
-            print('No Layer info, maybe globes is off')
-            self.layers = None
+        
+        #tempararily disable layers to test other things
+        # try:
+        #     layer_path = path.parent / 'PSGLayers'
+        #     layers = []
+        #     first = True
+        #     for phase in self.phase:
+        #         if phase>178*u.deg and phase<182*u.deg:
+        #             phase=182.0*u.deg # Add transit phase;
+        #         filename = layer_path / f'phase{to_float(phase,u.deg):.3f}.lyr'
+        #         dat = self.read_lyr(filename)
+        #         if not first:
+        #             assert np.all(dat.columns == cols)
+        #         else:
+        #             first = False
+        #         cols = dat.columns
+        #         layers.append(dat.values)
+        #     index = np.arange(layers[0].shape[0])
+        #     self.layers = xarray.DataArray(np.array(layers),dims = ['phase','layer','var'],coords={'phase':self.unique_phase,'layer':index,'var':cols})
+        # except IndexError:
+        #     print('No Layer info, maybe globes is off')
+        #     self.layers = None
 
 
     def read_lyr(self,filename):
