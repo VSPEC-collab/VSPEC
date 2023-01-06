@@ -1285,7 +1285,8 @@ class FlareGenerator:
                         if np.log10(to_float(energy,u.erg)) >= self.log_E_erg_min:
                             flares.append(StellarFlare(fwhm,energy,lat,lon,teff,base_tpeak))
                     next_timesets.append([timeset[0],min(peaks)])
-                    next_timesets.append([max(peaks),timeset[1]])
+                    if max(peaks) < timeset[1]:
+                        next_timesets.append([max(peaks),timeset[1]])
                 else:
                     pass # there are no flares during this time
             timesets = next_timesets

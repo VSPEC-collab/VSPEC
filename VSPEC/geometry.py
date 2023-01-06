@@ -234,7 +234,7 @@ class SystemGeometry:
         else:
             N_obs = int(total_time/time_step)
         t0 = self.get_time_since_periasteron(phase0)
-        start_times = np.linspace(to_float(t0,u.s),to_float(t0+total_time,u.s),N_obs,endpoint=False)*u.s
+        start_times = np.linspace(to_float(t0,u.s),to_float(t0+total_time,u.s),N_obs,endpoint=True)*u.s
         phases = []
         sub_obs_lats = []
         sub_obs_lons = []

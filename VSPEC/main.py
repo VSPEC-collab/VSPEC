@@ -185,7 +185,7 @@ class ObservationModel:
         observation_parameters = self.get_observation_parameters()
         obs_plan = self.get_planet_observation_plan(observation_parameters)
 
-        obs_info_filename = Path(self.dirs['Data']) / 'observation_info.csv'
+        obs_info_filename = Path(self.dirs['data']) / 'observation_info.csv'
         obs_df = pd.DataFrame()
         for key in obs_plan.keys():
             try:
@@ -352,76 +352,121 @@ class ObservationModel:
 
         return base_wave, base_flux
 
-    def calculate_reflected_spectra(self,phase,
+    def get_planet_indicies(self,planet_times,tindex):
+        after = planet_times > tindex
+        equal = planet_times == tindex
+        if equal.sum() == 1:
+            N1 = np.argwhere(equal)[0][0]
+            N2 = np.argwhere(equal)[0][0]
+        elif equal.sum() > 1:
+            raise ValueError('There must be a duplicate time')
+        elif equal.sum() == 0:
+            N1 = np.argwhere(after)[0][0]
+            N2 = N1 - 1
+        return N1,N2
+
+    def calculate_reflected_spectra(self,N1,N2, N1_frac,
                                     sub_planet_wavelength,sub_planet_flux):
-        psg_combined_path = Path(self.dirs['psg_combined']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-        psg_thermal_path = Path(self.dirs['psg_thermal']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-        combined_df = pd.read_csv(psg_combined_path,
-            comment='#',
-            delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Stellar", "Planet",'_','__'],
-            )
-        thermal_df = pd.read_csv(psg_thermal_path,
-            comment='#',
-            delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Planet",'_','__'],
-            )
-        if self.params.psg_rad_unit == 'Wm2um':
-            flux_unit = u.Unit('W m-2 um-1')
-        else:
-            raise NotImplementedError('That flux unit is not implemented')
-        
-        #validate
-        assert np.all(isclose(sub_planet_wavelength,combined_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um)
-                        & isclose(sub_planet_wavelength,thermal_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um))
-        
-        planet_reflection_only = combined_df['Planet'].values * flux_unit - thermal_df['Planet'].values*flux_unit
-        planet_reflection_fraction = planet_reflection_only / (combined_df['Stellar'].values*flux_unit)
-        planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
-        return sub_planet_wavelength, planet_reflection_adj
 
-    def calculate_noise(self,phase,cmb_wavelength,cmb_flux):
-        psg_combined_path = Path(self.dirs['psg_combined']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-        psg_noise_path = Path(self.dirs['psg_noise']) / f'phase{to_float(phase,u.deg):.3f}.noi'
-        combined_df = pd.read_csv(psg_combined_path,
-            comment='#',
-            delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Stellar", "Planet",'_','__'],
-            )
-        noise_df = pd.read_csv(psg_noise_path,
-            comment='#',
-            delim_whitespace=True,
-            names=['Wave/freq','Total','Source','Detector','Telescope','Background'],
-            )
-        if self.params.psg_rad_unit == 'Wm2um':
-            flux_unit = u.Unit('W m-2 um-1')
-        else:
-            raise NotImplementedError('That flux unit is not implemented')
+        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
+        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
+        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
+        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(3)}.rad'
 
-        # validate
-        assert np.all(isclose(cmb_wavelength,combined_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um)
-                        & isclose(cmb_wavelength,noise_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um))
+        reflected = []
+
+        for psg_combined_path, psg_thermal_path in zip([psg_combined_path1,psg_combined_path2],
+                                                        [psg_thermal_path1,psg_thermal_path2]):
+            combined_df = pd.read_csv(psg_combined_path,
+                comment='#',
+                delim_whitespace=True,
+                names=["Wave/freq", "Total", "Noise", "Stellar", "Planet",'_','__'],
+                )
+            thermal_df = pd.read_csv(psg_thermal_path,
+                comment='#',
+                delim_whitespace=True,
+                names=["Wave/freq", "Total", "Noise", "Planet",'_','__'],
+                )
+            if self.params.psg_rad_unit == 'Wm2um':
+                flux_unit = u.Unit('W m-2 um-1')
+            else:
+                raise NotImplementedError('That flux unit is not implemented')
+            
+            #validate
+            assert np.all(isclose(sub_planet_wavelength,combined_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um)
+                            & isclose(sub_planet_wavelength,thermal_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um))
+            
+            planet_reflection_only = combined_df['Planet'].values * flux_unit - thermal_df['Planet'].values*flux_unit
+            planet_reflection_fraction = planet_reflection_only / (combined_df['Stellar'].values*flux_unit)
+            planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
+            reflected.append(planet_reflection_adj)
         
-        psg_noise_source = noise_df['Source'].values * flux_unit
-        psg_source = combined_df['Total'].values * flux_unit
+        return sub_planet_wavelength,reflected[0] * N1_frac + reflected[1] * (1-N1_frac)
+    def calculate_noise(self,N1,N2,N1_frac,time_scale_factor,cmb_wavelength,cmb_flux):
+        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
+        psg_noise_path1 = Path(self.dirs['psg_noise']) / f'phase{str(N1).zfill(3)}.noi'
+        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
+        psg_noise_path2 = Path(self.dirs['psg_noise']) / f'phase{str(N2).zfill(3)}.noi'
+        
+        psg_noise_source = []
+        psg_source = []
+        
+        for psg_combined_path,psg_noise_path in zip(
+            [psg_combined_path1,psg_combined_path2],
+            [psg_noise_path1,psg_noise_path2]
+            ):
+            combined_df = pd.read_csv(psg_combined_path,
+                comment='#',
+                delim_whitespace=True,
+                names=["Wave/freq", "Total", "Noise", "Stellar", "Planet",'_','__'],
+                )
+            noise_df = pd.read_csv(psg_noise_path,
+                comment='#',
+                delim_whitespace=True,
+                names=['Wave/freq','Total','Source','Detector','Telescope','Background'],
+                )
+            if self.params.psg_rad_unit == 'Wm2um':
+                flux_unit = u.Unit('W m-2 um-1')
+            else:
+                raise NotImplementedError('That flux unit is not implemented')
+
+            # validate
+            assert np.all(isclose(cmb_wavelength,combined_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um)
+                            & isclose(cmb_wavelength,noise_df['Wave/freq'].values*self.params.target_wavelength_unit,1e-3*u.um))
+            psg_noise_source.append(noise_df['Source'].values * flux_unit)
+            psg_source.append(combined_df['Total'].values * flux_unit)
+        psg_noise_source = psg_noise_source[0]*N1_frac + psg_noise_source[1] * (1-N1_frac)
+        psg_source = psg_source[0]*N1_frac + psg_source[1] * (1-N1_frac)
+
         model_noise = psg_noise_source * np.sqrt(cmb_flux/psg_source)
-
         noise_sq = model_noise**2 + (noise_df['Detector'].values*flux_unit)**2 + (noise_df['Telescope'].values*flux_unit)**2 + (noise_df['Background'].values*flux_unit)**2
-        return cmb_wavelength, np.sqrt(noise_sq)
+        return cmb_wavelength, np.sqrt(noise_sq) * time_scale_factor
 
 
-    def get_thermal_spectrum(self,phase):
-        psg_thermal_path = Path(self.dirs['psg_thermal']) / f'phase{to_float(phase,u.deg):.3f}.rad'
-        thermal_df = pd.read_csv(psg_thermal_path,
-            comment='#',
-            delim_whitespace=True,
-            names=["Wave/freq", "Total", "Noise", "Planet",'_','__'],
-            )
-        if self.params.psg_rad_unit == 'Wm2um':
-            flux_unit = u.Unit('W m-2 um-1')
-        else:
-            raise NotImplementedError('That flux unit is not implemented')
-        return thermal_df['Wave/freq'].values * self.params.target_wavelength_unit, thermal_df['Planet'].values*flux_unit
+    def get_thermal_spectrum(self,N1,N2,N1_frac):
+        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
+        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(3)}.rad'
+        
+        wavelength = []
+        thermal = []
+
+        for psg_thermal_path in [psg_thermal_path1,psg_thermal_path2]:
+            thermal_df = pd.read_csv(psg_thermal_path,
+                comment='#',
+                delim_whitespace=True,
+                names=["Wave/freq", "Total", "Noise", "Planet",'_','__'],
+                )
+            if self.params.psg_rad_unit == 'Wm2um':
+                flux_unit = u.Unit('W m-2 um-1')
+            else:
+                raise NotImplementedError('That flux unit is not implemented')
+            
+            wavelength.append(thermal_df['Wave/freq'].values * self.params.target_wavelength_unit)
+            thermal.append(thermal_df['Planet'].values*flux_unit)
+        
+        assert np.all(isclose(wavelength[0],wavelength[1],1e-3*u.um))
+        
+        return wavelength[0], thermal[0]*N1_frac + thermal[1]*(1-N1_frac)
 
     def build_spectra(self):
         """build spectra"""
@@ -444,18 +489,23 @@ class ObservationModel:
                 obs_df[name] = observation_info[key]
         obs_df.to_csv(obs_info_filename,sep=',',index=False)
 
+        planet_observation_info = self.get_planet_observation_plan(observation_parameters)
+        planet_times = planet_observation_info['time']
+
         time_step = self.params.total_observation_time / self.params.total_images
+        planet_time_step = self.params.total_observation_time / self.params.planet_images
+
         for index in tqdm(range(self.params.total_images),desc='Build Spectra',total=self.params.total_images,position=0,leave=True):
 
-            tstart = observation_info['time'][index] - observation_info['time'][0]
+            tindex = observation_info['time'][index]
+            tstart = tindex - observation_info['time'][0]
             tfinish = tstart + time_step
             planetPhase = observation_info['phase'][index]
             sub_obs_lon = observation_info['sub_obs_lon'][index]
             sub_obs_lat = observation_info['sub_obs_lat'][index]
-            if planetPhase>178*u.deg and planetPhase<182*u.deg:
-                planetPhase=182.0*u.deg # Add transit phase;
-            if planetPhase == 185*u.deg:
-                planetPhase = 186.0*u.deg
+            N1,N2 = self.get_planet_indicies(planet_times,tindex)
+            N1_frac = 1 - to_float((tindex - planet_times[N1])/planet_time_step,u.Unit(''))
+            
             sub_planet_lon = observation_info['sub_planet_lon'][index]
             sub_planet_lat = observation_info['sub_planet_lat'][index]
         
@@ -465,16 +515,18 @@ class ObservationModel:
                                                             'lon':sub_planet_lon},tstart,tfinish)
             assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
-            wave, reflection_flux_adj = self.calculate_reflected_spectra(planetPhase,comp_wave,to_planet_flux)
+            wave, reflection_flux_adj = self.calculate_reflected_spectra(N1,N2,N1_frac,comp_wave,to_planet_flux)
             assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
-            wave, thermal_spectrum = self.get_thermal_spectrum(planetPhase)
+            wave, thermal_spectrum = self.get_thermal_spectrum(N1,N2,N1_frac)
             assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
             combined_flux = comp_flux + reflection_flux_adj + thermal_spectrum
 
 
-            wave, noise_flux_adj = self.calculate_noise(planetPhase,comp_wave, combined_flux)
+            wave, noise_flux_adj = self.calculate_noise(N1,N2,N1_frac,
+                        np.sqrt(to_float(planet_time_step/time_step,u.Unit(''))),
+                        comp_wave, combined_flux)
             assert np.all(isclose(comp_wave,wave,1e-3*u.um))
 
             df = pd.DataFrame({
