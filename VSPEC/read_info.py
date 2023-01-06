@@ -3,6 +3,7 @@ from astropy import units as u, constants as c
 from pathlib import Path
 
 from VSPEC.helpers import to_float
+from VSPEC.variable_star_model import MSH
 
 
 class ParamModel:
@@ -27,9 +28,24 @@ class ParamModel:
         self.star_teff_min = configParser.getint('Star', 'star_teff_min') * u.K
         self.star_teff_max = configParser.getint('Star', 'star_teff_max') * u.K
 
+        self.star_spot_initial_coverage = configParser.getfloat('Star','star_spot_initial_coverage')
+        self.star_spot_distribution = configParser.get('Star','star_spot_distribution')
+        self.star_spot_mean_area = configParser.getfloat('Star','star_spot_mean_area') * MSH
+        self.star_spot_sigma_area = configParser.getfloat('Star','star_spot_sigma_area')
+        self.star_spot_umbra_teff = configParser.getfloat('Star','star_spot_umbra_teff')*u.K
+        self.star_spot_penumbra_teff = configParser.getfloat('Star','star_spot_penumbra_teff')*u.K
+        self.star_spot_growth_rate = configParser.getfloat('Star','star_spot_growth_rate') / u.day
+        self.star_spot_decay_rate = configParser.getfloat('Star','star_spot_decay_rate') * MSH / u.day
+        self.star_spot_initial_area = configParser.getfloat('Star','star_spot_initial_area') * MSH
         self.star_spot_coverage = float(configParser.get('Star', 'star_spot_coverage'))
-        self.star_fac_coverage = float(configParser.get('Star', 'star_fac_coverage'))
         self.star_spot_warmup = configParser.getfloat('Star','star_spot_warmup') * u.day
+
+        self.star_fac_coverage = float(configParser.get('Star', 'star_fac_coverage'))
+        self.star_fac_mean_radius = configParser.getfloat('Star','star_fac_mean_radius') * u.km
+        self.star_fac_HWHM_radius = configParser.getfloat('Star','star_fac_HWMH_radius') * u.km
+        self.star_fac_mean_timescale = configParser.getfloat('Star','star_fac_mean_timescale') * u.hr
+        self.star_fac_HWHM_timescale = configParser.getfloat('Star','star_fac_HWMH_timescale') * u.hr
+        self.star_fac_distribution = configParser.get('Star','star_fac_distribution')
         self.star_fac_warmup = configParser.getfloat('Star','star_fac_warmup') * u.hr
 
         self.star_flare_group_prob = configParser.getfloat('Star','star_flare_group_prob')
@@ -74,6 +90,8 @@ class ParamModel:
         self.planet_orbital_period = configParser.getfloat('Planet','planet_orbital_period')*u.day
         self.planet_eccentricity = configParser.getfloat('Planet','planet_eccentricity')
         self.planet_rotational_period = configParser.getfloat('Planet','planet_rotational_period')*u.day
+        self.planet_obliquity = configParser.getfloat('Planet','planet_obliquity')*u.deg
+        self.planet_obliquity_direction = configParser.getfloat('Planet','planet_obliquity_direction')
 
 
         self.system_distance = configParser.getfloat('System','system_distance') * u.pc
@@ -87,7 +105,7 @@ class ParamModel:
         self.gcm_path = configParser.get('Model','gcm_path')
         self.use_globes = configParser.getboolean('Model','use_globes')
         self.gcm_binning = configParser.getint('Model','gcm_binning')
-        self.omit_planet = configParser.getboolean('Model','omit_planet')
+        self.planet_phase_binning = configParser.getint('Model','planet_phase_binning')
         self.use_molec_signatures = configParser.getboolean('Model','use_molec_signatures')
         self.psg_url = configParser.get('Model','psg_url')
         try:
@@ -122,6 +140,8 @@ class ParamModel:
         self.telescope_diameter = configParser.getfloat('Observation','telescope_diameter')
 
         self.total_images = int(round(float((self.total_observation_time/self.image_integration_time).to(u.Unit('')))))
+        self.planet_images = int(round(float((self.total_observation_time
+                            /(self.planet_phase_binning*self.image_integration_time)).to(u.Unit('')))))
         self.detector_number_of_integrations = int(round((self.image_integration_time/self.detector_integration_time/u.s).to(u.Unit('')).value))
 
         self.beamValue = configParser.getfloat('Observation', 'beamValue') # Beam value and unit used to also retrieve stellar flux values, not just planet

@@ -34,12 +34,12 @@ class PhaseAnalyzer:
 
 
 
-        star = pd.DataFrame()
+        star = []
         # star_facing_planet = pd.DataFrame() # not super interesting
-        reflected = pd.DataFrame()
-        thermal = pd.DataFrame()
-        total = pd.DataFrame()
-        noise = pd.DataFrame()
+        reflected = []
+        thermal = []
+        total = []
+        noise = []
         for i in range(self.N_images):
             filename = path / f'phase{str(i).zfill(3)}.csv'
             spectra = pd.read_csv(filename)
@@ -52,49 +52,50 @@ class PhaseAnalyzer:
             # star
             col = cols[cols.str.contains('star\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            star[str(i)] = to_float(spectra[col].values * unit,fluxunit)
+            star.append(to_float(spectra[col].values * unit,fluxunit))
             # reflected
             col = cols[cols.str.contains('reflected\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            reflected[i] = to_float(spectra[col].values * unit,fluxunit)
+            reflected.append(to_float(spectra[col].values * unit,fluxunit))
             # reflected
             col = cols[cols.str.contains('planet_thermal\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            thermal[i] = to_float(spectra[col].values * unit,fluxunit)
+            thermal.append(to_float(spectra[col].values * unit,fluxunit))
             # total
             col = cols[cols.str.contains('total\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            total[i] = to_float(spectra[col].values * unit,fluxunit)
+            total.append(to_float(spectra[col].values * unit,fluxunit))
             # noise
             col = cols[cols.str.contains('noise\[')].values[0]
             unit = u.Unit(re.findall('\[([\w\d\/ \(\)]+)\]', col)[0])
-            noise[i] = to_float(spectra[col].values * unit,fluxunit)
-        self.star = star.values * fluxunit
-        self.reflected = reflected.values * fluxunit
-        self.thermal = thermal.values * fluxunit
-        self.total = total.values * fluxunit
-        self.noise = noise.values * fluxunit
-
-        try:
-            layer_path = path.parent / 'PSGLayers'
-            layers = []
-            first = True
-            for phase in self.phase:
-                if phase>178*u.deg and phase<182*u.deg:
-                    phase=182.0*u.deg # Add transit phase;
-                filename = layer_path / f'phase{to_float(phase,u.deg):.3f}.lyr'
-                dat = self.read_lyr(filename)
-                if not first:
-                    assert np.all(dat.columns == cols)
-                else:
-                    first = False
-                cols = dat.columns
-                layers.append(dat.values)
-            index = np.arange(layers[0].shape[0])
-            self.layers = xarray.DataArray(np.array(layers),dims = ['phase','layer','var'],coords={'phase':self.unique_phase,'layer':index,'var':cols})
-        except IndexError:
-            print('No Layer info, maybe globes is off')
-            self.layers = None
+            noise.append(to_float(spectra[col].values * unit,fluxunit))
+        self.star = np.asarray(star).T * fluxunit
+        self.reflected = np.asarray(reflected).T * fluxunit
+        self.thermal = np.asarray(thermal).T * fluxunit
+        self.total = np.asarray(total).T * fluxunit
+        self.noise = np.asarray(noise).T * fluxunit
+        
+        #tempararily disable layers to test other things
+        # try:
+        #     layer_path = path.parent / 'PSGLayers'
+        #     layers = []
+        #     first = True
+        #     for phase in self.phase:
+        #         if phase>178*u.deg and phase<182*u.deg:
+        #             phase=182.0*u.deg # Add transit phase;
+        #         filename = layer_path / f'phase{to_float(phase,u.deg):.3f}.lyr'
+        #         dat = self.read_lyr(filename)
+        #         if not first:
+        #             assert np.all(dat.columns == cols)
+        #         else:
+        #             first = False
+        #         cols = dat.columns
+        #         layers.append(dat.values)
+        #     index = np.arange(layers[0].shape[0])
+        #     self.layers = xarray.DataArray(np.array(layers),dims = ['phase','layer','var'],coords={'phase':self.unique_phase,'layer':index,'var':cols})
+        # except IndexError:
+        #     print('No Layer info, maybe globes is off')
+        #     self.layers = None
 
 
     def read_lyr(self,filename):
