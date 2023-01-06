@@ -84,7 +84,9 @@ class ObservationModel:
     def get_observation_plan(self,observation_parameters:SystemGeometry):
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                 self.params.total_observation_time,N_obs=self.params.total_images)
-
+    def get_planet_observation_plan(self,observation_parameters:SystemGeometry):
+        return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
+                self.params.total_observation_time,N_obs=self.params.planet_images)
 
     def build_planet(self):
         """build planet
@@ -181,12 +183,26 @@ class ObservationModel:
         ####################################
         # Calculate observation parameters
         observation_parameters = self.get_observation_parameters()
-        obs_plan = self.get_observation_plan(observation_parameters)
-        print(f'Starting at phase {self.params.planet_initial_phase}, observe for {self.params.total_observation_time} in {self.params.total_images} steps')
+        obs_plan = self.get_planet_observation_plan(observation_parameters)
+
+        obs_info_filename = Path(self.dirs['Data']) / 'observation_info.csv'
+        obs_df = pd.DataFrame()
+        for key in obs_plan.keys():
+            try:
+                unit  = obs_plan[key].unit
+                name = f'{key}[{str(unit)}]'
+                obs_df[name] = obs_plan[key].value
+            except AttributeError:
+                unit = ''
+                name = f'{key}[{str(unit)}]'
+                obs_df[name] = obs_plan[key]
+        obs_df.to_csv(obs_info_filename,sep=',',index=False)
+
+        print(f'Starting at phase {self.params.planet_initial_phase}, observe for {self.params.total_observation_time} in {self.params.planet_images} steps')
         print('Phases = ' + str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))),2)) + ' deg')
         ####################################
         # iterate through phases
-        for i in tqdm(range(self.params.total_images),desc='Build Planet',total=self.params.total_images):
+        for i in tqdm(range(self.params.planet_images),desc='Build Planet',total=self.params.planet_images):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
@@ -197,17 +213,7 @@ class ObservationModel:
                 phase=182.0*u.deg # Add transit phase;
             if phase == 185*u.deg:
                 phase = 186.0*u.deg
-            if self.params.omit_planet and (i > 1):
-                phase0 = obs_plan['phase'][0]
-                if phase0>178*u.deg and phase0<182*u.deg:
-                    phase0=182.0*u.deg # Add transit phase;
-                if phase0 == 185*u.deg:
-                    phase0 = 186.0*u.deg
-                # copy combined
-                for dir, ext in zip(['psg_combined','psg_noise','psg_configs','psg_thermal','psg_layers'],['rad','noi','cfg','rad','lyr']):
-                    file = Path(self.dirs[dir]) / f'phase{to_float(phase0,u.deg):.3f}.{ext}'
-                    target = Path(self.dirs[dir]) / f'phase{to_float(phase,u.deg):.3f}.{ext}'
-                    system(f'cp {file} {target}')
+            
             else:
                 pl_sub_obs_lon = sub_stellar_lon - phase
                 pl_sub_obs_lat =  sub_stellar_lat - self.params.system_inclination
@@ -229,7 +235,7 @@ class ObservationModel:
                     app = 'globes'
                 else:
                     app = None
-                outfile = Path(self.dirs['psg_combined']) / f'phase{to_float(phase,u.deg):.3f}.rad'
+                outfile = Path(self.dirs['psg_combined']) / f'phase{str(i).zfill(3)}.rad'
                 call_api(cfg_path,psg_url=url,api_key=api_key,
                         type=call_type,app=app,outfile=outfile,verbose=self.debug)
                 # call api to get noise
@@ -239,7 +245,7 @@ class ObservationModel:
                     app = 'globes'
                 else:
                     app = None
-                outfile = Path(self.dirs['psg_noise']) / f'phase{to_float(phase,u.deg):.3f}.noi'
+                outfile = Path(self.dirs['psg_noise']) / f'phase{str(i).zfill(3)}.noi'
                 call_api(cfg_path,psg_url=url,api_key=api_key,
                         type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
@@ -247,7 +253,7 @@ class ObservationModel:
                 url = self.params.psg_url
                 call_type = 'cfg'
                 app = 'globes'
-                outfile = Path(self.dirs['psg_configs']) / f'phase{to_float(phase,u.deg):.3f}.cfg'
+                outfile = Path(self.dirs['psg_configs']) / f'phase{str(i).zfill(3)}.cfg'
                 call_api(cfg_path,psg_url=url,api_key=api_key,
                         type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
@@ -265,7 +271,7 @@ class ObservationModel:
                     app = 'globes'
                 else:
                     app = None
-                outfile = Path(self.dirs['psg_thermal']) / f'phase{to_float(phase,u.deg):.3f}.rad'
+                outfile = Path(self.dirs['psg_thermal']) / f'phase{str(i).zfill(3)}.rad'
                 call_api(cfg_path,psg_url=url,api_key=api_key,
                         type=call_type,app=app,outfile=outfile,verbose=self.debug)
                 # call api to get layers
@@ -275,7 +281,7 @@ class ObservationModel:
                     app = 'globes'
                 else:
                     app = None
-                outfile = Path(self.dirs['psg_layers']) / f'phase{to_float(phase,u.deg):.3f}.lyr'
+                outfile = Path(self.dirs['psg_layers']) / f'phase{str(i).zfill(3)}.lyr'
                 call_api(cfg_path,psg_url=url,api_key=api_key,
                         type=call_type,app=app,outfile=outfile,verbose=self.debug)
     
