@@ -21,3 +21,17 @@ star_fac_mean_timescale,float,Mean facula timescale in hr.
 star_fac_HWMH_timescale,float,Facula timescale distribution half-width-half-maximum in hr. Difference between the peak of the timescale distribution and the half maximum in the positive direction
 star_fac_distribution,str,Method to distribute faculae. Currently only \verb|iso| is supported.
 star_fac_warmup,float, Time (in hr) to ``warm up'' the star to reach growth-decay equilibrium
+star_flare_group_prob,float,Probability that a randomly generated flare is closely followed by another flare
+star_flare_mean_teff,float,Mean \teff~in K of the generaeted flares
+star_flare_sigma_teff,float,Standard deviation, in K, of the flare \teff distribution
+star_flare_mean_log_fwhm_days,float,Mean log full width half maximum of the flares in days.
+star_flare_sigma_log_fwhm_days,float,Standard deviation log full width half maximum of the flares in days.
+star_flare_log_E_erg_max,float,Log of the maximum energy flares to be considered in ergs
+star_flare_log_E_erg_min,float,Log of the minimum energy flares to be considered in ergs
+star_flare_log_E_erg_Nsteps,int,Number of flare energy steps to consider
+star_mass,float,Stellar mass in solar masses
+star_radius,float,Stellar radius in solar radii
+star_rot_period,float,Stellar rotation period in days
+star_rot_offset_from_orbital_plane,float,Angle between stellar rotation vector and the normal to the orbital plane.
+star_rot_offset_angle_from_pariapse,float,Angle between the stellar rotation vector's projection onto the orbital plane and the planet phase at periasteron
+psg_star_template,str,Stellar template to use in PSG
