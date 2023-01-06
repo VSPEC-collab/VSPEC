@@ -141,6 +141,8 @@ class ParamModel:
         self.telescope_diameter = configParser.getfloat('Observation','telescope_diameter')
 
         self.total_images = int(round(float((self.total_observation_time/self.image_integration_time).to(u.Unit('')))))
+        self.planet_images = int(round(float((self.total_observation_time
+                            /(self.planet_phase_binning*self.image_integration_time)).to(u.Unit('')))))
         self.detector_number_of_integrations = int(round((self.image_integration_time/self.detector_integration_time/u.s).to(u.Unit('')).value))
 
         self.beamValue = configParser.getfloat('Observation', 'beamValue') # Beam value and unit used to also retrieve stellar flux values, not just planet
