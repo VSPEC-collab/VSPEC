@@ -91,7 +91,10 @@ class ParamModel:
         self.planet_eccentricity = configParser.getfloat('Planet','planet_eccentricity')
         self.planet_rotational_period = configParser.getfloat('Planet','planet_rotational_period')*u.day
         self.planet_obliquity = configParser.getfloat('Planet','planet_obliquity')*u.deg
-        self.planet_obliquity_direction = configParser.getfloat('Planet','planet_obliquity_direction')
+        self.planet_obliquity_direction = configParser.getfloat('Planet','planet_obliquity_direction')*u.deg
+
+        if self.planet_obliquity != 1*u.deg:
+            raise NotImplementedError('Currently non-zero obliquities are not supported. The Geometry is hard.')
 
 
         self.system_distance = configParser.getfloat('System','system_distance') * u.pc
