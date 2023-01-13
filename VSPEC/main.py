@@ -13,6 +13,7 @@ from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float
 from VSPEC.psg_api import call_api
 from VSPEC.read_info import ParamModel
+from VSPEC.analysis import read_lyr
 
 
 class ObservationModel:
@@ -439,7 +440,10 @@ class ObservationModel:
         psg_source = psg_source[0]*N1_frac + psg_source[1] * (1-N1_frac)
 
         model_noise = psg_noise_source * np.sqrt(cmb_flux/psg_source)
-        noise_sq = model_noise**2 + (noise_df['Detector'].values*flux_unit)**2 + (noise_df['Telescope'].values*flux_unit)**2 + (noise_df['Background'].values*flux_unit)**2
+        noise_sq = (model_noise**2
+                    + (noise_df['Detector'].values*flux_unit)**2
+                    + (noise_df['Telescope'].values*flux_unit)**2
+                    + (noise_df['Background'].values*flux_unit)**2)
         return cmb_wavelength, np.sqrt(noise_sq) * time_scale_factor
 
 
@@ -468,9 +472,22 @@ class ObservationModel:
         
         return wavelength[0], thermal[0]*N1_frac + thermal[1]*(1-N1_frac)
 
+    def get_layer_data(self,N1:int,N2:int,N1_frac:float)->pd.DataFrame:
+        psg_layers_path1 = Path(self.dirs['psg_layers']) / f'phase{str(N1).zfill(3)}.lyr'
+        psg_layers_path2 = Path(self.dirs['psg_layers']) / f'phase{str(N2).zfill(3)}.lyr'
+        layers1 = read_lyr(psg_layers_path1)
+        layers2 = read_lyr(psg_layers_path2)
+        assert np.all(layers1.columns == layers2.columns) & (len(layers1)==len(layers2))
+        cols = layers1.columns
+        dat = layers1.values * N1_frac + layers2.values * (1-N1_frac)
+        df = pd.DataFrame(columns=cols,data=dat)
+        return df
+
     def build_spectra(self):
         """build spectra"""
-        self.build_star()
+        if not hasattr(self,'star'): # user can define a custom star before calling this function, e.g. for a specific spot pattern
+            self.build_star()
+
         self.warm_up_star(spot_warmup_time=self.params.star_spot_warmup,
                             facula_warmup_time=self.params.star_fac_warmup)
         observation_parameters = self.get_observation_parameters()
@@ -540,6 +557,12 @@ class ObservationModel:
             })
             outfile = Path(self.dirs['all_model']) / f'phase{str(index).zfill(3)}.csv'
             df.to_csv(outfile,index=False,sep=',')
+
+            #layers
+            layerdat = self.get_layer_data(N1,N2,N1_frac)
+            outfile = Path(self.dirs['all_model']) / f'layer{str(index).zfill(3)}.csv'
+            layerdat.to_csv(outfile,index=False,sep=',')
+
 
             self.star.birth_spots(time_step)
             self.star.birth_faculae(time_step)

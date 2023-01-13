@@ -93,7 +93,7 @@ class ParamModel:
         self.planet_obliquity = configParser.getfloat('Planet','planet_obliquity')*u.deg
         self.planet_obliquity_direction = configParser.getfloat('Planet','planet_obliquity_direction')*u.deg
 
-        if self.planet_obliquity != 1*u.deg:
+        if self.planet_obliquity != 0*u.deg:
             raise NotImplementedError('Currently non-zero obliquities are not supported. The Geometry is hard.')
 
 
