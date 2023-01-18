@@ -487,8 +487,7 @@ class ObservationModel:
         """build spectra"""
         if not hasattr(self,'star'): # user can define a custom star before calling this function, e.g. for a specific spot pattern
             self.build_star()
-
-        self.warm_up_star(spot_warmup_time=self.params.star_spot_warmup,
+            self.warm_up_star(spot_warmup_time=self.params.star_spot_warmup,
                             facula_warmup_time=self.params.star_fac_warmup)
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(observation_parameters)
