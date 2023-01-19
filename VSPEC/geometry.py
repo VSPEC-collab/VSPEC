@@ -60,6 +60,8 @@ class SystemGeometry:
         self.system_distance = system_distance
         self.obliquity = obliquity
         self.obliquity_direction = obliquity_direction
+        self.init_time_since_periasteron = self.get_time_since_periasteron(self.init_planet_phase)
+        self.init_true_anomaly = self.true_anomaly(self.init_time_since_periasteron)
 
     
     def sub_obs(self,time):
@@ -190,9 +192,15 @@ class SystemGeometry:
         return time.to(u.day)
     
     def get_substellar_lon_at_periasteron(self)-> u.Quantity[u.deg]:
+        """
+        get substellar longitude at periasteron
+
+        Computes the substellar longitude at the previous periasteron given the rotation period,
+        orbital period, and initial substellar longitude
+        """
         init_time_since_periasteron = self.get_time_since_periasteron(self.init_planet_phase)
         init_deg_rotated = 360*u.deg * init_time_since_periasteron/self.planetary_rot_period
-        return self.planetary_init_substellar_lon - init_deg_rotated + (self.omega - self.init_planet_phase)
+        return self.planetary_init_substellar_lon + init_deg_rotated - self.init_true_anomaly
 
 
     def get_substellar_lon(self,time_since_periasteron) -> u.quantity.Quantity:
@@ -206,7 +214,7 @@ class SystemGeometry:
         true_anom = self.true_anomaly(time_since_periasteron)
         # how long since summer in N
         north_season = (true_anom - self.obliquity_direction) % (360*u.deg)
-        lon = substellar_lon_at_periasteron - true_anom + deg_rotated - self.obliquity*np.cos(north_season)
+        lon = substellar_lon_at_periasteron + true_anom - deg_rotated - self.obliquity*np.cos(north_season)
         # lon = self.planetary_init_substellar_lon - dphase + rotated
         # lon = self.planetary_init_substellar_lon + dphase - rotated
         return lon % (360*u.deg)
