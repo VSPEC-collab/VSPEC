@@ -957,7 +957,8 @@ class FaculaGenerator:
     """
     def __init__(self,R_peak:Quantity[u.km] = 800*u.km, R_HWHM:Quantity[u.km] = 300*u.km,
                  T_peak:Quantity[u.hr] = 6.2*u.hr, T_HWHM:Quantity[u.hr] = 4.7*u.hr,
-                 coverage:float=0.0001,dist:str = 'iso',Nlon:int=1000,Nlat:int=500,gridmaker=None):
+                 coverage:float=0.0001,dist:str = 'iso',Nlon:int=1000,Nlat:int=500,gridmaker=None,
+                 teff_bounds = (2500*u.K,3400*u.K)):
         assert u.get_physical_type(R_peak) == 'length'
         assert u.get_physical_type(R_HWHM) == 'length'
         assert u.get_physical_type(T_peak) == 'time'
@@ -977,6 +978,7 @@ class FaculaGenerator:
             self.gridmaker=gridmaker
         self.Nlon = Nlon
         self.Nlat = Nlat
+        self.teff_bounds = teff_bounds
         
     def get_floor_teff(self,R,Teff_star):
         """Get floor Teff
@@ -997,7 +999,9 @@ class FaculaGenerator:
         d_teff[reg] = 510 * u.K - 18*R[reg]/5/u.km*u.K
         reg = (R > 175*u.km)
         d_teff[reg] = -4*u.K*R[reg]/7/u.km - 20 * u.K
-        return d_teff + Teff_star
+        teff = d_teff + Teff_star
+        teff = np.clip(teff,*self.teff_bounds)
+        return teff
     
     def get_wall_teff(self,R,Teff_floor):
         """Get wall Teff
@@ -1011,7 +1015,9 @@ class FaculaGenerator:
         Returns:
             (astropy.unit.quantity.Quantity [temperature]): wall temperature of faculae
         """
-        return Teff_floor + R/u.km * u.K + 125*u.K
+        teff = Teff_floor + R/u.km * u.K + 125*u.K
+        teff = np.clip(teff,*self.teff_bounds)
+        return teff
         
         
     def birth_faculae(self,time, rad_star, Teff_star):
