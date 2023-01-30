@@ -283,7 +283,7 @@ class Star:
         None
     """
     def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None,
-                    flare_generator = None,spot_generator = None,fac_generator=None):
+                    flare_generator = None,spot_generator = None,fac_generator=None,ld_params = [0,1,0]):
         self.name = name
         assert isinstance(Teff,Quantity)
         self.Teff = Teff
@@ -320,6 +320,7 @@ class Star:
             self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km,Nlon=Nlon,Nlat=Nlat)
         else:
             self.fac_generator = fac_generator
+        self.ld_params = ld_params
     def get_pixelmap(self):
         """get pixelmap
         Create map of stellar surface based on spots:
@@ -390,7 +391,8 @@ class Star:
         cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
                 + np.cos(sub_obs_coords['lat'])* np.cos(latgrid)
                  * np.cos(sub_obs_coords['lon']-longrid) )
-        cos_c[cos_c < 0] = 0
+        ld = cos_c**0 * self.ld_params[0] + cos_c**1 * self.ld_params[1] + cos_c**2 * self.ld_params[2]
+        ld[cos_c < 0] = 0
         jacobian = np.sin(latgrid + 90*u.deg)
 
         int_map, map_keys = self.faculae.map_pixels(self.map,self.radius,self.Teff)
@@ -400,7 +402,7 @@ class Star:
         # spots and photosphere
         for teff in Teffs:
             pix = self.map == teff
-            pix_sum = ((pix.astype('float32') * cos_c * jacobian)[int_map==0]).sum()
+            pix_sum = ((pix.astype('float32') * ld * jacobian)[int_map==0]).sum()
             data[teff] = pix_sum
         for i in map_keys.keys():
             facula = self.faculae.faculae[i]
@@ -408,7 +410,7 @@ class Star:
                                 + np.cos(facula.lat)*np.cos(sub_obs_coords['lat']) * np.sin(0.5*(facula.lon - sub_obs_coords['lon']))**2 ))
             frac_area_dict = facula.fractional_effective_area(angle)
             loc = int_map == map_keys[i]
-            pix_sum = (loc.astype('float32') * cos_c * jacobian).sum()
+            pix_sum = (loc.astype('float32') * ld * jacobian).sum()
             for teff in frac_area_dict.keys():
                 if teff in data:
                     data[teff] = data[teff] + pix_sum * frac_area_dict[teff]
@@ -442,8 +444,9 @@ class Star:
         cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
                 + np.cos(sub_obs_coords['lat'])* np.cos(latgrid)
                  * np.cos(sub_obs_coords['lon']-longrid) )
-        cos_c[cos_c < 0] = 0
-        return cos_c
+        ld = cos_c**0 * self.ld_params[0] + cos_c**1 * self.ld_params[1] + cos_c**2 * self.ld_params[2]
+        ld[cos_c < 0] = 0
+        return ld
 
     def birth_spots(self,time):
         """birth spots
