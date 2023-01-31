@@ -26,7 +26,9 @@ class SystemGeometry:
         stellar_offset_phase (astropy.units.quantity.Quantity [angle]): direction of stellar offset, 0 defined as facing observer. Right hand direction is positive
         eccentricity (float): orbital eccentricity of the planet
         argument_of_pariapsis (astropy.units.quantity.Quantity [angle]): Angle between the observer and the point of pariapsis
-
+        system_distance (u.Quantity [distance]): distance to the system
+        obliquity: (u.Quantity [angle]): planet obliquity magnitude
+        obliquity_direction: (u.Quantity [angle]): The true anomaly at which the N pole faces away from the star
     Returns:
         None
     """
@@ -197,6 +199,12 @@ class SystemGeometry:
 
         Computes the substellar longitude at the previous periasteron given the rotation period,
         orbital period, and initial substellar longitude
+
+        Args:
+            None
+        
+        Returns:
+            (Quantity): substellar longitude at periasteron
         """
         init_time_since_periasteron = self.get_time_since_periasteron(self.init_planet_phase)
         init_deg_rotated = 360*u.deg * init_time_since_periasteron/self.planetary_rot_period
@@ -205,9 +213,15 @@ class SystemGeometry:
 
     def get_substellar_lon(self,time_since_periasteron) -> u.quantity.Quantity:
         """
-        time_since_periasteron is current time
-        phase0 is initial phase of simulation
-        lon0 is initial substellar lon is simulation
+        get substellar lon
+
+        Calculate the substellar longitude at a particular time since periasteron
+
+        Args:
+            time_since_periasteron (Quantity): ellapsed time since the periasteron at which substellar lon is known
+        
+        Returns:
+            (Quantity): The current substellar longitude
         """
         substellar_lon_at_periasteron = self.get_substellar_lon_at_periasteron()
         deg_rotated = 360*u.deg * time_since_periasteron/self.planetary_rot_period
@@ -221,20 +235,47 @@ class SystemGeometry:
     
     def get_substellar_lat(self,phase:u.Quantity[u.deg])->u.Quantity[u.deg]:
         """
-        substellar latitude at particular phase
+        get substellar lat
+
+        Calculate the substellar latitude at a particular phase
+
+        Args:
+            phase (Quantity): Current phase
+        
+        Returns:
+            (Quantity): Current substellar latitude
         """
         true_anomaly = phase - self.omega
         north_season = (true_anomaly - self.obliquity_direction) % (360*u.deg)
         lat = 0*u.deg + self.obliquity*np.cos(north_season)
         return lat
     def get_pl_sub_obs_lon(self,time_since_periasteron: u.quantity.Quantity,phase:u.quantity.Quantity) -> u.quantity.Quantity:
-        """sub obs lon of planet
+        """
+        get planet sub-observer longitude
+
+        Compute the sub-observer longitude of the planet
+
+        Args:
+            time_since_periasteron (Quantity): Ellapsed time since periasteron
+            phase (Quantity): Current phase
+        
+        Returns:
+            (Quantity): Sub-observer longitude of the planet
         """
         lon = self.get_substellar_lon(time_since_periasteron) - phase
         return lon
 
     def get_pl_sub_obs_lat(self,phase:u.Quantity[u.deg])->u.Quantity[u.deg]:
-        """sub observer lat of planet
+        """
+        get planet sub-observer latitude
+
+        Compute the sub-observer latitude of the planet
+
+        Args:
+            phase (Quantity): Current phase
+        
+        Returns:
+            (Quantity): Sub-observer latitude of the planet
         """
         true_anomaly = phase - self.omega
         north_season = (true_anomaly - self.obliquity_direction) % (360*u.deg)
@@ -242,6 +283,17 @@ class SystemGeometry:
         return lat
 
     def get_radius_coeff(self,phase:u.quantity.Quantity) -> float:
+        """
+        get radius coeff
+
+        Compute the orbital radius coefficient that depends on eccentricity and phase
+
+        Args:
+            phase (Quantity): Current phase
+
+        Returns:
+            (float): The orbital radius coefficient
+        """
         true_anomaly = phase - self.omega
         num = 1 - self.e**2
         den = 1 + self.e*np.cos(true_anomaly)
@@ -313,6 +365,17 @@ class SystemGeometry:
                             'orbit_radius':orbit_radii}
     
     def plot(self,phase:u.Quantity) -> plt.figure:
+        """
+        plot
+
+        Create a plot of the geometry at a particular phase
+
+        Args:
+            phase (Quantity): current phase
+        
+        Returns:
+            (plt.Figure): Figure
+        """
         fig = plt.figure()
         axes = {}
         axes['orbit'] = fig.add_subplot(1,2,1)
