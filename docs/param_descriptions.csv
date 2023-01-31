@@ -3,6 +3,8 @@ star_name,str,Name of directory to create model in. All spectra will be stored i
 star_teff,float,\teff~of the star in K
 star_teff_min,float,Minimum temperature spectrum to include in binning
 star_teff_max,float,Maximum temperature spectrum to include in binning
+limb_darkening_a1,float,Limb darkening parameter a$_1$
+limb_darkening_a2,float,Limb darkening parameter a$_2$
 star_spot_initial_coverage,float,Spot coverage to begin with. This should only be used when spot timescales are much longer than the length of the observation.
 star_spot_distribution,str,Method to distribute spots. \verb|iso| or \verb|solar|
 star_spot_mean_area,float,Mean peak starspot area in MSH

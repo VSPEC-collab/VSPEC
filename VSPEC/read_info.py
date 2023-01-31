@@ -28,6 +28,9 @@ class ParamModel:
         self.star_teff_min = configParser.getint('Star', 'star_teff_min') * u.K
         self.star_teff_max = configParser.getint('Star', 'star_teff_max') * u.K
 
+        self.ld_a1 = configParser.getfloat('Star','limb_darkening_a1')
+        self.ld_a2 = configParser.getfloat('Star','limb_darkening_a2')
+
         self.star_spot_initial_coverage = configParser.getfloat('Star','star_spot_initial_coverage')
         self.star_spot_distribution = configParser.get('Star','star_spot_distribution')
         self.star_spot_mean_area = configParser.getfloat('Star','star_spot_mean_area') * MSH
@@ -91,7 +94,10 @@ class ParamModel:
         self.planet_eccentricity = configParser.getfloat('Planet','planet_eccentricity')
         self.planet_rotational_period = configParser.getfloat('Planet','planet_rotational_period')*u.day
         self.planet_obliquity = configParser.getfloat('Planet','planet_obliquity')*u.deg
-        self.planet_obliquity_direction = configParser.getfloat('Planet','planet_obliquity_direction')
+        self.planet_obliquity_direction = configParser.getfloat('Planet','planet_obliquity_direction')*u.deg
+
+        if self.planet_obliquity != 0*u.deg:
+            raise NotImplementedError('Currently non-zero obliquities are not supported. The Geometry is hard.')
 
 
         self.system_distance = configParser.getfloat('System','system_distance') * u.pc

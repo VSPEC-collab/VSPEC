@@ -29,7 +29,7 @@ model = VSPEC.ObservationModel(CONFIG_PATH,debug=False)
 # model.warm_up_star(30*u.day,0*u.day)
 # model.bin_spectra()
 
-# model.build_planet()
+model.build_planet()
 model.build_spectra()
 
 # data = VSPEC.PhaseAnalyzer(model.dirs['all_model'])
