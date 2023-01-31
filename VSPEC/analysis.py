@@ -148,6 +148,14 @@ class PhaseAnalyzer:
 
 def read_lyr(filename:str)->pd.DataFrame:
     """ read layer file
+
+    Parse a PSG .lyr file
+
+    Args:
+        filename (str): path to the file
+    
+    Returns:
+        (pd.DataFrame): A DataFrame constructed from the file contents
     """
     lines = []
     with open(filename,'r') as f:
