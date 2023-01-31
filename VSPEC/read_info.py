@@ -108,7 +108,8 @@ class ParamModel:
 
         self.Nlat = configParser.getint('Model','map_Nlat')    
         self.Nlon = configParser.getint('Model','map_Nlon')
-        self.gcm_path = configParser.get('Model','gcm_path')
+        gcm_path = configParser.get('Model','gcm_path')
+        self.gcm_path = Path(filename).parent / gcm_path
         self.use_globes = configParser.getboolean('Model','use_globes')
         self.gcm_binning = configParser.getint('Model','gcm_binning')
         self.planet_phase_binning = configParser.getint('Model','planet_phase_binning')
