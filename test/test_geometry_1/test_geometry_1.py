@@ -37,12 +37,13 @@ fig.savefig('orbit.png',facecolor='w')
 
 axes = []
 phases = np.linspace(0,90,9,endpoint=True)
+phases = [40]
 for phase in phases:
     filename = f'geoplot_phase{phase}.png'
     fig = geo.plot(phase*u.deg)
     fig.savefig(f'geoplot_phase{phase}.png',facecolor='w')
 nplots = len(phases)
-fig,axes = plt.subplots(nplots,1,figsize = (10,5*nplots))
+fig,axes = plt.subplots(nplots,1,figsize = (10,5*nplots),tight_layout=True)
 axes = np.ravel(axes)
 for i in range(nplots):
     phase = phases[i]
