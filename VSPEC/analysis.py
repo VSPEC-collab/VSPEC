@@ -89,7 +89,7 @@ class PhaseAnalyzer:
                 layers.append(dat.values)
             index = np.arange(layers[0].shape[0])
             self.layers = xarray.DataArray(np.array(layers),dims = ['phase','layer','var'],coords={'phase':self.unique_phase,'layer':index,'var':cols})
-        except IndexError:
+        except FileNotFoundError:
             print('No Layer info, maybe globes is off')
             self.layers = None
 
