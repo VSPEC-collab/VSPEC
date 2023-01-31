@@ -39,6 +39,12 @@ class ObservationModel:
         self.dirs = build_directories(self.params.star_name)
     
     def bin_spectra(self):
+        """
+        bin spectra
+
+        Load high resolution spectra and bin to required resolution.
+        These spectra are then written to file locally.
+        """
         teffs = 100*np.arange(np.floor(self.params.star_teff_min.to(u.K)/100/u.K),
                                 np.ceil(self.params.star_teff_max.to(u.K)/100/u.K)+1) * u.K
         for teff in tqdm(teffs,desc='Binning Spectra',total=len(teffs)):
@@ -50,12 +56,36 @@ class ObservationModel:
                 target_unit_wavelength=self.params.target_wavelength_unit,
                 target_unit_flux = self.params.target_flux_unit)
     
-    def read_spectrum(self,teff):
+    def read_spectrum(self,teff:u.Quantity):
+        """
+        read spectrum
+
+        Read a binned spectrum from file
+
+        Args:
+            teff (Quantity): Teff of spectrum to read.
+        
+        Returns:
+            (Quantity): Binned wavelengths
+            (Quantity): Binned flux
+        """
         filename = stellar_spectra.get_binned_filename(to_float(teff,u.K))
         path = self.dirs['binned']
         return stellar_spectra.read_binned_spectrum(filename,path=path)
 
     def get_model_spectrum(self,Teff):
+        """
+        get model spectrum
+
+        Interpolate between binned spectra to produce a model spectrum with a given Teff
+
+        Args:
+            Teff (Quantity): Teff of final spectrum
+        
+        Returns:
+            (Quantity): Binned wavelengths
+            (Quantity): Binned flux, corrected for system distance
+        """
         model_teffs = [to_float(np.round(Teff - Teff%(100*u.K)),u.K),
             to_float(np.round(Teff - Teff%(100*u.K) +(100*u.K)),u.K)] * u.K
         if Teff in model_teffs:
@@ -69,7 +99,18 @@ class ObservationModel:
                                 model_teffs[1],wave2,flux2)
         return wavelength, flux*self.params.distanceFluxCorrection
     
-    def get_observation_parameters(self):
+    def get_observation_parameters(self)->SystemGeometry:
+        """
+        get observation parameters
+
+        Get an object that can store and compute the observational parameters for this simulation
+
+        Args:
+            None
+        
+        Returns:
+            (SystemGeometry): Object storing observation parameters
+        """
         return SystemGeometry(self.params.system_inclination_psg,
                             0*u.deg,
                             self.params.planet_initial_phase,
@@ -87,9 +128,31 @@ class ObservationModel:
                             self.params.planet_obliquity_direction)
     
     def get_observation_plan(self,observation_parameters:SystemGeometry):
+        """
+        get observation plan
+
+        Compute the locations and geometries of each object for this observation
+
+        Args:
+            observation_parameters (SystemGeometry): Object containting the system geometry
+
+        Returns:
+            (dict): dict where values are Quantity array objects giving the state of the system at each epoch
+        """
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                 self.params.total_observation_time,N_obs=self.params.total_images)
     def get_planet_observation_plan(self,observation_parameters:SystemGeometry):
+        """
+        get planet observation plan
+
+        Compute the locations and geometries of each object for this observation, binned for the planet phase.
+
+        Args:
+            observation_parameters (SystemGeometry): Object containting the system geometry
+
+        Returns:
+            (dict): dict where values are Quantity array objects giving the state of the system at each epoch
+        """
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                 self.params.total_observation_time,N_obs=self.params.planet_images)
 
@@ -291,6 +354,11 @@ class ObservationModel:
     
 
     def build_star(self):
+        """
+        build star
+
+        build a variable star model based on user-specified parameters
+        """
         empty_spot_collection = vsm.SpotCollection(Nlat = self.params.Nlat,
                                                     Nlon = self.params.Nlon)
         empty_fac_collection = vsm.FaculaCollection(Nlat = self.params.Nlat,
@@ -319,8 +387,16 @@ class ObservationModel:
                             spot_generator=spot_generator, fac_generator=fac_generator,ld_params=ld_params)
 
 
-    def warm_up_star(self, spot_warmup_time=30*u.day, facula_warmup_time=3*u.day):
+    def warm_up_star(self, spot_warmup_time:u.Quantity[u.day]=30*u.day, facula_warmup_time:u.Quantity[u.day]=3*u.day):
+        """
+        warm up star
 
+        Generate spots, faculae, and/or flares for the star.
+
+        Args:
+            spot_warmup_time (Quantity): Time to run to approach spot equilibrium
+            facula_warmup_time (Quantity): Time to run to approach facula equilibrium
+        """
         if self.params.star_spot_initial_coverage > 0.0:
             self.star.generate_mature_spots(self.params.star_spot_initial_coverage)
             print(f'Generated {len(self.star.spots.spots)} mature spots')
@@ -338,6 +414,21 @@ class ObservationModel:
         self.star.get_flares_over_observation(self.params.total_observation_time)
 
     def calculate_composite_stellar_spectrum(self,sub_obs_coords,tstart,tfinish):
+        """
+        calculate composite stellar spectrum
+
+        Compute the stellar spectrum given an integration window and the side of the star facing
+            an observer
+        
+        Args:
+            sub_obs_coords (dict): dict containing stellar sub-observer coordinates
+            tstart (Quantity): Starting time of the observations
+            tfinish (Quantity): Ending time of the observations
+
+        Returns:
+            (Quantity): Stellar wavelength
+            (Quantity): Stellar flux
+        """
         surface_dict = self.star.calc_coverage(sub_obs_coords)
         visible_flares = self.star.get_flare_int_over_timeperiod(tstart,tfinish,sub_obs_coords)
         base_wave, base_flux = self.get_model_spectrum(self.params.star_teff)
@@ -357,7 +448,22 @@ class ObservationModel:
 
         return base_wave, base_flux
 
-    def get_planet_indicies(self,planet_times,tindex):
+    def get_planet_indicies(self,planet_times:u.Quantity,tindex:u.Quantity)->tuple[int,int]:
+        """
+        get planet indicies
+
+        This is a helper function that allows for interpolation of planet spectra
+            Since the planet changes over much longer timescales than the star (flares, etc),
+            it makes sense to only run PSG once for multiple ``integrations''
+        
+        Args:
+            planet_times (Quantity): the times (cast to since periasteron) at which the planet spectrum was taken
+            tindex (Quantity): the epoch of the current observation. Goal is to place this between two elements of `planet_times`
+
+        Returns:
+            (int): index of `planet_times` before `tindex`
+            (int): index of `planet_times` after `tindex`
+        """
         after = planet_times > tindex
         equal = planet_times == tindex
         if equal.sum() == 1:
@@ -372,7 +478,22 @@ class ObservationModel:
 
     def calculate_reflected_spectra(self,N1,N2, N1_frac,
                                     sub_planet_wavelength,sub_planet_flux):
+        """
+        calculate reflected spectra
 
+        Scale the reflected spectra from PSG to our model
+
+        Args:
+            N1 (int): the planet index immediatly before the current epoch
+            N2 (int): the planet index immediatly after the current epoch
+            N1_frac (float): fraction of `N1` epoch to use in interpolation
+            sub_planet_wavelength (Quatity): Wavelengths for validation
+            sub_planet_flux (Quantity): Stellar flux to scale to
+        
+        Returns:
+            (Quantity): Reflected wavelength
+            (Quantity): Reflected flux
+        """
         psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
         psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
         psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
@@ -407,7 +528,27 @@ class ObservationModel:
             reflected.append(planet_reflection_adj)
         
         return sub_planet_wavelength,reflected[0] * N1_frac + reflected[1] * (1-N1_frac)
-    def calculate_noise(self,N1,N2,N1_frac,time_scale_factor,cmb_wavelength,cmb_flux):
+
+
+    def calculate_noise(self,N1:int,N2:int,N1_frac:float,time_scale_factor:float,cmb_wavelength,cmb_flux):
+        """
+        calculate noise
+
+        Scale noise from PSG to our model
+
+        Args:
+            N1 (int): the planet index immediatly before the current epoch
+            N2 (int): the planet index immediatly after the current epoch
+            N1_frac (float): fraction of `N1` epoch to use in interpolation
+            time_scale_factor (float): Scaling factor to apply at end of calculation.
+                Usually should be `sqrt(self.planet_phase_binning)`
+            cmb_wavelength (Quantity): Wavelength of the combined spectra
+            cmb_flux (Quantity): Flux of the combined spectrum
+        
+        Returns:
+            (Quantity): Noise wavelength
+            (Quantity): Noise flux
+        """
         psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
         psg_noise_path1 = Path(self.dirs['psg_noise']) / f'phase{str(N1).zfill(3)}.noi'
         psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
@@ -451,7 +592,21 @@ class ObservationModel:
         return cmb_wavelength, np.sqrt(noise_sq) * time_scale_factor
 
 
-    def get_thermal_spectrum(self,N1,N2,N1_frac):
+    def get_thermal_spectrum(self,N1:int,N2:int,N1_frac:float):
+        """
+        get thermal spectra
+        
+        Get the thermal emission spectra calculated by PSG
+
+        Args:
+            N1 (int): the planet index immediatly before the current epoch
+            N2 (int): the planet index immediatly after the current epoch
+            N1_frac (float): fraction of `N1` epoch to use in interpolation
+        
+        Returns:
+            (Quantity): Thermal wavelength
+            (Quantity): Thermal flux
+        """
         psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
         psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(3)}.rad'
         
@@ -477,6 +632,19 @@ class ObservationModel:
         return wavelength[0], thermal[0]*N1_frac + thermal[1]*(1-N1_frac)
 
     def get_layer_data(self,N1:int,N2:int,N1_frac:float)->pd.DataFrame:
+        """
+        get layer data
+
+        Interpolate between two PSG .lyr files
+
+        Args:
+            N1 (int): the planet index immediatly before the current epoch
+            N2 (int): the planet index immediatly after the current epoch
+            N1_frac (float): fraction of `N1` epoch to use in interpolation
+        
+        Returns:
+            (pd.DataFrame): DataFrame containing the interpolated layer data
+        """
         psg_layers_path1 = Path(self.dirs['psg_layers']) / f'phase{str(N1).zfill(3)}.lyr'
         psg_layers_path2 = Path(self.dirs['psg_layers']) / f'phase{str(N2).zfill(3)}.lyr'
         layers1 = read_lyr(psg_layers_path1)
@@ -488,7 +656,10 @@ class ObservationModel:
         return df
 
     def build_spectra(self):
-        """build spectra"""
+        """build spectra
+        
+        Follow the original Build_Spectra.py file to construct phase curve outputs
+        """
         if not hasattr(self,'star'): # user can define a custom star before calling this function, e.g. for a specific spot pattern
             self.build_star()
             self.warm_up_star(spot_warmup_time=self.params.star_spot_warmup,
