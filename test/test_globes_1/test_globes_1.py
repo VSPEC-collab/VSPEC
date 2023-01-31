@@ -21,15 +21,16 @@ chdir(WORKING_DIRECTORY)
 
 model = ObservationModel(CONFIG_PATH,debug=False)
 model.build_directories()
-model.build_star()
-model.warm_up_star(0*u.day,0*u.day)
 # model.bin_spectra()
-fig,ax = plt.subplots(1,1)
-fig_filename = 'lightcurve.png'
-pixel = (0,70)
+# model.build_star()
+fig,ax = plt.subplots(2,1)
+fig_filename = 'lightcurve_debug.png'
+pixel = (135,145)
+# pixel = (0,30)
 
 # for i in np.linspace(-90,90,2):
-for a in [6,7,8,9]:
+j=0
+for a in [45]:
     # i_psg = 90 - i
     # model.params.system_inclination = i*u.deg
     # model.params.system_inclination_psg = i_psg*u.deg
@@ -39,7 +40,10 @@ for a in [6,7,8,9]:
     data_path = model.dirs['all_model']
     data = PhaseAnalyzer(data_path)
     # make lightcurve
-    ax.plot(data.unique_phase-360*u.deg,data.lightcurve('reflected',pixel),label=f'binning={a}')
+    color = f'C{j}'
+    j+=1
+    ax[0].plot(data.unique_phase-360*u.deg,data.lightcurve('reflected',pixel),label=f'{a}, ref',zorder=-1*a,c=color)
+    ax[1].plot(data.unique_phase-360*u.deg,data.lightcurve('thermal',pixel),label=f'{a}, therm',zorder=-1*a,c=color,ls='--')
 
 bandpass = data.wavelength[slice(*pixel)]
 
@@ -53,14 +57,16 @@ bandpass = data.wavelength[slice(*pixel)]
 # ax.plot(data.unique_phase-360*u.deg,data.lightcurve('reflected',pixel),label=f'1D PSG model')
 
 
+for a in ax:
+    a.set_xlabel('phase (deg)')
+    a.set_ylabel('flux (W m-2 um-1)')
+    a.set_xticks(np.linspace(-180,180,9))
+    # a.axvline(-90,c='k',ls='--',lw=1)
+    # a.axvline(0,c='k',ls='--',lw=1)
+    # a.axvline(90,c='k',ls='--',lw=1)
+    a.legend()
+ax[0].set_title(f'bandpass from {bandpass.min()} to {bandpass.max()}')
 
-ax.set_xlabel('phase (deg)')
-ax.set_ylabel('flux (W m-2 um-1)')
-ax.set_title(f'reflected with\nbandpass from {bandpass.min()} to {bandpass.max()}')
-ax.axvline(-90,c='k',ls='--',lw=1)
-ax.axvline(0,c='k',ls='--',lw=1)
-ax.axvline(90,c='k',ls='--',lw=1)
-ax.legend()
 fig.savefig(fig_filename,dpi=120,facecolor='w')
 
 

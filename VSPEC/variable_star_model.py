@@ -283,7 +283,7 @@ class Star:
         None
     """
     def __init__(self,Teff,radius,period,spots,faculae,name='',distance = 1*u.pc,Nlat = 500,Nlon=1000,gridmaker=None,
-                    flare_generator = None,spot_generator = None,fac_generator=None):
+                    flare_generator = None,spot_generator = None,fac_generator=None,ld_params = [0,1,0]):
         self.name = name
         assert isinstance(Teff,Quantity)
         self.Teff = Teff
@@ -320,6 +320,7 @@ class Star:
             self.fac_generator = FaculaGenerator(R_peak = 300*u.km, R_HWHM = 100*u.km,Nlon=Nlon,Nlat=Nlat)
         else:
             self.fac_generator = fac_generator
+        self.ld_params = ld_params
     def get_pixelmap(self):
         """get pixelmap
         Create map of stellar surface based on spots:
@@ -390,7 +391,8 @@ class Star:
         cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
                 + np.cos(sub_obs_coords['lat'])* np.cos(latgrid)
                  * np.cos(sub_obs_coords['lon']-longrid) )
-        cos_c[cos_c < 0] = 0
+        ld = cos_c**0 * self.ld_params[0] + cos_c**1 * self.ld_params[1] + cos_c**2 * self.ld_params[2]
+        ld[cos_c < 0] = 0
         jacobian = np.sin(latgrid + 90*u.deg)
 
         int_map, map_keys = self.faculae.map_pixels(self.map,self.radius,self.Teff)
@@ -400,7 +402,7 @@ class Star:
         # spots and photosphere
         for teff in Teffs:
             pix = self.map == teff
-            pix_sum = ((pix.astype('float32') * cos_c * jacobian)[int_map==0]).sum()
+            pix_sum = ((pix.astype('float32') * ld * jacobian)[int_map==0]).sum()
             data[teff] = pix_sum
         for i in map_keys.keys():
             facula = self.faculae.faculae[i]
@@ -408,7 +410,7 @@ class Star:
                                 + np.cos(facula.lat)*np.cos(sub_obs_coords['lat']) * np.sin(0.5*(facula.lon - sub_obs_coords['lon']))**2 ))
             frac_area_dict = facula.fractional_effective_area(angle)
             loc = int_map == map_keys[i]
-            pix_sum = (loc.astype('float32') * cos_c * jacobian).sum()
+            pix_sum = (loc.astype('float32') * ld * jacobian).sum()
             for teff in frac_area_dict.keys():
                 if teff in data:
                     data[teff] = data[teff] + pix_sum * frac_area_dict[teff]
@@ -442,8 +444,9 @@ class Star:
         cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
                 + np.cos(sub_obs_coords['lat'])* np.cos(latgrid)
                  * np.cos(sub_obs_coords['lon']-longrid) )
-        cos_c[cos_c < 0] = 0
-        return cos_c
+        ld = cos_c**0 * self.ld_params[0] + cos_c**1 * self.ld_params[1] + cos_c**2 * self.ld_params[2]
+        ld[cos_c < 0] = 0
+        return ld
 
     def birth_spots(self,time):
         """birth spots
@@ -957,7 +960,8 @@ class FaculaGenerator:
     """
     def __init__(self,R_peak:Quantity[u.km] = 800*u.km, R_HWHM:Quantity[u.km] = 300*u.km,
                  T_peak:Quantity[u.hr] = 6.2*u.hr, T_HWHM:Quantity[u.hr] = 4.7*u.hr,
-                 coverage:float=0.0001,dist:str = 'iso',Nlon:int=1000,Nlat:int=500,gridmaker=None):
+                 coverage:float=0.0001,dist:str = 'iso',Nlon:int=1000,Nlat:int=500,gridmaker=None,
+                 teff_bounds = (2500*u.K,3400*u.K)):
         assert u.get_physical_type(R_peak) == 'length'
         assert u.get_physical_type(R_HWHM) == 'length'
         assert u.get_physical_type(T_peak) == 'time'
@@ -977,6 +981,7 @@ class FaculaGenerator:
             self.gridmaker=gridmaker
         self.Nlon = Nlon
         self.Nlat = Nlat
+        self.teff_bounds = teff_bounds
         
     def get_floor_teff(self,R,Teff_star):
         """Get floor Teff
@@ -997,7 +1002,9 @@ class FaculaGenerator:
         d_teff[reg] = 510 * u.K - 18*R[reg]/5/u.km*u.K
         reg = (R > 175*u.km)
         d_teff[reg] = -4*u.K*R[reg]/7/u.km - 20 * u.K
-        return d_teff + Teff_star
+        teff = d_teff + Teff_star
+        teff = np.clip(teff,*self.teff_bounds)
+        return teff
     
     def get_wall_teff(self,R,Teff_floor):
         """Get wall Teff
@@ -1011,7 +1018,9 @@ class FaculaGenerator:
         Returns:
             (astropy.unit.quantity.Quantity [temperature]): wall temperature of faculae
         """
-        return Teff_floor + R/u.km * u.K + 125*u.K
+        teff = Teff_floor + R/u.km * u.K + 125*u.K
+        teff = np.clip(teff,*self.teff_bounds)
+        return teff
         
         
     def birth_faculae(self,time, rad_star, Teff_star):
@@ -1128,6 +1137,14 @@ class CoordinateGrid:
 
 class StellarFlare:
     """ Class to store and control stellar flare information
+
+        Args:
+            fwhm (Quantity): Full-width-half-maximum of the flare
+            energy (Quantity): time-integrated bolometric energy
+            lat (Quantity): Latitude of flare on star
+            lon (Quantity): Longitude of flare on star
+            Teff (Quantity): Blackbody temperature
+            tpeak (Quantity): time of the flare peak
     
     """
     def __init__(self,fwhm:Quantity,energy:Quantity,lat:Quantity,lon:Quantity,Teff:Quantity,tpeak:Quantity):
@@ -1138,7 +1155,18 @@ class StellarFlare:
         self.Teff = Teff
         self.tpeak = tpeak
     
-    def calc_peak_area(self):
+    def calc_peak_area(self)->u.Quantity[u.km**2]:
+        """
+        Calc peak area
+
+        Calculate the flare area at its peak
+
+        Args:
+            None
+        
+        Returns:
+            (Quantity): peak flare area
+        """
         time_area = self.energy/c.sigma_sb/(self.Teff**4)
         area_std = 1*u.km**2
         time_area_std = flareintegral(self.fwhm,area_std)
@@ -1146,6 +1174,17 @@ class StellarFlare:
         return area.to(u.km**2)
     
     def areacurve(self,time:Quantity[u.hr]):
+        """
+        areacurve
+
+        Compute the flare area as a function of time
+
+        Args:
+            time (Quantity): times at which to sample the area
+        
+        Returns
+            (Qunatity): Area at each time
+        """
         t_unit = u.day # this is the unit of xoflares
         a_unit = u.km**2
         peak_area = self.calc_peak_area()
@@ -1156,12 +1195,35 @@ class StellarFlare:
         return areas * a_unit
     
     def get_timearea(self,time:Quantity[u.hr]):
+        """
+        Get timearea
+
+        Calcualte the integrated time*area of the flare
+
+        Args:
+            time (Quantity): times at which to sample the area
+        
+        Returns
+            (Qunatity): integrated timearea
+        """
         areas = self.areacurve(time)
         timearea = np.trapz(areas,time)
         return timearea.to(u.Unit('hr km2'))
     
 class FlareGenerator:
     """ Class to decide when a flare occurs and its magnitude
+
+    Args:
+        stellar_teff (Quantity): Temperature of the star
+        stellar_rot_period (Quantity): Rotation period of the star
+        prob_following (float): probability of a flare being closely followed by another flare
+        mean_teff (Quantity): Mean teff of the set of flares
+        sigma_teff (Quantity): Standard deviation of the flare teffs
+        mean_log_fwhm_days (float): mean of the log(fwhm/day) distribution
+        sigma_log_fwhm_days (float): standard deviation of the log(fwhm/day) distribution
+        log_E_erg_max (float): Maximum log(E/erg) to draw from
+        log_E_erg_min (float): Minimum log(E/erg) to draw from
+        log_E_erg_Nsteps (float): Number of samples in the log(E/erg) array. 0 disables flares.
 
     """
     def __init__(self,stellar_teff:Quantity,stellar_rot_period:Quantity, prob_following = 0.5,
@@ -1180,7 +1242,17 @@ class FlareGenerator:
         self.log_E_erg_min = log_E_erg_min
         self.log_E_erg_Nsteps = log_E_erg_Nsteps
     def powerlaw(self, E:Quantity):
-        """ Gao+2022 TESS corrected
+        """
+        powerlaw
+
+        Generate a flare frequency distribution.
+        Based on Gao+2022 TESS corrected data
+
+        Args:
+            E (Quantity): Array of Energy values
+        
+        Returns:
+            (Quantity): Matching array of frequencies
         """
         alpha = -0.829
         beta = 26.87
@@ -1188,6 +1260,18 @@ class FlareGenerator:
         freq = 10**logfreq / u.day
         return freq
     def get_flare(self,Es:Quantity,time:Quantity):
+        """
+        get flare
+
+        Generate a flare in some time duration
+
+        Args:
+            Es (Quantity): Energies to draw from
+            time (Quantity): time duration
+        
+        Returns:
+            (Quantity): Energy of a generated flare
+        """
         Nexp = to_float(self.powerlaw(Es) * time,u.Unit(''))
         # N_previous = 1
         E_final = 0*u.erg
@@ -1203,7 +1287,18 @@ class FlareGenerator:
             #     break
         return E_final
     def generate_flares(self,Es:Quantity,time:Quantity):
-        """ valid if flare length is much less than time
+        """ 
+        generate flares
+
+        Generate a group of flare(s)
+        valid if flare length is much less than time
+
+        Args:
+            Es (Quantity): Energies to draw from
+            time (Quantity): time duration
+        
+        Returns:
+            (Quantity): Energies of generated flares
         """
         unit=u.erg
         flare_energies = []
@@ -1225,6 +1320,18 @@ class FlareGenerator:
             return flare_energies*unit
     
     def generate_coords(self):
+        """
+        generate coords
+
+        Generate random coordinates for the flare
+
+        Args:
+            None
+        
+        Returns:
+            (Quantity): latitude
+            (Quantity): longitude
+        """
         lon = np.random.random()*360*u.deg
         lats = np.arange(90)
         w = np.cos(lats*u.deg)
@@ -1232,25 +1339,65 @@ class FlareGenerator:
         return lat,lon
     
     def generate_fwhm(self):
+        """
+        generate fwhm
+        
+        Pull a FWHM value from a distribution
+
+        Args:
+            None
+
+        Returns:
+            (Quantity): FWHM
+        """
         log_fwhm_days = np.random.normal(loc=self.mean_log_fwhm_days,scale=self.sigma_log_fwhm_days)
         fwhm = 10**log_fwhm_days * u.day
         return fwhm
     
     def generate_flare_set_spacing(self):
-        """ isolated flares are random events, but if you see one flare, it is likely you will see another
+        """
+        generate flare set spacing
+
+        Isolated flares are random events, but if you see one flare, it is likely you will see another
             soon after. How soon? This distribution will tell you.
             
             The hope is that as we learn more this will be set by the user
+        
+        Args:
+            None
+        
+        Returns:
+            (Quantity): time between flares
         """
         while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
             spacing = np.random.normal(loc=4,scale=2)*u.hr
             if spacing > 0*u.hr:
                 return spacing
     def generage_E_dist(self):
+        """
+        generate Energy distribution
+
+        Generate the energy distribution based on parameters
+
+        Args:
+            None
+        
+        Returns:
+            (Quantity): Series of energies
+        """
         return np.logspace(self.log_E_erg_min - 0.2,self.log_E_erg_max,self.log_E_erg_Nsteps)*u.erg
 
     def generate_teff(self):
-        """ randomly generate teff, round to int
+        """ 
+        generate teff
+
+        Randomly generate teff, round to int
+
+        Args:
+            None
+        
+        Returns:
+            (Quantity): teff
         """
         assert self.mean_teff > 0*u.K # prevent looping forever if user gives bad parameters
         while True: # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
@@ -1260,6 +1407,18 @@ class FlareGenerator:
                 return teff
 
     def generate_flare_series(self,Es:Quantity,time:Quantity):
+        """
+        generate flare series
+
+        Generate as many flares within a duration of time as can be fit given computed frequencies
+
+        Args:
+            Es (Quantity): Series of energies
+            time (Quantity): Time series to create flares in
+
+        Returns:
+            (list of Flares): list of created stellar flares
+        """
         flares = []
         tmin=0*u.s
         tmax = time
@@ -1296,6 +1455,9 @@ class FlareGenerator:
 
 class FlareCollection:
     """ This class stores a series of flares and does math to turn them into lightcurves
+
+    Args:
+        flares (list of StellarFlare or StellarFlare): flares
     """
     def __init__(self,flares:Typing.Union[List[StellarFlare],StellarFlare]):
         if isinstance(flares,StellarFlare):
@@ -1306,6 +1468,17 @@ class FlareCollection:
 
     
     def index(self):
+        """
+        index
+
+        Get peak times and fwhms for flares as arrays
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         tpeak = []
         fwhm = []
         unit = u.hr
@@ -1318,6 +1491,18 @@ class FlareCollection:
         self.fwhms = fwhm
     
     def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
+        """
+        mask
+
+        Create a boolean mask to indicate which flares are visible within a certain time period
+
+        Args:
+            tstart (Quantity): Starting time
+            tfinish (Quantity): Ending time
+        
+        Returns:
+            (np.array): boolean array of visible flares
+        """
         padding_after = 10 # number of fwhm ouside this range a flare peak can be to still be included
         padding_before = 20
         after_start = self.peaks + padding_before*self.fwhms > tstart
@@ -1326,6 +1511,18 @@ class FlareCollection:
         return after_start & before_end
     
     def get_flares_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr])-> List[StellarFlare]:
+        """
+        get flares in timeperiod
+
+        Generate a mask and select flares without casting to np.array (list comp instead)
+
+        Args:
+            tstart (Quantity): Starting time
+            tfinish (Quantity): Ending time
+        
+        Returns:
+            (list of StellarFlare): flares that occur
+        """
         mask = self.mask(tstart,tfinish)
         masked_flares = [flare for flare, include in zip(self.flares,mask) if include]
         # essentially the same as self.flares[mask], but without casting to ndarray
@@ -1333,6 +1530,19 @@ class FlareCollection:
     
     def get_visible_flares_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
                                         sub_obs_coords={'lat':0*u.deg,'lon':0*u.deg})-> List[StellarFlare]:
+        """
+        get visible flares in timeperiod
+
+        Select flares that occur in a certain timeperiod on a given hemisphere
+
+        Args:
+            tstart (Quantity): Starting time
+            tfinish (Quantity): Ending time
+            sub_obs_coords(dict): coordinates defining the hemisphere
+        
+        Returns:
+            (list of StellarFlare): flares that occur and are visible by observer
+        """
         masked_flares = self.get_flares_in_timeperiod(tstart,tfinish)
         visible_flares = []
         for flare in masked_flares:
@@ -1345,6 +1555,19 @@ class FlareCollection:
     
     def get_flare_integral_in_timeperiod(self,tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
                                         sub_obs_coords={'lat':0*u.deg,'lon':0*u.deg}):
+        """
+        get flare integral in timeperiod
+
+        Calculate the integrated time-area of flares in a timeperiod
+
+        Args:
+            tstart (Quantity): Starting time
+            tfinish (Quantity): Ending time
+            sub_obs_coords(dict): coordinates defining the hemisphere
+        
+        Returns:
+            (Quantity): integrated time-area
+        """
         visible_flares = self.get_visible_flares_in_timeperiod(tstart,tfinish,sub_obs_coords)
         flare_timeareas = []
         time_resolution = 10*u.min

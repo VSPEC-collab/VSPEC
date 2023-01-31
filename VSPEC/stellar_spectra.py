@@ -193,6 +193,24 @@ def bin_phoenix_model(teff,file_name_writer = get_binned_filename,
 def interpolate_spectra(target_teff,
                         teff1,wave1,flux1,
                         teff2,wave2,flux2):
+    """
+    interpolate spectra
+
+    Use scipy.interpolate.interp2d to generate a spectrum given any `target_teff` between `teff1` and `teff2`
+
+    Args:
+        target_teff (Quantity): teff of final spectrum
+        teff1 (Quantity): first teff to use in interpolation
+        wave1 (Quantity): first wavelengths to use in interpolation
+        flux1 (Qunatity): first flux to use in interpolation
+        teff2 (Quantity): second teff to use in interpolation
+        wave2 (Quantity): second wavelengths to use in interpolation
+        flux2 (Qunatity): second flux to use in interpolation
+    
+    Returns:
+        (Quantity): wave1
+        (Quantity): Interpolated flux with teff `target_teff`
+    """
     assert np.all(wave1==wave2)
     flux_unit = flux1.unit
     interp = interp2d(wave1,[to_float(teff1,u.K),to_float(teff2,u.K)],
@@ -202,6 +220,18 @@ def interpolate_spectra(target_teff,
 
 def blackbody(wavelength,teff,area,distance,
                 target_unit_flux = u.Unit('W m-2 um-1')):
+    """
+    blackbody
+
+    Generate a blackbody spectrum
+
+    Args:
+        wavelength (Quantity): wavelengths at which to sample
+        teff (Quantity): Teff of the blackbody (actually just T)
+        area (Quantity): Area of the body
+        distance (Quantity): Distance from the observer
+        target_unit_flux (Unit): Unit to cast the flux to
+    """
     angular_size = (np.pi * area/distance**2 * u.steradian).to(u.arcsec**2)
     A = 2 * c.h * c.c**2/wavelength**5
     B = np.exp( (c.h*c.c)/(wavelength*c.k_B*teff) ) - 1
