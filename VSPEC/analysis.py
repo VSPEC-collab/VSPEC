@@ -131,7 +131,8 @@ class PhaseAnalyzer:
                 if tuple is given, it is used as the input to a `slice` object
             noise (bool): Whether to add gaussian noise to output. Ignored if source=`'noise'`
         """
-        images = slice(*images)
+        if isinstance(images,tuple):
+            pixel = slice(*images)
         if source=='noise':
             y = self.noise[:,images]**2
             N_images = y.shape[1]
