@@ -279,7 +279,7 @@ class SystemGeometry:
         """
         true_anomaly = phase - self.omega
         north_season = (true_anomaly - self.obliquity_direction) % (360*u.deg)
-        lat = 0*u.deg - self.obliquity*np.cos(north_season) + (90*u.deg-self.i)
+        lat = 0*u.deg - self.obliquity*np.cos(north_season) - (90*u.deg-self.i)
         return lat
 
     def get_radius_coeff(self,phase:u.quantity.Quantity) -> float:
