@@ -513,7 +513,7 @@ class Star:
             mask = self.calc_orthographic_mask(sub_obs_point)
             ax.imshow(
             mask.T,
-            origin="upper",
+            origin="lower",
             transform=ccrs.PlateCarree(),
             extent=[0, 360, -90, 90],
             interpolation="none",

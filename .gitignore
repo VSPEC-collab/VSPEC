@@ -151,3 +151,4 @@ testPlots.py
 .DS_store
 readme.md
 readme_files/
+*.gif
