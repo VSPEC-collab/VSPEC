@@ -77,7 +77,7 @@ class SystemGeometry:
             (dict): Coordinates in the form {'lat':lat,'lon':lon}
         """
         lon = self.init_stellar_lon - time *360*u.deg/self.stellar_period
-        lat = 90*u.deg - self.i + self.alpha*np.cos(self.beta)
+        lat = -1*(90*u.deg - self.i) - self.alpha*np.cos(self.beta)
         return {'lat':lat,'lon':lon}
 
     def mean_motion(self):
