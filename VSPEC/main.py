@@ -122,7 +122,7 @@ class ObservationModel:
                             self.params.star_rot_offset_from_orbital_plane,
                             self.params.star_rot_offset_angle_from_pariapse,
                             self.params.planet_eccentricity,
-                            self.params.system_argument_of_pariapsis,
+                            self.params.system_phase_of_periasteron,
                             self.params.system_distance,
                             self.params.planet_obliquity,
                             self.params.planet_obliquity_direction)

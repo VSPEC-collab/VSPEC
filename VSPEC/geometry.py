@@ -25,7 +25,7 @@ class SystemGeometry:
         stellar_offset_amp (astropy.units.quantity.Quantity [angle]): offset between stellar rotation axis and normal to orbital plane
         stellar_offset_phase (astropy.units.quantity.Quantity [angle]): direction of stellar offset, 0 defined as facing observer. Right hand direction is positive
         eccentricity (float): orbital eccentricity of the planet
-        argument_of_pariapsis (astropy.units.quantity.Quantity [angle]): Angle between the observer and the point of pariapsis
+        phase of pariasteron (astropy.units.quantity.Quantity [angle]): phase at which planet reaches periasteron
         system_distance (u.Quantity [distance]): distance to the system
         obliquity: (u.Quantity [angle]): planet obliquity magnitude
         obliquity_direction: (u.Quantity [angle]): The true anomaly at which the N pole faces away from the star
@@ -43,7 +43,7 @@ class SystemGeometry:
                     stellar_offset_amp = 0*u.deg,
                     stellar_offset_phase = 0*u.deg,
                     eccentricity = 0,
-                    argument_of_pariapsis = 0*u.deg,
+                    phase_of_periasteron = 0*u.deg,
                     system_distance = 1.3*u.pc,
                     obliquity = 0*u.deg,
                     obliquity_direction = 0*u.deg):
@@ -58,7 +58,7 @@ class SystemGeometry:
         self.alpha = stellar_offset_amp
         self.beta = stellar_offset_phase
         self.e = eccentricity
-        self.omega = argument_of_pariapsis + 180*u.deg
+        self.phase_of_periasteron = phase_of_periasteron
         self.system_distance = system_distance
         self.obliquity = obliquity
         self.obliquity_direction = obliquity_direction
@@ -153,7 +153,7 @@ class SystemGeometry:
         Returns:
             (astropy.units.quantity.Quantity [angle]): the phase
         """
-        return (self.true_anomaly(time) + self.omega) % (360*u.deg)
+        return (self.true_anomaly(time) + self.phase_of_periasteron) % (360*u.deg)
 
     def sub_planet(self,time,phase = None):
         """sub-planet point
@@ -184,7 +184,7 @@ class SystemGeometry:
         Returns:
             (astropy.units.quantity.Quantity [time]): time since periasteron
         """
-        true_anomaly = phase - self.omega
+        true_anomaly = phase - self.phase_of_periasteron
         true_anomaly = true_anomaly % (360*u.deg)
         guess = true_anomaly/360/u.deg * self.orbital_period
         def func(guess):
@@ -245,7 +245,7 @@ class SystemGeometry:
         Returns:
             (Quantity): Current substellar latitude
         """
-        true_anomaly = phase - self.omega
+        true_anomaly = phase - self.phase_of_periasteron
         north_season = (true_anomaly - self.obliquity_direction) % (360*u.deg)
         lat = 0*u.deg + self.obliquity*np.cos(north_season)
         return lat
@@ -277,7 +277,7 @@ class SystemGeometry:
         Returns:
             (Quantity): Sub-observer latitude of the planet
         """
-        true_anomaly = phase - self.omega
+        true_anomaly = phase - self.phase_of_periasteron
         north_season = (true_anomaly - self.obliquity_direction) % (360*u.deg)
         lat = 0*u.deg - self.obliquity*np.cos(north_season) - (90*u.deg-self.i)
         return lat
@@ -294,7 +294,7 @@ class SystemGeometry:
         Returns:
             (float): The orbital radius coefficient
         """
-        true_anomaly = phase - self.omega
+        true_anomaly = phase - self.phase_of_periasteron
         num = 1 - self.e**2
         den = 1 + self.e*np.cos(true_anomaly)
         return to_float(num/den,u.Unit(''))
@@ -383,14 +383,14 @@ class SystemGeometry:
         axes['orbit'].scatter(0,0,c='xkcd:tangerine',s=150)
 
         theta = np.linspace(0,360,180,endpoint=False)*u.deg
-        r_dist = (1-self.e**2)/(1+self.e*np.cos(theta- self.omega - 90*u.deg))
+        r_dist = (1-self.e**2)/(1+self.e*np.cos(theta- self.phase_of_periasteron-90*u.deg))
         curr_theta = phase + 90*u.deg
         x_dist = self.semimajor_axis * np.cos(theta)*r_dist
-        y_dist = self.semimajor_axis * np.sin(theta)*r_dist*np.cos(self.i)
+        y_dist = -1*self.semimajor_axis * np.sin(theta)*r_dist*np.cos(self.i)
 
-        current_r = (1-self.e**2)/(1+self.e*np.cos(curr_theta- self.omega))
+        current_r = (1-self.e**2)/(1+self.e*np.cos(curr_theta- self.phase_of_periasteron - 90*u.deg))
         current_x_dist = self.semimajor_axis * np.cos(curr_theta)*current_r
-        current_y_dist = self.semimajor_axis * np.sin(curr_theta)*current_r*np.cos(self.i)
+        current_y_dist = -1*self.semimajor_axis * np.sin(curr_theta)*current_r*np.cos(self.i)
         behind = np.sin(theta) >= 0
         x_angle = np.arctan(x_dist/self.system_distance).to(u.mas)
         y_angle = np.arctan(y_dist/self.system_distance).to(u.mas)
@@ -441,13 +441,29 @@ class SystemGeometry:
         #             alpha=0.3
         # )
         # rad_meters = to_float(1*u.R_earth,u.m) * np.pi * 0.5
-        rad_meters = 5e6
+
+        # sub_stellar point
+        rad_meters = 1e6
         circle_points = Geodesic().circle(lon=to_float(substellar_lon,u.deg), lat=to_float(substellar_lat,u.deg),
                      radius=rad_meters, n_samples=200, endpoint=False)
         circ_lons = np.array(circle_points[:,0])
         circ_lats = np.array(circle_points[:,1])
+        hemi_1 = circ_lons>0
         # geom = Polygon(circle_points)
-        axes['planet'].plot(circ_lons,circ_lats,c='r',transform=ccrs.PlateCarree())
+        axes['planet'].plot(circ_lons[hemi_1],circ_lats[hemi_1],c='r',transform=ccrs.PlateCarree())
+        axes['planet'].plot(circ_lons[~hemi_1],circ_lats[~hemi_1],c='r',transform=ccrs.PlateCarree())
+
+        # sub_stellar hemisphere
+        rad_meters = to_float(1*u.R_earth,u.m) * np.pi * 0.5 * 0.99
+        circle_points = Geodesic().circle(lon=to_float(substellar_lon,u.deg), lat=to_float(substellar_lat,u.deg),
+                     radius=rad_meters, n_samples=200, endpoint=False)
+        circ_lons = np.array(circle_points[:,0])
+        circ_lats = np.array(circle_points[:,1])
+        hemi_1 = circ_lons>0
+        # geom = Polygon(circle_points)
+        axes['planet'].plot(circ_lons[hemi_1],circ_lats[hemi_1],c='r',transform=ccrs.PlateCarree())
+        axes['planet'].plot(circ_lons[~hemi_1],circ_lats[~hemi_1],c='r',transform=ccrs.PlateCarree())
+
         # axes['planet'].add_geometries((geom,), crs=ccrs.PlateCarree(), facecolor='red', edgecolor='none', linewidth=0)
 
 

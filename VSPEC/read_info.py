@@ -103,7 +103,7 @@ class ParamModel:
         self.system_distance = configParser.getfloat('System','system_distance') * u.pc
         self.system_inclination = configParser.getfloat('System','system_inclination') * u.deg
         self.system_inclination_psg = 90*u.deg - self.system_inclination
-        self.system_argument_of_pariapsis = configParser.getfloat('System','system_argument_of_pariapsis') * u.deg
+        self.system_phase_of_periasteron = configParser.getfloat('System','system_phase_of_periasteron') * u.deg
 
 
         self.Nlat = configParser.getint('Model','map_Nlat')    
