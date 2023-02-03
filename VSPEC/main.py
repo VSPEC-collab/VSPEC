@@ -86,18 +86,22 @@ class ObservationModel:
             (Quantity): Binned wavelengths
             (Quantity): Binned flux, corrected for system distance
         """
-        model_teffs = [to_float(np.round(Teff - Teff%(100*u.K)),u.K),
-            to_float(np.round(Teff - Teff%(100*u.K) +(100*u.K)),u.K)] * u.K
-        if Teff in model_teffs:
-            wave1, flux1 = self.read_spectrum(Teff)
-            wave2, flux2 = wave1, flux1
+        if Teff == 0*u.K:
+            wave1, flux1 = self.read_spectrum(3000*u.K)
+            return wave1, flux1*0
         else:
-            wave1, flux1 = self.read_spectrum(model_teffs[0])
-            wave2, flux2 = self.read_spectrum(model_teffs[1])
-        wavelength, flux = stellar_spectra.interpolate_spectra(Teff,
-                                model_teffs[0],wave1,flux1,
-                                model_teffs[1],wave2,flux2)
-        return wavelength, flux*self.params.distanceFluxCorrection
+            model_teffs = [to_float(np.round(Teff - Teff%(100*u.K)),u.K),
+                to_float(np.round(Teff - Teff%(100*u.K) +(100*u.K)),u.K)] * u.K
+            if Teff in model_teffs:
+                wave1, flux1 = self.read_spectrum(Teff)
+                wave2, flux2 = wave1, flux1
+            else:
+                wave1, flux1 = self.read_spectrum(model_teffs[0])
+                wave2, flux2 = self.read_spectrum(model_teffs[1])
+            wavelength, flux = stellar_spectra.interpolate_spectra(Teff,
+                                    model_teffs[0],wave1,flux1,
+                                    model_teffs[1],wave2,flux2)
+            return wavelength, flux*self.params.distanceFluxCorrection
     
     def get_observation_parameters(self)->SystemGeometry:
         """
