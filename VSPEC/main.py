@@ -115,7 +115,7 @@ class ObservationModel:
         Returns:
             (SystemGeometry): Object storing observation parameters
         """
-        return SystemGeometry(self.params.system_inclination_psg,
+        return SystemGeometry(self.params.system_inclination,
                             0*u.deg,
                             self.params.planet_initial_phase,
                             self.params.star_rot_period,
@@ -205,7 +205,7 @@ class ObservationModel:
             fr.write('<OBJECT-STAR-DISTANCE>%f\n' % to_float(self.params.planet_semimajor_axis,u.AU))
             fr.write('<OBJECT-PERIOD>%f\n' % to_float(self.params.planet_orbital_period,u.day))
             fr.write('<OBJECT-ECCENTRICITY>%f\n' % self.params.planet_eccentricity)
-            fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(self.params.system_argument_of_pariapsis,u.deg))
+            fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(self.params.system_phase_of_periasteron,u.deg))
             fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % to_float(self.params.star_teff,u.K))
             fr.write('<OBJECT-STAR-RADIUS>%f\n' % to_float(self.params.star_radius,u.R_sun))
             fr.write('<GEOMETRY>Observatory\n')
@@ -219,7 +219,7 @@ class ObservationModel:
             fr.write('<GENERATOR-BEAM>%d\n' % self.params.beamValue)
             fr.write('<GENERATOR-BEAM-UNIT>%s\n'% self.params.beamUnit)
             fr.write('<GENERATOR-CONT-STELLAR>Y\n')
-            fr.write('<OBJECT-INCLINATION>%s\n' % to_float(self.params.system_inclination_psg,u.deg))
+            fr.write('<OBJECT-INCLINATION>%s\n' % to_float(self.params.system_inclination,u.deg))
             fr.write('<OBJECT-SOLAR-LATITUDE>0.0\n')
             fr.write('<OBJECT-OBS-LATITUDE>0.0\n')
             fr.write('<GENERATOR-RADUNITS>%s\n' % self.params.psg_rad_unit)

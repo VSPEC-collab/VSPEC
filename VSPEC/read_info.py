@@ -102,7 +102,6 @@ class ParamModel:
 
         self.system_distance = configParser.getfloat('System','system_distance') * u.pc
         self.system_inclination = configParser.getfloat('System','system_inclination') * u.deg
-        self.system_inclination_psg = 90*u.deg - self.system_inclination
         self.system_phase_of_periasteron = configParser.getfloat('System','system_phase_of_periasteron') * u.deg
 
 
