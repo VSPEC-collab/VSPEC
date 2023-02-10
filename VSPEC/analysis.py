@@ -8,7 +8,7 @@ from io import StringIO
 import xarray
 
 from VSPEC.helpers import to_float
-
+from VSPEC.main import N_ZFILL
 
 class PhaseAnalyzer:
     """Phase Analyzer
@@ -41,7 +41,7 @@ class PhaseAnalyzer:
         total = []
         noise = []
         for i in range(self.N_images):
-            filename = path / f'phase{str(i).zfill(3)}.csv'
+            filename = path / f'phase{str(i).zfill(N_ZFILL)}.csv'
             spectra = pd.read_csv(filename)
             cols = pd.Series(spectra.columns)
             if i==0: # only do once
@@ -79,7 +79,7 @@ class PhaseAnalyzer:
             layers = []
             first = True
             for i in range(self.N_images):
-                filename = path / f'layer{str(i).zfill(3)}.csv'
+                filename = path / f'layer{str(i).zfill(N_ZFILL)}.csv'
                 dat = pd.read_csv(filename)
                 if not first:
                     assert np.all(dat.columns == cols)

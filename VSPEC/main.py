@@ -15,6 +15,8 @@ from VSPEC.psg_api import call_api
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
 
+N_ZFILL = 5
+
 
 class ObservationModel:
     """Obsservation Model
@@ -306,7 +308,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_combined']) / f'phase{str(i).zfill(3)}.rad'
+            outfile = Path(self.dirs['psg_combined']) / f'phase{str(i).zfill(N_ZFILL)}.rad'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get noise
@@ -316,7 +318,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_noise']) / f'phase{str(i).zfill(3)}.noi'
+            outfile = Path(self.dirs['psg_noise']) / f'phase{str(i).zfill(N_ZFILL)}.noi'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
@@ -324,7 +326,7 @@ class ObservationModel:
             url = self.params.psg_url
             call_type = 'cfg'
             app = 'globes'
-            outfile = Path(self.dirs['psg_configs']) / f'phase{str(i).zfill(3)}.cfg'
+            outfile = Path(self.dirs['psg_configs']) / f'phase{str(i).zfill(N_ZFILL)}.cfg'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
@@ -342,7 +344,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_thermal']) / f'phase{str(i).zfill(3)}.rad'
+            outfile = Path(self.dirs['psg_thermal']) / f'phase{str(i).zfill(N_ZFILL)}.rad'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get layers
@@ -352,7 +354,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_layers']) / f'phase{str(i).zfill(3)}.lyr'
+            outfile = Path(self.dirs['psg_layers']) / f'phase{str(i).zfill(N_ZFILL)}.lyr'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
     
@@ -498,10 +500,10 @@ class ObservationModel:
             (Quantity): Reflected wavelength
             (Quantity): Reflected flux
         """
-        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
-        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(3)}.rad'
+        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
 
         reflected = []
 
@@ -553,10 +555,10 @@ class ObservationModel:
             (Quantity): Noise wavelength
             (Quantity): Noise flux
         """
-        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_noise_path1 = Path(self.dirs['psg_noise']) / f'phase{str(N1).zfill(3)}.noi'
-        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
-        psg_noise_path2 = Path(self.dirs['psg_noise']) / f'phase{str(N2).zfill(3)}.noi'
+        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_noise_path1 = Path(self.dirs['psg_noise']) / f'phase{str(N1).zfill(N_ZFILL)}.noi'
+        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+        psg_noise_path2 = Path(self.dirs['psg_noise']) / f'phase{str(N2).zfill(N_ZFILL)}.noi'
         
         psg_noise_source = []
         psg_source = []
@@ -611,8 +613,8 @@ class ObservationModel:
             (Quantity): Thermal wavelength
             (Quantity): Thermal flux
         """
-        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(3)}.rad'
+        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
         
         wavelength = []
         thermal = []
@@ -649,8 +651,8 @@ class ObservationModel:
         Returns:
             (pd.DataFrame): DataFrame containing the interpolated layer data
         """
-        psg_layers_path1 = Path(self.dirs['psg_layers']) / f'phase{str(N1).zfill(3)}.lyr'
-        psg_layers_path2 = Path(self.dirs['psg_layers']) / f'phase{str(N2).zfill(3)}.lyr'
+        psg_layers_path1 = Path(self.dirs['psg_layers']) / f'phase{str(N1).zfill(N_ZFILL)}.lyr'
+        psg_layers_path2 = Path(self.dirs['psg_layers']) / f'phase{str(N2).zfill(N_ZFILL)}.lyr'
         layers1 = read_lyr(psg_layers_path1)
         layers2 = read_lyr(psg_layers_path2)
         assert np.all(layers1.columns == layers2.columns) & (len(layers1)==len(layers2))
@@ -733,13 +735,13 @@ class ObservationModel:
                 f'total[{str(combined_flux.unit)}]': combined_flux.value,
                 f'noise[{str(noise_flux_adj.unit)}]': noise_flux_adj.value
             })
-            outfile = Path(self.dirs['all_model']) / f'phase{str(index).zfill(3)}.csv'
+            outfile = Path(self.dirs['all_model']) / f'phase{str(index).zfill(N_ZFILL)}.csv'
             df.to_csv(outfile,index=False,sep=',')
 
             #layers
             if self.params.use_globes and self.params.use_molec_signatures:
                 layerdat = self.get_layer_data(N1,N2,N1_frac)
-                outfile = Path(self.dirs['all_model']) / f'layer{str(index).zfill(3)}.csv'
+                outfile = Path(self.dirs['all_model']) / f'layer{str(index).zfill(N_ZFILL)}.csv'
                 layerdat.to_csv(outfile,index=False,sep=',')
 
 
