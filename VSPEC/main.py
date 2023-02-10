@@ -392,7 +392,7 @@ class ObservationModel:
                             spot_generator=spot_generator, fac_generator=fac_generator,ld_params=ld_params)
 
 
-    def warm_up_star(self, spot_warmup_time:u.Quantity[u.day]=30*u.day, facula_warmup_time:u.Quantity[u.day]=3*u.day):
+    def warm_up_star(self, spot_warmup_time:u.Quantity[u.day]=0*u.day, facula_warmup_time:u.Quantity[u.day]=0*u.day):
         """
         warm up star
 
@@ -409,12 +409,14 @@ class ObservationModel:
         facula_warm_up_step = 1*u.hr
         N_steps_spot = int(round((spot_warmup_time/spot_warm_up_step).to(u.Unit('')).value))
         N_steps_facula = int(round((facula_warmup_time/facula_warm_up_step).to(u.Unit('')).value))
-        for i in tqdm(range(N_steps_spot),desc='Spot Warmup',total=N_steps_spot):
-            self.star.birth_spots(spot_warm_up_step)
-            self.star.age(spot_warm_up_step)
-        for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
-            self.star.birth_faculae(facula_warm_up_step)
-            self.star.age(facula_warm_up_step)
+        if N_steps_spot > 0:
+            for i in tqdm(range(N_steps_spot),desc='Spot Warmup',total=N_steps_spot):
+                self.star.birth_spots(spot_warm_up_step)
+                self.star.age(spot_warm_up_step)
+        if N_steps_facula > 0:
+            for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
+                self.star.birth_faculae(facula_warm_up_step)
+                self.star.age(facula_warm_up_step)
 
         self.star.get_flares_over_observation(self.params.total_observation_time)
 
