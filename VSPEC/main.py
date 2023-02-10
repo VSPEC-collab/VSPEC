@@ -8,14 +8,13 @@ from tqdm.auto import tqdm
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
-from VSPEC.files import build_directories
+from VSPEC.files import build_directories, N_ZFILL
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float
 from VSPEC.psg_api import call_api
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
 
-N_ZFILL = 5
 
 
 class ObservationModel:

@@ -8,7 +8,7 @@ from io import StringIO
 import xarray
 
 from VSPEC.helpers import to_float
-from VSPEC.main import N_ZFILL
+from VSPEC.files import N_ZFILL
 
 class PhaseAnalyzer:
     """Phase Analyzer
