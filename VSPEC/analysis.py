@@ -6,6 +6,7 @@ import pandas as pd
 from astropy import units as u
 from io import StringIO
 import xarray
+from pathlib import Path
 
 from VSPEC.helpers import to_float
 from VSPEC.files import N_ZFILL
@@ -23,6 +24,8 @@ class PhaseAnalyzer:
         None
     """
     def __init__(self,path,fluxunit = u.Unit('W m-2 um-1')):
+        if not isinstance(path,Path):
+            path = Path(path)
         self.observation_data = pd.read_csv(path / 'observation_info.csv')
         self.N_images = len(self.observation_data)
         self.time = self.observation_data['time[s]'].values * u.s
@@ -110,8 +113,13 @@ class PhaseAnalyzer:
         if isinstance(pixel,tuple):
             pixel = slice(*pixel)
         y = getattr(self,source)[pixel,:]
-        if noise:
-            y = y + np.random.normal(scale=self.noise.value[pixel,:])*self.noise.unit
+        if isinstance(noise,bool):
+            if noise:
+                y = y + np.random.normal(scale=self.noise.value[pixel,:])*self.noise.unit
+        elif isinstance(noise,float) or isinstance(noise,int):
+            y = y + noise*np.random.normal(scale=self.noise.value[pixel,:])*self.noise.unit
+        else:
+            raise ValueError('noise parameter must be bool, float, or int')
         if y.ndim > 1:
             y = y.mean(axis=0)
         if isinstance(normalize,int):
