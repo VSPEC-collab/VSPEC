@@ -148,7 +148,5 @@ newproxcen/
 examples/
 testPlots.py
 
-.DS_store
-readme.md
-readme_files/
+.DS_stores
 *.gif
