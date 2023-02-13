@@ -1,5 +1,6 @@
 from pathlib import Path
 
+N_ZFILL = 5
 
 
 def check_and_build_dir(path):

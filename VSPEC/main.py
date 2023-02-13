@@ -8,12 +8,13 @@ from tqdm.auto import tqdm
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
-from VSPEC.files import build_directories
+from VSPEC.files import build_directories, N_ZFILL
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float
 from VSPEC.psg_api import call_api
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
+
 
 
 class ObservationModel:
@@ -86,18 +87,22 @@ class ObservationModel:
             (Quantity): Binned wavelengths
             (Quantity): Binned flux, corrected for system distance
         """
-        model_teffs = [to_float(np.round(Teff - Teff%(100*u.K)),u.K),
-            to_float(np.round(Teff - Teff%(100*u.K) +(100*u.K)),u.K)] * u.K
-        if Teff in model_teffs:
-            wave1, flux1 = self.read_spectrum(Teff)
-            wave2, flux2 = wave1, flux1
+        if Teff == 0*u.K:
+            wave1, flux1 = self.read_spectrum(3000*u.K)
+            return wave1, flux1*0
         else:
-            wave1, flux1 = self.read_spectrum(model_teffs[0])
-            wave2, flux2 = self.read_spectrum(model_teffs[1])
-        wavelength, flux = stellar_spectra.interpolate_spectra(Teff,
-                                model_teffs[0],wave1,flux1,
-                                model_teffs[1],wave2,flux2)
-        return wavelength, flux*self.params.distanceFluxCorrection
+            model_teffs = [to_float(np.round(Teff - Teff%(100*u.K)),u.K),
+                to_float(np.round(Teff - Teff%(100*u.K) +(100*u.K)),u.K)] * u.K
+            if Teff in model_teffs:
+                wave1, flux1 = self.read_spectrum(Teff)
+                wave2, flux2 = wave1, flux1
+            else:
+                wave1, flux1 = self.read_spectrum(model_teffs[0])
+                wave2, flux2 = self.read_spectrum(model_teffs[1])
+            wavelength, flux = stellar_spectra.interpolate_spectra(Teff,
+                                    model_teffs[0],wave1,flux1,
+                                    model_teffs[1],wave2,flux2)
+            return wavelength, flux*self.params.distanceFluxCorrection
     
     def get_observation_parameters(self)->SystemGeometry:
         """
@@ -111,7 +116,7 @@ class ObservationModel:
         Returns:
             (SystemGeometry): Object storing observation parameters
         """
-        return SystemGeometry(self.params.system_inclination_psg,
+        return SystemGeometry(self.params.system_inclination,
                             0*u.deg,
                             self.params.planet_initial_phase,
                             self.params.star_rot_period,
@@ -122,7 +127,7 @@ class ObservationModel:
                             self.params.star_rot_offset_from_orbital_plane,
                             self.params.star_rot_offset_angle_from_pariapse,
                             self.params.planet_eccentricity,
-                            self.params.system_argument_of_pariapsis,
+                            self.params.system_phase_of_periasteron,
                             self.params.system_distance,
                             self.params.planet_obliquity,
                             self.params.planet_obliquity_direction)
@@ -201,7 +206,7 @@ class ObservationModel:
             fr.write('<OBJECT-STAR-DISTANCE>%f\n' % to_float(self.params.planet_semimajor_axis,u.AU))
             fr.write('<OBJECT-PERIOD>%f\n' % to_float(self.params.planet_orbital_period,u.day))
             fr.write('<OBJECT-ECCENTRICITY>%f\n' % self.params.planet_eccentricity)
-            fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(self.params.system_argument_of_pariapsis,u.deg))
+            fr.write('<OBJECT-PERIAPSIS>%f\n' % to_float(self.params.system_phase_of_periasteron,u.deg))
             fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' % to_float(self.params.star_teff,u.K))
             fr.write('<OBJECT-STAR-RADIUS>%f\n' % to_float(self.params.star_radius,u.R_sun))
             fr.write('<GEOMETRY>Observatory\n')
@@ -215,7 +220,7 @@ class ObservationModel:
             fr.write('<GENERATOR-BEAM>%d\n' % self.params.beamValue)
             fr.write('<GENERATOR-BEAM-UNIT>%s\n'% self.params.beamUnit)
             fr.write('<GENERATOR-CONT-STELLAR>Y\n')
-            fr.write('<OBJECT-INCLINATION>%s\n' % to_float(self.params.system_inclination_psg,u.deg))
+            fr.write('<OBJECT-INCLINATION>%s\n' % to_float(self.params.system_inclination,u.deg))
             fr.write('<OBJECT-SOLAR-LATITUDE>0.0\n')
             fr.write('<OBJECT-OBS-LATITUDE>0.0\n')
             fr.write('<GENERATOR-RADUNITS>%s\n' % self.params.psg_rad_unit)
@@ -302,7 +307,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_combined']) / f'phase{str(i).zfill(3)}.rad'
+            outfile = Path(self.dirs['psg_combined']) / f'phase{str(i).zfill(N_ZFILL)}.rad'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get noise
@@ -312,7 +317,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_noise']) / f'phase{str(i).zfill(3)}.noi'
+            outfile = Path(self.dirs['psg_noise']) / f'phase{str(i).zfill(N_ZFILL)}.noi'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
@@ -320,7 +325,7 @@ class ObservationModel:
             url = self.params.psg_url
             call_type = 'cfg'
             app = 'globes'
-            outfile = Path(self.dirs['psg_configs']) / f'phase{str(i).zfill(3)}.cfg'
+            outfile = Path(self.dirs['psg_configs']) / f'phase{str(i).zfill(N_ZFILL)}.cfg'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
 
@@ -338,7 +343,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_thermal']) / f'phase{str(i).zfill(3)}.rad'
+            outfile = Path(self.dirs['psg_thermal']) / f'phase{str(i).zfill(N_ZFILL)}.rad'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
             # call api to get layers
@@ -348,7 +353,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_layers']) / f'phase{str(i).zfill(3)}.lyr'
+            outfile = Path(self.dirs['psg_layers']) / f'phase{str(i).zfill(N_ZFILL)}.lyr'
             call_api(cfg_path,psg_url=url,api_key=api_key,
                     type=call_type,app=app,outfile=outfile,verbose=self.debug)
     
@@ -387,7 +392,7 @@ class ObservationModel:
                             spot_generator=spot_generator, fac_generator=fac_generator,ld_params=ld_params)
 
 
-    def warm_up_star(self, spot_warmup_time:u.Quantity[u.day]=30*u.day, facula_warmup_time:u.Quantity[u.day]=3*u.day):
+    def warm_up_star(self, spot_warmup_time:u.Quantity[u.day]=0*u.day, facula_warmup_time:u.Quantity[u.day]=0*u.day):
         """
         warm up star
 
@@ -404,12 +409,14 @@ class ObservationModel:
         facula_warm_up_step = 1*u.hr
         N_steps_spot = int(round((spot_warmup_time/spot_warm_up_step).to(u.Unit('')).value))
         N_steps_facula = int(round((facula_warmup_time/facula_warm_up_step).to(u.Unit('')).value))
-        for i in tqdm(range(N_steps_spot),desc='Spot Warmup',total=N_steps_spot):
-            self.star.birth_spots(spot_warm_up_step)
-            self.star.age(spot_warm_up_step)
-        for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
-            self.star.birth_faculae(facula_warm_up_step)
-            self.star.age(facula_warm_up_step)
+        if N_steps_spot > 0:
+            for i in tqdm(range(N_steps_spot),desc='Spot Warmup',total=N_steps_spot):
+                self.star.birth_spots(spot_warm_up_step)
+                self.star.age(spot_warm_up_step)
+        if N_steps_facula > 0:
+            for i in tqdm(range(N_steps_facula),desc='Facula Warmup',total=N_steps_facula):
+                self.star.birth_faculae(facula_warm_up_step)
+                self.star.age(facula_warm_up_step)
 
         self.star.get_flares_over_observation(self.params.total_observation_time)
 
@@ -494,10 +501,10 @@ class ObservationModel:
             (Quantity): Reflected wavelength
             (Quantity): Reflected flux
         """
-        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
-        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(3)}.rad'
+        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
 
         reflected = []
 
@@ -549,10 +556,10 @@ class ObservationModel:
             (Quantity): Noise wavelength
             (Quantity): Noise flux
         """
-        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_noise_path1 = Path(self.dirs['psg_noise']) / f'phase{str(N1).zfill(3)}.noi'
-        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(3)}.rad'
-        psg_noise_path2 = Path(self.dirs['psg_noise']) / f'phase{str(N2).zfill(3)}.noi'
+        psg_combined_path1 = Path(self.dirs['psg_combined']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_noise_path1 = Path(self.dirs['psg_noise']) / f'phase{str(N1).zfill(N_ZFILL)}.noi'
+        psg_combined_path2 = Path(self.dirs['psg_combined']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+        psg_noise_path2 = Path(self.dirs['psg_noise']) / f'phase{str(N2).zfill(N_ZFILL)}.noi'
         
         psg_noise_source = []
         psg_source = []
@@ -607,8 +614,8 @@ class ObservationModel:
             (Quantity): Thermal wavelength
             (Quantity): Thermal flux
         """
-        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(3)}.rad'
-        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(3)}.rad'
+        psg_thermal_path1 = Path(self.dirs['psg_thermal']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+        psg_thermal_path2 = Path(self.dirs['psg_thermal']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
         
         wavelength = []
         thermal = []
@@ -645,8 +652,8 @@ class ObservationModel:
         Returns:
             (pd.DataFrame): DataFrame containing the interpolated layer data
         """
-        psg_layers_path1 = Path(self.dirs['psg_layers']) / f'phase{str(N1).zfill(3)}.lyr'
-        psg_layers_path2 = Path(self.dirs['psg_layers']) / f'phase{str(N2).zfill(3)}.lyr'
+        psg_layers_path1 = Path(self.dirs['psg_layers']) / f'phase{str(N1).zfill(N_ZFILL)}.lyr'
+        psg_layers_path2 = Path(self.dirs['psg_layers']) / f'phase{str(N2).zfill(N_ZFILL)}.lyr'
         layers1 = read_lyr(psg_layers_path1)
         layers2 = read_lyr(psg_layers_path2)
         assert np.all(layers1.columns == layers2.columns) & (len(layers1)==len(layers2))
@@ -729,13 +736,13 @@ class ObservationModel:
                 f'total[{str(combined_flux.unit)}]': combined_flux.value,
                 f'noise[{str(noise_flux_adj.unit)}]': noise_flux_adj.value
             })
-            outfile = Path(self.dirs['all_model']) / f'phase{str(index).zfill(3)}.csv'
+            outfile = Path(self.dirs['all_model']) / f'phase{str(index).zfill(N_ZFILL)}.csv'
             df.to_csv(outfile,index=False,sep=',')
 
             #layers
             if self.params.use_globes and self.params.use_molec_signatures:
                 layerdat = self.get_layer_data(N1,N2,N1_frac)
-                outfile = Path(self.dirs['all_model']) / f'layer{str(index).zfill(3)}.csv'
+                outfile = Path(self.dirs['all_model']) / f'layer{str(index).zfill(N_ZFILL)}.csv'
                 layerdat.to_csv(outfile,index=False,sep=',')
 
 

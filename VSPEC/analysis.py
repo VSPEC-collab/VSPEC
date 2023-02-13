@@ -6,9 +6,10 @@ import pandas as pd
 from astropy import units as u
 from io import StringIO
 import xarray
+from pathlib import Path
 
 from VSPEC.helpers import to_float
-
+from VSPEC.files import N_ZFILL
 
 class PhaseAnalyzer:
     """Phase Analyzer
@@ -23,6 +24,8 @@ class PhaseAnalyzer:
         None
     """
     def __init__(self,path,fluxunit = u.Unit('W m-2 um-1')):
+        if not isinstance(path,Path):
+            path = Path(path)
         self.observation_data = pd.read_csv(path / 'observation_info.csv')
         self.N_images = len(self.observation_data)
         self.time = self.observation_data['time[s]'].values * u.s
@@ -41,7 +44,7 @@ class PhaseAnalyzer:
         total = []
         noise = []
         for i in range(self.N_images):
-            filename = path / f'phase{str(i).zfill(3)}.csv'
+            filename = path / f'phase{str(i).zfill(N_ZFILL)}.csv'
             spectra = pd.read_csv(filename)
             cols = pd.Series(spectra.columns)
             if i==0: # only do once
@@ -79,7 +82,7 @@ class PhaseAnalyzer:
             layers = []
             first = True
             for i in range(self.N_images):
-                filename = path / f'layer{str(i).zfill(3)}.csv'
+                filename = path / f'layer{str(i).zfill(N_ZFILL)}.csv'
                 dat = pd.read_csv(filename)
                 if not first:
                     assert np.all(dat.columns == cols)
@@ -89,7 +92,7 @@ class PhaseAnalyzer:
                 layers.append(dat.values)
             index = np.arange(layers[0].shape[0])
             self.layers = xarray.DataArray(np.array(layers),dims = ['phase','layer','var'],coords={'phase':self.unique_phase,'layer':index,'var':cols})
-        except IndexError:
+        except FileNotFoundError:
             print('No Layer info, maybe globes is off')
             self.layers = None
 
@@ -110,8 +113,13 @@ class PhaseAnalyzer:
         if isinstance(pixel,tuple):
             pixel = slice(*pixel)
         y = getattr(self,source)[pixel,:]
-        if noise:
-            y = y + np.random.normal(scale=self.noise.value[pixel,:])*self.noise.unit
+        if isinstance(noise,bool):
+            if noise:
+                y = y + np.random.normal(scale=self.noise.value[pixel,:])*self.noise.unit
+        elif isinstance(noise,float) or isinstance(noise,int):
+            y = y + noise*np.random.normal(scale=self.noise.value[pixel,:])*self.noise.unit
+        else:
+            raise ValueError('noise parameter must be bool, float, or int')
         if y.ndim > 1:
             y = y.mean(axis=0)
         if isinstance(normalize,int):
