@@ -150,7 +150,10 @@ class PhaseAnalyzer:
             y = getattr(self,source)[:,images]
             if noise:
                 y = y + np.random.normal(scale=self.noise.value[:,images])*self.noise.unit
-            y = y.mean(axis=1)
+            try:
+                y = y.mean(axis=1)
+            except IndexError: # images is int
+                pass
             return y
 
 
