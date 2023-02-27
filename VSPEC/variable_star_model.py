@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from astropy import units as u, constants as c
+from astropy import units as u, constants as const
 from astropy.units.quantity import Quantity
 import cartopy.crs as ccrs
 from xoflares.xoflares import _flareintegralnp as flareintegral, eval_get_light_curve,get_light_curvenp
@@ -507,6 +507,7 @@ class Star:
             transform=ccrs.PlateCarree(),
             extent=[0, 360, -90, 90],
             interpolation="none",
+            cmap='viridis',
             regrid_shape=(self.gridmaker.Nlat,self.gridmaker.Nlon)
         )
         if sub_obs_point is not None:
@@ -1167,7 +1168,7 @@ class StellarFlare:
         Returns:
             (Quantity): peak flare area
         """
-        time_area = self.energy/c.sigma_sb/(self.Teff**4)
+        time_area = self.energy/const.sigma_sb/(self.Teff**4)
         area_std = 1*u.km**2
         time_area_std = flareintegral(self.fwhm,area_std)
         area = time_area/time_area_std * area_std
