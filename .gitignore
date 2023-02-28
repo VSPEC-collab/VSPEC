@@ -150,3 +150,5 @@ testPlots.py
 
 .DS_stores
 *.gif
+
+docs/tutorials/*/*/Data
