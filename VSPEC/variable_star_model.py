@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 from astropy import units as u, constants as const
 from astropy.units.quantity import Quantity
 import cartopy.crs as ccrs
@@ -23,8 +22,10 @@ class StarSpot:
             Can be in radians or degrees from prime meridian. East is positive.
         Amax (astropy.units.quantity.Quantity [area]): Area spot reaches before it decays.
         A0 (astropy.units.quantity.Quantity [area]): Current spot area.
-        Teff_umbra (astropy.units.quantity.Quantity [temperature]): Effective temperature of spot umbra.
-        Teff_penumbra (astropy.units.quantity.Quantity [temperature]): Effective temperature of spot penumbra.
+        Teff_umbra (astropy.units.quantity.Quantity [temperature]):
+            Effective temperature of spot umbra.
+        Teff_penumbra (astropy.units.quantity.Quantity [temperature]):
+            Effective temperature of spot penumbra.
         r_A (float): Ratio of total spot area to umbra area. From 2013PhDT.......359G = 5+/-1 (compiled from various sources)
         growing (bool): Whether or not the spot is growing.
         growth_rate (astropy.units.quantity.Quantity [1/time]): Fractional growth of the spot for a given unit time.
@@ -62,6 +63,13 @@ class StarSpot:
         lon0 = self.coords['lon']
         self.r = 2* np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
                          + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
+    def __str__(self):
+        s = 'StarSpot with '
+        s += f'Teff = ({self.Teff_umbra:.0f},{self.Teff_penumbra:.0f}), '
+        s += f'area = {self.area_current.to(MSH):.0f}, '
+        s += f'lat = {self.coords["lat"]:.1f}, lon = {self.coords["lon"]:.1f}'
+        return s
+
     def radius(self)->Quantity[u.km]:
         """radius
 
