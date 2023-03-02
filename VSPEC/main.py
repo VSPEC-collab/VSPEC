@@ -187,7 +187,8 @@ class ObservationModel:
             app = None
         outfile = None
         if self.params.api_key_path:
-            api_key = open(self.params.api_key_path,'r').read()
+            with open(self.params.api_key_path,'r',encoding='UTF-8') as file:
+                api_key = file.read()
         else:
             api_key = None
         call_api(gcm_path,psg_url=url,api_key=api_key,
@@ -195,7 +196,7 @@ class ObservationModel:
         ####################################
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
-        with open(cfg_path, file_mode) as fr:
+        with open(cfg_path, file_mode,encoding="ascii") as fr:
             bool_to_str = {True:'Y',False:'N'}
             fr.write('<OBJECT>Exoplanet\n')
             fr.write('<OBJECT-NAME>Planet\n')
@@ -236,10 +237,10 @@ class ObservationModel:
             fr.write(f'<GENERATOR-NOISEPIXELS>{self.params.detector_pixel_sampling}\n')
             fr.write(f'<GENERATOR-NOISE1>{self.params.detector_read_noise}\n')
             fr.write(f'<GENERATOR-DIAMTELE>{self.params.telescope_diameter:.1f}\n')
-            fr.write(f'<GENERATOR-TELESCOPE>SINGLE\n')
-            fr.write(f'<GENERATOR-TELESCOPE1>1\n')
-            fr.write(f'<GENERATOR-TELESCOPE2>1.0\n')
-            fr.write(f'<GENERATOR-TELESCOPE3>1.0\n')
+            fr.write('<GENERATOR-TELESCOPE>SINGLE\n')
+            fr.write('<GENERATOR-TELESCOPE1>1\n')
+            fr.write('<GENERATOR-TELESCOPE2>1.0\n')
+            fr.write('<GENERATOR-TELESCOPE3>1.0\n')
         url = self.params.psg_url
         call_type = 'upd'
         if self.params.use_globes:
@@ -282,10 +283,10 @@ class ObservationModel:
             orbit_radius_coeff = obs_plan['orbit_radius'][i]
             
             
-            if phase>178*u.deg and phase<182*u.deg:
-                phase=182.0*u.deg # Add transit phase;
-            if phase == 185*u.deg:
-                phase = 186.0*u.deg
+            # if phase>178*u.deg and phase<182*u.deg:
+            #     phase=182.0*u.deg # Add transit phase;
+            # if phase == 185*u.deg:
+            #     phase = 186.0*u.deg
             
             pl_sub_obs_lon = obs_plan['planet_sub_obs_lon'][i]
             pl_sub_obs_lat =  obs_plan['planet_sub_obs_lat'][i]
@@ -295,7 +296,7 @@ class ObservationModel:
                 fr.write('<OBJECT-SEASON>%f\n' % to_float(phase,u.deg))
                 fr.write('<OBJECT-STAR-DISTANCE>%f\n' % to_float(orbit_radius_coeff*self.params.planet_semimajor_axis,u.AU))
                 fr.write(f'<OBJECT-SOLAR-LONGITUDE>{to_float(sub_stellar_lon,u.deg):.4f}\n')
-                fr.write(f'<OBJECT-SOLAR-LATITUDE>{to_float(0*u.deg,u.deg)}\n') # Add this option later
+                fr.write(f'<OBJECT-SOLAR-LATITUDE>{to_float(sub_stellar_lat,u.deg)}\n')
                 fr.write('<OBJECT-OBS-LONGITUDE>%f\n' % to_float(pl_sub_obs_lon,u.deg))
                 fr.write('<OBJECT-OBS-LATITUDE>%f\n' % to_float(pl_sub_obs_lat,u.deg))
                 # fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
