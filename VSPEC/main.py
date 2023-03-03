@@ -1,3 +1,11 @@
+"""VSPEC main module
+
+This module performs all of VSPEC's interaction with the user.
+It contains the `ObservationModel` class, which has methods that
+perform all of the model aggregation from the rest of the package
+and PSG.
+"""
+
 from pathlib import Path
 from os import system
 

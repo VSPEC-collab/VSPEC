@@ -1,10 +1,4 @@
 import VSPEC
-import matplotlib.pyplot as plt
-import numpy as np
-from astropy import units as u
-import pandas as pd
-from io import StringIO
-import xarray
 from pathlib import Path
 from os import chdir
 

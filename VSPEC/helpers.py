@@ -1,3 +1,11 @@
+"""VSPEC helpers module
+
+This module contains functions that may be shared
+throughout the rest of the package, especially
+pertainting to safe-casting of astropy.units
+objects.
+"""
+
 from astropy import units as u
 from numpy import isclose as np_isclose
 import numpy as np
@@ -11,18 +19,16 @@ def to_float(quant,unit):
     Args:
         quant (Quantity): Quantity to be cast
         unit (Unit): Unit to be cast with
-    
     Returns:
         (float): Cast quantity
     """
     return (quant/unit).to(u.Unit('')).value
 
-def isclose(a,b,tol):
+def isclose(a:u.Quantity,b:u.Quantity,tol:u.Quantity)->bool:
     """
-    is close
+    Check if two quantities are close
 
     Use numpy.isclose on two quantity objects. This function safely casts them to floats first.
-
     Args:
         a (Quantity): array to be compared
         b (Quantity): array to be compared
