@@ -8,7 +8,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from astropy import units as u
-import xarray
+from astropy.io import fits
 from VSPEC import PhaseAnalyzer
 from VSPEC.analysis import read_lyr
 from VSPEC.helpers import isclose
@@ -34,7 +34,7 @@ def test_init():
     assert isinstance(data.thermal, u.Quantity)
     assert isinstance(data.total, u.Quantity)
     assert isinstance(data.noise, u.Quantity)
-    assert isinstance(data.layers, xarray.DataArray)
+    assert isinstance(data.layers, fits.HDUList)
 
     assert np.all(data.phase >= 0 * u.deg)
     assert np.all(data.phase <= 360 * u.deg)
@@ -48,6 +48,13 @@ def test_init():
     assert data.thermal.unit == u.W / (u.m ** 2 * u.um)
     assert data.total.unit == u.W / (u.m ** 2 * u.um)
     assert data.noise.unit == u.W / (u.m ** 2 * u.um)
+
+    for hdu in data.layers:
+        name = hdu.name
+        dat = data.get_layer(name)
+        assert isinstance(dat,u.Quantity)
+    with pytest.raises(KeyError):
+        data.get_layer('fake_variable')
 
 
 def test_init_wrong_path():

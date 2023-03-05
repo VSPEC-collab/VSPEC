@@ -12,7 +12,8 @@ import warnings
 import numpy as np
 import pandas as pd
 from astropy import units as u
-import xarray
+from astropy.io import fits
+from datetime import datetime
 
 from VSPEC.helpers import to_float
 from VSPEC.files import N_ZFILL
@@ -59,8 +60,8 @@ class PhaseAnalyzer:
         2D array of total flux
     noise : astropy.units.Quantity
         2D array of noise flux
-    layers : xarray.DataArray
-        3D DataArray of Layer data
+    layers : astropy.io.fits.HDUList
+        `HDUList` of layer arrays
     """
 
     def __init__(self, path, fluxunit=u.Unit('W m-2 um-1')):
@@ -127,13 +128,55 @@ class PhaseAnalyzer:
                     first = False
                 cols = dat.columns
                 layers.append(dat.values)
-            index = np.arange(layers[0].shape[0])
-            self.layers = xarray.DataArray(np.array(layers), dims=['phase', 'layer', 'var'], coords={
-                                           'phase': self.unique_phase, 'layer': index, 'var': cols})
+            layer_data = np.array(layers)
+            hdus = []
+            for i, var in enumerate(cols):
+                dat = layer_data[:, :, i]
+                if '[' in var:
+                    unit = u.Unit(var.split('[')[1].replace(']', ''))
+                    var = var.split('[')[0]
+                else:
+                    unit = u.dimensionless_unscaled
+                image = fits.ImageHDU(dat)
+                image.header['AXIS0'] = 'PHASE'
+                image.header['AXIS1'] = 'LAYER'
+                image.header['VAR'] = var
+                image.header['UNIT'] = str(unit)
+                image.name = var
+                hdus.append(image)
+            self.layers = fits.HDUList(hdus)
         except FileNotFoundError:
             warnings.warn(
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
-            self.layers = None
+            self.layers = fits.HDUList([])
+
+    def get_layer(self, var: str) -> u.Quantity:
+        """
+        Get data from layer variable.
+
+        Access the `self.layers` attribute and return the result as
+        a `astropy.units.Quantity` object for a single variable.
+
+        Parameters
+        ----------
+        var : str
+            The name of the variable to access
+
+        Returns
+        -------
+        astropy.units.Quantity
+            They layering data of the requested variable
+
+        Raises
+        ------
+        KeyError
+            If `self` does not have any image data or if `var` is not recognized
+        """
+        if len(self.layers) == 0:
+            raise KeyError('`self.layers` does not contain any data')
+        hdu = self.layers[var]
+        unit = u.Unit(hdu.header['UNIT'])
+        return hdu.data*unit
 
     def lightcurve(self, source, pixel, normalize='none', noise=False):
         """
@@ -267,6 +310,76 @@ class PhaseAnalyzer:
                 pass
             return flux
 
+    def to_fits(self) -> fits.HDUList:
+        """
+        To Fits
+
+        Covert `PhaseAnalyzer` to an 
+        `astropy.io.fits.HDUList` object
+
+        Returns
+        -------
+        astropy.io.fits.HDUList
+            Data converted to the `.fits` format
+        """
+        primary = fits.PrimaryHDU()
+        primary.header['CREATED'] = datetime.now().strftime('%Y%m%d-%H%M%S%Z')
+        primary.header['N_images'] = self.N_images
+
+        cols = []
+        for col in self.observation_data.columns:
+            cols.append(fits.Column(
+                name=col, array=self.observation_data[col].value, format='K'))
+        obs_tab = fits.BinTableHDU.from_columns(cols)
+        obs_tab.name = 'OBS'
+
+        time = fits.Column(name='time', array=self.time.value, format='K')
+        phase = fits.Column(name='phase', array=self.phase.value, format='K')
+        unique_phase = fits.Column(
+            name='unique_phase', array=self.unique_phase.value, format='K')
+        tab1 = fits.BinTableHDU.from_columns([time, phase, unique_phase])
+        tab1.header['TIME_UNIT'] = str(self.time.unit)
+        tab1.header['PHASE_UNIT'] = str(self.phase.unit)
+        tab1.header['UNIQUE_PHASE_UNIT'] = str(self.unique_phase.unit)
+        tab1.name = 'PHASE'
+        wavelength = fits.Column(
+            name='wavelength', array=self.wavelength.value, format='K')
+        tab2 = fits.BinTableHDU.from_columns([wavelength])
+        tab2.header['WAVELENGTH_UNIT'] = str(self.wavelength.unit)
+        tab2.name = 'WAVELENGTH'
+
+        total = fits.ImageHDU(self.total.value)
+        total.header['FLUX_UNIT'] = str(self.total.unit)
+        total.name = 'TOTAL'
+        star = fits.ImageHDU(self.star.value)
+        star.header['FLUX_UNIT'] = str(self.star.unit)
+        star.name = 'STAR'
+        reflected = fits.ImageHDU(self.reflected.value)
+        reflected.header['FLUX_UNIT'] = str(self.reflected.unit)
+        reflected.name = 'REFLECTED'
+        thermal = fits.ImageHDU(self.thermal.value)
+        thermal.header['FLUX_UNIT'] = str(self.thermal.unit)
+        thermal.name = 'THERMAL'
+        noise = fits.ImageHDU(self.noise.value)
+        noise.header['FLUX_UNIT'] = str(self.noise.unit)
+        noise.name = 'NOISE'
+
+        hdul = fits.HDUList([primary, obs_tab, tab1, tab2,
+                            total, star, reflected, thermal, noise])
+        hdul = hdul + self.layers
+        return hdul
+
+    def write_fits(self, filename: str) -> None:
+        """
+        Save `PhaseAnalyzer` object as a `.fits` file.
+
+        Parameters
+        ----------
+        filename : str
+        """
+        hdul = self.to_fits()
+        hdul.writeto(filename)
+
 
 def read_lyr(filename: str) -> pd.DataFrame:
     """
@@ -299,7 +412,7 @@ def read_lyr(filename: str) -> pd.DataFrame:
                         pass
                 else:
                     lines.append(line[2:-1])
-    if len(lines)==0:
+    if len(lines) == 0:
         raise ValueError('No data was captured. Perhaps the format is wrong.')
     dat = StringIO('\n'.join(lines[1:]))
     names = lines[0].split()
