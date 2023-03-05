@@ -22,32 +22,32 @@ def test_init():
     Test the `__init__` method of `VSPEC.PhaseAnalyzer`
     """
     path = DATA_DIR
-    analyzer = PhaseAnalyzer(path)
-    assert isinstance(analyzer.observation_data, pd.DataFrame)
-    assert isinstance(analyzer.N_images, int)
-    assert isinstance(analyzer.time, u.Quantity)
-    assert isinstance(analyzer.phase, u.Quantity)
-    assert isinstance(analyzer.unique_phase, u.Quantity)
-    assert isinstance(analyzer.wavelength, u.Quantity)
-    assert isinstance(analyzer.star, u.Quantity)
-    assert isinstance(analyzer.reflected, u.Quantity)
-    assert isinstance(analyzer.thermal, u.Quantity)
-    assert isinstance(analyzer.total, u.Quantity)
-    assert isinstance(analyzer.noise, u.Quantity)
-    assert isinstance(analyzer.layers, xarray.DataArray)
+    data = PhaseAnalyzer(path)
+    assert isinstance(data.observation_data, pd.DataFrame)
+    assert isinstance(data.N_images, int)
+    assert isinstance(data.time, u.Quantity)
+    assert isinstance(data.phase, u.Quantity)
+    assert isinstance(data.unique_phase, u.Quantity)
+    assert isinstance(data.wavelength, u.Quantity)
+    assert isinstance(data.star, u.Quantity)
+    assert isinstance(data.reflected, u.Quantity)
+    assert isinstance(data.thermal, u.Quantity)
+    assert isinstance(data.total, u.Quantity)
+    assert isinstance(data.noise, u.Quantity)
+    assert isinstance(data.layers, xarray.DataArray)
 
-    assert np.all(analyzer.phase >= 0 * u.deg)
-    assert np.all(analyzer.phase <= 360 * u.deg)
+    assert np.all(data.phase >= 0 * u.deg)
+    assert np.all(data.phase <= 360 * u.deg)
 
-    assert np.all(np.diff(analyzer.unique_phase) > 0*u.deg)
+    assert np.all(np.diff(data.unique_phase) > 0*u.deg)
 
-    assert analyzer.wavelength.unit.physical_type == u.um.physical_type
+    assert data.wavelength.unit.physical_type == u.um.physical_type
 
-    assert analyzer.star.unit == u.W / (u.m ** 2 * u.um)
-    assert analyzer.reflected.unit == u.W / (u.m ** 2 * u.um)
-    assert analyzer.thermal.unit == u.W / (u.m ** 2 * u.um)
-    assert analyzer.total.unit == u.W / (u.m ** 2 * u.um)
-    assert analyzer.noise.unit == u.W / (u.m ** 2 * u.um)
+    assert data.star.unit == u.W / (u.m ** 2 * u.um)
+    assert data.reflected.unit == u.W / (u.m ** 2 * u.um)
+    assert data.thermal.unit == u.W / (u.m ** 2 * u.um)
+    assert data.total.unit == u.W / (u.m ** 2 * u.um)
+    assert data.noise.unit == u.W / (u.m ** 2 * u.um)
 
 
 def test_init_wrong_path():
@@ -73,34 +73,34 @@ def test_lightcurve():
     Test `PhaseAnalyzer.lightcurve()`
     """
     path = DATA_DIR
-    analyzer = PhaseAnalyzer(path)
+    data = PhaseAnalyzer(path)
 
-    assert analyzer.lightcurve('total', 0).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve('star', 0).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve('reflected', 0).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve('thermal', 0).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve('noise', 0).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve('total', len(
-        analyzer.wavelength)//2).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve('total', -1).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve('total', (0, -1)).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve(
-        'total', 0, normalize=0).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve(
-        'total', (0, -1), normalize=0).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve(
-        'total', 0, noise=True).shape == (analyzer.N_images,)
-    assert analyzer.lightcurve(
-        'total', (0, -1), noise=True).shape == (analyzer.N_images,)
+    assert data.lightcurve('total', 0).shape == (data.N_images,)
+    assert data.lightcurve('star', 0).shape == (data.N_images,)
+    assert data.lightcurve('reflected', 0).shape == (data.N_images,)
+    assert data.lightcurve('thermal', 0).shape == (data.N_images,)
+    assert data.lightcurve('noise', 0).shape == (data.N_images,)
+    assert data.lightcurve('total', len(
+        data.wavelength)//2).shape == (data.N_images,)
+    assert data.lightcurve('total', -1).shape == (data.N_images,)
+    assert data.lightcurve('total', (0, -1)).shape == (data.N_images,)
+    assert data.lightcurve(
+        'total', 0, normalize=0).shape == (data.N_images,)
+    assert data.lightcurve(
+        'total', (0, -1), normalize=0).shape == (data.N_images,)
+    assert data.lightcurve(
+        'total', 0, noise=True).shape == (data.N_images,)
+    assert data.lightcurve(
+        'total', (0, -1), noise=True).shape == (data.N_images,)
 
-    assert np.all(analyzer.lightcurve('total', 0, normalize='max') <= 1)
+    assert np.all(data.lightcurve('total', 0, normalize='max') <= 1)
 
-    assert analyzer.lightcurve('total', 0).unit == analyzer.total.unit
+    assert data.lightcurve('total', 0).unit == data.total.unit
     with pytest.raises(AttributeError):
-        getattr(analyzer.lightcurve('total', 0, normalize=0), 'unit')
-    tol = analyzer.total[0, :]*1e-10
-    assert np.all(isclose(analyzer.lightcurve(
-        'total', 0), analyzer.total[0, :], tol))
+        getattr(data.lightcurve('total', 0, normalize=0), 'unit')
+    tol = data.total[0, :]*1e-10
+    assert np.all(isclose(data.lightcurve(
+        'total', 0), data.total[0, :], tol))
 
 
 def test_spectrum():
@@ -108,37 +108,40 @@ def test_spectrum():
     Test `PhaseAnalyzer.spectrum()`
     """
     path = DATA_DIR
-    pa = PhaseAnalyzer(path)
-    result = pa.spectrum('total', 0, noise=False)
+    data = PhaseAnalyzer(path)
+    result = data.spectrum('total', 0, noise=False)
     assert isinstance(result, u.Quantity)
-    assert result.shape == (len(pa.wavelength),)
+    assert result.shape == (len(data.wavelength),)
 
     # Test with noise=True
-    result = pa.spectrum('total', 0, noise=True)
+    result = data.spectrum('total', 0, noise=True)
     assert isinstance(result, u.Quantity)
-    assert result.shape == (len(pa.wavelength),)
+    assert result.shape == (len(data.wavelength),)
 
     # Test with noise=0.1
-    result = pa.spectrum('total', 0, noise=0.1)
+    result = data.spectrum('total', 0, noise=0.1)
     assert isinstance(result, u.Quantity)
-    assert result.shape == (len(pa.wavelength),)
+    assert result.shape == (len(data.wavelength),)
 
     # Test with images=(1,3)
-    result = pa.spectrum('total', (0, -1), noise=False)
+    result = data.spectrum('total', (0, -1), noise=False)
     assert isinstance(result, u.Quantity)
-    assert result.shape == (len(pa.wavelength),)
+    assert result.shape == (len(data.wavelength),)
 
     # Test with source='noise'
-    if pa.N_images > 1:
-        epoch0 = pa.spectrum('noise', 0)
-        epoch1 = pa.spectrum('noise', 1)
-        multi_epoch = pa.spectrum('noise', (0, 2))
+    if data.N_images > 1:
+        epoch0 = data.spectrum('noise', 0)
+        epoch1 = data.spectrum('noise', 1)
+        multi_epoch = data.spectrum('noise', (0, 2))
         tol = multi_epoch * 1e-2
         assert np.all(isclose(multi_epoch, 0.5 *
                       np.sqrt(epoch0**2+epoch1**2), tol))
 
 
 def test_read_lyr():
+    """
+    Test `VSPEC.analysis.read_lyr()`
+    """
     file = DATA_DIR / 'layer00000.csv'
     fake_file = EMPTY_DIR / 'layer00000.csv'
     wrong_file = DATA_DIR / 'phase00000.csv'
@@ -157,3 +160,4 @@ if __name__ in '__main__':
     test_init_wrong_unit()
     test_lightcurve()
     test_spectrum()
+    test_read_lyr()
