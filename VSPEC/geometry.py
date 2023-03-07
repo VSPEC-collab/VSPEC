@@ -14,7 +14,8 @@ from VSPEC.helpers import to_float
 
 
 class SystemGeometry:
-    """
+    """System Geometry
+
     Class to store and calculate information on the geometry of a star-planet-observer system.
 
     Parameters
