@@ -19,7 +19,7 @@ class ParamModel:
 
     Parameters
     ----------
-    filename : str
+    filename : str or pathlib.Path
         The path to the configuration file.
 
     Attributes
@@ -370,7 +370,7 @@ class ParamModel:
             'Model', 'use_molec_signatures')
         self.psg_url = configParser.get('Model', 'psg_url')
         try:
-            self.api_key_path = configParser.get('PSG', 'api_key_path')
+            self.api_key_path = configParser.get('Model', 'api_key_path')
         except NoOptionError:
             self.api_key_path = None
 
