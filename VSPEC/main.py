@@ -30,7 +30,7 @@ class ObservationModel:
 
     Parameters
     ----------
-    config_path : str or `~pathlib.Path`
+    config_path : str or pathlib.Path
         The path of the configuration file.
     debug : bool, default=False
         Whether to enter debug mode.
@@ -84,14 +84,14 @@ class ObservationModel:
 
         Parameters
         ----------
-        teff : `~astropy.units.Quantity` [temperature]
+        teff : astropy.units.Quantity [temperature]
             The effective temperature of the spectrum to read.
 
         Returns
         -------
-        wavelengths : `~astropy.units.Quantity` [wavelength]
+        wavelengths : astropy.units.Quantity [wavelength]
             The binned wavelengths of the spectrum.
-        flux : `~astropy.units.Quantity` [flambda]
+        flux : astropy.units.Quantity [flambda]
             The binned flux of the spectrum.
         """
         filename = stellar_spectra.get_binned_filename(to_float(teff, u.K))
@@ -104,14 +104,14 @@ class ObservationModel:
 
         Parameters
         ----------
-        Teff : `~astropy.units.Quantity` [temperature]
+        Teff : astropy.units.Quantity [temperature]
             The desired effective temperature of the spectrum
 
         Returns
         -------
-        wavelengths : `~astropy.units.Quantity` [wavelength]
+        wavelengths : astropy.units.Quantity [wavelength]
             The wavelength coordinates of the spectrum.
-        flux : `~astropy.units.Quantity` [flambda]
+        flux : astropy.units.Quantity [flambda]
             The flux of the spectrum, corrected for system distance.
         """
         if Teff == 0*u.K:
@@ -140,7 +140,7 @@ class ObservationModel:
 
         Returns
         -------
-        `~VSPEC.geometry.SystemGeometry`
+        VSPEC.geometry.SystemGeometry
             An bbject storing the geometric observation parameters
             of this simulation.
         """
@@ -166,14 +166,14 @@ class ObservationModel:
 
         Parameters
         ----------
-        observation_parameters : `~VSPEC.geometry.SystemGeometry`
+        observation_parameters : VSPEC.geometry.SystemGeometry
             An object containting the system geometry.
 
         Returns
         -------
         dict
             A dictionary of arrays describing the geometry at each
-            epoch. Each dict value is an `~astropy.units.Quantity` array.
+            epoch. Each dict value is an astropy.units.Quantity array.
         """
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                                                            self.params.total_observation_time, N_obs=self.params.total_images)
@@ -185,14 +185,14 @@ class ObservationModel:
 
         Parameters
         ----------
-        observation_parameters : `~VSPEC.geometry.SystemGeometry`
+        observation_parameters : VSPEC.geometry.SystemGeometry
             An object containting the system geometry.
 
         Returns
         -------
         dict
             A dictionary of arrays describing the geometry at each
-            epoch. Each dict value is an `~astropy.units.Quantity` array.
+            epoch. Each dict value is an astropy.units.Quantity array.
         """
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                                                            self.params.total_observation_time, N_obs=self.params.planet_images)
@@ -467,9 +467,9 @@ class ObservationModel:
 
         Parameters
         ----------
-        spot_warm_up_time : `~astropy.units.Quantity` [time], default=0*u.day
+        spot_warm_up_time : astropy.units.Quantity [time], default=0*u.day
             The time to run to approach spot equillibrium.
-        facula_warmup_time : `~astropy.units.Quantity` [time], default=0*u.hr
+        facula_warmup_time : astropy.units.Quantity [time], default=0*u.hr
             The time to run to approach faculae equillibrium.
         """
         if self.params.star_spot_initial_coverage > 0.0:
@@ -499,20 +499,20 @@ class ObservationModel:
         Compute the stellar spectrum given an integration window and the
         side of the star facing the observer.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         sub_obs_coords : dict
             A dictionary containing stellar sub-observer coordinates.
-        tstart : `~astropy.units.Quantity` [time]
+        tstart : astropy.units.Quantity [time]
             The starting time of the observation.
-        tfinish : `~astropy.units.Quantity` [time]
+        tfinish : astropy.units.Quantity [time]
             The ending time of the observation.
 
         Returns
         -------
-        base_wave : `~astropy.units.Quantity` [wavelength]
+        base_wave : astropy.units.Quantity [wavelength]
             The wavelength coordinates of the stellar spectrum.
-        base_flux : `~astropy.units.Quantity` [flambda]
+        base_flux : astropy.units.Quantity [flambda]
             The composite stellar flux
 
         Raises
@@ -550,9 +550,9 @@ class ObservationModel:
 
         Parameters
         ----------
-        planet_times : `~astropy.units.Quantity` [time]
+        planet_times : astropy.units.Quantity [time]
             The times (cast to since periasteron) at which the planet spectrum was taken.
-        tindex : `~astropy.units.Quantity` [time]
+        tindex : astropy.units.Quantity [time]
             The epoch of the current observation. The goal is to place this between
             two elements of `planet_times`
 
@@ -595,16 +595,16 @@ class ObservationModel:
             The planet index immediately after the current epoch.
         N1_frac : float
             The fraction of the `N1` epoch to use in interpolation.
-        sub_planet_wavelength : `~astropy.units.Quantity` [wavelength]
+        sub_planet_wavelength : astropy.units.Quantity [wavelength]
             Wavelengths for validation.
-        sub_planet_flux : `~astropy.units.Quantity` [flambda]
+        sub_planet_flux : astropy.units.Quantity [flambda]
             Stellar flux to scale to.
 
         Returns
         -------
-        reflected_wavelength : `~astropy.units.Quantity` [wavelength]
+        reflected_wavelength : astropy.units.Quantity [wavelength]
             Reflected wavelength.
-        reflected_flux : `~astropy.units.Quantity` [flambda]
+        reflected_flux : astropy.units.Quantity [flambda]
             Reflected flux.
 
         Raises
@@ -675,16 +675,16 @@ class ObservationModel:
             A scaling factor to apply to the noise at the end of the calculation.
             This is 1 if the planet and star sampling has the same cadence. Otherwise,
             it is usually `sqrt(self.planet_phase_binning)`.
-        cmb_wavelength : `~astropy.units.Quantity` [wavelength]
+        cmb_wavelength : astropy.units.Quantity [wavelength]
             The wavelength of the combined spectra.
-        cmb_flux : `~astropy.units.Quantity` [flambda]
+        cmb_flux : astropy.units.Quantity [flambda]
             The flux of the combined spectrum.
 
         Returns
         -------
-        cmb_wavelength : `~astropy.units.Quantity` [wavelength]
+        cmb_wavelength : astropy.units.Quantity [wavelength]
             The wavelength of the combined spectra
-        noise : `~astropy.units.Quantity` [flambda]
+        noise : astropy.units.Quantity [flambda]
             The noise in our model.
 
         Raises
@@ -760,9 +760,9 @@ class ObservationModel:
 
         Returns
         -------
-        wavelength : `~astropy.units.Quantity` [wavelength]
+        wavelength : astropy.units.Quantity [wavelength]
             The wavelength of the thermal emission.
-        flux : `~astropy.units.Quantity` [flambda]
+        flux : astropy.units.Quantity [flambda]
             The flux of the thermal emission.
 
         Raises
@@ -816,7 +816,7 @@ class ObservationModel:
 
         Returns
         -------
-        `~pandas.DataFrame`
+        pandas.DataFrame
             A DataFrame containing the interpolated layer data.
 
         Raises

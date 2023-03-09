@@ -260,8 +260,8 @@ class PhaseAnalyzer:
         Return the spectrum of a specified source at a single epoch
         or average over multiple epochs.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         source : str
             Which data array to access. If `'noise'` is specified, use propagation
             of error formula to calculate theoretical noise of spectrum.

@@ -57,9 +57,9 @@ class CoordinateGrid:
 
         Returns
         -------
-        lats : `~astropy.unit.quantity.Quantity` [angle], shape=(Nlat,)
+        lats : astropy.units.Quantity , shape=(Nlat,)
             Array of latitude points.
-        lons : `~astropy.unit.quantity.Quantity` [angle], shape=(Nlon,)
+        lons : astropy.units.Quantity , shape=(Nlon,)
             Array of longitude points.
 
         """
@@ -73,9 +73,9 @@ class CoordinateGrid:
 
         Returns
         -------
-        lats : astropy.unit.quantity.Quantity [angle], shape=(Nlat,Nlon)
+        lats : astropy.units.Quantity , shape=(Nlat,Nlon)
             Array of latitude points.
-        lons : astropy.unit.quantity.Quantity [angle], shape=(Nlat,Nlon)
+        lons : astropy.units.Quantity , shape=(Nlat,Nlon)
             Array of longitude points.
 
         """
@@ -128,27 +128,27 @@ class StarSpot:
 
     Parameters
     ----------
-    lat : `~astropy.units.quantity.Quantity` [angle]
+    lat : astropy.units.Quantity 
         Latitude of spot center. North is positive.
-    lon : `~astropy.units.quantity.Quantity` [angle]
+    lon : astropy.units.Quantity 
         Longitude of spot center. East is positive.
-    Amax : `~astropy.units.quantity.Quantity` [area]
+    Amax : astropy.units.Quantity 
         The maximum area a spot reaches before it decays.
-    A0 : `~astropy.units.quantity.Quantity` [area]
+    A0 : astropy.units.Quantity 
         The current spot area.
-    Teff_umbra : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_umbra : astropy.units.Quantity 
         The effective temperature of the spot umbra.
-    Teff_penumbra : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_penumbra : astropy.units.Quantity 
         The effective temperature of spot penumbra.
     r_A : float
         The ratio of total spot area to umbra area. 5+/-1 according to [1]_.
     growing : bool
         Whether or not the spot is growing.
-    growth_rate : `~astropy.units.quantity.Quantity` [frequency]
+    growth_rate : astropy.units.Quantity 
         Fractional growth of the spot for a given unit time.
         From from sunspot literature, can be 0.52/day to 1.83/day [1]_.
         According to M dwarf literature, can effectively be 0 [2]_.
-    decay_rate : `~astropy.units.quantity.Quantity` [area per time]
+    decay_rate : astropy.units.Quantity
         The rate at which a spot linearly decays. From sunspot
         literature, this is 10.89 MSH/day [1]_. According to M dwarf
         literature, this can be 0 [2]_.
@@ -165,26 +165,26 @@ class StarSpot:
     ----------
     coords : dict
         A dictionary containing the latitude and longitude of the spot's center.
-    area_max : `~astropy.units.quantity.Quantity` [area]
+    area_max : astropy.units.Quantity 
         The maximum area a spot reaches before it decays.
-    area_current : `~astropy.units.quantity.Quantity` [area]
+    area_current : astropy.units.Quantity 
         The current area of the spot.
-    Teff_umbra : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_umbra : astropy.units.Quantity 
         The effective temperature of the spot umbra.
-    Teff_penumbra : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_penumbra : astropy.units.Quantity 
         The effective temperature of the spot penumbra.
-    decay_rate : `~astropy.units.quantity.Quantity` [area per time]
+    decay_rate : astropy.units.Quantity
         The rate at which a spot linearly decays.
     total_area_over_umbra_area : float
         The ratio of total spot area to umbra area. 5+/-1 according to [1]_.
     is_growing : bool
         Whether or not the spot is growing.
-    growth_rate : `~astropy.units.quantity.Quantity` [frequency]
+    growth_rate : astropy.units.Quantity 
         Fractional growth of the spot for a given unit time.
-    gridmaker : `~CoordinateGrid` or None
+    gridmaker : CoordinateGrid or None
         A `CoordinateGrid` object used to produce points on the stellar surface. If None,
         a `CoordinateGrid` object is created with default parameters.
-    r : `~np.ndarray`
+    r : np.ndarray
         An array of points on the stellar surface with their pre-computed
         distance from the center of the spot.
 
@@ -239,7 +239,7 @@ class StarSpot:
 
         Returns
         -------
-        `~astropy.units.quantity.Quantity` [distance]
+        astropy.units.Quantity 
             The radius of the spot.
         """
         return np.sqrt(self.area_current/np.pi).to(u.km)
@@ -252,12 +252,12 @@ class StarSpot:
 
         Parameters
         ----------
-        star_rad : `~astropy.units.quantity.Quantity` [distance]
+        star_rad : astropy.units.Quantity 
             The radius of the star.
 
         Returns
         -------
-        `~astropy.units.quantity.Quantity` [angle]
+        astropy.units.Quantity 
             The angular radius of the spot.
         """
         cos_angle = 1 - self.area_current/(2*np.pi*star_rad**2)
@@ -269,7 +269,7 @@ class StarSpot:
 
         Parameters
         ----------
-        star_rad : `~astropy.units.quantity.Quantity` [length]
+        star_rad : astropy.units.Quantity 
             The radius of the star.
 
         Returns
@@ -303,8 +303,8 @@ class StarSpot:
             Dictionary giving coordinates of the sub-observation point. This
             is the point that is at the center of the stellar disk from the
             view of an observer. Format: {'lat': lat, 'lon': lon} where lat and
-            lon are `~astropy.units.quantity.Quantity` objects.
-        star_rad : `~astropy.units.quantity.Quantity` [length]
+            lon are astropy.units.Quantity objects.
+        star_rad : astropy.units.Quantity 
             Radius of the star.
         N : int, optional
             Number of points to use in numerical integration.
@@ -333,7 +333,7 @@ class StarSpot:
 
         Parameters
         ----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        time : astropy.units.Quantity 
             Length of time to age the spot. For most realistic behavior,
             time should be << spot lifetime
 
@@ -475,18 +475,18 @@ class SpotCollection:
 
         Parameters
         ----------
-        latgrid : `~astropy.units.quantity.Quantity` [angle], shape(M,N)
+        latgrid : astropy.units.Quantity , shape(M,N)
             Grid of latitude points to map.
-        longrid : `~astropy.units.quantity.Quantity` [angle], shape(M,N)
+        longrid : astropy.units.Quantity , shape(M,N)
             Grid of longitude points to map.
-        star_rad : `~astropy.units.quantity.Quantity` [length]
+        star_rad : astropy.units.Quantity 
             Radius of the star.
-        star_teff : `~astropy.units.quantity.Quantity` [temperature]
+        star_teff : astropy.units.Quantity 
             Temperature of the star.
 
         Returns
         -------
-        surface_map : array of astropy.units.quantity.Quantity [temperature], shape(M,N)
+        surface_map : array of astropy.units.Quantity , shape(M,N)
             Map of the stellar surface with Teff assigned to each pixel
         """
         surface_map = self.gridmaker.zeros()*star_teff.unit + star_teff
@@ -510,7 +510,7 @@ class SpotCollection:
 
         Parameters
         ----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        time : astropy.units.Quantity 
             Length of time to age the spot. For most realistic
             behavior, time should be << spot lifetime.
         """
@@ -528,19 +528,19 @@ class SpotGenerator:
 
     Parameters
     ----------
-    average_area : `~astropy.units.quantity.Quantity` [area]
+    average_area : astropy.units.Quantity 
         The average peak spot area.
     area_spread : float
         The standard deviation, in dex, of the lognormal peak spot area distribution
-    umbra_teff : `~astropy.units.quantity.Quantity` [temperature]
+    umbra_teff : astropy.units.Quantity 
         Effective temperature of umbra.
-    penumbra_teff : `~astropy.units.quantity.Quantity` [temperature]
+    penumbra_teff : astropy.units.Quantity 
         Effective temperature of penumbra.
-    growth_rate : `~astropy.units.quantity.Quantity` [frequency], default=0.52/u.day
+    growth_rate : astropy.units.Quantity , default=0.52/u.day
         The spot growth rate.
-    decay_rate : astropy.units.quantity.Quantity [area/time], default = 10.89 * MSH/u.day
+    decay_rate : astropy.units.Quantity [area/time], default = 10.89 * MSH/u.day
         The spot decay rate.
-    starting_size : astropy.units.quantity.Quantity [area], default=10*MSH
+    starting_size : astropy.units.Quantity , default=10*MSH
         The area of each spot at birth.
     distribution : str, default='solar'
         The spot distribution method. 'iso' or 'solar'.
@@ -555,31 +555,31 @@ class SpotGenerator:
 
     Attributes
     ----------
-    average_spot_area : `~astropy.units.quantity.Quantity` [area]
+    average_spot_area : astropy.units.Quantity
         The average peak spot area.
     spot_area_spread : float
         The standard deviation, in dex, of the lognormal peak spot area distribution.
-    umbra_teff : `~astropy.units.quantity.Quantity` [temperature]
+    umbra_teff : astropy.units.Quantity
         Effective temperature of umbra.
-    penumbra_teff : `~astropy.units.quantity.Quantity` [temperature]
+    penumbra_teff : astropy.units.Quantity
         Effective temperature of penumbra.
-    growth_rate : `~astropy.units.quantity.Quantity` [frequency]
+    growth_rate : astropy.units.Quantity
         The spot growth rate.
-    decay_rate : `~astropy.units.quantity.Quantity` [area/time]
+    decay_rate : astropy.units.Quantity
         The spot decay rate.
-    starting_size : `~astropy.units.quantity.Quantity` [area]
+    starting_size : astropy.units.Quantity
         The area of each spot at birth.
     distribution : str
         The spot distribution method. Choose from 'iso' or 'solar'.
-    average_spot_lifetime : `~astropy.units.quantity.Quantity` [time]
+    average_spot_lifetime : astropy.units.Quantity
         The average lifetime of a spot.
     coverage : float
         The fractional coverage of the surface by spots in growth-decay equilibrium.
-    gridmaker : `~CoordinateGrid` or subclass
+    gridmaker : CoordinateGrid or subclass
         A `CoordinateGrid` object to create the stellar surface grid.
 
     Notes
-    ----
+    -----
     The `distribution` parameter can have values of 'iso' of 'solar'. The 'iso' keyword
     distributes spots evenly across the surface. The 'solar' keyword, on the other hand,
     distributes spots according to their know clustering around +/- 15 degrees solar
@@ -678,10 +678,10 @@ class SpotGenerator:
 
         Parameters
         ----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        time : astropy.units.Quantity 
             Amount of time in which to birth spots.
             The total number of new spots will consider this time and the birthrate.
-        rad_star : `~astropy.units.quantity.Quantity` [length]
+        rad_star : astropy.units.Quantity 
             The radius of the star.
 
         Returns
@@ -706,7 +706,7 @@ class SpotGenerator:
         ----------
         coverage : float
             The fraction of the star's surface to be covered by the spots.
-        R_star : `~astropy.units.quantity.Quantity` [length]
+        R_star : astropy.units.Quantity 
             The radius of the star.
 
         Returns:
@@ -750,25 +750,25 @@ class Facula:
 
     Parameters
     ----------
-    lat : `~astropy.units.quantity.Quantity` [angle]
+    lat : astropy.units.Quantity 
         Latitude of facula center
-    lon : `~astropy.units.quantity.Quantity` [angle]
+    lon : astropy.units.Quantity 
         Longitude of facula center
-    Rmax : `~astropy.units.quantity.Quantity` [length]
+    Rmax : astropy.units.Quantity 
         Maximum radius of facula
-    R0 : `~astropy.units.quantity.Quantity` [length]
+    R0 : astropy.units.Quantity 
         Current radius of facula
-    Zw : `~astropy.units.quantity.Quantity` [length]
+    Zw : astropy.units.Quantity 
         Depth of the depression.
-    Teff_floor : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_floor : astropy.units.Quantity 
         Effective temperature of the 'cool floor'
-    Teff_wall : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_wall : astropy.units.Quantity 
         Effective temperature of the 'hot wall'
-    lifetime : `~astropy.units.quantity.Quantity` [time]
+    lifetime : astropy.units.Quantity 
         Facula lifetime
     growing : bool, default=True
         Whether or not the facula is still growing.
-    floor_threshold : `~astropy.units.quantity.Quantity` [length], default=20*u.km
+    floor_threshold : astropy.units.Quantity , default=20*u.km
         Facula radius under which the floor is no longer visible.
         Small faculae appear as bright points regardless of their
         distance to the limb.
@@ -781,31 +781,31 @@ class Facula:
 
     Attributes
     ----------
-    lat : `~astropy.units.quantity.Quantity` [angle]
+    lat : astropy.units.Quantity 
         Latitude of facula center.
-    lon : `~astropy.units.quantity.Quantity` [angle]
+    lon : astropy.units.Quantity 
         Longitude of facula center.
-    Rmax : `~astropy.units.quantity.Quantity` [length]
+    Rmax : astropy.units.Quantity 
         Maximum radius of facula.
-    current_R : `~astropy.units.quantity.Quantity` [length]
+    current_R : astropy.units.Quantity 
         Current radius of facula.
-    Zw : `~astropy.units.quantity.Quantity` [length]
+    Zw : astropy.units.Quantity 
         Depth of the depression.
-    Teff_floor : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_floor : astropy.units.Quantity 
         Effective temperature of the 'cool floor'.
-    Teff_wall : `~astropy.units.quantity.Quantity` [temperature]
+    Teff_wall : astropy.units.Quantity 
         Effective temperature of the 'hot wall'.
-    lifetime : `~astropy.units.quantity.Quantity` [time]
+    lifetime : astropy.units.Quantity 
         Facula lifetime.
     is_growing : bool
         Whether or not the facula is still growing.
-    floor_threshold : `~astropy.units.quantity.Quantity` [length]
+    floor_threshold : astropy.units.Quantity 
         Facula radius under which the floor is no longer visible.
         Small faculae appear as bright points regardless of their
         distance to the limb.
     gridmaker : `CoordinateGrid` object
         A `CoordinateGrid` object to create the stellar sufrace grid.
-    r : `~astropy.units.quantity.Quantity` [distance]
+    r : astropy.units.Quantity 
         The distance between the center of the faculae and each point on the stellar surface.
 
     Notes
@@ -852,7 +852,7 @@ class Facula:
 
         Parameters
         ----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        time : astropy.units.Quantity 
             The amount of time to age facula.
 
         Notes
@@ -882,12 +882,12 @@ class Facula:
 
         Parameters
         ----------
-        teff : `~astropy.units.quantity.Quantity` [temperature]
+        teff : astropy.units.Quantity 
             The temperature to round.
 
         Returns
         -------
-        `~astropy.units.quantity.Quantity` [temperature]
+        astropy.units.Quantity 
             The rounded temperature.
         """
         val = teff.value
@@ -900,7 +900,7 @@ class Facula:
 
         Parameters
         ----------
-        angle : `~astropy.units.quantity.Quantity` [angle]
+        angle : astropy.units.Quantity 
             Angle from disk center.
         N : int, optional
             Number of points to sample the facula with. Default is 101.
@@ -909,7 +909,7 @@ class Facula:
         -------
         dict
             Effective area of the wall and floor. The keys are the Teff, the
-            values are the area. Both are `astropy.units.quantity.Quantity` objects.
+            values are the area. Both are `astropy.units.Quantity` objects.
         """
         if self.current_R < self.floor_threshold:
             return {self.round_teff(self.Teff_floor): 0.0 * u.km**2, self.round_teff(self.Teff_wall): np.pi*self.current_R**2 * np.cos(angle)}
@@ -936,7 +936,7 @@ class Facula:
 
         Parameters
         ----------
-        angle : `~astropy.units.quantity.Quantity` [angle]
+        angle : astropy.units.Quantity 
             Angle from disk center.
         N : int, default=101
             Number of points to sample the facula with.
@@ -963,12 +963,12 @@ class Facula:
 
         Parameters
         ----------
-        star_rad : `~astropy.units.Quantity` [length]
+        star_rad : astropy.units.Quantity 
             The radius of the star.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity 
             The angular radius of the facula.
         """
         return self.current_R/star_rad * 180/np.pi * u.deg
@@ -979,12 +979,12 @@ class Facula:
 
         Parameters
         ----------
-        star_rad : `~astropy.units.quantity.Quantity`
+        star_rad : astropy.units.Quantity
             The radius of the star.
 
         Returns
         -------
-        `~numpy.ndarray`
+        numpy.ndarray
             Boolean array indicating whether each pixel is within the facula radius.
         """
         rad = self.angular_radius(star_rad)
@@ -1063,7 +1063,7 @@ class FaculaCollection:
 
         Parameters
         ----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        time : astropy.units.Quantity 
             Length of time to age the spot.
             For most realistic behavior, time should be << spot lifetime.
         """
@@ -1077,17 +1077,17 @@ class FaculaCollection:
 
         Parameters
         ----------
-        pixmap : `~astropy.units.quantity.Quantity` [temperature], shape(M,N)
+        pixmap : astropy.units.Quantity , shape(M,N)
             Grid of effective temperature.
-        star_rad : `~astropy.units.quantity.Quantity` [length]
+        star_rad : astropy.units.Quantity 
             Radius of the star.
-        star_teff : `~astropy.units.quantity.Quantity` [temperature]
+        star_teff : astropy.units.Quantity 
             Temperature of quiet stellar photosphere.
 
 
         Returns
         -------
-        int_map : np.ndarray [int8], shape(M,N)
+        int_map : np.ndarray
             Grid of integer keys showing facula locations.
         map_dict : dict
             Dictionary mapping index in self.faculae to the integer grid of facula locations.
@@ -1109,14 +1109,15 @@ class FaculaGenerator:
 
     Parameters
     ----------
-    R_peak : `~astropy.unit.quantity.Quantity` [length]
+    R_peak : astropy.units.Quantity
         Radius to use as the peak of the distribution.
-    R_HWHM : `~astropy.unit.quantity.Quantity` [length]
-        Radius half width half maximum. Difference between the peak of the radius distribution and the half maximum in
+    R_HWHM : astropy.units.Quantity
+        Radius half width half maximum. Difference between the peak of
+        the radius distribution and the half maximum in
         the positive direction.
-    T_peak : `~astropy.unit.quantity.Quantity` [time]
+    T_peak : astropy.units.Quantity 
         Lifetime to use as the peak of the distribution.
-    T_HWHM : `~astropy.unit.quantity.Quantity` [time]
+    T_HWHM : astropy.units.Quantity 
         Lifetime half width half maximum. Difference between the peak
         of the lifetime distribution and the half maximum
         in the positive direction.
@@ -1135,10 +1136,6 @@ class FaculaGenerator:
 
     Attributes
     ----------
-    radius_unit : astropy.units.core.UnitBase
-        Unit of radius used for the facula.
-    lifetime_unit : astropy.units.core.UnitBase
-        Unit of lifetime used for the facula.
     R0 : float
         Logarithm of the radius peak in `radius_unit`.
     sig_R : float
@@ -1172,7 +1169,16 @@ class FaculaGenerator:
 
     """
     radius_unit = u.km
+    """
+    astropy.units.Unit
+        Unit of radius used for the facula.
+    
+    """
     lifetime_unit = u.hr
+    """
+    astropy.units.Unit
+        Unit of lifetime used for the facula.
+    """
 
     def __init__(self, R_peak: Quantity[u.km] = 800*u.km,
                  R_HWHM: Quantity[u.km] = 300*u.km,
@@ -1208,16 +1214,18 @@ class FaculaGenerator:
 
         Parameters
         ----------
-        R : `~astropy.unit.quantity.Quantity` [length]
+        R : astropy.units.Quantity 
             Radius of the facula[e].
-        Teff_star : `~astropy.unit.quantity.Quantity` [temperature]
+        Teff_star : astropy.units.Quantity 
             Effective temperature of the photosphere.
 
         Returns
         -------
-        `~astropy.unit.quantity.Quantity` [temperature]
+        astropy.units.Quantity 
             Floor temperature of faculae.
 
+        Notes
+        -----
         Based on a study of solar faculae [1]_. The method uses three
         different regions of radius to compute the floor temperature of
         the faculae based on the following formulas:
@@ -1248,14 +1256,14 @@ class FaculaGenerator:
 
         Parameters
         ----------
-        R : `~astropy.unit.quantity.Quantity` [length]
+        R : astropy.units.Quantity 
             Radius of the facula[e].
-        Teff_floor : `~astropy.unit.quantity.Quantity` [temperature]
+        Teff_floor : astropy.units.Quantity 
             Effective temperature of the cool floor.
 
         Returns
         -------
-        `~astropy.unit.quantity.Quantity` [temperature]
+        astropy.units.Quantity 
             The temperature of the faculae wall.
 
         Notes
@@ -1277,11 +1285,11 @@ class FaculaGenerator:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [length]
+        time : astropy.units.Quantity 
             Time over which to create faculae.
-        rad_star : `~astropy.units.Quantity` [length]
+        rad_star : astropy.units.Quantity 
             Radius of the star.
-        Teff_star : `~astropy.units.Quantity` [temperature]
+        Teff_star : astropy.units.Quantity 
             Temperature of the star.
 
         Returns
@@ -1336,32 +1344,32 @@ class StellarFlare:
 
     Parameters
     ----------
-    fwhm : `~astropy.units.Quantity` [time]
+    fwhm : astropy.units.Quantity 
         Full-width-half-maximum of the flare
-    energy : `~astropy.units.Quantity` [energy]
+    energy : astropy.units.Quantity 
         Time-integrated bolometric energy
-    lat : `~astropy.units.Quantity` [angle]
+    lat : astropy.units.Quantity 
         Latitude of flare on star
-    lon : `~astropy.units.Quantity` [angle]
+    lon : astropy.units.Quantity 
         Longitude of flare on star
-    Teff : `~astropy.units.Quantity` [temperature]
+    Teff : astropy.units.Quantity 
         Blackbody temperature
-    tpeak : `~astropy.units.Quantity` [time]
+    tpeak : astropy.units.Quantity 
         Time of the flare peak
 
     Attributes
     ----------
-    fwhm : `~astropy.units.Quantity` [time]
+    fwhm : astropy.units.Quantity 
         Full-width-half-maximum of the flare
-    energy : `~astropy.units.Quantity` [energy]
+    energy : astropy.units.Quantity 
         Time-integrated bolometric energy
-    lat : `~astropy.units.Quantity` [angle]
+    lat : astropy.units.Quantity 
         Latitude of flare on star
-    lon : `~astropy.units.Quantity` [angle]
+    lon : astropy.units.Quantity 
         Longitude of flare on star
-    Teff : `~astropy.units.Quantity` [temperature]
+    Teff : astropy.units.Quantity 
         Blackbody temperature
-    tpeak : `~astropy.units.Quantity` [time]
+    tpeak : astropy.units.Quantity 
         Time of the flare peak
 
     Notes
@@ -1391,7 +1399,7 @@ class StellarFlare:
 
         Returns
         -------
-        `~astropy.units.Quantity` [area]
+        astropy.units.Quantity 
             Peak flare area
         """
         time_area = self.energy/const.sigma_sb/(self.Teff**4)
@@ -1406,12 +1414,12 @@ class StellarFlare:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity 
             The times at which to sample the area
 
         Returns
         -------
-        `~astropy.units.Quantity` [area]
+        astropy.units.Quantity 
             Area at each time
 
         """
@@ -1430,12 +1438,12 @@ class StellarFlare:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [time] 
+        time : astropy.units.Quantity  
             the times at which to sample the area.
 
         Returns
         -------
-        `~astropy.units.Quantity`
+        astropy.units.Quantity
             The integrated time-area of the flare.
         """
         areas = self.areacurve(time)
@@ -1449,15 +1457,15 @@ class FlareGenerator:
 
     Parameters
     ----------
-    stellar_teff : `~astropy.units.Quantity` [temperature]
+    stellar_teff : astropy.units.Quantity 
         Temperature of the star.
-    stellar_rot_period : `~astropy.units.Quantity` [time]
+    stellar_rot_period : astropy.units.Quantity 
         Rotation period of the star.
     prob_following : float, default=0.25
         Probability of a flare being closely followed by another flare.
-    mean_teff : `~astropy.units.Quantity` [temperature], default=9000*u.K
+    mean_teff : astropy.units.Quantity , default=9000*u.K
         Mean temperature of the set of flares.
-    sigma_teff : `~astropy.units.Quantity` [temperature], default=500*u.K
+    sigma_teff : astropy.units.Quantity , default=500*u.K
         Standard deviation of the flare temperatures.
     mean_log_fwhm_days : float, default=-1.00
         Mean of the log(fwhm/day) distribution.
@@ -1472,15 +1480,15 @@ class FlareGenerator:
 
     Attributes
     ----------
-    stellar_teff : `~astropy.units.Quantity` [temperature]
+    stellar_teff : astropy.units.Quantity 
         Temperature of the star.
-    stellar_rot_period : `~astropy.units.Quantity` [time]
+    stellar_rot_period : astropy.units.Quantity 
         Rotation period of the star.
     prob_following : float
         Probability of a flare being closely followed by another flare.
-    mean_teff : `~astropy.units.Quantity` [temperature]
+    mean_teff : astropy.units.Quantity 
         Mean temperature of the set of flares.
-    sigma_teff : `~astropy.units.Quantity` [temperature]
+    sigma_teff : astropy.units.Quantity 
         Standard deviation of the flare temperatures.
     mean_log_fwhm_days : float
         Mean of the log(fwhm/day) distribution.
@@ -1524,12 +1532,12 @@ class FlareGenerator:
 
         Parameters
         ----------
-        E : `~astropy.units.Quantity` [energy], shape=(M,)
+        E : astropy.units.Quantity , shape=(M,)
             Energy coordinates at which to calculate frequencies.
 
         Returns
         -------
-        freq : `~astropy.units.Quantity` [frequency], shape=(M,)
+        freq : astropy.units.Quantity , shape=(M,)
             The frequency of observing a flare with energy > E.
 
         Notes
@@ -1553,14 +1561,14 @@ class FlareGenerator:
 
         Parameters
         ----------
-        Es : `~astropy.units.Quantity` [energy], shape=(M,)
+        Es : astropy.units.Quantity , shape=(M,)
             An array of energy values to choose from.
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity 
             The time duration over which the flare is generated.
 
         Returns
         -------
-        E_final `~astropy.units.Quantity` [energy]
+        E_final astropy.units.Quantity 
             The energy of the created flare.
 
         Notes
@@ -1594,14 +1602,14 @@ class FlareGenerator:
 
         Parameters
         ----------
-        Es : `~astropy.units.Quantity` [energy], shape=(M,)
+        Es : astropy.units.Quantity , shape=(M,)
             The energies to draw from.
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity 
             The time duration.
 
         Returns
         -------
-        `~astropy.units.Quantity` [energy]
+        astropy.units.Quantity 
             Energies of generated flares.
         """
         unit = u.erg
@@ -1629,9 +1637,9 @@ class FlareGenerator:
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity 
             Latitude of the flare.
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity 
             Longitude of the flare.
         """
         lon = np.random.random()*360*u.deg
@@ -1648,7 +1656,7 @@ class FlareGenerator:
 
         Returns
         -------
-        `~astropy.units.Quantity` [time]
+        astropy.units.Quantity 
             Full-width at half-maximum of the flare.
 
         """
@@ -1663,7 +1671,7 @@ class FlareGenerator:
 
         Returns
         -------
-        `~astropy.units.Quantity` [time]
+        astropy.units.Quantity 
             The time interval between sets of flares, drawn from a normal distribution.
 
         Notes
@@ -1690,7 +1698,7 @@ class FlareGenerator:
 
         Returns
         -------
-        `~astropy.units.Quantity` [energy], shape=(self.log_E_erg_Nsteps,)
+        astropy.units.Quantity , shape=(self.log_E_erg_Nsteps,)
             A logarithmically-spaced series of energies.
 
         Notes
@@ -1708,7 +1716,7 @@ class FlareGenerator:
 
         Returns
         -------
-        `~astropy.units.Quantity` [temperature]
+        astropy.units.Quantity 
             The effective temperature of a flare.
 
         Raises
@@ -1732,9 +1740,9 @@ class FlareGenerator:
 
         Parameters
         ----------
-        Es : `~astropy.units.Quantity` [energy]
+        Es : astropy.units.Quantity 
             A series of energies.
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity 
             Time series to create flares in.
 
         Returns
@@ -1830,9 +1838,9 @@ class FlareCollection:
 
         Parameters
         ----------
-        tstart : `~astropy.units.Quantity` [time]
+        tstart : astropy.units.Quantity 
             Starting time.
-        tfinish : `~astropy.units.Quantity` [time]
+        tfinish : astropy.units.Quantity 
             Ending time.
 
         Returns
@@ -1855,9 +1863,9 @@ class FlareCollection:
 
         Parameters
         ----------
-        tstart : `~astropy.units.Quantity` [time]
+        tstart : astropy.units.Quantity 
             Starting time.
-        tfinish : `~astropy.units.Quantity` [time]
+        tfinish : astropy.units.Quantity 
             Ending time.
 
 
@@ -1879,9 +1887,9 @@ class FlareCollection:
 
         Parameters
         ----------
-        tstart : `~astropy.units.Quantity` [time]
+        tstart : astropy.units.Quantity 
             Starting time.
-        tfinish : `~astropy.units.Quantity` [time]
+        tfinish : astropy.units.Quantity 
             Ending time.
         sub_obs_coords : dict
             Coordinates defining the hemisphere.
@@ -1910,9 +1918,9 @@ class FlareCollection:
 
         Parameters
         ----------
-        tstart : `~astropy.units.Quantity` [time]
+        tstart : astropy.units.Quantity 
             Starting time.
-        tfinish : `~astropy.units.Quantity` [time]
+        tfinish : astropy.units.Quantity 
             Ending time.
         sub_obs_coords : dict
             Coordinates defining the hemisphere.
@@ -1941,19 +1949,19 @@ class Star:
 
     Parameters
     ----------
-    Teff : `~astropy.units.quantity.Quantity` [temperature]
+    Teff : astropy.units.Quantity 
         Effective temperature of the stellar photosphere.
-    radius : `~astropy.units.quantity.Quantity` [length]
+    radius : astropy.units.Quantity 
         Stellar radius.
-    period : `~astropy.units.quantity.Quantity` [time]
+    period : astropy.units.Quantity 
         Stellar rotational period.
-    spots : `~SpotCollection`
+    spots : SpotCollection
         Initial spots on the stellar surface.
-    faculae : `~FaculaCollection`
+    faculae : FaculaCollection
         Initial faculae on the stellar surface.
     name : str, default=''
         Name of the star.
-    distance : `~astropy.units.quantity.Quantity` [distance], default=1*u.pc
+    distance : astropy.units.Quantity , default=1*u.pc
         Distance to the star.
     Nlat : int, default=500
         The number of latitude points on the stellar sufrace.
@@ -1961,11 +1969,11 @@ class Star:
         The number of longitude points on the stellar surface.
     gridmaker : CoordinateGrid, default=None
         A `CoordinateGrid` object to create the stellar sufrace grid.
-    flare_generator : `~FlareGenerator`, default=None
+    flare_generator : FlareGenerator, default=None
         Flare generator object.
-    spot_generator : `~SpotGenerator`, default=None
+    spot_generator : SpotGenerator, default=None
         Spot generator object.
-    fac_generator : `~FaculaGenerator`, default=None
+    fac_generator : FaculaGenerator, default=None
         Facula generator object.
     ld_params : list, default=[0, 1, 0]
         Limb-darkening parameters.
@@ -1974,27 +1982,27 @@ class Star:
     ----------
     name : str
         Name of the star.
-    Teff : `~astropy.units.quantity.Quantity` [temperature]
+    Teff : astropy.units.Quantity 
         Effective temperature of the stellar photosphere.
-    radius : `~astropy.units.quantity.Quantity` [length]
+    radius : astropy.units.Quantity 
         Stellar radius.
-    distance : `~astropy.units.quantity.Quantity` [distance]
+    distance : astropy.units.Quantity 
         Distance to the star.
-    period : `~astropy.units.quantity.Quantity` [time]
+    period : astropy.units.Quantity 
         Stellar rotational period.
-    spots : `~SpotCollection`
+    spots : SpotCollection
         Spots on the stellar surface.
-    faculae : `~FaculaCollection`
+    faculae : FaculaCollection
         Faculae on the stellar surface.
-    gridmaker : `~CoordinateGrid`
+    gridmaker : CoordinateGrid
         Object to create the coordinate grid of the surface.
-    map : `~astropy.units.quantity.Quantity` [temperature]
+    map : astropy.units.Quantity 
         Pixel map of the stellar surface.
-    flare_generator : `~FlareGenerator`
+    flare_generator : FlareGenerator
         Flare generator object.
-    spot_generator : `~SpotGenerator`
+    spot_generator : SpotGenerator
         Spot generator object.
-    fac_generator : `~FaculaGenerator`
+    fac_generator : FaculaGenerator
         Facula generator object.
     ld_params : list
         Limb-darkening parameters.
@@ -2051,9 +2059,9 @@ class Star:
         """
         Create a map of the stellar surface based on spots.
 
-        Returns:
-        --------
-        pixelmap : `~astropy.units.quantity.Quantity` [temperature], Shape(self.gridmaker.Nlon,self.gridmaker.Nlat)
+        Returns
+        -------
+        pixelmap : astropy.units.Quantity , Shape(self.gridmaker.Nlon,self.gridmaker.Nlat)
             Map of stellar surface with effective temperature assigned to each pixel.
         """
         return self.spots.map_pixels(self.radius, self.Teff)
@@ -2063,9 +2071,9 @@ class Star:
         Age the spots and faculae on the stellar surface according
         to their own `age` methods. Remove the spots that have decayed.
 
-        Parameters:
-        -----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        Parameters
+        ----------
+        time : astropy.units.Quantity 
             Length of time to age the features on the stellar surface.
             For most realistic behavior, `time` should be much less than
             spot or faculae lifetime.
@@ -2078,9 +2086,9 @@ class Star:
         """
         Add one or more spots to the stellar surface.
 
-        Parameters:
-        -----------
-        spot : `~StarSpot` or sequence of `~StarSpot`
+        Parameters
+        ----------
+        spot : StarSpot or sequence of StarSpot
             The `StarSpot` object(s) to add.
         """
         self.spots.add_spot(spot)
@@ -2090,9 +2098,9 @@ class Star:
         """
         Add one or more faculae to the stellar surface.
 
-        Parameters:
-        -----------
-        facula : `~Facula` or sequence of `~Facula`
+        Parameters
+        ----------
+        facula : Facula or sequence of Facula
             The Facula object(s) to add.
 
         """
@@ -2194,7 +2202,7 @@ class Star:
 
         Parameters
         ----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        time : astropy.units.Quantity 
             Time over which these spots should be created.
 
         """
@@ -2207,7 +2215,7 @@ class Star:
 
         Parameters
         ----------
-        time : `~astropy.units.quantity.Quantity` [time]
+        time : astropy.units.Quantity 
             Time over which these faculae should be created.
 
 
@@ -2229,7 +2237,7 @@ class Star:
 
         Returns
         -------
-        `~astropy.units.quantity.Quantity` [temperature]
+        astropy.units.Quantity 
             Bolometric average Teff of stellar disk.
 
         """
@@ -2257,7 +2265,7 @@ class Star:
 
         Returns
         -------
-        fig: `~matplotlib.figure.Figure`
+        fig: matplotlib.figure.Figure
             The resulting figure object.
 
         Notes
@@ -2310,7 +2318,7 @@ class Star:
 
         Returns
         -------
-        fig: `~matplotlib.figure.Figure`
+        fig: matplotlib.figure.Figure
             The resulting figure object.
 
         Notes
@@ -2347,7 +2355,7 @@ class Star:
 
         Parameters
         ----------
-        time_duration: `~astropy.units.quantity.Quantity` [time]
+        time_duration: astropy.units.Quantity 
             The duration of the observation period.
 
         Notes
@@ -2368,9 +2376,9 @@ class Star:
 
         Parameters
         ----------
-        tstart: `~astropy.units.quantity.Quantity` [time]
+        tstart: astropy.units.Quantity 
             The start time of the period.
-        tfinish: `~astropy.units.quantity.Quantity` [time]
+        tfinish: astropy.units.Quantity 
             The end time of the period.
         sub_obs_coords : dict
             A dictionary containing coordinates of the sub-observation point. This is the 

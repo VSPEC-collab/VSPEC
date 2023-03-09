@@ -26,11 +26,11 @@ class ParamModel:
     ----------
     star_name : str
         The name of the star.
-    star_teff : `~astropy.units.Quantity` [temperature]
+    star_teff : astropy.units.Quantity [temperature]
         The effective temperature of the star.
-    star_teff_min : `~astropy.units.Quantity` [temperature]
+    star_teff_min : astropy.units.Quantity [temperature]
         The minimum effective temperature model to be binned.
-    star_teff_max : `~astropy.units.Quantity` [temperature]
+    star_teff_max : astropy.units.Quantity [temperature]
         The maximum effective temperature model to be binned.
     self.ld_a1 : float
         Coefficient a1 for limb darkening of the star.
@@ -40,52 +40,52 @@ class ParamModel:
         The initial fractional coverage of the star's surface by spots.
     self.star_spot_distribution : str
         The distribution function to be used for the spot positions. 'iso' or 'solar'.
-    self.star_spot_mean_area : `~astropy.units.Quantity` [area]
+    self.star_spot_mean_area : astropy.units.Quantity [area]
         The mean area of a spot on the star's surface.
     self.star_spot_sigma_area : float
         The standard deviation of the spot areas. This is a lognormal
         distribution, so the units of this value are dex
-    self.star_spot_umbra_teff : `~astropy.units.Quantity` [temperature]
+    self.star_spot_umbra_teff : astropy.units.Quantity [temperature]
         The effective temperature of the spot umbrae.
-    self.star_spot_penumbra_teff : `~astropy.units.Quantity` [temperature]
+    self.star_spot_penumbra_teff : astropy.units.Quantity [temperature]
         The effective temperature of the spot penumbrae.
-    self.star_spot_growth_rate : `~astropy.units.Quantity` [frequency]
+    self.star_spot_growth_rate : astropy.units.Quantity [frequency]
         The rate at which new spots grow.
-    self.star_spot_decay_rate : `~astropy.units.Quantity` [area per time]
+    self.star_spot_decay_rate : astropy.units.Quantity [area per time]
         The rate at which existing spots decay.
-    self.star_spot_initial_area : `~astropy.units.Quantity` [area]
+    self.star_spot_initial_area : astropy.units.Quantity [area]
         The initial area of newly created spots.
     self.star_spot_coverage : float
         The fractional coverage of the star's surface by spots. This is the value
         at growth-decay equillibrium, and different from the 'hot start' value given
         by `star_spot_initial_coverage`.
-    self.star_spot_warmup : `~astropy.units.Quantity` [time]
+    self.star_spot_warmup : astropy.units.Quantity [time]
         The duration of the warmup period, during which the spot coverage approaches
         equillibrium.
     star_fac_coverage : float
         The fraction of the star's surface covered by the faculae at growth-decay equillibrium
-    star_fac_mean_radius : `~astropy.units.quantity.Quantity` [distance]
+    star_fac_mean_radius : astropy.units.quantity.Quantity [distance]
         The mean radius of the faculae.
-    star_fac_HWHM_radius : `~astropy.units.quantity.Quantity` [distance]
+    star_fac_HWHM_radius : astropy.units.quantity.Quantity [distance]
         The half-width at half-maximum radius of the faculae. Difference
         between the peak of the radius distribution and the half maximum
         in the positive direction.
-    star_fac_mean_timescale : `~astropy.units.quantity.Quantity` [time]
+    star_fac_mean_timescale : astropy.units.quantity.Quantity [time]
         The mean faculae lifetime.
-    star_fac_HWHM_timescale : `~astropy.units.quantity.Quantity` [time]
+    star_fac_HWHM_timescale : astropy.units.quantity.Quantity [time]
         The facula timescale distribution half-width-half-maximum in hr.
         Difference between the peak of the timescale distribution and the
         half maximum in the positive direction.
     star_fac_distribution : str
         The distribution used to generate the faculae on the star. Currently
         only 'iso' is supported
-    star_fac_warmup : `~astropy.units.Quantity` [time]
+    star_fac_warmup : astropy.units.Quantity [time]
         The warmup time for the faculae on the star to reach equillibrium.
     star_flare_group_prob : float
         The probability that a given flare will be closely followed by another flare
-    star_flare_mean_teff : `~astropy.units.quantity.Quantity` [temperature]
+    star_flare_mean_teff : astropy.units.quantity.Quantity [temperature]
         The mean temperature of the flare blackbody.
-    star_flare_sigma_teff : `~astropy.units.quantity.Quantity` [temperature]
+    star_flare_sigma_teff : astropy.units.quantity.Quantity [temperature]
         The standard deviation of the generated flare temperature.
     star_flare_mean_log_fwhm_days : float
         The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
@@ -97,16 +97,16 @@ class ParamModel:
         Log of the minimum energy flares to be considered in ergs.
     star_flare_log_E_erg_Nsteps : int
         The number of flare energy steps to consider.
-    star_mass : `~astropy.units.Quantity` [mass]
+    star_mass : astropy.units.Quantity [mass]
         The mass of the star.
-    star_radius : `~astropy.units.Quantity` [distance]
+    star_radius : astropy.units.Quantity [distance]
         The radius of the star.
-    star_rot_period : `~astropy.units.Quantity` [time]
+    star_rot_period : astropy.units.Quantity [time]
         Rotational period of the star.
-    star_rot_offset_from_orbital_plane : `~astropy.units.Quantity` [angle]
+    star_rot_offset_from_orbital_plane : astropy.units.Quantity [angle]
         Angle between the rotation axis of the star and the vector
         normal to the orbital plane.
-    star_rot_offset_angle_from_pariapse : `~astropy.units.Quantity`
+    star_rot_offset_angle_from_pariapse : astropy.units.Quantity
         Angle between the projection of the rotational axis onto the
         orbital plane and the line between the star and planet at periasteron.
     psg_star_template : str
@@ -115,11 +115,11 @@ class ParamModel:
     planet_name : str
         The name of the planet for PSG to use internally. This will
         affect `.rad` files, but no `VSPEC` output.
-    planet_initial_phase : `~astropy.units.Quantity` [angle]
+    planet_initial_phase : astropy.units.Quantity [angle]
         The initial phase of the planet's orbit.
-    planet_init_substellar_lon :`~astropy.units.Quantity` [angle]
+    planet_init_substellar_lon :astropy.units.Quantity [angle]
         The initial longitude of the substellar point on the planet.
-    planet_radius :  `~astropy.units.Quantity` [angle]
+    planet_radius :  astropy.units.Quantity [angle]
         The radius of the planet
     planet_grav_mode : str
         The method to pass the planet gravity to PSG. One of 
@@ -127,23 +127,23 @@ class ParamModel:
         'kg' -- mass method.
     planet_grav : float
         The planet gravity parameter to pass to PSG
-    planet_semimajor_axis : `~astropy.units.quantity.Quantity` [distance]
+    planet_semimajor_axis : astropy.units.quantity.Quantity [distance]
         The semi-major axis of the planet's orbit.
-    planet_orbital_period : `~astropy.units.quantity.Quantity` [time]
+    planet_orbital_period : astropy.units.quantity.Quantity [time]
         The orbital period of the planet.
     planet_eccentricity : float
         The eccentricity of the planet's orbit.
-    planet_rotational_period : `~astropy.units.quantity.Quantity` [time]
+    planet_rotational_period : astropy.units.quantity.Quantity [time]
         The rotational period of the planet.
-    planet_obliquity : `~astropy.units.quantity.Quantity` [angle]
+    planet_obliquity : astropy.units.quantity.Quantity [angle]
         The obliquity (tilt) of the planet's rotation axis.
-    planet_obliquity_direction : `~astropy.units.quantity.Quantity` [angle]
+    planet_obliquity_direction : astropy.units.quantity.Quantity [angle]
         The true anomaly at which the planet's north pole faces away from the star.
-    system_distance : `~astropy.units.quantity.Quantity` [distance]
+    system_distance : astropy.units.quantity.Quantity [distance]
         The distance to the system.
-    system_inclination : `~astropy.units.quantity.Quantity` [angle]
+    system_inclination : astropy.units.quantity.Quantity [angle]
         The inclination angle of the system. Transit occurs at 90 deg.
-    system_phase_of_periasteron : `~astropy.units.quantity.Quantity` [angle]
+    system_phase_of_periasteron : astropy.units.quantity.Quantity [angle]
         The phase (as seen from the observer) of the planet when it reaches periasteron.
     Nlat : int
         Number of latitudes in the stellar surface.
@@ -168,21 +168,21 @@ class ParamModel:
         Path to a file containing your own personal PSG API key. Keep this key private
         and do not commit it to any Git repository. None if you plan to run PSG
         locally.
-    target_wavelength_unit : `~astropy.units.Quantity` [flambda]
+    target_wavelength_unit : astropy.units.Quantity [flambda]
         The wavelength unit of the output.
-    target_flux_unit : `~astropy.units.Quantity`
+    target_flux_unit : astropy.units.Quantity
         The flux unit of the output.
     psg_rad_unit : str
         The PSG-specific flux unit keyword.
     resolving_power : float
         The resolving power of the observation.
-    lambda_min : `~astropy.units.Quantity` [wavelength]
+    lambda_min : astropy.units.Quantity [wavelength]
         The minimum wavelength of the observation.
-    lambda_max : `~astropy.units.Quantity` [wavelength]
+    lambda_max : astropy.units.Quantity [wavelength]
         The maximum wavelength of the observation.
-    image_integration_time : `~astropy.units.quantity.Quantity` [time]
+    image_integration_time : astropy.units.quantity.Quantity [time]
         The integration time of each epoch of observation
-    total_observation_time : `~astropy.units.quantity.Quantity` [time]
+    total_observation_time : astropy.units.quantity.Quantity [time]
         The total duration of the observation.
     detector_type : str
         Type of detector used, passed to PSG.
@@ -190,9 +190,9 @@ class ParamModel:
         Integration time of the detector is seconds.
     detector_pixel_sampling : int
         Pixel sampling of the detector.
-    detector_read_noise : `~astropy.units.quantity.Quantity`
+    detector_read_noise : astropy.units.quantity.Quantity
         Read noise of the detector in electrons.
-    detector_dark_current : `~astropy.units.quantity.Quantity`
+    detector_dark_current : astropy.units.quantity.Quantity
         Dark current of the detector in electrons/second.
     detector_throughput : float
         Throughput of the detector.

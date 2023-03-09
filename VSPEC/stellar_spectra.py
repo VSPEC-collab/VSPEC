@@ -63,30 +63,30 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
 
     Parameters
     ----------
-    path : str or `~pathlib.Path`
+    path : str or pathlib.Path
         Location of the model spectrum.
     resolving_power : int, default=50
         Resolving power of the binned spectrum.
-    lam1 : `~astropy.units.quantity.Quantity` [length], default=None
+    lam1 : astropy.units.Quantity [length], default=None
         Starting wavelength of binned spectrum. Defaults to the
         shortest wavelength in the raw file.
-    lam2 : `~astropy.units.quantity.Quantity` [length], default=None
+    lam2 : astropy.units.quantity.Quantity [length], default=None
         Ending wavelength of binned spectrum. Defaults to the
         longest wavelength in the raw file.
     model_unit_wavelength : '~astropy.units.Unit' [length], default=u.AA
         Wavelength unit of the model.
-    model_unit_flux : `~astropy.units.`Unit [flux], default=u.Unit('erg cm-2 s-1 cm-1')
+    model_unit_flux : astropy.units.Unit [flux], default=u.Unit('erg cm-2 s-1 cm-1')
         Flux unit of the model.
-    target_unit_wavelength : `~astropy.units.Unit` [length], default=u.um
+    target_unit_wavelength : astropy.units.Unit [length], default=u.um
         Wavelength unit of the binned spectrum.
-    target_unit_flux : `~astropy.units.Unit` [flux], default=u.Unit('W m-2 um-1')
+    target_unit_flux : astropy.units.Unit [flux], default=u.Unit('W m-2 um-1')
         Flux unit of the binned spectrum.
 
     Returns
     -------
-    binned_wavelength : `~astropy.units.quantity.Quantity` [length]
+    binned_wavelength : astropy.units.quantity.Quantity [length]
         Wavelength points of the binned spectrum.
-    binned_flux : `~astropy.units.quantity.Quantity` [flux]
+    binned_flux : astropy.units.quantity.Quantity [flux]
         Flux points of the new spectrum.
     """
     fh5 = h5py.File(path, 'r')
@@ -127,14 +127,14 @@ def get_phoenix_path(teff: Union[float, int]) -> Path:
 
     Get the path the PHOENIX model corresponding to a desired temperature.
 
-        Parameters
+    Parameters
     ----------
     teff : float or int
         Effective temperature in Kelvin.
 
     Returns
     -------
-    `~pathlib.Path`
+    pathlib.Path
         Path of PHOENIX spectrum file.
 
     """
@@ -171,9 +171,9 @@ def write_binned_spectrum(wavelength: u.Quantity, flux: u.Quantity, filename: st
 
     Parameters
     ----------
-    wavelength : `~astropy.units.quantity.Quantity` [wavelength]
+    wavelength : astropy.units.quantity.Quantity [wavelength]
         An array of binned wavelength coordinates.
-    flux : `~astropy.units.quantity.Quantity` [flambda]
+    flux : astropy.units.quantity.Quantity [flambda]
         An array of binned flux values.
     filename : str
         The name of the file to write.
@@ -202,14 +202,14 @@ def read_binned_spectrum(filename: str,
     ----------
     filename : str
         The name of the file to read
-    path : `~pathlib.Path`
+    path : pathlib.Path
         The path to the directory containing `filename`
 
     Returns
     -------
-    binned_wavelength : `~astropy.units.quantity.Quantity` [length]
+    binned_wavelength : astropy.units.quantity.Quantity [length]
         Wavelength points of the binned spectrum.
-    binned_flux : `~astropy.units.quantity.Quantity` [flux]
+    binned_flux : astropy.units.quantity.Quantity [flux]
         Flux points of the binned spectrum.
     """
     full_path = path / filename
@@ -241,21 +241,21 @@ def bin_phoenix_model(teff: Union[float, int], file_name_writer: Callable = get_
         Effective temperature in Kelvin.
     file_name_writer : callable, default=VSPEC.stellar_spectra.get_binned_filename
         A function that maps teff to filename.
-    binned_path : `~pathlib.Path`
+    binned_path : pathlib.Path
         Path to binned data.
     resolving_power : int, default=50
         Resolving power of the binned spectrum.
-    lam1 : `~astropy.units.quantity.Quantity` [length], default=None
+    lam1 : astropy.units.quantity.Quantity [length], default=None
         Starting wavelength of binned spectrum.
-    lam2 : `~astropy.units.quantity.Quantity` [length], default=None
+    lam2 : astropy.units.quantity.Quantity [length], default=None
         Ending wavelength of binned spectrum.
     model_unit_wavelength : '~astropy.units.Unit' [length], default=u.AA
         Wavelength unit of the model.
-    model_unit_flux : `~astropy.units.`Unit [flux], default=u.Unit('erg cm-2 s-1 cm-1')
+    model_unit_flux : astropy.units.Unit [flux], default=u.Unit('erg cm-2 s-1 cm-1')
         Flux unit of the model.
-    target_unit_wavelength : `~astropy.units.Unit` [length], default=u.um
+    target_unit_wavelength : astropy.units.Unit [length], default=u.um
         Wavelength unit of the binned spectrum.
-    target_unit_flux : `~astropy.units.Unit` [flux], default=u.Unit('W m-2 um-1')
+    target_unit_flux : astropy.units.Unit [flux], default=u.Unit('W m-2 um-1')
         Flux unit of the binned spectrum.
     """
     raw_path = get_phoenix_path(teff)
@@ -280,26 +280,26 @@ def interpolate_spectra(target_teff: u.Quantity,
 
     Parameters
     ----------
-    target_teff : `~astropy.units.Quantity`
+    target_teff : astropy.units.Quantity
         Teff of final spectrum.
-    teff1 : `~astropy.units.Quantity`
+    teff1 : astropy.units.Quantity
         First Teff to use in interpolation.
-    wave1 : `~astropy.units.Quantity`
+    wave1 : astropy.units.Quantity
         First wavelengths to use in interpolation.
-    flux1 : `~astropy.units.Quantity`
+    flux1 : astropy.units.Quantity
         First flux to use in interpolation.
-    teff2 : `~astropy.units.Quantity`
+    teff2 : astropy.units.Quantity
         Second Teff to use in interpolation.
-    wave2 : `~astropy.units.Quantity`
+    wave2 : astropy.units.Quantity
         Second wavelengths to use in interpolation.
-    flux2 : `~astropy.units.Quantity`
+    flux2 : astropy.units.Quantity
         Second flux to use in interpolation.
 
     Returns
     -------
-    `~astropy.units.Quantity`
+    astropy.units.Quantity
         Wavelength of final spectrum. Identical to `wave1`.
-    `~astropy.units.Quantity`
+    astropy.units.Quantity
         Interpolated flux with teff `target_teff`.
 
     Raises
@@ -325,20 +325,20 @@ def blackbody(wavelength: u.Quantity, teff: u.Quantity, area: u.Quantity, distan
 
     Parameters
     ----------
-    wavelength : `~astropy.units.Quantity`
+    wavelength : astropy.units.Quantity
         Wavelengths at which to sample.
-    teff : `~astropy.units.Quantity`
+    teff : astropy.units.Quantity
         Temperature of the blackbody.
-    area : `~astropy.units.Quantity`
+    area : astropy.units.Quantity
         Area of the body.
-    distance : `~astropy.units.Quantity`
+    distance : astropy.units.Quantity
         Distance from the observer.
-    target_unit_flux : `~astropy.units.Unit`
+    target_unit_flux : astropy.units.Unit
         Unit to cast the flux to.
 
     Returns
     -------
-    flux : `~astropy.units.Quantity`
+    flux : astropy.units.Quantity
         The flux of the blackbody spectrum
     """
     angular_size = (np.pi * area/distance**2 * u.steradian).to(u.arcsec**2)

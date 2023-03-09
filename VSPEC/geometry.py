@@ -20,80 +20,80 @@ class SystemGeometry:
 
     Parameters
     ----------
-    inclination : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    inclination : astropy.units.quantity.Quantity [angle], default=0 deg
         The inclination of the system, defined the same as in PSG. Transit is i=90 deg.
-    init_stellar_lon : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    init_stellar_lon : astropy.units.quantity.Quantity [angle], default=0 deg
         The sub-observer longitude at the beginning of observation.
-    init_planet_phase : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    init_planet_phase : astropy.units.quantity.Quantity [angle], default=0 deg
         The planet phase at beginning of observation.
-    stellar_period : `~astropy.units.quantity.Quantity` [time], default=80 day
+    stellar_period : astropy.units.quantity.Quantity [time], default=80 day
         The rotational period of the star.
-    orbital_period : `~astropy.units.quantity.Quantity` [time], default=11 day
+    orbital_period : astropy.units.quantity.Quantity [time], default=11 day
         The orbital period of the planet.
-    semimajor_axis : `~astropy.units.quantity.Quantity` [distance], default=0.05 AU
+    semimajor_axis : astropy.units.quantity.Quantity [distance], default=0.05 AU
         The semimajor axis of the planet's orbit.
-    planetary_rot_period : `~astropy.units.quantity.Quantity` [time], default=11 day
+    planetary_rot_period : astropy.units.quantity.Quantity [time], default=11 day
         The rotational period of the planet.
-    planetary_init_substellar_lon : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    planetary_init_substellar_lon : astropy.units.quantity.Quantity [angle], default=0 deg
         The sub-stellar longitude of the planet at the beginning of observation.
-    stellar_offset_amp : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    stellar_offset_amp : astropy.units.quantity.Quantity [angle], default=0 deg
         The offset between stellar rotation axis and normal to orbital plane.
-    stellar_offset_phase : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    stellar_offset_phase : astropy.units.quantity.Quantity [angle], default=0 deg
         The direction of the stellar offset. 0 is defined as facing the observer, and
         right hand direction is positive.
     eccentricity : float, default=0
         The orbital eccentricity of the planet.
-    phase_of_periasteron : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    phase_of_periasteron : astropy.units.quantity.Quantity [angle], default=0 deg
         The phase at which the planet reaches periasteron.
-    system_distance : `~astropy.units.quantity.Quantity` [distance], default=1.3 pc
+    system_distance : astropy.units.quantity.Quantity [distance], default=1.3 pc
         The distance to the system.
-    obliquity : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    obliquity : astropy.units.quantity.Quantity [angle], default=0 deg
         The planet obliquity magnitude.
-    obliquity_direction : `~astropy.units.quantity.Quantity` [angle], default=0 deg
+    obliquity_direction : astropy.units.quantity.Quantity [angle], default=0 deg
         The true anomaly at which the planet's north pole faces away from the star.
 
 
     Attributes
     ----------
-    inclination : `~astropy.units.quantity.Quantity` [angle]
+    inclination : astropy.units.quantity.Quantity [angle]
         Inclination of the planet's orbit, defined as the angle between the line of
         sight and the orbital plane. Default is 0 deg.
-    init_stellar_lon : `~astropy.units.quantity.Quantity` [angle]
+    init_stellar_lon : astropy.units.quantity.Quantity [angle]
         Sub-observer longitude at the beginning of observation. Default is 0 deg.
-    init_planet_phase : `~astropy.units.quantity.Quantity` [angle]
+    init_planet_phase : astropy.units.quantity.Quantity [angle]
         Phase of the planet at the beginning of observation. Default is 0 deg.
-    stellar_period : `~astropy.units.quantity.Quantity` [time]
+    stellar_period : astropy.units.quantity.Quantity [time]
         Rotational period of the star. Default is 80 day.
-    orbital_period : `~astropy.units.quantity.Quantity` [time]
+    orbital_period : astropy.units.quantity.Quantity [time]
         Orbital period of the planet. Default is 11 day.
-    semimajor_axis : `~astropy.units.quantity.Quantity` [length]
+    semimajor_axis : astropy.units.quantity.Quantity [length]
         Semimajor axis of the planet's orbit. Default is 0.05 AU.
-    planetary_rot_period : `~astropy.units.quantity.Quantity` [time]
+    planetary_rot_period : astropy.units.quantity.Quantity [time]
         Rotational period of the planet. Default is 11 day.
-    planetary_init_substellar_lon : `~astropy.units.quantity.Quantity` [angle]
+    planetary_init_substellar_lon : astropy.units.quantity.Quantity [angle]
         Sub-stellar longitude of the planet at the beginning of observation. Default is 0 deg.
-    alpha : `~astropy.units.quantity.Quantity` [angle]
+    alpha : astropy.units.quantity.Quantity [angle]
         Offset between the stellar rotation axis and normal to orbital plane. Default is 0 deg.
-    beta : `~astropy.units.quantity.Quantity` [angle]
+    beta : astropy.units.quantity.Quantity [angle]
         Direction of the stellar offset, defined as the angle between the line connecting
         the observer and the system barycenter and the projection of the stellar offset
         vector onto the plane perpendicular to the line of sight. Default is 0 deg.
     eccentricity : float
         Eccentricity of the planet's orbit. Default is 0.
-    phase_of_periasteron : `~astropy.units.quantity.Quantity` [angle]
+    phase_of_periasteron : astropy.units.quantity.Quantity [angle]
         Phase at which the planet reaches periasteron. Default is 0 deg.
-    system_distance : `~astropy.units.quantity.Quantity` [length]
+    system_distance : astropy.units.quantity.Quantity [length]
         Distance to the system. Default is 1.3 pc.
-    obliquity : `~astropy.units.quantity.Quantity` [angle]
+    obliquity : astropy.units.quantity.Quantity [angle]
         Obliquity of the planet, defined as the angle between the planet's equator
         and its orbital plane. Default is 0 deg.
-    obliquity_direction : `~astropy.units.quantity.Quantity` [angle]
+    obliquity_direction : astropy.units.quantity.Quantity [angle]
         The true anomaly at which the planet's North pole faces away from the star.
         Default is 0 deg.
-    init_time_since_periasteron : `~astropy.units.quantity.Quantity` [angle]
+    init_time_since_periasteron : astropy.units.quantity.Quantity [angle]
         Time since periasteron at the beginning of observation. Default is the time
         since periasteron at `init_planet_phase`.
-    init_true_anomaly : `~astropy.units.quantity.Quantity` [angle]
+    init_true_anomaly : astropy.units.quantity.Quantity [angle]
         True anomaly at the beginning of observation, computed from `init_time_since_periasteron`.
     """
 
@@ -140,7 +140,7 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time `~astropy.units.Quantity` [time]
+        time astropy.units.Quantity [time]
             The time elapsed since the observation began.
 
         Returns
@@ -160,7 +160,7 @@ class SystemGeometry:
 
         Returns
         -------
-        `~astropy.units.Quantity` [angular frequency]
+        astropy.units.Quantity [angular frequency]
             The mean motion of the orbit.
         """
         return 360*u.deg / self.orbital_period
@@ -173,12 +173,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity [time]
             The time elapsed since periasteron.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The mean anomaly.
         """
         return (time * self.mean_motion()) % (360*u.deg)
@@ -192,12 +192,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity [time]
             The time elapsed since periasteron.
 
          Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The eccentric anomaly.
         """
         mean_anom = self.mean_anomaly(time)
@@ -215,12 +215,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity [time]
             The time elapsed since periasteron.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The true anomaly.
         """
         eccentric_anomaly = self.eccentric_anomaly(time) % (360*u.deg)
@@ -250,12 +250,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity [time]
             The time elapsed since periasteron.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The phase.
         """
         return (self.true_anomaly(time) + self.phase_of_periasteron) % (360*u.deg)
@@ -268,9 +268,9 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time : `~astropy.units.Quantity` [time]
+        time : astropy.units.Quantity [time]
             The time elapsed since periasteron.
-        phase : `~astropy.units.Quantity` [angle], default=None
+        phase : astropy.units.Quantity [angle], default=None
             The current phase, if known. Otherwise phase is calculated based on `time`.
             It is best practice to specify `phase` when possible to avoid using the Newtonian
             solver to calculate it.
@@ -299,12 +299,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        phase : `~astropy.units.Quantity` [angle]
+        phase : astropy.units.Quantity [angle]
             The current phase of the planet.
 
         Returns
         -------
-        `~astropy.units.Quantity` [time]
+        astropy.units.Quantity [time]
             The time elapsed since periasteron.
         """
         true_anomaly = phase - self.phase_of_periasteron
@@ -328,7 +328,7 @@ class SystemGeometry:
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The sub-stellar longitude at periasteron.
         """
         init_time_since_periasteron = self.get_time_since_periasteron(
@@ -344,12 +344,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time_since_periasteron : `~astropy.units.Quantity` [time]
+        time_since_periasteron : astropy.units.Quantity [time]
             The time elapsed since periasteron.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The current sub-stellar longitude of the planet.
 
         Raises
@@ -379,12 +379,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        phase : `~astropy.units.Quantity` [angle]
+        phase : astropy.units.Quantity [angle]
             The current phase of the planet.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The current sub-stellar longitude of the planet.
 
         Raises
@@ -408,14 +408,14 @@ class SystemGeometry:
 
         Parameters
         ----------
-        time_since_periasteron : `~astropy.units.Quantity` [time]
+        time_since_periasteron : astropy.units.Quantity [time]
             The time elapsed since periasteron.
-        phase : `~astropy.units.Quantity` [angle]
+        phase : astropy.units.Quantity [angle]
             The current phase of the planet.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The current sub-observer longitude of the planet.
         """
         lon = self.get_substellar_lon(time_since_periasteron) - phase
@@ -429,12 +429,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        phase : `~astropy.units.Quantity` [angle]
+        phase : astropy.units.Quantity [angle]
             The current phase of the planet.
 
         Returns
         -------
-        `~astropy.units.Quantity` [angle]
+        astropy.units.Quantity [angle]
             The current sub-observer latitude of the planet.
 
         Raises
@@ -459,7 +459,7 @@ class SystemGeometry:
 
         Parameters
         ----------
-        phase : `~astropy.units.Quantity` [angle]
+        phase : astropy.units.Quantity [angle]
             The current phase of the planet.
 
         Returns
@@ -484,11 +484,11 @@ class SystemGeometry:
 
         Parameters
         ----------
-        phase0 : `~astropy.units.Quantity` [angle]
+        phase0 : astropy.units.Quantity [angle]
             The initial phase of the planet.
-        total_time : `~astropy.units.Quantity` [time]
+        total_time : astropy.units.Quantity [time]
             The time over which the observation is carried out.
-        time_step : `~astropy.units.Quantity` [time], default=None
+        time_step : astropy.units.Quantity [time], default=None
             The step between each epoch of observation.
         N_obs : int, default=10
             The number of epochs to observe
@@ -497,7 +497,7 @@ class SystemGeometry:
         -------
         dict
             A dictionary of arrays describing the geometry at each
-            epoch. Each dict value is an `~astropy.units.Quantity` array
+            epoch. Each dict value is an astropy.units.Quantity array
         """
         if isinstance(time_step, type(None)):
             N_obs = int(N_obs)
@@ -556,12 +556,12 @@ class SystemGeometry:
 
         Parameters
         ----------
-        phase : `~astropy.units.Quantity` [angle]
+        phase : astropy.units.Quantity [angle]
             The current phase of the planet.
 
         Returns
         -------
-        `~matplotlib.figure.Figure`
+        matplotlib.figure.Figure
             A figure containing the plot.
         """
         fig = plt.figure()

@@ -24,10 +24,10 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
 
     Parameters
     ----------
-    config_path : str or `~pathlib.Path`
+    config_path : str or pathlib.Path
         The path to the `PSG` config file.
     psg_url : str, default='https://psg.gsfc.nasa.gov'
-        The URL of the `PSG` API. Use `http://localhost:3000` if running locally.
+        The URL of the `PSG` API. Use 'http://localhost:3000' if running locally.
     api_key : str, default=None
         The key for the public API. Needed only if not runnning `PSG` locally.
     output_type : str, default=None
