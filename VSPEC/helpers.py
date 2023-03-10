@@ -9,7 +9,7 @@ import warnings
 from astropy import units as u
 from numpy import isclose as np_isclose
 import numpy as np
-
+import socket
 
 def to_float(quant: u.Quantity, unit: u.Unit) -> float:
     """
@@ -105,3 +105,10 @@ def get_transit_radius(
     planet_radius_angle = to_float(
         planet_radius/(2*np.pi*semimajor_axis), u.Unit(''))
     return (angle_point_planet+planet_radius_angle)*u.rad
+
+def is_port_in_use(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(('localhost', port)) == 0
+
+
+

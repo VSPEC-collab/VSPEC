@@ -3,10 +3,12 @@
 """
 Tests for `VSPEC.helpers` module
 """
+from os import system
 
 from astropy import units as u
 import numpy as np
 import pytest
+from time import sleep,time
 
 from VSPEC import helpers
 
@@ -135,8 +137,31 @@ def test_get_transit_radius():
     assert predicted_radius == pytest.approx(
         true_radius, rel=0.1), 'test failed: ' + message
 
+def test_is_port_in_use():
+    """
+    Test `VSPEC.is_port_in_use`
+    """
+    default_psg_port = 3000
+    timeout_duration = 10 # timeout after 10s
+    system('docker start psg')
+    timeout = time() + timeout_duration
+    while True:
+        if helpers.is_port_in_use(default_psg_port):
+            break
+        elif time() > timeout:
+            raise RuntimeError('Test failed -- timeout')
+    system('docker stop psg')
+    timeout = time() + timeout_duration
+    while True:
+        if not helpers.is_port_in_use(default_psg_port):
+            break
+        elif time() > timeout:
+            raise RuntimeError('Test failed -- timeout')
+
+
 
 if __name__ in '__main__':
     test_to_float()
     test_isclose()
     test_get_transit_radius()
+    test_is_port_in_use()
