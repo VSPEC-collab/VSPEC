@@ -71,7 +71,7 @@ class ObservationModel:
         for teff in tqdm(teffs, desc='Binning Spectra', total=len(teffs)):
             stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
                                               file_name_writer=stellar_spectra.get_binned_filename,
-                                              binned_path=self.dirs['binned'], R=self.params.resolving_power,
+                                              binned_path=self.dirs['binned'], resolving_power=self.params.resolving_power,
                                               lam1=self.params.lambda_min, lam2=self.params.lambda_max,
                                               model_unit_wavelength=u.AA, model_unit_flux=u.Unit(
                 'erg s-1 cm-2 cm-1'),

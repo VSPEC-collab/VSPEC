@@ -1724,7 +1724,7 @@ class FlareGenerator:
         ValueError
             If `mean_teff` is less than or equal to 0 K.
         """
-        if self.mean_teff >= 0*u.K:  # prevent looping forever if user gives bad parameters
+        if self.mean_teff <= 0*u.K:  # prevent looping forever if user gives bad parameters
             raise ValueError('Cannot have teff <= 0 K')
         # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
         while True:
