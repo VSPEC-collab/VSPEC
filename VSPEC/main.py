@@ -20,7 +20,7 @@ from VSPEC import variable_star_model as vsm
 from VSPEC.files import build_directories, N_ZFILL
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float, is_port_in_use
-from VSPEC.psg_api import call_api
+from VSPEC.psg_api import call_api, write_static_config
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
 
@@ -261,73 +261,8 @@ class ObservationModel:
         ####################################
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
-        with open(cfg_path, file_mode, encoding="ascii") as fr:
-            bool_to_str = {True: 'Y', False: 'N'}
-            fr.write('<OBJECT>Exoplanet\n')
-            fr.write('<OBJECT-NAME>Planet\n')
-            fr.write('<OBJECT-DIAMETER>%f\n' %
-                     to_float(2*self.params.planet_radius, u.km))
-            fr.write('<OBJECT-GRAVITY>%f\n' % self.params.planet_grav)
-            fr.write(f'<OBJECT-GRAVITY-UNIT>{self.params.planet_grav_mode}\n')
-            fr.write('<OBJECT-STAR-TYPE>%s\n' % self.params.psg_star_template)
-            fr.write('<OBJECT-STAR-DISTANCE>%f\n' %
-                     to_float(self.params.planet_semimajor_axis, u.AU))
-            fr.write('<OBJECT-PERIOD>%f\n' %
-                     to_float(self.params.planet_orbital_period, u.day))
-            fr.write('<OBJECT-ECCENTRICITY>%f\n' %
-                     self.params.planet_eccentricity)
-            fr.write('<OBJECT-PERIAPSIS>%f\n' %
-                     to_float(self.params.system_phase_of_periasteron, u.deg))
-            fr.write('<OBJECT-STAR-TEMPERATURE>%f\n' %
-                     to_float(self.params.star_teff, u.K))
-            fr.write('<OBJECT-STAR-RADIUS>%f\n' %
-                     to_float(self.params.star_radius, u.R_sun))
-            fr.write('<GEOMETRY>Observatory\n')
-            fr.write('<GEOMETRY-OBS-ALTITUDE>%f\n' %
-                     to_float(self.params.system_distance, u.pc))
-            fr.write('<GEOMETRY-ALTITUDE-UNIT>pc\n')
-            fr.write('<GENERATOR-RANGE1>%f\n' %
-                     to_float(self.params.lambda_min, self.params.target_wavelength_unit))
-            fr.write('<GENERATOR-RANGE2>%f\n' %
-                     to_float(self.params.lambda_max, self.params.target_wavelength_unit))
-            fr.write(
-                f'<GENERATOR-RANGEUNIT>{self.params.target_wavelength_unit}\n')
-            fr.write('<GENERATOR-RESOLUTION>%f\n' %
-                     self.params.resolving_power)
-            fr.write('<GENERATOR-RESOLUTIONUNIT>RP\n')
-            fr.write('<GENERATOR-BEAM>%d\n' % self.params.beamValue)
-            fr.write('<GENERATOR-BEAM-UNIT>%s\n' % self.params.beamUnit)
-            fr.write('<GENERATOR-CONT-STELLAR>Y\n')
-            fr.write('<OBJECT-INCLINATION>%s\n' %
-                     to_float(self.params.system_inclination, u.deg))
-            fr.write('<OBJECT-SOLAR-LATITUDE>0.0\n')
-            fr.write('<OBJECT-OBS-LATITUDE>0.0\n')
-            fr.write('<GENERATOR-RADUNITS>%s\n' % self.params.psg_rad_unit)
-            fr.write('<GENERATOR-GCM-BINNING>%d\n' % self.params.gcm_binning)
-            fr.write(
-                f'<GENERATOR-GAS-MODEL>{bool_to_str[self.params.use_molec_signatures]}\n')
-            fr.write(f'<GENERATOR-NOISE>{self.params.detector_type}\n')
-            fr.write(
-                f'<GENERATOR-NOISE2>{self.params.detector_dark_current}\n')
-            fr.write(
-                f'<GENERATOR-NOISETIME>{self.params.detector_integration_time}\n')
-            fr.write(
-                f'<GENERATOR-NOISEOTEMP>{self.params.detector_temperature}\n')
-            fr.write(
-                f'<GENERATOR-NOISEOEFF>{self.params.detector_throughput:.1f}\n')
-            fr.write(
-                f'<GENERATOR-NOISEOEMIS>{self.params.detector_emissivity:.1f}\n')
-            fr.write(
-                f'<GENERATOR-NOISEFRAMES>{self.params.detector_number_of_integrations}\n')
-            fr.write(
-                f'<GENERATOR-NOISEPIXELS>{self.params.detector_pixel_sampling}\n')
-            fr.write(f'<GENERATOR-NOISE1>{self.params.detector_read_noise}\n')
-            fr.write(
-                f'<GENERATOR-DIAMTELE>{self.params.telescope_diameter:.1f}\n')
-            fr.write('<GENERATOR-TELESCOPE>SINGLE\n')
-            fr.write('<GENERATOR-TELESCOPE1>1\n')
-            fr.write('<GENERATOR-TELESCOPE2>1.0\n')
-            fr.write('<GENERATOR-TELESCOPE3>1.0\n')
+        write_static_config(cfg_path,self.params,file_mode=file_mode)
+        
         url = self.params.psg_url
         call_type = 'upd'
         if self.params.use_globes:
