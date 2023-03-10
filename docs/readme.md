@@ -36,7 +36,7 @@ import numpy as np
 
 
 ```python
-config_path = '../test/default.cfg'
+config_path = '../../test/default.cfg'
 model = VSPEC.ObservationModel(config_path)
 ```
 
@@ -56,14 +56,10 @@ Let's look at where our model parameters are stored. For example we can look at 
 
 
 ```python
-model.params.star_teff
+print(model.params.star_teff)
 ```
 
-
-
-
-$3300 \; \mathrm{K}$
-
+    3300.0 K
 
 
 Now we need to bin the spectra to the desired resolution. In the configureation file we specified:
@@ -135,7 +131,9 @@ sim_data = VSPEC.PhaseAnalyzer(data_path)
 
 
 ```python
-plt.contourf(sim_data.unique_phase-360*u.deg,sim_data.wavelength,sim_data.thermal,levels=30)
+plt.pcolormesh(VSPEC.helpers.to_float(sim_data.unique_phase-360*u.deg,u.deg),
+                VSPEC.helpers.to_float(sim_data.wavelength,u.um),
+                VSPEC.helpers.to_float(sim_data.thermal,u.Unit('W1m-2um-1')))
 plt.xlabel('phase (deg)')
 plt.ylabel('wavelength (um)')
 plt.title('Planetary Thermal Emission')
@@ -226,6 +224,24 @@ We can also look at the spectra produced at each phase step and combine multiple
 
 
 ```python
+sim_data.get_layer('Temp')
+```
+
+
+
+
+$[[189.026,~196.586,~225.905,~\dots,~185.426,~182.403,~181.744],~
+ [189.07122,~196.61418,~225.88558,~\dots,~185.42379,~182.39582,~181.73669],~
+ [189.11644,~196.64237,~225.86617,~\dots,~185.42157,~182.38864,~181.72939],~
+ \dots,~
+ [189.06639,~196.6253,~225.94193,~\dots,~185.42455,~182.40918,~181.75604],~
+ [189.01177,~196.57215,~225.89199,~\dots,~185.42651,~182.40082,~181.73976],~
+ [189.026,~196.586,~225.905,~\dots,~185.426,~182.403,~181.744]] \; \mathrm{K}$
+
+
+
+
+```python
 i=0
 binning = 50
 def makefig(i):
@@ -234,7 +250,7 @@ def makefig(i):
     # color = cm.viridis(np.cos(data.unique_phase[i])*0.5 + 0.5)
     color = 'k'
     sli = (max(0,i-binning),min(sim_data.N_images,i+binning))
-    ax[0].plot(sim_data.layers.loc[sim_data.unique_phase[i],:,'Temp[K]'],(sim_data.layers.loc[sim_data.unique_phase[i],:,'Pressure[bar]']),c=color)
+    ax[0].plot(sim_data.get_layer('Temp')[i,:],sim_data.get_layer('Pressure')[i,:],c=color)
     ax[0].set_yscale('log')
     ylim = ax[0].get_ylim()
 
@@ -273,8 +289,8 @@ def makefig(i):
     inax.set_ylabel('sep (mas)')
 
 
-    contrast = sim_data.combine('thermal',sli)/sim_data.combine('total',sli)
-    noise = sim_data.combine('noise',sli)/sim_data.combine('total',sli)
+    contrast = sim_data.spectrum('thermal',sli)/sim_data.spectrum('total',sli)
+    noise = sim_data.spectrum('noise',sli)/sim_data.spectrum('total',sli)
     ax[1].plot(sim_data.wavelength,contrast*1e6,c=color)
     ax[1].fill_between(sim_data.wavelength.value,(contrast + noise)*1e6,(contrast-noise)*1e6,color='k',alpha=0.3)
     ax[1].set_ylim(-1,100)
@@ -290,23 +306,8 @@ def makefig(i):
 makefig(300).show()
 ```
 
-    /var/folders/b4/9tq5p8g95dl0144rmgktxrvh0000gp/T/ipykernel_13774/1612521938.py:1: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.
+    /var/folders/b4/9tq5p8g95dl0144rmgktxrvh0000gp/T/ipykernel_93570/1612521938.py:1: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.
       makefig(300).show()
-
-
-
-    
-![png](readme_files/readme_27_1.png)
-    
-
-
-
-```python
-makefig(60).show()
-```
-
-    /var/folders/b4/9tq5p8g95dl0144rmgktxrvh0000gp/T/ipykernel_13774/1915159874.py:1: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.
-      makefig(60).show()
 
 
 
@@ -317,7 +318,24 @@ makefig(60).show()
 
 
 ```python
-plt.contourf(sim_data.time.to(u.day),sim_data.wavelength,sim_data.total,levels=30)
+makefig(60).show()
+```
+
+    /var/folders/b4/9tq5p8g95dl0144rmgktxrvh0000gp/T/ipykernel_93570/1915159874.py:1: UserWarning: Matplotlib is currently using module://matplotlib_inline.backend_inline, which is a non-GUI backend, so cannot show the figure.
+      makefig(60).show()
+
+
+
+    
+![png](readme_files/readme_29_1.png)
+    
+
+
+
+```python
+plt.pcolormesh(VSPEC.helpers.to_float(sim_data.time,u.day),
+                VSPEC.helpers.to_float(sim_data.wavelength,u.um),
+                VSPEC.helpers.to_float(sim_data.total,u.Unit('W m-2 um-1')))
 plt.colorbar(label='flux (W m-2 um-1)')
 plt.yscale('log')
 plt.xlabel('time (day)')
@@ -333,7 +351,7 @@ plt.ylabel('wavelength (um)')
 
 
     
-![png](readme_files/readme_29_1.png)
+![png](readme_files/readme_30_1.png)
     
 
 

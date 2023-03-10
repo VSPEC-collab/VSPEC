@@ -21,7 +21,7 @@ chdir(WORKING_DIRECTORY)
 
 model = ObservationModel(CONFIG_PATH,debug=False)
 model.build_directories()
-# model.bin_spectra()
+model.bin_spectra()
 # model.build_star()
 fig,ax = plt.subplots(2,1)
 fig_filename = 'lightcurve_debug.png'
