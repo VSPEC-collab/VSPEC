@@ -13,12 +13,13 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from tqdm.auto import tqdm
+import warnings
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.files import build_directories, N_ZFILL
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, to_float
+from VSPEC.helpers import isclose, to_float, is_port_in_use
 from VSPEC.psg_api import call_api
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
@@ -71,12 +72,14 @@ class ObservationModel:
         for teff in tqdm(teffs, desc='Binning Spectra', total=len(teffs)):
             stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
                                               file_name_writer=stellar_spectra.get_binned_filename,
-                                              binned_path=self.dirs['binned'], resolving_power=self.params.resolving_power,
-                                              lam1=self.params.lambda_min, lam2=self.params.lambda_max,
-                                              model_unit_wavelength=u.AA, model_unit_flux=u.Unit(
-                'erg s-1 cm-2 cm-1'),
-                target_unit_wavelength=self.params.target_wavelength_unit,
-                target_unit_flux=self.params.target_flux_unit)
+                                              binned_path=self.dirs['binned'],
+                                              resolving_power=self.params.resolving_power,
+                                              lam1=self.params.lambda_min,
+                                              lam2=self.params.lambda_max,
+                                              model_unit_wavelength=u.AA,
+                                              model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
+                                              target_unit_wavelength=self.params.target_wavelength_unit,
+                                              target_unit_flux=self.params.target_flux_unit)
 
     def read_spectrum(self, teff: u.Quantity):
         """
@@ -201,7 +204,32 @@ class ObservationModel:
         """
         Use the PSG GlobES API to construct a planetary phase curve.
         Follow steps in original PlanetBuilder.py file
+
+        Raises
+        ------
+        RuntimeError
+            If a local PSG container is specified but the port is not in use
+            (i.e. PSG is not running).
+        
+        Warns
+        -----
+        RuntimeWarning
+            If calling the online PSG API, but no API key is specified.
         """
+
+        # check that psg is running
+        psg_url = self.params.psg_url
+        if 'localhost' in psg_url:
+            port = int(psg_url.split(':')[-1])
+            if not is_port_in_use(port):
+                raise RuntimeError('Local PSG is specified, but is not running.\n'+
+                                   'Type `docker start psg` in the command line.')
+        elif self.params.api_key_path is None:
+            msg = 'PSG is being called without an API key. '
+            msg += 'After 100 API calls in a 24hr period you will need to get a key. '
+            msg += 'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook)'
+            warnings.warn(msg,RuntimeWarning)
+
 
         # for not using globes, append all configurations instead of rewritting
 
