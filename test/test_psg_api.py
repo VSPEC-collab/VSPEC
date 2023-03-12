@@ -6,7 +6,7 @@ Tests for `VSPEC.psg_api` module
 from pathlib import Path
 import pytest
 
-from VSPEC.psg_api import call_api, write_static_config
+from VSPEC.psg_api import call_api, write_static_config, PSGrad
 from VSPEC.helpers import is_port_in_use
 from VSPEC.read_info import ParamModel
 
@@ -66,6 +66,16 @@ def test_write_static_config():
     #     call_api(outfile,psg_url,output_type='rad')
     outfile.unlink()
 
+def test_PSGrad():
+    file = Path(__file__).parent / 'data' / 'test_rad.rad'
+    rad = PSGrad.from_rad(file)
+    assert isinstance(rad.header,dict)
+    assert isinstance(rad.data,dict)
+    with pytest.raises(ValueError):
+        file = Path(__file__).parent / 'data' / 'gcm_error.rad'
+        PSGrad.from_rad(file)
+
+
 
 
 
@@ -75,4 +85,5 @@ if __name__ in '__main__':
     if is_port_in_use(3000):
         test_call_api_local()
     test_write_static_config()
+    test_PSGrad()
     
