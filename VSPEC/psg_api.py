@@ -10,9 +10,10 @@ import re
 from pathlib import Path
 from astropy import units as u
 import pandas as pd
+import numpy as np
 
 from VSPEC.read_info import ParamModel
-from VSPEC.helpers import to_float
+from VSPEC.helpers import to_float, isclose
 
 
 def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
@@ -76,7 +77,7 @@ def write_static_config(path:Path,params:ParamModel,file_mode:str='w')->None:
     with open(path, file_mode, encoding="ascii") as file:
         bool_to_str = {True: 'Y', False: 'N'}
         file.write('<OBJECT>Exoplanet\n')
-        file.write('<OBJECT-NAME>Planet\n')
+        file.write(f'<OBJECT-NAME>{params.planet_name}\n')
         file.write('<OBJECT-DIAMETER>%f\n' %
                     to_float(2*params.planet_radius, u.km))
         file.write('<OBJECT-GRAVITY>%f\n' % params.planet_grav)
@@ -228,8 +229,42 @@ class PSGrad:
             data[col] = df[col].values * header['radiance_unit']
         return cls(header,data)
                 
+def get_reflected(cmb_rad:PSGrad,therm_rad:PSGrad,planet_name:str) -> u.Quantity:
+    """
+    Get reflected spectra.
 
-            
+    Parameters
+    ----------
+    cmb_rad : PSGrad
+        A rad file from the star+planet PSG call.
+    therm_rad : PSGrad
+        A rad file from the planet-only PSG call.
+    
+    Returns
+    -------
+    astropy.units.Quantity
+        The spectrum of the reflected light.
+    
+    Raises
+    ------
+    ValueError
+        If the wavelength axes do not match.
+    KeyError
+        If neither object has a `'Reflected'` data array and at least one
+        of them is missing the `planet_name` data array.
+    """
+    if not np.all(isclose(cmb_rad.data['Wave/freq'],therm_rad.data['Wave/freq'],1e-3*u.um)):
+        raise ValueError('The spectral axes must be equivalent.')
+    
+    if 'Reflected' in cmb_rad.data.keys():
+        return cmb_rad.data['Reflected']
+    elif 'Reflected' in therm_rad.data.keys():
+        return therm_rad.data['Reflected']
+    elif (planet_name in cmb_rad.data.keys()) and (planet_name in therm_rad.data.keys()):
+        return cmb_rad.data[planet_name] - therm_rad.data[planet_name]
+    else:
+        raise KeyError(f'Data array {planet_name} not found.')
+        
                 
 
             
