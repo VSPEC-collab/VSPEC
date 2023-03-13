@@ -20,7 +20,7 @@ from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.files import build_directories, N_ZFILL, get_filename
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff
+from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
 from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
@@ -117,13 +117,16 @@ class ObservationModel:
         flux : astropy.units.Quantity [flambda]
             The flux of the spectrum, corrected for system distance.
         """
-        if Teff == 0*u.K:
+        if Teff == 0*u.K: # for testing
             star_teff = self.params.star_teff
             wave1, flux1 = self.read_spectrum(star_teff - (star_teff % (100*u.K)))
             return wave1, flux1*0
+        elif (Teff % (100*u.K)==0*u.K):
+            wave1, flux1 = self.read_spectrum(Teff)
+            return wave1, flux1
         else:
-            model_teffs = [to_float(np.round(Teff - Teff % (100*u.K)), u.K),
-                           to_float(np.round(Teff - Teff % (100*u.K) + (100*u.K)), u.K)] * u.K
+            
+            model_teffs = get_surrounding_teffs(Teff)
             if Teff in model_teffs:
                 wave1, flux1 = self.read_spectrum(Teff)
                 wave2, flux2 = wave1, flux1

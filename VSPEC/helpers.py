@@ -129,7 +129,8 @@ def is_port_in_use(port: int) -> bool:
     socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     return socket_obj.connect_ex(('localhost', port)) == 0
 
-def arrange_teff(minteff:u.Quantity,maxteff:u.Quantity):
+
+def arrange_teff(minteff: u.Quantity, maxteff: u.Quantity):
     """
     Get a list of Teff values with steps of `100 K` that fully encompase
     the min and max values. This is done to get a list of
@@ -141,7 +142,7 @@ def arrange_teff(minteff:u.Quantity,maxteff:u.Quantity):
         The lowest Teff required
     maxteff : astropy.units.Quantity
         The highest Teff required
-    
+
     Returns
     -------
     teffs : astropy.units.Quantity
@@ -156,8 +157,39 @@ def arrange_teff(minteff:u.Quantity,maxteff:u.Quantity):
         high = maxteff
     else:
         high = maxteff - (maxteff % step) + step
-    number_of_steps = to_float((high-low)/step,u.dimensionless_unscaled)
+    number_of_steps = to_float((high-low)/step, u.dimensionless_unscaled)
     number_of_steps = int(round(number_of_steps))
     teffs = low + np.arange(number_of_steps+1)*step
     return teffs
-    
+
+
+def get_surrounding_teffs(Teff: u.Quantity):
+    """
+    Get the Teffs of the two spectra to interpolate between
+    to obtain a spectrum with Teff `Teff`
+
+    Parameters
+    ----------
+    Teff : astropy.units.Quantity
+        The target Teff
+
+    Returns
+    -------
+    low_teff : astropy.units.Quantity
+        The spectrum teff below `Teff`
+    high_teff : astropy.units.Quantity
+        The spectrum teff above `Teff`
+
+    Raises
+    ------
+    ValueError
+        If `Teff` is a multiple of 100 K
+    """
+    step = 100*u.K
+    if (Teff % step) == 0*u.K:
+        raise ValueError(
+            f'Teff of {Teff} is a multiple of {100*u.K}. This will cause problems with scipy.')
+    else:
+        low_teff = Teff - (Teff % step)
+        high_teff = low_teff + step
+    return low_teff, high_teff
