@@ -203,11 +203,10 @@ class ObservationModel:
         """
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
                                                            self.params.total_observation_time, N_obs=self.params.planet_images)
-
-    def build_planet(self):
+                                            
+    def check_psg(self):
         """
-        Use the PSG GlobES API to construct a planetary phase curve.
-        Follow steps in original PlanetBuilder.py file
+        Check that PSG is running
 
         Raises
         ------
@@ -220,8 +219,6 @@ class ObservationModel:
         RuntimeWarning
             If calling the online PSG API, but no API key is specified.
         """
-
-        # check that psg is running
         psg_url = self.params.psg_url
         if 'localhost' in psg_url:
             port = int(psg_url.split(':')[-1])
@@ -233,8 +230,15 @@ class ObservationModel:
             msg += 'After 100 API calls in a 24hr period you will need to get a key. '
             msg += 'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook)'
             warnings.warn(msg,RuntimeWarning)
+        
+    def build_planet(self):
+        """
+        Use the PSG GlobES API to construct a planetary phase curve.
+        Follow steps in original PlanetBuilder.py file
 
-
+        """
+        # check that psg is running
+        self.check_psg()
         # for not using globes, append all configurations instead of rewritting
 
         if self.params.use_globes:
