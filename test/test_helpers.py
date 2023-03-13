@@ -158,6 +158,21 @@ def test_is_port_in_use():
         elif time() > timeout:
             raise RuntimeError('Test failed -- timeout')
 
+def test_arrange_teff():
+    """
+    Test `VSPEC.arrange_teff`
+    """
+    teff1 = 3010*u.K
+    teff2 = 3090*u.K
+    assert np.all(helpers.arrange_teff(teff1,teff2) == [3000,3100]*u.K)
+
+    teff1 = 3000*u.K
+    teff2 = 3100*u.K
+    assert np.all(helpers.arrange_teff(teff1,teff2) == [3000,3100]*u.K)
+
+    teff1 = 2750*u.K
+    teff2 = 3300*u.K
+    assert np.all(helpers.arrange_teff(teff1,teff2) == [27,28,29,30,31,32,33]*(100*u.K))
 
 
 if __name__ in '__main__':
@@ -165,3 +180,4 @@ if __name__ in '__main__':
     test_isclose()
     test_get_transit_radius()
     test_is_port_in_use()
+    test_arrange_teff()
