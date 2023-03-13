@@ -8,6 +8,7 @@ and PSG.
 
 from pathlib import Path
 from os import system
+import typing
 
 import numpy as np
 import pandas as pd
@@ -17,10 +18,10 @@ import warnings
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
-from VSPEC.files import build_directories, N_ZFILL
+from VSPEC.files import build_directories, N_ZFILL, get_filename
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, to_float, is_port_in_use
-from VSPEC.psg_api import call_api, write_static_config
+from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff
+from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
 
@@ -67,8 +68,7 @@ class ObservationModel:
         This method loads high-resolution spectra and bins them to the required resolution. The binned spectra are then
         written to a local file (`self.dirs['binned']/...`).
         """
-        teffs = 100*np.arange(np.floor(self.params.star_teff_min.to(u.K)/100/u.K),
-                              np.ceil(self.params.star_teff_max.to(u.K)/100/u.K)+1) * u.K
+        teffs = arrange_teff(self.params.star_teff_min,self.params.star_teff_max)
         for teff in tqdm(teffs, desc='Binning Spectra', total=len(teffs)):
             stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
                                               file_name_writer=stellar_spectra.get_binned_filename,
@@ -81,7 +81,7 @@ class ObservationModel:
                                               target_unit_wavelength=self.params.target_wavelength_unit,
                                               target_unit_flux=self.params.target_flux_unit)
 
-    def read_spectrum(self, teff: u.Quantity):
+    def read_spectrum(self, teff: u.Quantity)->typing.Tuple[u.Quantity,u.Quantity]:
         """
         Read a binned spectrum from file.
 
@@ -118,7 +118,8 @@ class ObservationModel:
             The flux of the spectrum, corrected for system distance.
         """
         if Teff == 0*u.K:
-            wave1, flux1 = self.read_spectrum(3000*u.K)
+            star_teff = self.params.star_teff
+            wave1, flux1 = self.read_spectrum(star_teff - (star_teff % (100*u.K)))
             return wave1, flux1*0
         else:
             model_teffs = [to_float(np.round(Teff - Teff % (100*u.K)), u.K),
@@ -262,7 +263,7 @@ class ObservationModel:
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
         write_static_config(cfg_path,self.params,file_mode=file_mode)
-        
+
         url = self.params.psg_url
         call_type = 'upd'
         if self.params.use_globes:
@@ -332,8 +333,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_combined']) / \
-                f'phase{str(i).zfill(N_ZFILL)}.rad'
+            outfile = Path(self.dirs['psg_combined']) / get_filename(i,N_ZFILL,'rad')
             call_api(cfg_path, psg_url=url, api_key=api_key,
                      output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
             # call api to get noise
@@ -343,8 +343,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_noise']) / \
-                f'phase{str(i).zfill(N_ZFILL)}.noi'
+            outfile = Path(self.dirs['psg_noise']) / get_filename(i,N_ZFILL,'noi')
             call_api(cfg_path, psg_url=url, api_key=api_key,
                      output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
 
@@ -352,8 +351,7 @@ class ObservationModel:
             url = self.params.psg_url
             call_type = 'cfg'
             app = 'globes'
-            outfile = Path(self.dirs['psg_configs']) / \
-                f'phase{str(i).zfill(N_ZFILL)}.cfg'
+            outfile = Path(self.dirs['psg_configs']) / get_filename(i,N_ZFILL,'cfg')
             call_api(cfg_path, psg_url=url, api_key=api_key,
                      output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
 
@@ -373,8 +371,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_thermal']) / \
-                f'phase{str(i).zfill(N_ZFILL)}.rad'
+            outfile = Path(self.dirs['psg_thermal']) / get_filename(i,N_ZFILL,'rad')
             call_api(cfg_path, psg_url=url, api_key=api_key,
                      output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
             # call api to get layers
@@ -384,8 +381,7 @@ class ObservationModel:
                 app = 'globes'
             else:
                 app = None
-            outfile = Path(self.dirs['psg_layers']) / \
-                f'phase{str(i).zfill(N_ZFILL)}.lyr'
+            outfile = Path(self.dirs['psg_layers']) / get_filename(i,N_ZFILL,'lyr')
             call_api(cfg_path, psg_url=url, api_key=api_key,
                      output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
 
@@ -578,45 +574,29 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_combined_path1 = Path(
-            self.dirs['psg_combined']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_combined']) / get_filename(N1,N_ZFILL,'rad')
         psg_thermal_path1 = Path(
-            self.dirs['psg_thermal']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_thermal']) / get_filename(N1,N_ZFILL,'rad')
         psg_combined_path2 = Path(
-            self.dirs['psg_combined']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_combined']) / get_filename(N2,N_ZFILL,'rad')
         psg_thermal_path2 = Path(
-            self.dirs['psg_thermal']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_thermal']) / get_filename(N2,N_ZFILL,'rad')
 
         reflected = []
 
         for psg_combined_path, psg_thermal_path in zip([psg_combined_path1, psg_combined_path2],
                                                        [psg_thermal_path1, psg_thermal_path2]):
-            combined_df = pd.read_csv(psg_combined_path,
-                                      comment='#',
-                                      delim_whitespace=True,
-                                      names=["Wave/freq", "Total", "Noise",
-                                             "Stellar", "Planet", '_', '__'],
-                                      )
-            thermal_df = pd.read_csv(psg_thermal_path,
-                                     comment='#',
-                                     delim_whitespace=True,
-                                     names=["Wave/freq", "Total",
-                                            "Noise", "Planet", '_', '__'],
-                                     )
-            if self.params.psg_rad_unit == 'Wm2um':
-                flux_unit = u.Unit('W m-2 um-1')
-            else:
-                raise ValueError('That flux unit is not recognized')
+            combined = PSGrad.from_rad(psg_combined_path)
+            thermal = PSGrad.from_rad(psg_thermal_path)
 
             # validate
-            if not np.all(isclose(sub_planet_wavelength, combined_df['Wave/freq'].values*self.params.target_wavelength_unit, 1e-3*u.um)
-                          & isclose(sub_planet_wavelength, thermal_df['Wave/freq'].values*self.params.target_wavelength_unit, 1e-3*u.um)):
+            if not np.all(isclose(sub_planet_wavelength, combined.data['Wave/freq'], 1e-3*u.um)
+                          & isclose(sub_planet_wavelength, thermal.data['Wave/freq'], 1e-3*u.um)):
                 raise ValueError(
                     'The wavelength coordinates must be equivalent.')
-
-            planet_reflection_only = combined_df['Planet'].values * \
-                flux_unit - thermal_df['Planet'].values*flux_unit
-            planet_reflection_fraction = planet_reflection_only / \
-                (combined_df['Stellar'].values*flux_unit)
+            planet_reflection_only = get_reflected(combined,thermal)
+            planet_reflection_fraction = to_float(planet_reflection_only / combined.data['Stellar'],u.dimensionless_unscaled)
+            
             planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
             reflected.append(planet_reflection_adj)
 
@@ -658,13 +638,13 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_combined_path1 = Path(
-            self.dirs['psg_combined']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL,'rad')
         psg_noise_path1 = Path(
-            self.dirs['psg_noise']) / f'phase{str(N1).zfill(N_ZFILL)}.noi'
+            self.dirs['psg_noise']) / get_filename(N1, N_ZFILL,'noi')
         psg_combined_path2 = Path(
-            self.dirs['psg_combined']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL,'rad')
         psg_noise_path2 = Path(
-            self.dirs['psg_noise']) / f'phase{str(N2).zfill(N_ZFILL)}.noi'
+            self.dirs['psg_noise']) / get_filename(N2, N_ZFILL,'noi')
 
         psg_noise_source = []
         psg_source = []
@@ -736,9 +716,9 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_thermal_path1 = Path(
-            self.dirs['psg_thermal']) / f'phase{str(N1).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_thermal']) / get_filename(N1, N_ZFILL,'rad')
         psg_thermal_path2 = Path(
-            self.dirs['psg_thermal']) / f'phase{str(N2).zfill(N_ZFILL)}.rad'
+            self.dirs['psg_thermal']) / get_filename(N2, N_ZFILL,'rad')
 
         wavelength = []
         thermal = []
@@ -788,9 +768,9 @@ class ObservationModel:
             If the layer file columns of layer numbers do not match.
         """
         psg_layers_path1 = Path(
-            self.dirs['psg_layers']) / f'phase{str(N1).zfill(N_ZFILL)}.lyr'
+            self.dirs['psg_layers']) / get_filename(N1, N_ZFILL,'lyr')
         psg_layers_path2 = Path(
-            self.dirs['psg_layers']) / f'phase{str(N2).zfill(N_ZFILL)}.lyr'
+            self.dirs['psg_layers']) / get_filename(N2, N_ZFILL,'lyr')
         layers1 = read_lyr(psg_layers_path1)
         layers2 = read_lyr(psg_layers_path2)
         if not np.all(layers1.columns == layers2.columns) & (len(layers1) == len(layers2)):
@@ -881,8 +861,7 @@ class ObservationModel:
                 f'total[{str(combined_flux.unit)}]': combined_flux.value,
                 f'noise[{str(noise_flux_adj.unit)}]': noise_flux_adj.value
             })
-            outfile = Path(self.dirs['all_model']) / \
-                f'phase{str(index).zfill(N_ZFILL)}.csv'
+            outfile = Path(self.dirs['all_model']) / get_filename(index, N_ZFILL,'csv')
             df.to_csv(outfile, index=False, sep=',')
 
             # layers
