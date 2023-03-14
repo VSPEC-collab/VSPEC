@@ -1,0 +1,39 @@
+name,type,description
+star_name,str,Name of directory to create model in. All spectra will be stored in \verb|./star_name/|
+star_teff,float,\teff~of the star in K
+star_teff_min,float,Minimum temperature spectrum to include in binning
+star_teff_max,float,Maximum temperature spectrum to include in binning
+limb_darkening_a1,float,Limb darkening parameter a$_1$
+limb_darkening_a2,float,Limb darkening parameter a$_2$
+star_spot_initial_coverage,float,Spot coverage to begin with. This should only be used when spot timescales are much longer than the length of the observation.
+star_spot_distribution,str,Method to distribute spots. \verb|iso| or \verb|solar|
+star_spot_mean_area,float,Mean peak starspot area in MSH
+star_spot_sigma_area,float,Lognormal sigma for mean peak starspot area in dex
+star_spot_umbra_teff,float,\teff~of the spot umbra
+star_spot_penumbra_teff,float,\teff~of the spot penumbra
+star_spot_growth_rate,float,Fractional growth of spot area in day$^{-1}$. 0 means no growth.
+star_spot_decay_rate,float,Decay rate of spots in MSH day$^{-1}$. 0 means no decay.
+star_spot_initial_area,float,Initial area for newly birthed spots in MSH
+star_spot_coverage,float,Desired fractional surface coverage of star spots in growth-decay equilibrium
+star_spot_warmup,float,Time (in days) to ``warm up'' the star to reach growth-decay equilibrium
+star_fac_coverage,float,Desired fractional surface coverage of faculae in growth-decay equilibrium
+star_fac_mean_radius,float,Mean peak facula radius in km
+star_fac_HWMH_radius,float,Facula radius distribution half-width-half-maximum in km. Difference between the peak of the radius distribution and the half maximum in the positive direction
+star_fac_mean_timescale,float,Mean facula timescale in hr.
+star_fac_HWMH_timescale,float,Facula timescale distribution half-width-half-maximum in hr. Difference between the peak of the timescale distribution and the half maximum in the positive direction
+star_fac_distribution,str,Method to distribute faculae. Currently only \verb|iso| is supported.
+star_fac_warmup,float, Time (in hr) to ``warm up'' the star to reach growth-decay equilibrium
+star_flare_group_prob,float,Probability that a randomly generated flare is closely followed by another flare
+star_flare_mean_teff,float,Mean \teff~in K of the generaeted flares
+star_flare_sigma_teff,float,Standard deviation in K of the flare \teff distribution
+star_flare_mean_log_fwhm_days,float,Mean log full width half maximum of the flares in days.
+star_flare_sigma_log_fwhm_days,float,Standard deviation log full width half maximum of the flares in days.
+star_flare_log_E_erg_max,float,Log of the maximum energy flares to be considered in ergs
+star_flare_log_E_erg_min,float,Log of the minimum energy flares to be considered in ergs
+star_flare_log_E_erg_Nsteps,int,Number of flare energy steps to consider
+star_mass,float,Stellar mass in solar masses
+star_radius,float,Stellar radius in solar radii
+star_rot_period,float,Stellar rotation period in days
+star_rot_offset_from_orbital_plane,float,Angle between stellar rotation vector and the normal to the orbital plane.
+star_rot_offset_angle_from_pariapse,float,Angle between the stellar rotation vector's projection onto the orbital plane and the planet phase at periasteron
+psg_star_template,str,Stellar template to use in PSG
