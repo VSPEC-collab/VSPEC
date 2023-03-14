@@ -660,39 +660,25 @@ class ObservationModel:
             [psg_combined_path1, psg_combined_path2],
             [psg_noise_path1, psg_noise_path2]
         ):
-            combined_df = pd.read_csv(psg_combined_path,
-                                      comment='#',
-                                      delim_whitespace=True,
-                                      names=["Wave/freq", "Total", "Noise",
-                                             "Stellar", "Planet", '_', '__'],
-                                      )
-            noise_df = pd.read_csv(psg_noise_path,
-                                   comment='#',
-                                   delim_whitespace=True,
-                                   names=['Wave/freq', 'Total', 'Source',
-                                          'Detector', 'Telescope', 'Background'],
-                                   )
-            if self.params.psg_rad_unit == 'Wm2um':
-                flux_unit = u.Unit('W m-2 um-1')
-            else:
-                raise ValueError('That flux unit is not recognized')
+            combined = PSGrad.from_rad(psg_combined_path)
+            noise = PSGrad.from_rad(psg_noise_path)
 
             # validate
-            if not np.all(isclose(cmb_wavelength, combined_df['Wave/freq'].values*self.params.target_wavelength_unit, 1e-3*u.um)
-                          & isclose(cmb_wavelength, noise_df['Wave/freq'].values*self.params.target_wavelength_unit, 1e-3*u.um)):
+            if not np.all(isclose(cmb_wavelength, combined.data['Wave/freq'], 1e-3*u.um)
+                          & isclose(cmb_wavelength, noise.data['Wave/freq'], 1e-3*u.um)):
                 raise ValueError(
                     'The wavelength coordinates must be equivalent.')
-            psg_noise_source.append(noise_df['Source'].values * flux_unit)
-            psg_source.append(combined_df['Total'].values * flux_unit)
+            psg_noise_source.append(noise.data['Source'])
+            psg_source.append(combined.data['Total'])
         psg_noise_source = psg_noise_source[0] * \
             N1_frac + psg_noise_source[1] * (1-N1_frac)
         psg_source = psg_source[0]*N1_frac + psg_source[1] * (1-N1_frac)
 
         model_noise = psg_noise_source * np.sqrt(cmb_flux/psg_source)
         noise_sq = (model_noise**2
-                    + (noise_df['Detector'].values*flux_unit)**2
-                    + (noise_df['Telescope'].values*flux_unit)**2
-                    + (noise_df['Background'].values*flux_unit)**2)
+                    + (noise.data['Detector'])**2
+                    + (noise.data['Telescope'])**2
+                    + (noise.data['Background'])**2)
         return cmb_wavelength, np.sqrt(noise_sq) * time_scale_factor
 
     def get_thermal_spectrum(self, N1: int, N2: int, N1_frac: float):
@@ -731,20 +717,20 @@ class ObservationModel:
         thermal = []
 
         for psg_thermal_path in [psg_thermal_path1, psg_thermal_path2]:
-            thermal_df = pd.read_csv(psg_thermal_path,
-                                     comment='#',
-                                     delim_whitespace=True,
-                                     names=["Wave/freq", "Total",
-                                            "Noise", "Planet", '_', '__'],
-                                     )
-            if self.params.psg_rad_unit == 'Wm2um':
-                flux_unit = u.Unit('W m-2 um-1')
-            else:
-                raise ValueError('That flux unit is not recognized')
+            thermal_rad = PSGrad.from_rad(psg_thermal_path)
+            # thermal_df = pd.read_csv(psg_thermal_path,
+            #                          comment='#',
+            #                          delim_whitespace=True,
+            #                          names=["Wave/freq", "Total",
+            #                                 "Noise", "Planet", '_', '__'],
+            #                          )
+            # if self.params.psg_rad_unit == 'Wm2um':
+            #     flux_unit = u.Unit('W m-2 um-1')
+            # else:
+            #     raise ValueError('That flux unit is not recognized')
 
-            wavelength.append(
-                thermal_df['Wave/freq'].values * self.params.target_wavelength_unit)
-            thermal.append(thermal_df['Planet'].values*flux_unit)
+            wavelength.append(thermal_rad.data['Wave/freq'])
+            thermal.append(thermal_rad.data['Planet'])
 
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
