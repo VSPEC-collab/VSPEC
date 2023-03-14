@@ -601,7 +601,7 @@ class ObservationModel:
                           & isclose(sub_planet_wavelength, thermal.data['Wave/freq'], 1e-3*u.um)):
                 raise ValueError(
                     'The wavelength coordinates must be equivalent.')
-            planet_reflection_only = get_reflected(combined,thermal)
+            planet_reflection_only = get_reflected(combined,thermal,self.params.planet_name)
             planet_reflection_fraction = to_float(planet_reflection_only / combined.data['Stellar'],u.dimensionless_unscaled)
             
             planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
