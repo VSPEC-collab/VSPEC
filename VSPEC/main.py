@@ -21,6 +21,7 @@ from VSPEC import variable_star_model as vsm
 from VSPEC.files import build_directories, N_ZFILL, get_filename
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
+from VSPEC.helpers import plan_to_df
 from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
@@ -34,13 +35,13 @@ class ObservationModel:
     ----------
     config_path : str or pathlib.Path
         The path of the configuration file.
-    debug : bool, default=False
-        Whether to enter debug mode.
+    verbose : int, default=1
+        The verbosity level of the output.
 
     Attributes
     ----------
-    debug : bool, default=False
-        Whether to enter debug mode.
+    verbose : int
+        The verbosity level of the output.
     params : `VSPEC.read_info.ParamModel`
         The parameters for this simulation.
     dirs : dict
@@ -49,11 +50,33 @@ class ObservationModel:
         The variable host star.
     """
 
-    def __init__(self, config_path, debug=False):
-        self.debug = debug
+    def __init__(self, config_path, verbose=1):
+        self.verbose = verbose
         self.params = ParamModel(config_path)
         self.build_directories()
         self.star = None
+
+    def wrap_iterator(self,iterator,**kwargs):
+        """
+        Wrapper for iterators so that `tqdm` can be used
+        only if `self.verbose` > 0
+
+        Parameters
+        ----------
+        iterator : iterable
+            Iterator to be passed to `tqdm`
+        **kwargs : dict
+            The keywords to pass to `tqdm`
+        
+        Returns
+        -------
+        iterable
+            The iterator wrapped appropriately.
+        """
+        if self.verbose > 0:
+            return tqdm(iterator,**kwargs)
+        else:
+            return iterator
 
     def build_directories(self):
         """
@@ -69,7 +92,7 @@ class ObservationModel:
         written to a local file (`self.dirs['binned']/...`).
         """
         teffs = arrange_teff(self.params.star_teff_min,self.params.star_teff_max)
-        for teff in tqdm(teffs, desc='Binning Spectra', total=len(teffs)):
+        for teff in self.wrap_iterator(teffs,desc='Binning Spectra', total=len(teffs)):
             stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
                                               file_name_writer=stellar_spectra.get_binned_filename,
                                               binned_path=self.dirs['binned'],
@@ -290,16 +313,7 @@ class ObservationModel:
         obs_plan = self.get_planet_observation_plan(observation_parameters)
 
         obs_info_filename = Path(self.dirs['data']) / 'observation_info.csv'
-        obs_df = pd.DataFrame()
-        for key in obs_plan.keys():
-            try:
-                unit = obs_plan[key].unit
-                name = f'{key}[{str(unit)}]'
-                obs_df[name] = obs_plan[key].value
-            except AttributeError:
-                unit = ''
-                name = f'{key}[{str(unit)}]'
-                obs_df[name] = obs_plan[key]
+        obs_df = plan_to_df(obs_plan)
         obs_df.to_csv(obs_info_filename, sep=',', index=False)
 
         print(
@@ -308,7 +322,7 @@ class ObservationModel:
               str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
         ####################################
         # iterate through phases
-        for i in tqdm(range(self.params.planet_images), desc='Build Planet', total=self.params.planet_images):
+        for i in self.wrap_iterator(range(self.params.planet_images), desc='Build Planet', total=self.params.planet_images):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
@@ -449,11 +463,11 @@ class ObservationModel:
         N_steps_facula = int(
             round((facula_warmup_time/facula_warm_up_step).to(u.Unit('')).value))
         if N_steps_spot > 0:
-            for i in tqdm(range(N_steps_spot), desc='Spot Warmup', total=N_steps_spot):
+            for i in self.wrap_iterator(range(N_steps_spot), desc='Spot Warmup', total=N_steps_spot):
                 self.star.birth_spots(spot_warm_up_step)
                 self.star.age(spot_warm_up_step)
         if N_steps_facula > 0:
-            for i in tqdm(range(N_steps_facula), desc='Facula Warmup', total=N_steps_facula):
+            for i in self.wrap_iterator(range(N_steps_facula), desc='Facula Warmup', total=N_steps_facula):
                 self.star.birth_faculae(facula_warm_up_step)
                 self.star.age(facula_warm_up_step)
 
@@ -718,16 +732,6 @@ class ObservationModel:
 
         for psg_thermal_path in [psg_thermal_path1, psg_thermal_path2]:
             thermal_rad = PSGrad.from_rad(psg_thermal_path)
-            # thermal_df = pd.read_csv(psg_thermal_path,
-            #                          comment='#',
-            #                          delim_whitespace=True,
-            #                          names=["Wave/freq", "Total",
-            #                                 "Noise", "Planet", '_', '__'],
-            #                          )
-            # if self.params.psg_rad_unit == 'Wm2um':
-            #     flux_unit = u.Unit('W m-2 um-1')
-            # else:
-            #     raise ValueError('That flux unit is not recognized')
 
             wavelength.append(thermal_rad.data['Wave/freq'])
             thermal.append(thermal_rad.data['Planet'])
@@ -789,16 +793,7 @@ class ObservationModel:
         # write observation info to file
         obs_info_filename = Path(
             self.dirs['all_model']) / 'observation_info.csv'
-        obs_df = pd.DataFrame()
-        for key in observation_info.keys():
-            try:
-                unit = observation_info[key].unit
-                name = f'{key}[{str(unit)}]'
-                obs_df[name] = observation_info[key].value
-            except AttributeError:
-                unit = ''
-                name = f'{key}[{str(unit)}]'
-                obs_df[name] = observation_info[key]
+        obs_df = plan_to_df(observation_info)
         obs_df.to_csv(obs_info_filename, sep=',', index=False)
 
         planet_observation_info = self.get_planet_observation_plan(
@@ -808,7 +803,7 @@ class ObservationModel:
         time_step = self.params.total_observation_time / self.params.total_images
         planet_time_step = self.params.total_observation_time / self.params.planet_images
 
-        for index in tqdm(range(self.params.total_images), desc='Build Spectra', total=self.params.total_images, position=0, leave=True):
+        for index in self.wrap_iterator(range(self.params.total_images), desc='Build Spectra', total=self.params.total_images, position=0, leave=True):
 
             tindex = observation_info['time'][index]
             tstart = tindex - observation_info['time'][0]

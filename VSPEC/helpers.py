@@ -9,6 +9,7 @@ import warnings
 from astropy import units as u
 from numpy import isclose as np_isclose
 import numpy as np
+import pandas as pd
 import socket
 
 
@@ -193,3 +194,35 @@ def get_surrounding_teffs(Teff: u.Quantity):
         low_teff = Teff - (Teff % step)
         high_teff = low_teff + step
     return low_teff, high_teff
+
+
+def plan_to_df(observation_plan:dict)->pd.DataFrame:
+    """
+    Turn an observation plan dictionary into a pandas DataFrame.
+
+    Parameters
+    ----------
+    observation_plan : dict
+        A dictionary that contains arrays of geometric values at each epoch.
+        The keys are {'time','phase','sub_obs_lat','sub_obs_lon',
+                        'sub_planet_lat','sub_planet_lon','sub_stellar_lon',
+                        'sub_stellar_lat','planet_sub_obs_lon','planet_sub_obs_lat',
+                        'orbit_radius'
+                     }
+    
+    Returns
+    -------
+    pandas.DataFrame
+        A dataframe containing the dictionary data.
+    """
+    obs_df = pd.DataFrame()
+    for key in observation_plan.keys():
+        try:
+            unit = observation_plan[key].unit
+            name = f'{key}[{str(unit)}]'
+            obs_df[name] = observation_plan[key].value
+        except AttributeError:
+            unit = ''
+            name = f'{key}[{str(unit)}]'
+            obs_df[name] = observation_plan[key]
+    return obs_df

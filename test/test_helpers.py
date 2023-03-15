@@ -11,6 +11,7 @@ import pytest
 from time import sleep,time
 
 from VSPEC import helpers
+from VSPEC.geometry import SystemGeometry
 
 
 def test_to_float():
@@ -187,6 +188,13 @@ def test_get_surrounding_teffs():
         Teff = 3000*u.K
         helpers.get_surrounding_teffs(Teff)
 
+def test_plan_to_df():
+    geo = SystemGeometry()
+    plan = geo.get_observation_plan(0*u.deg,10*u.day,N_obs=10)
+    df = helpers.plan_to_df(plan)
+    for key in plan.keys():
+        assert np.any(df.columns.str.contains(key))
+
 
 if __name__ in '__main__':
     test_to_float()
@@ -194,3 +202,4 @@ if __name__ in '__main__':
     test_get_transit_radius()
     test_is_port_in_use()
     test_arrange_teff()
+    test_plan_to_df()
