@@ -64,9 +64,9 @@ Running PSG
 
 While it is not 100% necessary to run PSG locally in order to use ``VSPEC``, it is
 highly recommended. Luckly, PSG easy to install and run. Detailed instructions can be
-found in the `PSG handbook <https://psg.gsfc.nasa.gov/help.php#handbook>_` (see page 153).
+found in the `PSG handbook <https://psg.gsfc.nasa.gov/help.php#handbook>`_ (see page 153).
 
-We recommend using `Rancher Desktop <rancherdesktop.io>_` to run the PSG Docker container,
+We recommend using `Rancher Desktop <rancherdesktop.io>`_ to run the PSG Docker container,
 as it is free for all use. If you do not have administrative (sudo) access to your
 computer, uncheck 'Administrative Access' in Rancher Desktop settings.
 
