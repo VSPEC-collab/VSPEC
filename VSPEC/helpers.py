@@ -204,11 +204,11 @@ def plan_to_df(observation_plan:dict)->pd.DataFrame:
     ----------
     observation_plan : dict
         A dictionary that contains arrays of geometric values at each epoch.
-        The keys are {'time','phase','sub_obs_lat','sub_obs_lon',
-                        'sub_planet_lat','sub_planet_lon','sub_stellar_lon',
-                        'sub_stellar_lat','planet_sub_obs_lon','planet_sub_obs_lat',
-                        'orbit_radius'
-                     }
+        The keys are:\n
+        ``{'time', 'phase', 'sub_obs_lat', 'sub_obs_lon',
+        'sub_planet_lat', 'sub_planet_lon', 'sub_stellar_lon',
+        'sub_stellar_lat', 'planet_sub_obs_lon', 'planet_sub_obs_lat',
+        'orbit_radius'}``
     
     Returns
     -------
