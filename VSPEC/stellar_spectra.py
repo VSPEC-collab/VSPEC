@@ -13,9 +13,7 @@ import h5py
 from scipy.interpolate import interp2d
 from astropy import units as u, constants as c
 from VSPEC.helpers import to_float, isclose
-
-RAW_PHOENIX_PATH = Path(__file__).parent / '..' / 'NextGenModels' / 'RawData'
-
+from VSPEC.files import RAW_PHOENIX_PATH
 
 def get_wavelengths(resolving_power: int, lam1: float, lam2: float) -> np.ndarray:
     """

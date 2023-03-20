@@ -288,7 +288,7 @@ class ObservationModel:
         else:
             api_key = None
         call_api(gcm_path, psg_url=url, api_key=api_key,
-                 output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
+                 output_type=call_type, app=app, outfile=outfile, verbose=self.verbose>1)
         ####################################
         # Set observation parameters that do not change
         cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
@@ -302,7 +302,7 @@ class ObservationModel:
             app = None
         outfile = None
         call_api(cfg_path, psg_url=url, api_key=api_key,
-                 output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
+                 output_type=call_type, app=app, outfile=outfile, verbose=self.verbose>2)
         # # debug
         # call_api(cfg_path,psg_url=url,api_key=api_key,
         #         output_type='all',app=app,outfile='temp_out.txt')
@@ -356,7 +356,7 @@ class ObservationModel:
                 app = None
             outfile = Path(self.dirs['psg_combined']) / get_filename(i,N_ZFILL,'rad')
             call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
+                     output_type=call_type, app=app, outfile=outfile, verbose=self.verbose>1)
             # call api to get noise
             url = self.params.psg_url
             call_type = 'noi'
@@ -366,7 +366,7 @@ class ObservationModel:
                 app = None
             outfile = Path(self.dirs['psg_noise']) / get_filename(i,N_ZFILL,'noi')
             call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
+                     output_type=call_type, app=app, outfile=outfile, verbose=self.verbose>1)
 
             # call api to get config
             url = self.params.psg_url
@@ -374,7 +374,7 @@ class ObservationModel:
             app = 'globes'
             outfile = Path(self.dirs['psg_configs']) / get_filename(i,N_ZFILL,'cfg')
             call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
+                     output_type=call_type, app=app, outfile=outfile, verbose=self.verbose>1)
 
             # write updates to config file to remove star flux
             with open(cfg_path, file_mode) as fr:
@@ -394,7 +394,7 @@ class ObservationModel:
                 app = None
             outfile = Path(self.dirs['psg_thermal']) / get_filename(i,N_ZFILL,'rad')
             call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
+                     output_type=call_type, app=app, outfile=outfile, verbose=self.verbose>1)
             # call api to get layers
             url = self.params.psg_url
             call_type = 'lyr'
@@ -404,7 +404,7 @@ class ObservationModel:
                 app = None
             outfile = Path(self.dirs['psg_layers']) / get_filename(i,N_ZFILL,'lyr')
             call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile, verbose=self.debug)
+                     output_type=call_type, app=app, outfile=outfile, verbose=self.verbose>1)
 
     def build_star(self):
         """
@@ -734,7 +734,10 @@ class ObservationModel:
             thermal_rad = PSGrad.from_rad(psg_thermal_path)
 
             wavelength.append(thermal_rad.data['Wave/freq'])
-            thermal.append(thermal_rad.data['Planet'])
+            try:
+                thermal.append(thermal_rad.data[self.params.planet_name])
+            except KeyError:
+                thermal.append(thermal_rad.data['Thermal'])
 
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
