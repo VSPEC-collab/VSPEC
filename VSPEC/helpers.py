@@ -9,7 +9,9 @@ import warnings
 from astropy import units as u
 from numpy import isclose as np_isclose
 import numpy as np
+import pandas as pd
 import socket
+
 
 def to_float(quant: u.Quantity, unit: u.Unit) -> float:
     """
@@ -106,9 +108,121 @@ def get_transit_radius(
         planet_radius/(2*np.pi*semimajor_axis), u.Unit(''))
     return (angle_point_planet+planet_radius_angle)*u.rad
 
+
 def is_port_in_use(port: int) -> bool:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(('localhost', port)) == 0
+    """
+    Check if a port is in use on your machine.
+    This is useful to keep from calling PSG when it
+    is not running.
+
+    Parameters
+    ----------
+    port : int
+        The port that PSG is running on. If you
+        followed the online instructions, this should
+        be 3000.
+
+    Returns
+    -------
+    bool
+        Whether or not something is running on port `port`.
+    """
+    socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    return socket_obj.connect_ex(('localhost', port)) == 0
 
 
+def arrange_teff(minteff: u.Quantity, maxteff: u.Quantity):
+    """
+    Get a list of Teff values with steps of `100 K` that fully encompase
+    the min and max values. This is done to get a list of
+    the spectra that it is necessary to bin for later.
 
+    Parameters
+    ----------
+    minteff : astropy.units.Quantity
+        The lowest Teff required
+    maxteff : astropy.units.Quantity
+        The highest Teff required
+
+    Returns
+    -------
+    teffs : astropy.units.Quantity
+        An array of Teff values.
+    """
+    step = 100*u.K
+    if (minteff % step) == 0*u.K:
+        low = minteff
+    else:
+        low = minteff - (minteff % step)
+    if (maxteff % step) == 0*u.K:
+        high = maxteff
+    else:
+        high = maxteff - (maxteff % step) + step
+    number_of_steps = to_float((high-low)/step, u.dimensionless_unscaled)
+    number_of_steps = int(round(number_of_steps))
+    teffs = low + np.arange(number_of_steps+1)*step
+    return teffs
+
+
+def get_surrounding_teffs(Teff: u.Quantity):
+    """
+    Get the Teffs of the two spectra to interpolate between
+    to obtain a spectrum with Teff `Teff`
+
+    Parameters
+    ----------
+    Teff : astropy.units.Quantity
+        The target Teff
+
+    Returns
+    -------
+    low_teff : astropy.units.Quantity
+        The spectrum teff below `Teff`
+    high_teff : astropy.units.Quantity
+        The spectrum teff above `Teff`
+
+    Raises
+    ------
+    ValueError
+        If `Teff` is a multiple of 100 K
+    """
+    step = 100*u.K
+    if (Teff % step) == 0*u.K:
+        raise ValueError(
+            f'Teff of {Teff} is a multiple of {100*u.K}. This will cause problems with scipy.')
+    else:
+        low_teff = Teff - (Teff % step)
+        high_teff = low_teff + step
+    return low_teff, high_teff
+
+
+def plan_to_df(observation_plan:dict)->pd.DataFrame:
+    """
+    Turn an observation plan dictionary into a pandas DataFrame.
+
+    Parameters
+    ----------
+    observation_plan : dict
+        A dictionary that contains arrays of geometric values at each epoch.
+        The keys are {'time','phase','sub_obs_lat','sub_obs_lon',
+                        'sub_planet_lat','sub_planet_lon','sub_stellar_lon',
+                        'sub_stellar_lat','planet_sub_obs_lon','planet_sub_obs_lat',
+                        'orbit_radius'
+                     }
+    
+    Returns
+    -------
+    pandas.DataFrame
+        A dataframe containing the dictionary data.
+    """
+    obs_df = pd.DataFrame()
+    for key in observation_plan.keys():
+        try:
+            unit = observation_plan[key].unit
+            name = f'{key}[{str(unit)}]'
+            obs_df[name] = observation_plan[key].value
+        except AttributeError:
+            unit = ''
+            name = f'{key}[{str(unit)}]'
+            obs_df[name] = observation_plan[key]
+    return obs_df

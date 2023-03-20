@@ -5,8 +5,9 @@ Tests for `VSPEC.psg_api` module
 """
 from pathlib import Path
 import pytest
+from astropy import units as u
 
-from VSPEC.psg_api import call_api, write_static_config
+from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected
 from VSPEC.helpers import is_port_in_use
 from VSPEC.read_info import ParamModel
 
@@ -66,6 +67,53 @@ def test_write_static_config():
     #     call_api(outfile,psg_url,output_type='rad')
     outfile.unlink()
 
+def test_PSGrad():
+    """
+    Run tests for `VSPEC.psg_api.PSGrad()`
+    """
+    file = Path(__file__).parent / 'data' / 'test_rad.rad'
+    rad = PSGrad.from_rad(file)
+    assert isinstance(rad.header,dict)
+    assert isinstance(rad.data,dict)
+    with pytest.raises(ValueError):
+        file = Path(__file__).parent / 'data' / 'gcm_error.rad'
+        PSGrad.from_rad(file)
+
+def test_get_reflected():
+    """
+    Run tests for `VSPEC.psg_api.get_reflected()`
+    """
+    data_dir = Path(__file__).parent / 'data' / 'test_reflected'
+    planet_name = 'proxima-Cen-b'
+
+    atm_cmb = PSGrad.from_rad(data_dir / 'atm_cmb.rad')
+    atm_therm = PSGrad.from_rad(data_dir / 'atm_therm.rad')
+    ref = get_reflected(atm_cmb,atm_therm,planet_name)
+    assert isinstance(ref,u.Quantity)
+    assert len(ref) == len(atm_cmb.data['Wave/freq'])
+
+    no_atm_cmb = PSGrad.from_rad(data_dir / 'no_atm_cmb.rad')
+    no_atm_therm = PSGrad.from_rad(data_dir / 'no_atm_therm.rad')
+    ref = get_reflected(no_atm_cmb,no_atm_therm,planet_name)
+    assert isinstance(ref,u.Quantity)
+    assert len(ref) == len(atm_cmb.data['Wave/freq'])
+
+    # also works if just one has separated thermal+reflected columns
+    ref = get_reflected(atm_cmb,no_atm_therm,planet_name)
+    assert isinstance(ref,u.Quantity)
+    assert len(ref) == len(atm_cmb.data['Wave/freq'])
+    ref = get_reflected(no_atm_cmb,atm_therm,planet_name)
+    assert isinstance(ref,u.Quantity)
+    assert len(ref) == len(atm_cmb.data['Wave/freq'])
+
+    hires = PSGrad.from_rad(data_dir / 'hires_cmb.rad')
+    with pytest.raises(ValueError):
+        get_reflected(hires,atm_therm,planet_name)
+
+
+
+
+
 
 
 
@@ -75,4 +123,5 @@ if __name__ in '__main__':
     if is_port_in_use(3000):
         test_call_api_local()
     test_write_static_config()
+    test_PSGrad()
     

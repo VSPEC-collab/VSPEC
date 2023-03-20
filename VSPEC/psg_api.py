@@ -5,11 +5,18 @@ and the Planetary Spectrum Generator via the API.
 """
 
 import os
+from io import StringIO
+import re
 from pathlib import Path
+import warnings
 from astropy import units as u
+import pandas as pd
+import numpy as np
 
 from VSPEC.read_info import ParamModel
-from VSPEC.helpers import to_float
+from VSPEC.helpers import to_float, isclose
+
+warnings.simplefilter('ignore', category=u.UnitsWarning)
 
 
 def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
@@ -73,7 +80,7 @@ def write_static_config(path:Path,params:ParamModel,file_mode:str='w')->None:
     with open(path, file_mode, encoding="ascii") as file:
         bool_to_str = {True: 'Y', False: 'N'}
         file.write('<OBJECT>Exoplanet\n')
-        file.write('<OBJECT-NAME>Planet\n')
+        file.write(f'<OBJECT-NAME>{params.planet_name}\n')
         file.write('<OBJECT-DIAMETER>%f\n' %
                     to_float(2*params.planet_radius, u.km))
         file.write('<OBJECT-GRAVITY>%f\n' % params.planet_grav)
@@ -137,3 +144,132 @@ def write_static_config(path:Path,params:ParamModel,file_mode:str='w')->None:
         file.write('<GENERATOR-TELESCOPE1>1\n')
         file.write('<GENERATOR-TELESCOPE2>1.0\n')
         file.write('<GENERATOR-TELESCOPE3>1.0\n')
+
+class PSGrad:
+    """
+    Container for PSG rad files
+
+    Parameters
+    ----------
+    header : dict
+        Dictionary containing header information. This includes the date, any warnings,
+        and the units of the rad file.
+    data : dict
+        Dictionary containing the spectral data. They keys are the column names and the
+        values are astropy.units.Quantity arrays.
+    
+    Attributes
+    ----------
+    header : dict
+        Dictionary containing header information. This includes the date, any warnings,
+        and the units of the rad file.
+    data : dict
+        Dictionary containing the spectral data. They keys are the column names and the
+        values are astropy.units.Quantity arrays.
+    """
+    def __init__(self,header,data):
+        self.header = header
+        self.data = data
+    
+    @classmethod
+    def from_rad(cls,filename):
+        """
+        Create a `PSGrad` object from a file. This is designed to load in
+        the raw `.rad` output from PSG
+        """
+        raw_header = []
+        raw_data = []
+        with open(filename,'r',encoding='UTF-8') as file:
+            for line in file:
+                if line[0] == '#':
+                    raw_header.append(line.replace('\n',''))
+                else:
+                    raw_data.append(line.replace('\n',''))
+        header = {
+            'warnings' : [],
+            'errors' : [],
+            'binning' : -1,
+            'author' : '',
+            'date' : '',
+            'velocities' : {},
+            'spectral_unit' : u.dimensionless_unscaled,
+            'radiance_unit' : u.dimensionless_unscaled,
+
+        }
+        for i, item in enumerate(raw_header):
+            if 'WARNING' in item:
+                warning, kind, message = item.split('|')
+                header['warnings'].append(dict(kind=kind,message=message))
+            elif 'ERROR' in item:
+                error, kind, message = item.split('|')
+                header['errors'].append(dict(kind=kind,message=message))
+            elif '3D spectroscopic simulation' in item:
+                header['binning'] = int(re.findall(r'of ([\d]+) \(',item)[0])
+            elif 'Planetary Spectrum Generator' in item:
+                header['author'] = item[1:].strip()
+            elif 'Synthesized' in item:
+                header['date'] = item[1:].strip()
+            elif 'Doppler velocities' in item:
+                unit = u.Unit(re.findall(r'\[([\w\d/]+)\]',item)[0])
+                keys = re.findall(r'\(([\w\d, \+]+)\)',item)[0].split(',')
+                values = item.split(':')[1].split(',')
+                for key, value in zip(keys, values):
+                    header['velocities'][key] = float(value)*unit
+            elif 'Spectral unit' in item:
+                header['spectral_unit'] = u.Unit(re.findall(r'\[([\w\d/]+)\]',item)[0])
+            elif 'Radiance unit' in item:
+                header['radiance_unit'] = u.Unit(re.findall(r'\[([\w\d/]+)\]',item)[0])
+        columns = raw_header[-1][1:].strip().split()
+        dat = StringIO('\n'.join(raw_data))
+        df = pd.read_csv(dat,names = columns,delim_whitespace=True)
+        if len(df) == 0:
+            raise ValueError('It looks like there might not be any data in this rad file.')
+        data = {}
+        if not columns[0] == 'Wave/freq':
+            raise ValueError('.rad format is incorrect')
+        data[columns[0]] = df[columns[0]].values * header['spectral_unit']
+        for col in columns[1:]:
+            data[col] = df[col].values * header['radiance_unit']
+        return cls(header,data)
+                
+def get_reflected(cmb_rad:PSGrad,therm_rad:PSGrad,planet_name:str) -> u.Quantity:
+    """
+    Get reflected spectra.
+
+    Parameters
+    ----------
+    cmb_rad : PSGrad
+        A rad file from the star+planet PSG call.
+    therm_rad : PSGrad
+        A rad file from the planet-only PSG call.
+    
+    Returns
+    -------
+    astropy.units.Quantity
+        The spectrum of the reflected light.
+    
+    Raises
+    ------
+    ValueError
+        If the wavelength axes do not match.
+    KeyError
+        If neither object has a `'Reflected'` data array and at least one
+        of them is missing the `planet_name` data array.
+    """
+    if not np.all(isclose(cmb_rad.data['Wave/freq'],therm_rad.data['Wave/freq'],1e-3*u.um)):
+        raise ValueError('The spectral axes must be equivalent.')
+    
+    if 'Reflected' in cmb_rad.data.keys():
+        return cmb_rad.data['Reflected']
+    elif 'Reflected' in therm_rad.data.keys():
+        return therm_rad.data['Reflected']
+    elif (planet_name in cmb_rad.data.keys()) and (planet_name in therm_rad.data.keys()):
+        return cmb_rad.data[planet_name] - therm_rad.data[planet_name]
+    else:
+        raise KeyError(f'Data array {planet_name} not found.')
+        
+                
+
+            
+
+        

@@ -67,3 +67,13 @@ def test_build_directories(tmp_dir):
     assert directories_dict['psg_noise'].exists()
     assert directories_dict['psg_layers'].exists()
     assert directories_dict['psg_configs'].exists()
+
+def test_get_filename():
+    """
+    Run tests for `VSPEC.files.get_filename()`
+    """
+    assert files.get_filename(0,5,'rad') == 'phase00000.rad'
+
+    with pytest.warns(RuntimeWarning):
+        files.get_filename(999,2,'rad')
+    
