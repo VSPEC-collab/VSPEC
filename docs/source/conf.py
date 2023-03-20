@@ -70,7 +70,7 @@ html_css_files = [
 ]
 
 # Logo and favicon
-html_logo = '_static/images/vspec_logo_small.png'
+html_logo = '_static/images/vspec_logo.png'
 html_favicon = '_static/images/favicon.ico'
 
 # Configuration for intersphinx: refer to the Python standard library.
