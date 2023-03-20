@@ -69,6 +69,10 @@ html_css_files = [
     'css/table_fix.css',
 ]
 
+# Logo and favicon
+html_logo = '_static/images/vspec_logo_small.png'
+html_favicon = '_static/images/favicon.ico'
+
 # Configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/',

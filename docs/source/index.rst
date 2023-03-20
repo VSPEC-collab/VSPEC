@@ -3,6 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: _static/images/vspec_logo.png
+   :scale: 50 %
+   :alt: VSPEC logo
+   :align: center
+
+
+
 Welcome to VSPEC's documentation!
 =================================
 
