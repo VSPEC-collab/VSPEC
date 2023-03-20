@@ -18,7 +18,16 @@ and `Lustig-Yaeger et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021ApJ...92
 
 Installation
 ************
-For now it is best to clone from github, but we would like to use PyPI in the future.
+
+VSPEC can be installed via pip from our github repository. In the future,
+stable versions will be on PyPI.
+
+.. code-block:: shell
+    
+    pip install git+https://github.com/VSPEC-collab/VSPEC.git@main
+
+
+You can also clone our repository. If you are interested in contributing, please reach out. 
 
 .. code-block:: shell
     
