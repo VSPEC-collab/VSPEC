@@ -8,6 +8,7 @@ import astropy.units as u
 import pytest
 import numpy as np
 from matplotlib.figure import Figure
+import pkg_resources
 
 from VSPEC.helpers import to_float
 from VSPEC.geometry import SystemGeometry
@@ -485,7 +486,7 @@ def test_get_observation_plan():
     plan = geo.get_observation_plan(0*u.deg,10*u.day,time_step=0.5*u.day,N_obs=10)
     for value in plan.values():
         assert len(value)==20
-
+@pytest.mark.skipif('cartopy' not in [pkg.key for pkg in pkg_resources.working_set],reason='Cartopy is required to run plot method.')
 def test_plot():
     """
     Run tests for `SystemGeometry.plot()`
