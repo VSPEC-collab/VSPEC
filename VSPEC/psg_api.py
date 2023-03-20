@@ -8,12 +8,15 @@ import os
 from io import StringIO
 import re
 from pathlib import Path
+import warnings
 from astropy import units as u
 import pandas as pd
 import numpy as np
 
 from VSPEC.read_info import ParamModel
 from VSPEC.helpers import to_float, isclose
+
+warnings.simplefilter('ignore', category=u.UnitsWarning)
 
 
 def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
