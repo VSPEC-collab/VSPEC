@@ -111,6 +111,6 @@ def get_filename(N:int, n_zfill:int, ext:str):
     RuntimeWarning
         If `N` has more than `n_zfill` digits.
     """
-    if N > 10**(n_zfill-1):
+    if N > (10**(n_zfill)-1):
         warnings.warn(f'zfill of {n_zfill} not high enough for phase {N}',RuntimeWarning)
     return f'phase{str(N).zfill(n_zfill)}.{ext}'
