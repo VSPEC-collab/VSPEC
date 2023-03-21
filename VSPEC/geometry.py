@@ -6,8 +6,7 @@ to simulate a `VSPEC` observation.
 import numpy as np
 from astropy import units as u
 from scipy.optimize import newton
-import cartopy.crs as ccrs
-from cartopy.geodesic import Geodesic
+
 import matplotlib.pyplot as plt
 
 from VSPEC.helpers import to_float
@@ -564,6 +563,10 @@ class SystemGeometry:
         matplotlib.figure.Figure
             A figure containing the plot.
         """
+        # import cartopy. This way it is an optional dependencey
+        import cartopy.crs as ccrs
+        from cartopy.geodesic import Geodesic
+
         fig = plt.figure()
         axes = {}
         axes['orbit'] = fig.add_subplot(1, 2, 1)

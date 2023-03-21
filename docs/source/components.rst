@@ -5,13 +5,13 @@ VSPEC Modules
    :maxdepth: 1
    :caption: Components:
 
-   modules/variable_star_model
    modules/main
-   modules/stellar_spectra
-   modules/geometry
-   modules/analysis
    modules/read_info
-   modules/helpers
-   modules/files
+   modules/geometry
+   modules/variable_star_model
+   modules/stellar_spectra
    modules/psg_api
+   modules/analysis
+   modules/files
+   modules/helpers
    

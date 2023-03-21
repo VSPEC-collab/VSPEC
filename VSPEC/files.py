@@ -4,12 +4,23 @@ This module standardizes all of the file handling
 done by VSPEC.
 """
 from pathlib import Path
+import warnings
 
 N_ZFILL = 5
-"""int: `__width` argument for filename `str.zfill()` calls
+"""int
+    `__width` argument for filename `str.zfill()` calls. When writing 
+    and reading files in the `VSPEC` output, this variable specifies
+    the number of leading zeros to use in the filename.
+"""
 
-When writing and reading files in the `VSPEC` output, this
-variable specifies the number of leading zeros to use in the filename.
+RAW_PHOENIX_PATH = Path(__file__).parent / 'data' / 'NextGenModels' / 'RawData'
+"""str
+    The path to the raw PHOENIX stellar models.
+"""
+
+EXAMPLE_GCM_PATH = Path(__file__).parent / 'data' / 'GCMs'
+"""str
+    The path to example GCMs.
 """
 
 
@@ -82,3 +93,34 @@ def build_directories(name_of_run: str, path: Path = Path('.')) -> dict:
                         'psg_layers': psg_layers_folder,
                         'psg_configs': psg_configs_folder}
     return directories_dict
+
+
+def get_filename(N:int, n_zfill:int, ext:str):
+    """
+    Get the filename that a PSG output is written to.
+    This does not handle the full path, but just unifies
+    all of the filename handling to a single piece of code.
+
+    Parameters
+    ----------
+    N : int
+        The 'phase number' of the file. Basically, which iteration
+        of the simulation is this?
+    n_zfill : int
+        The `zfill()` convention to use.
+    ext : str
+        The file extension. E.g. `'.rad'` for rad files.
+    
+    Returns
+    -------
+    str
+        The filename
+    
+    Warns
+    -----
+    RuntimeWarning
+        If `N` has more than `n_zfill` digits.
+    """
+    if N > (10**(n_zfill)-1):
+        warnings.warn(f'zfill of {n_zfill} not high enough for phase {N}',RuntimeWarning)
+    return f'phase{str(N).zfill(n_zfill)}.{ext}'

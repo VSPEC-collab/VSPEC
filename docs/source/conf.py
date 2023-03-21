@@ -22,7 +22,7 @@ copyright = '2023, The VSPEC Collaboration'
 author = 'Ted Johnson and Cameron Kelahan'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '0.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -63,12 +63,24 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'css/table_fix.css',
+]
+
+# Logo and favicon
+html_logo = '_static/images/vspec_logo.png'
+html_favicon = '_static/images/favicon.ico'
+
 # Configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/',
                (None, 'http://data.astropy.org/intersphinx/python3.inv')),
     'numpy': ('https://numpy.org/doc/stable/',
               (None, 'http://data.astropy.org/intersphinx/numpy.inv')),
+    'pandas': ('https://pandas.pydata.org/docs/',
+              (None, 'http://data.astropy.org/intersphinx/pandas.inv')),
     'scipy': ('https://docs.scipy.org/doc/scipy/',
               (None, 'http://data.astropy.org/intersphinx/scipy.inv')),
     'matplotlib': ('https://matplotlib.org/stable/',

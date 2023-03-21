@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u, constants as const
 from astropy.units.quantity import Quantity
-import cartopy.crs as ccrs
+
 from xoflares.xoflares import _flareintegralnp as flareintegral, get_light_curvenp
 from VSPEC.helpers import to_float
 
@@ -2277,6 +2277,9 @@ class Star:
         is provided, a gray overlay is plotted indicating the visible regions from the
         sub-observer point.
         """
+        # This makes cartopy and optional dependency
+        import cartopy.crs as ccrs
+
         pmap = self.get_pixelmap().value
         proj = ccrs.Orthographic(
             central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
@@ -2330,6 +2333,9 @@ class Star:
         method. The resulting map is plotted using an intensity map with faculae pixels
         represented by the value 1 and non-faculae pixels represented by the value 0.
         """
+        # This makes cartopy and optional dependency
+        import cartopy.crs as ccrs
+
         int_map, map_keys = self.faculae.map_pixels(
             self.map, self.radius, self.Teff)
         is_fac = ~(int_map == 0)

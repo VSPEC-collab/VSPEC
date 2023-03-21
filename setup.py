@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 setup(
     name='VSPEC',
-    version='1.0.0',
+    version='0.1',
     packages=find_packages(),
-    url='https://github.com/cameronkelahan/VSPEC',
+    url='https://github.com/VSPEC-collab/VSPEC',
     author='Cameron Kelahan, Ted Johnson',
     author_email='cameron.kelahan@gmail.com, tedjohnson12@g.ucla.edu'
 )
