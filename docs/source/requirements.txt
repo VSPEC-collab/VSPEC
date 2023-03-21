@@ -1,0 +1,5 @@
+sphinxcontrib-napoleon
+sphinx-automodapi
+numpydoc
+nbsphinx
+nbsphinx-link
