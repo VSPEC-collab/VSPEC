@@ -17,12 +17,7 @@ from xoflares.xoflares import _flareintegralnp as flareintegral, get_light_curve
 from VSPEC.helpers import to_float
 
 
-MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
-"""Micro-solar hemisphere
 
-This is a standard unit in heliophysics that
-equals one millionth of one half the surface area of the Sun.
-"""
 
 
 class CoordinateGrid:
