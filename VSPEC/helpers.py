@@ -226,3 +226,105 @@ def plan_to_df(observation_plan:dict)->pd.DataFrame:
             name = f'{key}[{str(unit)}]'
             obs_df[name] = observation_plan[key]
     return obs_df
+
+
+class CoordinateGrid:
+    """
+    Class to standardize the creation of latitude and longitude grids.
+
+    Parameters
+    ----------
+    Nlat : int, default=500
+        Number of latitude points.
+    Nlon : int, default=1000
+        Number of longitude points.
+
+    Attributes
+    ----------
+    Nlat : int, default=500
+        Number of latitude points.
+    Nlon : int, default=1000
+        Number of longitude points.
+
+    """
+
+    def __init__(self, Nlat=500, Nlon=1000):
+        if not isinstance(Nlat, int):
+            raise TypeError('Nlat must be int')
+        if not isinstance(Nlon, int):
+            raise TypeError('Nlon must be int')
+        self.Nlat = Nlat
+        self.Nlon = Nlon
+
+    def oned(self):
+        """
+        Create one dimensional arrays of latitude and longitude points.
+
+        Returns
+        -------
+        lats : astropy.units.Quantity , shape=(Nlat,)
+            Array of latitude points.
+        lons : astropy.units.Quantity , shape=(Nlon,)
+            Array of longitude points.
+
+        """
+        lats = np.linspace(-90, 90, self.Nlat)*u.deg
+        lons = np.linspace(0, 360, self.Nlon)*u.deg
+        return lats, lons
+
+    def grid(self):
+        """
+        Create a 2 dimensional grid of latitude and longitude points.
+
+        Returns
+        -------
+        lats : astropy.units.Quantity , shape=(Nlat,Nlon)
+            Array of latitude points.
+        lons : astropy.units.Quantity , shape=(Nlat,Nlon)
+            Array of longitude points.
+
+        """
+        lats, lons = self.oned()
+        return np.meshgrid(lats, lons)
+
+    def zeros(self, dtype='float32'):
+        """
+        Get a grid of zeros.
+
+        Parameters
+        ----------
+        dtype : str, default='float32
+            Data type to pass to np.zeros.
+
+        Returns
+        -------
+        arr : np.ndarray, shape=(Nlon, Nlat)
+            Grid of zeros.
+
+        """
+        return np.zeros(shape=(self.Nlon, self.Nlat), dtype=dtype)
+
+    def __eq__(self, other):
+        """
+        Check to see if two CoordinateGrid objects are equal.
+
+        Parameters
+        ----------
+        other : CoordinateGrid
+            Another CoordinateGrid object.
+
+        Returns
+        -------
+        bool
+            Whether the two objects have equal properties.
+        
+        Raises
+        ------
+        TypeError
+            If `other` is not a CoordinateGrid object.
+
+        """
+        if not isinstance(other, CoordinateGrid):
+            raise TypeError('other must be of type CoordinateGrid')
+        else:
+            return (self.Nlat == other.Nlat) & (self.Nlon == other.Nlon)

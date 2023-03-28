@@ -189,11 +189,48 @@ def test_get_surrounding_teffs():
         helpers.get_surrounding_teffs(Teff)
 
 def test_plan_to_df():
+    """
+    Test `VSPEC.helpers.plan_to_df`
+    """
     geo = SystemGeometry()
     plan = geo.get_observation_plan(0*u.deg,10*u.day,N_obs=10)
     df = helpers.plan_to_df(plan)
     for key in plan.keys():
         assert np.any(df.columns.str.contains(key))
+
+def test_CoordinateGrid():
+    """
+    Test `VSPEC.helpers.CoordinateGrid`
+    """
+    helpers.CoordinateGrid()
+    with pytest.raises(TypeError):
+        helpers.CoordinateGrid(100,100.)
+    with pytest.raises(TypeError):
+        helpers.CoordinateGrid(100.,100)
+    i,j = 100,50
+    grid = helpers.CoordinateGrid(i,j)
+    lat, lon = grid.oned()
+    assert len(lat)==i
+    assert len(lon)==j
+
+    lats, lons = grid.grid()
+    # switch if meshgrid index changes to `ij`
+    assert lats.shape == (j,i)
+    assert lons.shape == (j,i)
+
+    zeros = grid.zeros(dtype='int')
+    assert zeros.shape == (j,i)
+    assert zeros.sum() == 0
+
+    other = ''
+    with pytest.raises(TypeError):
+        grid == other
+    
+    other = helpers.CoordinateGrid(i+1,j)
+    assert grid != other
+
+    other = helpers.CoordinateGrid(i,j)
+    assert grid == other
 
 
 if __name__ in '__main__':
@@ -203,3 +240,4 @@ if __name__ in '__main__':
     test_is_port_in_use()
     test_arrange_teff()
     test_plan_to_df()
+    test_CoordinateGrid()
