@@ -9,6 +9,7 @@ from astropy import units as u
 from astropy.units.quantity import Quantity
 
 from VSPEC.helpers import CoordinateGrid
+from VSPEC.variable_star_model import MSH
 from VSPEC.variable_star_model.spots import StarSpot, SpotCollection, SpotGenerator
 from VSPEC.variable_star_model.faculae import Facula, FaculaCollection, FaculaGenerator
 from VSPEC.variable_star_model.flares import StellarFlare, FlareCollection, FlareGenerator
