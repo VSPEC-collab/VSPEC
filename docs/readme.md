@@ -1,3 +1,5 @@
+<img src="../source/_static/images/vspec_logo.png" alt="VSPEC Logo" width=400px />
+
 # VSPEC: Variable Star PhasE Curve
 
 ## A python package to simulate Planetary Infrared Excess (PIE) observations of rocky planets around variable M dwarfs
@@ -10,9 +12,14 @@ The primary goal of this software is to simulate combined planet-host spectra in
 
 ### Installation
 
-For now it is best to clone this repository, but we would like to use pypi in the future.
+For now it is best to install via pip from our github repository. In the future,
+stable versions will be on PyPI.
 
-`git clone https://github.com/tedjohnson12/VSPEC.git`
+`pip install git+https://github.com/VSPEC-collab/VSPEC.git@main`
+
+You can also clone this repository, especially if you are interested in contributing.
+
+`git clone https://github.com/VSPEC-collab/VSPEC.git`
 
 `cd VSPEC`
 
@@ -29,7 +36,6 @@ The parameters of a VSPEC model are specified in a configuration file. Before we
 import VSPEC
 from pathlib import Path
 import matplotlib.pyplot as plt
-from matplotlib import cm
 from astropy import units as u
 import numpy as np
 ```
