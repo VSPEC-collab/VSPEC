@@ -1,4 +1,4 @@
-<img src="../source/_static/images/vspec_logo.png" alt="VSPEC Logo" width=400px />
+<img src="https://vspec.readthedocs.io/en/latest/_images/vspec_logo.png" alt="VSPEC Logo" width=400px />
 
 # VSPEC: Variable Star PhasE Curve
 
