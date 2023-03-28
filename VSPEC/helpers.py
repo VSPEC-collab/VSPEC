@@ -12,6 +12,13 @@ import numpy as np
 import pandas as pd
 import socket
 
+MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
+"""Micro-solar hemisphere
+
+This is a standard unit in heliophysics that
+equals one millionth of one half the surface area of the Sun.
+"""
+
 
 def to_float(quant: u.Quantity, unit: u.Unit) -> float:
     """

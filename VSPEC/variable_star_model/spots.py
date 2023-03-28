@@ -10,9 +10,7 @@ import numpy as np
 from astropy import units as u
 from astropy.units.quantity import Quantity
 
-from VSPEC.helpers import to_float, CoordinateGrid
-from VSPEC.variable_star_model import MSH
-
+from VSPEC.helpers import to_float, CoordinateGrid, MSH
 
 class StarSpot:
     """

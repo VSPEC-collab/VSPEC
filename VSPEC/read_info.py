@@ -8,9 +8,7 @@ from configparser import NoOptionError
 from pathlib import Path
 from astropy import units as u
 
-from VSPEC.helpers import to_float
-from VSPEC.variable_star_model import MSH
-
+from VSPEC.helpers import to_float, MSH
 
 class ParamModel:
     """Parameter Model
