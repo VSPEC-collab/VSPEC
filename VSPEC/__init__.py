@@ -11,3 +11,5 @@ to perform radiative transfer calculations
 """
 from VSPEC.main import ObservationModel
 from VSPEC.analysis import PhaseAnalyzer
+
+import VSPEC.variable_star_model

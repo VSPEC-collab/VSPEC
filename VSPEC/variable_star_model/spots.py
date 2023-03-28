@@ -131,7 +131,7 @@ class StarSpot:
 
         Returns
         -------
-        astropy.units.Quantity 
+        astropy.units.Quantity
             The radius of the spot.
         """
         return np.sqrt(self.area_current/np.pi).to(u.km)
