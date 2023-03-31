@@ -421,3 +421,85 @@ def read_lyr(filename: str) -> pd.DataFrame:
         if 'size' in name:
             names[i] = names[i-1] + '_' + name
     return pd.read_csv(dat, delim_whitespace=True, names=names)
+
+
+def get_gcm_binary(filename):
+    key = '<ATMOSPHERE-GCM-PARAMETERS>'
+    start = b'<BINARY>'
+    end = b'</BINARY>'
+    with open(filename,'rb') as file:
+        fdat = file.read()
+    header, dat = fdat.split(start)
+    dat = dat.replace(end,b'')
+    dat = np.frombuffer(dat,dtype='float32')
+    for line in str(header).split(r'\n'):
+        if key in line:
+            return line.replace(key,''),np.array(dat)
+def sep_header(header):
+    fields = header.split(',')
+    coords = fields[:7]
+    var = fields[7:]
+    return coords,var
+
+
+class GCMdecoder:
+    DOUBLE = ['Winds']
+    FLAT = ['Tsurf','Psurf','Albedo','Emissivity']
+    def __init__(self,header,dat):
+        self.header=header
+        self.dat=dat
+    @classmethod
+    def from_psg(cls,filename):
+        head,dat = get_gcm_binary(filename)
+        return cls(head,dat)
+    def get_shape(self):
+        coord,_ = sep_header(self.header)
+        Nlon,Nlat,Nlayer, _,_,_,_ = coord
+        return int(Nlon),int(Nlat),int(Nlayer)
+    def get_3d_size(self):
+        Nlon,Nlat,Nlayer = self.get_shape()
+        return Nlon*Nlat*Nlayer
+    def get_2d_size(self):
+        Nlon,Nlat,_ = self.get_shape()
+        return Nlon*Nlat
+    def get_lats(self):
+        coord,_ = sep_header(self.header)
+        _,Nlat,_,_,lat0,_,dlat = coord
+        return np.arange(int(Nlat))*float(dlat) + float(lat0)
+    def get_lons(self):
+        coord,_ = sep_header(self.header)
+        Nlon,_,_,lon0,_,dlon,_ = coord
+        return np.arange(int(Nlon))*float(dlon) + float(lon0)
+    def __getitem__(self,item):
+        _, variables = sep_header(self.header)
+        if not item in variables:
+            raise KeyError(f'{item} not found. Acceptable keys are {variables}')
+        else:
+            start = 0
+            end = 0
+            def get_array_length(var):
+                if var in self.DOUBLE:
+                    return 2*self.get_3d_size(), 'double'
+                elif var in self.FLAT:
+                    return self.get_2d_size(), 'flat'
+                else:
+                    return self.get_3d_size(), 'single'
+            def package_array(dat,key):
+                if key == 'single':
+                    Nlat,Nlon,Nlayer = self.get_shape()
+                    return dat.reshape(Nlayer,Nlon,Nlat)
+                elif key == 'flat':
+                    Nlat,Nlon,Nlayer = self.get_shape()
+                    return dat.reshape(Nlon,Nlat)
+                elif key == 'double':
+                    Nlat,Nlon,Nlayer = self.get_shape()
+                    return dat.reshape(2,Nlayer,Nlon,Nlat)
+                else:
+                    raise ValueError(f'Unknown value {key}')
+            for var in variables:
+                size,key = get_array_length(var)
+                if item==var:
+                    dat = self.dat[start:start+size]
+                    return package_array(dat,key)
+                else:
+                    start+=size
