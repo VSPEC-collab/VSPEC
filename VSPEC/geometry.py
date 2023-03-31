@@ -589,6 +589,72 @@ class SystemGeometry:
         ax.set_ylabel('sep (mas)')
         return ax
 
+    def get_planet_visual(self,phase:u.Quantity,ax=None):
+        import cartopy.crs as ccrs
+        from cartopy.geodesic import Geodesic
+        if ax is None:
+            ax = plt.gca()
+        time_since_periasteron = self.get_time_since_periasteron(phase)
+        substellar_lon = self.get_substellar_lon(time_since_periasteron)
+        substellar_lat = self.get_substellar_lat(phase)
+        
+        ax.stock_img()
+        lats = np.linspace(-90, 90, 181)*u.deg
+        lons = np.linspace(0, 360, 181)*u.deg
+        latgrid, longrid = np.meshgrid(lats, lons)
+        latgrid = latgrid
+        longrid = longrid
+        cos_c = (np.sin(substellar_lat) * np.sin(latgrid)
+                 + np.cos(substellar_lat) * np.cos(latgrid)
+                 * np.cos(substellar_lon-longrid))
+        dayside = (cos_c > 0).astype('int')
+
+        # sub_stellar point
+        rad_meters = 1e6
+        circle_points = Geodesic().circle(lon=to_float(substellar_lon, u.deg), lat=to_float(substellar_lat, u.deg),
+                                          radius=rad_meters, n_samples=200, endpoint=False)
+        circ_lons = np.array(circle_points[:, 0])
+        circ_lats = np.array(circle_points[:, 1])
+        hemi_1 = circ_lons > 0
+        ax.plot(circ_lons[hemi_1], circ_lats[hemi_1],
+                            c='r', transform=ccrs.PlateCarree())
+        ax.plot(circ_lons[~hemi_1], circ_lats[~hemi_1],
+                            c='r', transform=ccrs.PlateCarree())
+
+        # sub_stellar hemisphere
+        rad_meters = to_float(1*u.R_earth, u.m) * np.pi * 0.5 * 0.99
+        circle_points = Geodesic().circle(lon=to_float(substellar_lon, u.deg), lat=to_float(substellar_lat, u.deg),
+                                          radius=rad_meters, n_samples=200, endpoint=False)
+        circ_lons = np.array(circle_points[:, 0])
+        circ_lats = np.array(circle_points[:, 1])
+        hemi_1 = circ_lons > 0
+        ax.plot(circ_lons[hemi_1], circ_lats[hemi_1],
+                            c='r', transform=ccrs.PlateCarree())
+        ax.plot(circ_lons[~hemi_1], circ_lats[~hemi_1],
+                            c='r', transform=ccrs.PlateCarree())
+
+        ax.plot(
+            lons, lons*0,
+            transform=ccrs.PlateCarree(),
+            c='k'
+        )
+        ax.plot(
+            lons, lons*0+85*u.deg,
+            transform=ccrs.PlateCarree(),
+            c='C0'
+        )
+        ax.plot(
+            lons, lons*0-85*u.deg,
+            transform=ccrs.PlateCarree(),
+            c='C1'
+        )
+        lats = np.linspace(-90, 90)
+        ax.plot(lats*0, lats, transform=ccrs.PlateCarree(), c='C2')
+        return ax
+        
+            
+
+
     def plot(self, phase: u.Quantity):
         """
         Plot
@@ -607,109 +673,18 @@ class SystemGeometry:
         """
         # import cartopy. This way it is an optional dependencey
         import cartopy.crs as ccrs
-        from cartopy.geodesic import Geodesic
 
         fig = plt.figure()
         axes = {}
         axes['orbit'] = fig.add_subplot(1, 2, 1)
-        axes['orbit'].set_aspect('equal', adjustable='box')
-        axes['orbit'].scatter(0, 0, c='xkcd:tangerine', s=150)
-
-        theta = np.linspace(0, 360, 180, endpoint=False)*u.deg
-        r_dist = (1-self.eccentricity**2)/(1+self.eccentricity*np.cos(theta -
-                                                                      self.phase_of_periasteron-90*u.deg))
-        curr_theta = phase + 90*u.deg
-        x_dist = self.semimajor_axis * np.cos(theta)*r_dist
-        y_dist = -1*self.semimajor_axis * \
-            np.sin(theta)*r_dist*np.cos(self.inclination)
-
-        current_r = (1-self.eccentricity**2)/(1+self.eccentricity*np.cos(curr_theta -
-                                                                         self.phase_of_periasteron - 90*u.deg))
-        current_x_dist = self.semimajor_axis * np.cos(curr_theta)*current_r
-        current_y_dist = -1*self.semimajor_axis * \
-            np.sin(curr_theta)*current_r*np.cos(self.inclination)
-        behind = np.sin(theta) >= 0
-        x_angle = np.arctan(x_dist/self.system_distance).to(u.mas)
-        y_angle = np.arctan(y_dist/self.system_distance).to(u.mas)
-        plotlim = np.arctan(
-            self.semimajor_axis/self.system_distance).to(u.mas).value * (1+self.eccentricity)*1.05
-        current_x_angle = np.arctan(
-            current_x_dist/self.system_distance).to(u.mas)
-        current_y_angle = np.arctan(
-            current_y_dist/self.system_distance).to(u.mas)
-        z_order_mapper = {True: -99, False: 100}
-
-        axes['orbit'].plot(x_angle[behind], y_angle[behind],
-                           zorder=-100, c='C0', alpha=1, ls=(0, (2, 2)))
-        axes['orbit'].plot(
-            x_angle[~behind], y_angle[~behind], zorder=99, c='C0')
-        axes['orbit'].scatter(current_x_angle, current_y_angle,
-                              zorder=z_order_mapper[np.sin(curr_theta) >= 0], c='k')
-
-        axes['orbit'].set_xlim(-plotlim, plotlim)
-        axes['orbit'].set_ylim(-plotlim, plotlim)
-        axes['orbit'].set_xlabel('sep (mas)')
-        axes['orbit'].set_ylabel('sep (mas)')
-
+        
+        self.get_system_visual(phase,axes['orbit'])
         time_since_periasteron = self.get_time_since_periasteron(phase)
-        substellar_lon = self.get_substellar_lon(time_since_periasteron)
-        substellar_lat = self.get_substellar_lat(phase)
         subobs_lon = self.get_pl_sub_obs_lon(time_since_periasteron, phase)
         subobs_lat = self.get_pl_sub_obs_lat(phase)
         proj = ccrs.Orthographic(
             central_longitude=subobs_lon, central_latitude=subobs_lat)
         axes['planet'] = fig.add_subplot(1, 2, 2, projection=proj)
-        axes['planet'].stock_img()
-        lats = np.linspace(-90, 90, 181)*u.deg
-        lons = np.linspace(0, 360, 181)*u.deg
-        latgrid, longrid = np.meshgrid(lats, lons)
-        latgrid = latgrid
-        longrid = longrid
-        cos_c = (np.sin(substellar_lat) * np.sin(latgrid)
-                 + np.cos(substellar_lat) * np.cos(latgrid)
-                 * np.cos(substellar_lon-longrid))
-        dayside = (cos_c > 0).astype('int')
-
-        # sub_stellar point
-        rad_meters = 1e6
-        circle_points = Geodesic().circle(lon=to_float(substellar_lon, u.deg), lat=to_float(substellar_lat, u.deg),
-                                          radius=rad_meters, n_samples=200, endpoint=False)
-        circ_lons = np.array(circle_points[:, 0])
-        circ_lats = np.array(circle_points[:, 1])
-        hemi_1 = circ_lons > 0
-        axes['planet'].plot(circ_lons[hemi_1], circ_lats[hemi_1],
-                            c='r', transform=ccrs.PlateCarree())
-        axes['planet'].plot(circ_lons[~hemi_1], circ_lats[~hemi_1],
-                            c='r', transform=ccrs.PlateCarree())
-
-        # sub_stellar hemisphere
-        rad_meters = to_float(1*u.R_earth, u.m) * np.pi * 0.5 * 0.99
-        circle_points = Geodesic().circle(lon=to_float(substellar_lon, u.deg), lat=to_float(substellar_lat, u.deg),
-                                          radius=rad_meters, n_samples=200, endpoint=False)
-        circ_lons = np.array(circle_points[:, 0])
-        circ_lats = np.array(circle_points[:, 1])
-        hemi_1 = circ_lons > 0
-        axes['planet'].plot(circ_lons[hemi_1], circ_lats[hemi_1],
-                            c='r', transform=ccrs.PlateCarree())
-        axes['planet'].plot(circ_lons[~hemi_1], circ_lats[~hemi_1],
-                            c='r', transform=ccrs.PlateCarree())
-
-        axes['planet'].plot(
-            lons, lons*0,
-            transform=ccrs.PlateCarree(),
-            c='k'
-        )
-        axes['planet'].plot(
-            lons, lons*0+85*u.deg,
-            transform=ccrs.PlateCarree(),
-            c='C0'
-        )
-        axes['planet'].plot(
-            lons, lons*0-85*u.deg,
-            transform=ccrs.PlateCarree(),
-            c='C1'
-        )
-        lats = np.linspace(-90, 90)
-        axes['planet'].plot(lats*0, lats, transform=ccrs.PlateCarree(), c='C2')
-
+        self.get_planet_visual(phase,axes['planet'])
+        
         return fig
