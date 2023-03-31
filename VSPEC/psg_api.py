@@ -4,7 +4,6 @@ This module communucates between `VSPEC` and
 and the Planetary Spectrum Generator via the API.
 """
 
-import os
 from io import StringIO
 import re
 from pathlib import Path
@@ -12,6 +11,7 @@ import warnings
 from astropy import units as u
 import pandas as pd
 import numpy as np
+import requests
 
 from VSPEC.read_info import ParamModel
 from VSPEC.helpers import to_float, isclose
@@ -43,23 +43,21 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
     outfile : str, default=None
         The path to write the PSG output.
     """
-    if verbose:
-        cmd = 'curl'
-    else:
-        cmd = 'curl -s'
+    data = {}
+    with open(config_path,'rb') as file:
+        dat = file.read()
+    data['file'] = dat
     if api_key is not None:
-        cmd = cmd + f' -d key={api_key}'
+        data['key'] = api_key
     if app is not None:
-        cmd = cmd + f' -d app={app}'
+        data['app'] = app
     if output_type is not None:
-        cmd = cmd + f' -d type={output_type}'
-    cmd = cmd + f' --data-urlencode file@{config_path}'
-    cmd = cmd + f' {psg_url}/api.php'
-    if outfile is not None:
-        cmd = cmd + f' > {outfile}'
-    if verbose:
-        print(cmd)
-    os.system(cmd)
+        data['type'] = output_type
+    url = f'{psg_url}/api.php'
+    reply = requests.post(url,data=data,timeout=120)
+    with open(outfile,'w',encoding='UTF-8') as file:
+        file.write(reply.text)
+    
 
 def write_static_config(path:Path,params:ParamModel,file_mode:str='w')->None:
     """
