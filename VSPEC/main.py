@@ -146,7 +146,7 @@ class ObservationModel:
             return wave1, flux1*0
         elif (Teff % (100*u.K)==0*u.K):
             wave1, flux1 = self.read_spectrum(Teff)
-            return wave1, flux1
+            return wave1, flux1*self.params.distanceFluxCorrection
         else:
             
             model_teffs = get_surrounding_teffs(Teff)
