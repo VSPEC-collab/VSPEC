@@ -55,8 +55,9 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
         data['type'] = output_type
     url = f'{psg_url}/api.php'
     reply = requests.post(url,data=data,timeout=120)
-    with open(outfile,'w',encoding='UTF-8') as file:
-        file.write(reply.text)
+    if outfile is not None:
+        with open(outfile,'w',encoding='UTF-8') as file:
+            file.write(reply.text)
     
 
 def write_static_config(path:Path,params:ParamModel,file_mode:str='w')->None:
