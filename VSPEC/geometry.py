@@ -547,6 +547,48 @@ class SystemGeometry:
                 'planet_sub_obs_lat': pl_sub_obs_lats*u_angle,
                 'orbit_radius': orbit_radii}
 
+
+    def get_system_visual(self,phase:u.Quantity,ax=None) -> plt.Axes:
+        if ax is None:
+            ax = plt.gca()
+        ax.set_aspect('equal', adjustable='box')
+        ax.scatter(0, 0, c='xkcd:tangerine', s=150)
+        theta = np.linspace(0, 360, 180, endpoint=False)*u.deg
+        r_dist = (1-self.eccentricity**2)/(1+self.eccentricity*np.cos(theta -
+                                                                      self.phase_of_periasteron-90*u.deg))
+        curr_theta = phase + 90*u.deg
+        x_dist = self.semimajor_axis * np.cos(theta)*r_dist
+        y_dist = -1*self.semimajor_axis * \
+            np.sin(theta)*r_dist*np.cos(self.inclination)
+
+        current_r = (1-self.eccentricity**2)/(1+self.eccentricity*np.cos(curr_theta -
+                                                                         self.phase_of_periasteron - 90*u.deg))
+        current_x_dist = self.semimajor_axis * np.cos(curr_theta)*current_r
+        current_y_dist = -1*self.semimajor_axis * \
+            np.sin(curr_theta)*current_r*np.cos(self.inclination)
+        behind = np.sin(theta) >= 0
+        x_angle = np.arctan(x_dist/self.system_distance).to(u.mas)
+        y_angle = np.arctan(y_dist/self.system_distance).to(u.mas)
+        plotlim = np.arctan(
+            self.semimajor_axis/self.system_distance).to(u.mas).value * (1+self.eccentricity)*1.05
+        current_x_angle = np.arctan(
+            current_x_dist/self.system_distance).to(u.mas)
+        current_y_angle = np.arctan(
+            current_y_dist/self.system_distance).to(u.mas)
+        z_order_mapper = {True: -99, False: 100}
+        ax.plot(x_angle[behind], y_angle[behind],
+                           zorder=-100, c='C0', alpha=1, ls=(0, (2, 2)))
+        ax.plot(
+            x_angle[~behind], y_angle[~behind], zorder=99, c='C0')
+        ax.scatter(current_x_angle, current_y_angle,
+                              zorder=z_order_mapper[np.sin(curr_theta) >= 0], c='k')
+
+        ax.set_xlim(-plotlim, plotlim)
+        ax.set_ylim(-plotlim, plotlim)
+        ax.set_xlabel('sep (mas)')
+        ax.set_ylabel('sep (mas)')
+        return ax
+
     def plot(self, phase: u.Quantity):
         """
         Plot
