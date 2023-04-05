@@ -11,12 +11,13 @@ from pathlib import Path
 import warnings
 import numpy as np
 import pandas as pd
-from astropy import units as u
+from astropy import units as u, constants as c
 from astropy.io import fits
 from datetime import datetime
+import json
 
 from VSPEC.helpers import to_float
-from VSPEC.files import N_ZFILL
+from VSPEC.files import N_ZFILL, MOLEC_DATA_PATH
 
 
 class PhaseAnalyzer:
@@ -150,6 +151,24 @@ class PhaseAnalyzer:
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
             self.layers = fits.HDUList([])
 
+    def get_mean_molecular_mass(self):
+        """
+        Get the mean molecular mass
+        """
+        with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
+            molec_data = json.loads(file.read())
+        shape = self.get_layer('Alt').shape
+        mean_molec_mass = np.zeros(shape=shape)*u.g/u.mol
+        for mol, dat in molec_data.items():
+            mass = dat['mass']
+            try:
+                data = self.get_layer(mol)
+                mean_molec_mass += data*mass*u.g/u.mol
+            except KeyError:
+                pass
+        return mean_molec_mass
+        
+
     def get_layer(self, var: str) -> u.Quantity:
         """
         Get data from layer variable.
@@ -174,6 +193,8 @@ class PhaseAnalyzer:
         """
         if len(self.layers) == 0:
             raise KeyError('`self.layers` does not contain any data')
+        if var == 'MEAN_MASS':
+            return self.get_mean_molecular_mass()
         hdu = self.layers[var]
         unit = u.Unit(hdu.header['UNIT'])
         return hdu.data*unit
@@ -503,3 +524,63 @@ class GCMdecoder:
                     return package_array(dat,key)
                 else:
                     start+=size
+    def get_mean_molec_mass(self):
+        """
+        Get the mean molecular mass at every point on the GCM
+        """
+        with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
+            molec_data = json.loads(file.read())
+        Nlon,Nlat,Nlayer = self.get_shape()
+        mean_molec_mass = np.zeros(shape=(Nlayer,Nlat,Nlon))*u.g/u.mol
+        for mol, dat in molec_data.items():
+            mass = dat['mass']
+            try:
+                data = self[mol]
+                mean_molec_mass += data*mass*u.g/u.mol
+            except KeyError:
+                pass
+        return mean_molec_mass
+    def get_alt(self,M:u.Quantity,R:u.Quantity):
+        """
+        Get the altitude of each GCM point.
+        """
+        P = 10**self['Pressure']*u.bar
+        T = self['Temperature']*u.K
+        m = self.get_mean_molec_mass()
+        Nlon, Nlat, Nlayers = self.get_shape()
+        z_unit = u.km
+        z = [np.zeros(shape=(Nlat,Nlon))]
+        for i in range(Nlayers-1):
+            dP = P[i+1,:,:] - P[i,:,:]
+            rho = m[i,:,:]*(P[i,:,:]+ 0.5*dP)/c.R/T[i,:,:]
+            r = z[-1]*z_unit + R
+            g = M*c.G/r**2
+            dz = -dP/rho/g
+            z.append((z[-1]*z_unit+dz).to(z_unit).value)
+        return z*z_unit
+    def get_column_density(self,mol:str,M:u.Quantity,R:u.Quantity,):
+        """
+        Get the column density of a gas at each point on the gcm.
+        """
+        abn = self[mol]*u.mol/u.mol
+        P = 10**self['Pressure']*u.bar
+        T = self['Temperature']*u.K
+        partial_pressure = P*abn
+        alt = self.get_alt(M,R)
+        heights = np.diff(alt,axis=0)
+        density = np.sum(partial_pressure[:-1]*heights/c.R/T[:-1],axis=0)
+        return density.to(u.mol/u.cm**2)
+
+    def get_column_clouds(self,var:str,M:u.Quantity,R:u.Quantity,):
+        """
+        Get the column density of a cloud at each point on the gcm.
+        """
+        mass_frac = 10**self[var]*u.kg/u.kg
+        P = 10**self['Pressure']*u.bar
+        T = self['Temperature']*u.K
+        molar_mass = self.get_mean_molec_mass()
+        alt = self.get_alt(M,R)
+        heights = np.diff(alt,axis=0)
+        gas_mass_density = P[:-1]*heights/c.R/T[:-1]*molar_mass[:-1] # g cm-2
+        mass_density = np.sum(mass_frac[:-1]*gas_mass_density,axis=0).cgs
+        return mass_density.to(u.kg/u.cm**2)

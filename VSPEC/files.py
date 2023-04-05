@@ -23,6 +23,11 @@ EXAMPLE_GCM_PATH = Path(__file__).parent / 'data' / 'GCMs'
     The path to example GCMs.
 """
 
+MOLEC_DATA_PATH = Path(__file__).parent / 'data' / 'molec.json'
+"""str
+    The path to the file containing molecular data for analysis.
+"""
+
 
 def check_and_build_dir(path: Path) -> None:
     """
