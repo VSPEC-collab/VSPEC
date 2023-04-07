@@ -497,7 +497,6 @@ class GCMdecoder:
             raise KeyError(f'{item} not found. Acceptable keys are {variables}')
         else:
             start = 0
-            end = 0
             def get_array_length(var):
                 if var in self.DOUBLE:
                     return 2*self.get_3d_size(), 'double'
@@ -524,6 +523,51 @@ class GCMdecoder:
                     return package_array(dat,key)
                 else:
                     start+=size
+    def __setitem__(self,item:str,new_value:np.ndarray):
+        """
+        set an array
+        """
+        old_value = self.__getitem__(item)
+        if not old_value.shape == new_value.shape:
+            raise ValueError('New shape must match old shape.')
+        new_value = new_value.astype(old_value.dtype)
+        _, variables = sep_header(self.header)
+        def get_array_length(var):
+            if var in self.DOUBLE:
+                return 2*self.get_3d_size(), 'double'
+            elif var in self.FLAT:
+                return self.get_2d_size(), 'flat'
+            else:
+                return self.get_3d_size(), 'single'
+        start = 0
+        for var in variables:
+            size,_ = get_array_length(var)
+            if item==var:
+                dat = new_value.flatten(order='C')
+                self.dat[start:start+size] = dat
+                return None
+            else:
+                start+=size
+    def copy_config(self,path_to_copy:Path,path_to_write:Path):
+        """
+        Copy a PSG config file but overwrite all GCM parameters and data
+        """
+        with open(path_to_copy,'rb') as infile:
+            with open(path_to_write, 'wb') as outfile:
+                contents = infile.read()
+                t,b = contents.split(b'<BINARY>')
+                b = b.replace(b'</BINARY>',b'')
+                lines = t.split(b'\n')
+                for line in lines:
+                    if b'<ATMOSPHERE-GCM-PARAMETERS>' in line:
+                        outfile.write(bytes(self.header + '\n',encoding='UTF-8'))
+                    else:
+                        outfile.write(line + b'\n')
+                outfile.write(b'<BINARY>')
+                outfile.write(np.asarray(self.dat,dtype='float32',order='C'))
+                outfile.write(b'</BINARY>')
+        
+
     def get_mean_molec_mass(self):
         """
         Get the mean molecular mass at every point on the GCM
