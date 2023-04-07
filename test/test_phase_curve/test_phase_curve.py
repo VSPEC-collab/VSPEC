@@ -19,20 +19,20 @@ from os import chdir, remove
 
 
 from VSPEC import ObservationModel, PhaseAnalyzer
-from VSPEC.helpers import isclose,to_float
+from VSPEC.helpers import isclose, to_float
 from VSPEC import variable_star_model
 from pathlib import Path
 
 
-
-def lambertian(beta:u.Quantity[u.deg]):
+def lambertian(beta: u.Quantity[u.deg]):
     """
     beta is the angle, centered on the planet, between the star and observer
     """
-    beta = to_float(beta,u.rad)
+    beta = to_float(beta, u.rad)
     return (np.sin(beta) + (np.pi-beta)*np.cos(beta))/np.pi
 
-def calc_beta(nu,omega,i):
+
+def calc_beta(nu, omega, i):
     """
     nu: true anomaly
     omega: arg of periasteron?
@@ -40,7 +40,8 @@ def calc_beta(nu,omega,i):
     """
     x = -np.sin(nu)*np.sin(omega) + np.cos(nu)*np.cos(omega)
     y = np.cos(nu)*np.cos(i)*np.sin(omega) + np.sin(nu)*np.cos(i)*np.cos(omega)
-    z = -np.cos(omega)*np.sin(i)*np.sin(nu) - np.cos(nu)*np.sin(i)*np.sin(omega)
+    z = -np.cos(omega)*np.sin(i)*np.sin(nu) - \
+        np.cos(nu)*np.sin(i)*np.sin(omega)
     beta = np.arctan(-np.sqrt(x**2 + y**2)/z)
     return beta
 
@@ -52,14 +53,13 @@ if __name__ in '__main__':
 
     chdir(WORKING_DIRECTORY)
 
-
     model = ObservationModel(CONFIG_FILENAME)
 
     # model.bin_spectra()
-    fig,ax = plt.subplots(1,1)
-    i_list = [0,30,60,90]*u.deg
+    fig, ax = plt.subplots(1, 1)
+    i_list = [0, 30, 60, 90]*u.deg
     colorlist = [f'C{i}' for i in range(len(i_list))]
-    for i,c in zip(i_list,colorlist):
+    for i, c in zip(i_list, colorlist):
         model.params.system_inclination = i
         model.build_planet()
         model.build_spectra()
@@ -67,20 +67,19 @@ if __name__ in '__main__':
         data = PhaseAnalyzer(model.dirs['all_model'])
 
         nu = data.unique_phase - 360*u.deg
+        nu_fine = np.linspace(-180,180,181)*u.deg
         omega = 90*u.deg
 
-        expected = lambertian(calc_beta(nu,omega,i)% (np.pi*u.rad))
-        k = max(expected)
-        observed = data.lightcurve('reflected',0,normalize='max')*k
+        expected = lambertian(calc_beta(nu_fine, omega, i) % (np.pi*u.rad))
+        # this is the maximum lambert factor that can be expected
+        k = lambertian(90*u.deg - i)
+        observed = data.lightcurve('reflected', 0, normalize='max') * k
 
-        ax.plot(nu,expected,label=f'Expected, i={i}',c=c)
-        ax.scatter(nu,observed,marker='s',label=f'VSPEC, i={i}',c=c)
+        ax.plot(nu_fine, expected, label=f'Expected, i={i}', c=c)
+        ax.scatter(nu, observed, marker='s', label=f'VSPEC, i={i}', c=c)
     ax.set_xlabel('phase (deg)')
     ax.set_ylabel('lambertian factor')
     ax.legend()
     wl = data.wavelength[0]
     ax.set_title(f'Reflected light at {wl.value:.2f} {wl.unit}')
-    fig.savefig('phase_curve.png',facecolor='w',dpi=120)
-
-
-   
+    fig.savefig('phase_curve.png', facecolor='w', dpi=120)
