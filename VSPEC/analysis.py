@@ -400,6 +400,27 @@ class PhaseAnalyzer:
         """
         hdul = self.to_fits()
         hdul.writeto(filename)
+    def to_twocolumn(self,index:tuple,outfile:str,fmt='ppm',wl='um'):
+        """
+        Write data to a two column file that can be used in a retrival.
+        """
+        if fmt == 'ppm':
+            flux = (self.spectrum('thermal',index,False)+self.spectrum('reflected',index,False))/self.spectrum('total',index,False) * 1e6
+            noise = self.spectrum('noise',index,False)/self.spectrum('total',index,False) * 1e6
+            flux_unit = u.dimensionless_unscaled
+        elif fmt == 'flambda':
+            flux = self.spectrum('thermal',index,False)+self.spectrum('reflected',index,False)
+            noise = self.spectrum('noise',index,False)
+            flux_unit = u.Unit('W m-2 um-1')
+        else:
+            raise ValueError(f'Unknown format "{fmt}"')
+        wl_unit = u.Unit(wl)
+        wl = self.wavelength.to_value(wl_unit)
+        flux = flux.to_value(flux_unit)
+        noise = noise.to_value(flux_unit)
+        with open(outfile,'wt',encoding='ascii') as file:
+            for w,f,n in zip(wl,flux,noise):
+                file.write(f'{w:<10.4f}{f:<14.4e}{n:<14.4e}\n')
 
 
 def read_lyr(filename: str) -> pd.DataFrame:
@@ -560,7 +581,7 @@ class GCMdecoder:
                 lines = t.split(b'\n')
                 for line in lines:
                     if b'<ATMOSPHERE-GCM-PARAMETERS>' in line:
-                        outfile.write(bytes(self.header + '\n',encoding='UTF-8'))
+                        outfile.write(bytes('<ATMOSPHERE-GCM-PARAMETERS>' + self.header + '\n',encoding='UTF-8'))
                     else:
                         outfile.write(line + b'\n')
                 outfile.write(b'<BINARY>')
