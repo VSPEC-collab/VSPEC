@@ -19,7 +19,7 @@ CONFIG_PATH = WORKING_DIRECTORY / CONFIG_FILENAME
 
 chdir(WORKING_DIRECTORY)
 
-model = ObservationModel(CONFIG_PATH,debug=False)
+model = ObservationModel(CONFIG_PATH)
 model.build_directories()
 model.bin_spectra()
 # model.build_star()
@@ -30,7 +30,7 @@ pixel = (135,145)
 
 # for i in np.linspace(-90,90,2):
 j=0
-for a in [45]:
+for a in [3,12,45]:
     # i_psg = 90 - i
     # model.params.system_inclination = i*u.deg
     # model.params.system_inclination_psg = i_psg*u.deg
