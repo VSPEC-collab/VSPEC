@@ -11,12 +11,13 @@ from pathlib import Path
 import warnings
 import numpy as np
 import pandas as pd
-from astropy import units as u
+from astropy import units as u, constants as c
 from astropy.io import fits
 from datetime import datetime
+import json
 
 from VSPEC.helpers import to_float
-from VSPEC.files import N_ZFILL
+from VSPEC.files import N_ZFILL, MOLEC_DATA_PATH
 
 
 class PhaseAnalyzer:
@@ -150,6 +151,24 @@ class PhaseAnalyzer:
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
             self.layers = fits.HDUList([])
 
+    def get_mean_molecular_mass(self):
+        """
+        Get the mean molecular mass
+        """
+        with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
+            molec_data = json.loads(file.read())
+        shape = self.get_layer('Alt').shape
+        mean_molec_mass = np.zeros(shape=shape)*u.g/u.mol
+        for mol, dat in molec_data.items():
+            mass = dat['mass']
+            try:
+                data = self.get_layer(mol)
+                mean_molec_mass += data*mass*u.g/u.mol
+            except KeyError:
+                pass
+        return mean_molec_mass
+        
+
     def get_layer(self, var: str) -> u.Quantity:
         """
         Get data from layer variable.
@@ -174,6 +193,8 @@ class PhaseAnalyzer:
         """
         if len(self.layers) == 0:
             raise KeyError('`self.layers` does not contain any data')
+        if var == 'MEAN_MASS':
+            return self.get_mean_molecular_mass()
         hdu = self.layers[var]
         unit = u.Unit(hdu.header['UNIT'])
         return hdu.data*unit
@@ -379,6 +400,27 @@ class PhaseAnalyzer:
         """
         hdul = self.to_fits()
         hdul.writeto(filename)
+    def to_twocolumn(self,index:tuple,outfile:str,fmt='ppm',wl='um'):
+        """
+        Write data to a two column file that can be used in a retrival.
+        """
+        if fmt == 'ppm':
+            flux = (self.spectrum('thermal',index,False)+self.spectrum('reflected',index,False))/self.spectrum('total',index,False) * 1e6
+            noise = self.spectrum('noise',index,False)/self.spectrum('total',index,False) * 1e6
+            flux_unit = u.dimensionless_unscaled
+        elif fmt == 'flambda':
+            flux = self.spectrum('thermal',index,False)+self.spectrum('reflected',index,False)
+            noise = self.spectrum('noise',index,False)
+            flux_unit = u.Unit('W m-2 um-1')
+        else:
+            raise ValueError(f'Unknown format "{fmt}"')
+        wl_unit = u.Unit(wl)
+        wl = self.wavelength.to_value(wl_unit)
+        flux = flux.to_value(flux_unit)
+        noise = noise.to_value(flux_unit)
+        with open(outfile,'wt',encoding='ascii') as file:
+            for w,f,n in zip(wl,flux,noise):
+                file.write(f'{w:<10.4f}{f:<14.4e}{n:<14.4e}\n')
 
 
 def read_lyr(filename: str) -> pd.DataFrame:
@@ -421,3 +463,189 @@ def read_lyr(filename: str) -> pd.DataFrame:
         if 'size' in name:
             names[i] = names[i-1] + '_' + name
     return pd.read_csv(dat, delim_whitespace=True, names=names)
+
+
+def get_gcm_binary(filename):
+    key = '<ATMOSPHERE-GCM-PARAMETERS>'
+    start = b'<BINARY>'
+    end = b'</BINARY>'
+    with open(filename,'rb') as file:
+        fdat = file.read()
+    header, dat = fdat.split(start)
+    dat = dat.replace(end,b'')
+    dat = np.frombuffer(dat,dtype='float32')
+    for line in str(header).split(r'\n'):
+        if key in line:
+            return line.replace(key,''),np.array(dat)
+def sep_header(header):
+    fields = header.split(',')
+    coords = fields[:7]
+    var = fields[7:]
+    return coords,var
+
+
+class GCMdecoder:
+    DOUBLE = ['Winds']
+    FLAT = ['Tsurf','Psurf','Albedo','Emissivity']
+    def __init__(self,header,dat):
+        self.header=header
+        self.dat=dat
+    @classmethod
+    def from_psg(cls,filename):
+        head,dat = get_gcm_binary(filename)
+        return cls(head,dat)
+    def get_shape(self):
+        coord,_ = sep_header(self.header)
+        Nlon,Nlat,Nlayer, _,_,_,_ = coord
+        return int(Nlon),int(Nlat),int(Nlayer)
+    def get_3d_size(self):
+        Nlon,Nlat,Nlayer = self.get_shape()
+        return Nlon*Nlat*Nlayer
+    def get_2d_size(self):
+        Nlon,Nlat,_ = self.get_shape()
+        return Nlon*Nlat
+    def get_lats(self):
+        coord,_ = sep_header(self.header)
+        _,Nlat,_,_,lat0,_,dlat = coord
+        return np.arange(int(Nlat))*float(dlat) + float(lat0)
+    def get_lons(self):
+        coord,_ = sep_header(self.header)
+        Nlon,_,_,lon0,_,dlon,_ = coord
+        return np.arange(int(Nlon))*float(dlon) + float(lon0)
+    def __getitem__(self,item):
+        _, variables = sep_header(self.header)
+        if not item in variables:
+            raise KeyError(f'{item} not found. Acceptable keys are {variables}')
+        else:
+            start = 0
+            def get_array_length(var):
+                if var in self.DOUBLE:
+                    return 2*self.get_3d_size(), 'double'
+                elif var in self.FLAT:
+                    return self.get_2d_size(), 'flat'
+                else:
+                    return self.get_3d_size(), 'single'
+            def package_array(dat,key):
+                if key == 'single':
+                    Nlat,Nlon,Nlayer = self.get_shape()
+                    return dat.reshape(Nlayer,Nlon,Nlat)
+                elif key == 'flat':
+                    Nlat,Nlon,Nlayer = self.get_shape()
+                    return dat.reshape(Nlon,Nlat)
+                elif key == 'double':
+                    Nlat,Nlon,Nlayer = self.get_shape()
+                    return dat.reshape(2,Nlayer,Nlon,Nlat)
+                else:
+                    raise ValueError(f'Unknown value {key}')
+            for var in variables:
+                size,key = get_array_length(var)
+                if item==var:
+                    dat = self.dat[start:start+size]
+                    return package_array(dat,key)
+                else:
+                    start+=size
+    def __setitem__(self,item:str,new_value:np.ndarray):
+        """
+        set an array
+        """
+        old_value = self.__getitem__(item)
+        if not old_value.shape == new_value.shape:
+            raise ValueError('New shape must match old shape.')
+        new_value = new_value.astype(old_value.dtype)
+        _, variables = sep_header(self.header)
+        def get_array_length(var):
+            if var in self.DOUBLE:
+                return 2*self.get_3d_size(), 'double'
+            elif var in self.FLAT:
+                return self.get_2d_size(), 'flat'
+            else:
+                return self.get_3d_size(), 'single'
+        start = 0
+        for var in variables:
+            size,_ = get_array_length(var)
+            if item==var:
+                dat = new_value.flatten(order='C')
+                self.dat[start:start+size] = dat
+                return None
+            else:
+                start+=size
+    def copy_config(self,path_to_copy:Path,path_to_write:Path):
+        """
+        Copy a PSG config file but overwrite all GCM parameters and data
+        """
+        with open(path_to_copy,'rb') as infile:
+            with open(path_to_write, 'wb') as outfile:
+                contents = infile.read()
+                t,b = contents.split(b'<BINARY>')
+                b = b.replace(b'</BINARY>',b'')
+                lines = t.split(b'\n')
+                for line in lines:
+                    if b'<ATMOSPHERE-GCM-PARAMETERS>' in line:
+                        outfile.write(bytes('<ATMOSPHERE-GCM-PARAMETERS>' + self.header + '\n',encoding='UTF-8'))
+                    else:
+                        outfile.write(line + b'\n')
+                outfile.write(b'<BINARY>')
+                outfile.write(np.asarray(self.dat,dtype='float32',order='C'))
+                outfile.write(b'</BINARY>')
+        
+
+    def get_mean_molec_mass(self):
+        """
+        Get the mean molecular mass at every point on the GCM
+        """
+        with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
+            molec_data = json.loads(file.read())
+        Nlon,Nlat,Nlayer = self.get_shape()
+        mean_molec_mass = np.zeros(shape=(Nlayer,Nlat,Nlon))*u.g/u.mol
+        for mol, dat in molec_data.items():
+            mass = dat['mass']
+            try:
+                data = self[mol]
+                mean_molec_mass += data*mass*u.g/u.mol
+            except KeyError:
+                pass
+        return mean_molec_mass
+    def get_alt(self,M:u.Quantity,R:u.Quantity):
+        """
+        Get the altitude of each GCM point.
+        """
+        P = 10**self['Pressure']*u.bar
+        T = self['Temperature']*u.K
+        m = self.get_mean_molec_mass()
+        Nlon, Nlat, Nlayers = self.get_shape()
+        z_unit = u.km
+        z = [np.zeros(shape=(Nlat,Nlon))]
+        for i in range(Nlayers-1):
+            dP = P[i+1,:,:] - P[i,:,:]
+            rho = m[i,:,:]*(P[i,:,:]+ 0.5*dP)/c.R/T[i,:,:]
+            r = z[-1]*z_unit + R
+            g = M*c.G/r**2
+            dz = -dP/rho/g
+            z.append((z[-1]*z_unit+dz).to(z_unit).value)
+        return z*z_unit
+    def get_column_density(self,mol:str,M:u.Quantity,R:u.Quantity,):
+        """
+        Get the column density of a gas at each point on the gcm.
+        """
+        abn = self[mol]*u.mol/u.mol
+        P = 10**self['Pressure']*u.bar
+        T = self['Temperature']*u.K
+        partial_pressure = P*abn
+        alt = self.get_alt(M,R)
+        heights = np.diff(alt,axis=0)
+        density = np.sum(partial_pressure[:-1]*heights/c.R/T[:-1],axis=0)
+        return density.to(u.mol/u.cm**2)
+
+    def get_column_clouds(self,var:str,M:u.Quantity,R:u.Quantity,):
+        """
+        Get the column density of a cloud at each point on the gcm.
+        """
+        mass_frac = 10**self[var]*u.kg/u.kg
+        P = 10**self['Pressure']*u.bar
+        T = self['Temperature']*u.K
+        molar_mass = self.get_mean_molec_mass()
+        alt = self.get_alt(M,R)
+        heights = np.diff(alt,axis=0)
+        gas_mass_density = P[:-1]*heights/c.R/T[:-1]*molar_mass[:-1] # g cm-2
+        mass_density = np.sum(mass_frac[:-1]*gas_mass_density,axis=0).cgs
+        return mass_density.to(u.kg/u.cm**2)
