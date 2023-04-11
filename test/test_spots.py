@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 import matplotlib.pyplot as plt
 
-from VSPEC.variable_star_model import StarSpot
+from VSPEC.variable_star_model import StarSpot, SpotCollection, SpotGenerator
 from VSPEC.helpers import MSH, CoordinateGrid, to_float
 
 
@@ -185,6 +185,37 @@ def test_spot_age():
     spot.age(20*step)
     assert to_float(spot.area_current,MSH) == pytest.approx(0,rel=0.01)
 
+def test_init_spot_collection():
+    """
+    Test spot initialization
+    """
+    N = 4
+    collec = SpotCollection(*[init_test_spot() for i in range(N)],Nlat=300,Nlon=600)
+    expected_grid = CoordinateGrid(300,600)
+    for spot in collec.spots:
+        assert isinstance(spot,StarSpot)
+    assert collec.gridmaker == expected_grid
+    for spot in collec.spots:
+        assert spot.gridmaker == collec.gridmaker
+
+def test_spot_collection_add_spot():
+    """
+    Test `SpotCollection.add_spot()`
+    """
+    N = 4
+    collec = SpotCollection(*[init_test_spot() for i in range(N)],Nlat=300,Nlon=600)
+    assert len(collec.spots) == N
+    new_spot = init_test_spot()
+    collec.add_spot(new_spot)
+    assert len(collec.spots) == N+1
+    new_spots = [init_test_spot() for i in range(N)]
+    collec.add_spot(new_spots)
+    assert len(collec.spots) == 2*N+1
+    for spot in collec.spots:
+        assert spot.gridmaker == collec.gridmaker
+
+
+
 
 
 if __name__ in '__main__':
@@ -193,3 +224,6 @@ if __name__ in '__main__':
     test_spot_radius()
     test_spot_angular_radius()
     test_spot_map_pixels()
+    test_spot_surface_fraction()
+    test_spot_age()
+    test_init_spot_collection()

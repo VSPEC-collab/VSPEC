@@ -332,10 +332,10 @@ class SpotCollection:
         own `gridmaker` attribute.
         """
         if isinstance(spot, StarSpot):
-            spot.gridmaker = self.gridmaker
-        else:
-            for s in spot:
-                s.gridmaker = self.gridmaker
+            spot = [spot]
+            # spot.gridmaker = self.gridmaker
+        for s in spot:
+            s.gridmaker = self.gridmaker
         self.spots += tuple(spot)
 
     def clean_spotlist(self):
