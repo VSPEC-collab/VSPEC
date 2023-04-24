@@ -104,14 +104,27 @@ class Facula:
         self.is_growing = growing
         self.floor_threshold = floor_threshold
 
-        if not gridmaker:
-            self.gridmaker = CoordinateGrid(Nlat, Nlon)
+        if gridmaker is None:
+            self.set_gridmaker(CoordinateGrid(Nlat, Nlon))
         else:
-            self.gridmaker = gridmaker
+            self.set_gridmaker(gridmaker)
+        
+    def set_gridmaker(self,gridmaker:CoordinateGrid):
+        """
+        Set the `gridmaker` attribute safely.
 
+        Parameters
+        ----------
+        gridmaker : VSPEC.helpers.CoordinateGrid
+            The `CoordinateGrid` object to set
+        """
+        self.gridmaker = gridmaker
         latgrid, longrid = self.gridmaker.grid()
-        self.r = 2 * np.arcsin(np.sqrt(np.sin(0.5*(lat-latgrid))**2
-                                       + np.cos(latgrid)*np.cos(lat)*np.sin(0.5*(lon - longrid))**2))
+        lat0 = self.lat
+        lon0 = self.lon
+        self.r = 2 * np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
+                                       + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
+
 
     def age(self, time: Quantity[u.day]):
         """
