@@ -107,9 +107,19 @@ class StarSpot:
         self.growth_rate = growth_rate
 
         if gridmaker is None:
-            self.gridmaker = CoordinateGrid(Nlat, Nlon)
+            self.set_gridmaker(CoordinateGrid(Nlat, Nlon))
         else:
-            self.gridmaker = gridmaker
+            self.set_gridmaker(gridmaker)
+    def set_gridmaker(self,gridmaker):
+        """
+        Set the `gridmaker` attribute safely.
+
+        Parameters
+        ----------
+        gridmaker : VSPEC.helpers.CoordinateGrid
+            The `CoordinateGrid` object to set
+        """
+        self.gridmaker = gridmaker
         latgrid, longrid = self.gridmaker.grid()
         lat0 = self.coords['lat']
         lon0 = self.coords['lon']
@@ -310,8 +320,9 @@ class SpotCollection:
             self.gridmaker = CoordinateGrid(Nlat, Nlon)
         else:
             self.gridmaker = gridmaker
-        for spot in spots:
-            spot.gridmaker = self.gridmaker
+        for spot in self.spots:
+            spot.set_gridmaker(self.gridmaker)
+        
 
     def add_spot(self, spot: Typing.Union[StarSpot, list[StarSpot]]):
         """
@@ -333,7 +344,6 @@ class SpotCollection:
         """
         if isinstance(spot, StarSpot):
             spot = [spot]
-            # spot.gridmaker = self.gridmaker
         for s in spot:
             s.gridmaker = self.gridmaker
         self.spots += tuple(spot)
