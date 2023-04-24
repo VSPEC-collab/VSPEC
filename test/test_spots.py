@@ -280,6 +280,106 @@ def test_spot_collection_age():
     collec.age(time*20)
     assert len(collec.spots) == 0
 
+def init_spot_generator(**kwargs):
+    """
+    Initialize a `SpotGenerator` for testing
+    """
+    return SpotGenerator(
+        average_area=kwargs.get('average_area',100*MSH),
+        area_spread=kwargs.get('area_spread',0.1),
+        umbra_teff=kwargs.get('umbra_teff',2500*u.K),
+        penumbra_teff=kwargs.get('penumbra_teff',2700*u.K),
+        growth_rate=kwargs.get('growth_rate',0/u.day),
+        decay_rate=kwargs.get('decay_rate',0*MSH/u.day),
+        starting_size=kwargs.get('starting_size',10*MSH),
+        distribution=kwargs.get('distribution','iso'),
+        coverage=kwargs.get('coverage',0.0),
+        Nlat=kwargs.get('Nlat',300),
+        Nlon=kwargs.get('Nlon',600)
+    )
+
+def test_spot_generator_init():
+    """
+    Test `SpotGenerator.__init__()`
+    """
+    Nlat,Nlon = 300,600
+    gen = init_spot_generator(Nlat=Nlat,Nlon=Nlon)
+    grid = CoordinateGrid(Nlat,Nlon)
+    assert gen.gridmaker == grid
+
+def test_spot_generator_N_spots_to_birth():
+    """
+    Test `SpotGenerator.get_N_spots_to_birth()`
+    """
+    time = 10*u.day
+    r_star = 1*u.R_sun
+    gen = init_spot_generator(average_area = 100*MSH,coverage = 0.0,decay_rate=10*MSH/u.day)
+    exp = 0.0
+    assert gen.get_N_spots_to_birth(time,r_star) == pytest.approx(exp,abs=1e-6)
+
+    gen = init_spot_generator(average_area = 100*MSH,coverage = 100e-6,decay_rate=10*MSH/u.day)
+    exp = 2
+    assert gen.get_N_spots_to_birth(time,r_star) == pytest.approx(exp,abs=1e-6)
+
+    gen = init_spot_generator(average_area = 1e6*MSH,coverage = 0.5,decay_rate=1e5*MSH/u.day)
+    exp = 1
+    assert gen.get_N_spots_to_birth(time,r_star) == pytest.approx(exp,abs=1e-6)
+
+def test_spot_generator_generate_spots():
+    """
+    Test `SpotGenerator.generate_spots()`
+    """
+    N = 3
+    gen = init_spot_generator()
+    spots = gen.generate_spots(N)
+    assert len(spots) == N
+
+def test_spot_generator_get_coordinates():
+    """
+    Test `SpotGenerator.get_coordinates()`
+    """
+    N = 3
+    gen = init_spot_generator(distribution='iso')
+    lats,lons = gen.get_coordinates(N)
+    assert len(lats) == N
+    assert lats.unit == u.deg
+    assert len(lons) == N
+    assert lons.unit == u.deg
+
+    gen = init_spot_generator(distribution='even')
+    with pytest.raises(ValueError):
+        gen.get_coordinates(N)
+
+def test_spot_generator_generate_spots():
+    """
+    Test `SpotGenerator.generate_spots()`
+    """
+    N = 3
+    gen = init_spot_generator(starting_size=10*MSH)
+    spots = gen.generate_spots(N)
+    assert len(spots) == N
+    for spot in spots:
+        assert spot.area_current == 10*MSH
+
+def test_spot_generator_generate_mature_spots():
+    """
+    Test `SpotGenerator.generate_mature_spots()`
+    """
+    r_star = 0.15*u.R_sun
+    starting_size=10*MSH
+    gen = init_spot_generator(starting_size=starting_size)
+    with pytest.raises(ValueError):
+        gen.generate_mature_spots(-0.1,r_star)
+    with pytest.raises(ValueError):
+        gen.generate_mature_spots(1.1,r_star)
+    spots = gen.generate_mature_spots(0.1,r_star)
+    assert np.any([spot.area_current > starting_size for spot in spots])
+
+    gen = init_spot_generator(starting_size=starting_size,growth_rate = 1/u.day,decay_rate = 10*MSH/u.day)
+    spots = gen.generate_mature_spots(0.1,r_star)
+    assert np.any([spot.area_current > starting_size for spot in spots])
+
+
 
 if __name__ in '__main__':
     test_spot_init()
@@ -294,3 +394,5 @@ if __name__ in '__main__':
     test_spot_collection_clean_spotlist()
     test_spot_collection_map_pixels()
     test_spot_collection_age()
+    test_spot_generator_init()
+    test_spot_generator_N_spots_to_birth()

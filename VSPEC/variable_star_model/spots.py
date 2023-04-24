@@ -515,13 +515,49 @@ class SpotGenerator:
         self.decay_rate = decay_rate
         self.starting_size = starting_size
         self.distribution = distribution
-        self.average_spot_lifetime = 2 * \
-            (self.average_spot_area / self.decay_rate).to(u.hr)
+        self.average_spot_lifetime = (self.average_spot_area / self.decay_rate).to(u.hr)
         self.coverage = coverage
         if gridmaker is None:
             self.gridmaker = CoordinateGrid(Nlat, Nlon)
         else:
             self.gridmaker = gridmaker
+
+    def get_coordinates(self,N:int):
+        """
+        Get coordinates for a `StarSpot` distribution.
+
+        Parameters
+        ----------
+        N : int
+            Number of spots to create.
+
+        Returns
+        -------
+        lat : astropy.units.Quantity
+            Latitude coordinates of the new spots
+        lon : astropy.units.Quantity
+            Longitude coordinates of the new spots
+        
+        Notes
+        -----
+        In order to draw latitude points for the isotropic case, we
+        use inverse transform sampling to account for the jacobian.
+        """
+        if self.distribution == 'solar':
+            #(dist approx from 2017ApJ...851...70M)
+            hemi = np.random.choice([-1, 1], size=N)
+            lat = np.random.normal(15, 5, size=N)*hemi*u.deg
+            lon = np.random.random(size=N)*360*u.deg
+        elif self.distribution == 'iso':
+            lon = np.random.random(size=N)*360*u.deg
+            # use inverse transform to generate lats
+            X = np.random.random(size=N)
+            lat = np.arcsin(2*X - 1)/np.pi * 180*u.deg
+        else:
+            raise ValueError(
+                f'Unknown value {self.distribution} for distribution')
+        return lat,lon
+
 
     def generate_spots(self, N: int) -> tuple[StarSpot]:
         """
@@ -547,20 +583,7 @@ class SpotGenerator:
         new_r_A = np.random.normal(loc=5, scale=1, size=N)
         while np.any(new_r_A <= 0):
             new_r_A = np.random.normal(loc=5, scale=1, size=N)
-        # now assign lat and lon (dist approx from 2017ApJ...851...70M)
-        if self.distribution == 'solar':
-            hemi = np.random.choice([-1, 1], size=N)
-            lat = np.random.normal(15, 5, size=N)*hemi*u.deg
-            lon = np.random.random(size=N)*360*u.deg
-        elif self.distribution == 'iso':
-            lon = np.random.random(size=N)*360*u.deg
-            lats = np.arange(90)
-            w = np.cos(lats*u.deg)
-            lat = (np.random.choice(lats, p=w/w.sum(), size=N) +
-                   np.random.random(size=N))*u.deg * np.random.choice([1, -1], size=N)
-        else:
-            raise ValueError(
-                f'Unknown value {self.distribution} for distribution')
+        lat,lon = self.get_coordinates(N)
 
         penumbra_teff = self.penumbra_teff
         umbra_teff = self.umbra_teff
@@ -573,8 +596,29 @@ class SpotGenerator:
                 r_A=new_r_A[i], Nlat=self.gridmaker.Nlat, Nlon=self.gridmaker.Nlon, gridmaker=self.gridmaker
             ))
         return tuple(spots)
+    
+    def get_N_spots_to_birth(self,time: Quantity[u.day], rad_star: Quantity[u.R_sun]) -> float:
+        """
+        Calculate how many new `StarSpot` objects to birth over a given time duration (expectation value).
 
-    def birth_spots(self, time: Quantity[u.day], rad_star: Quantity[u.R_sun],) -> tuple[StarSpot]:
+        Parameters
+        ----------
+        time : astropy.units.Quantity 
+            Amount of time in which to birth spots.
+            The total number of new spots will consider this time and the birthrate.
+        rad_star : astropy.units.Quantity 
+            The radius of the star.
+
+        Returns
+        -------
+        float
+            Expected number of new `StarSpot` objects.
+        """
+        N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.average_spot_area
+                 * time/self.average_spot_lifetime).to(u.Unit(''))
+        return N_exp.to_value(u.dimensionless_unscaled)
+
+    def birth_spots(self, time: Quantity[u.day], rad_star: Quantity[u.R_sun]) -> tuple[StarSpot]:
         """
         Generate new `StarSpot` objects to be birthed over a given time duration.
 
@@ -591,10 +635,10 @@ class SpotGenerator:
         Tuple[StarSpot]
             New `StarSpot` objects.
         """
-        N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.average_spot_area
-                 * time/self.average_spot_lifetime).to(u.Unit(''))
+        N_exp = self.get_N_spots_to_birth(time,rad_star)
         # N_exp is the expectation value of N, but this is a poisson process
-        N = max(0, round(np.random.normal(loc=N_exp, scale=np.sqrt(N_exp))))
+        # N = max(0, round(np.random.normal(loc=N_exp, scale=np.sqrt(N_exp))))
+        N = np.random.poisson(lam=N_exp)
 
         return self.generate_spots(N)
 
