@@ -350,45 +350,45 @@ class PhaseAnalyzer:
         cols = []
         for col in self.observation_data.columns:
             cols.append(fits.Column(
-                name=col, array=self.observation_data[col].value, format='K'))
+                name=col, array=self.observation_data[col].values, format='D'))
         obs_tab = fits.BinTableHDU.from_columns(cols)
         obs_tab.name = 'OBS'
 
-        time = fits.Column(name='time', array=self.time.value, format='K')
-        phase = fits.Column(name='phase', array=self.phase.value, format='K')
+        time = fits.Column(name='time', array=self.time.value, format='D')
+        phase = fits.Column(name='phase', array=self.phase.value, format='D')
         unique_phase = fits.Column(
-            name='unique_phase', array=self.unique_phase.value, format='K')
+            name='unique_phase', array=self.unique_phase.value, format='D')
         tab1 = fits.BinTableHDU.from_columns([time, phase, unique_phase])
-        tab1.header['TIME_UNIT'] = str(self.time.unit)
-        tab1.header['PHASE_UNIT'] = str(self.phase.unit)
-        tab1.header['UNIQUE_PHASE_UNIT'] = str(self.unique_phase.unit)
+        tab1.header['U_TIME'] = str(self.time.unit)
+        tab1.header['U_PHASE'] = str(self.phase.unit)
+        tab1.header['U_UPHASE'] = str(self.unique_phase.unit)
         tab1.name = 'PHASE'
         wavelength = fits.Column(
-            name='wavelength', array=self.wavelength.value, format='K')
+            name='wavelength', array=self.wavelength.value, format='D')
         tab2 = fits.BinTableHDU.from_columns([wavelength])
-        tab2.header['WAVELENGTH_UNIT'] = str(self.wavelength.unit)
+        tab2.header['U_WAVE'] = str(self.wavelength.unit)
         tab2.name = 'WAVELENGTH'
 
         total = fits.ImageHDU(self.total.value)
-        total.header['FLUX_UNIT'] = str(self.total.unit)
+        total.header['U_FLUX'] = str(self.total.unit)
         total.name = 'TOTAL'
         star = fits.ImageHDU(self.star.value)
-        star.header['FLUX_UNIT'] = str(self.star.unit)
+        star.header['U_FLUX'] = str(self.star.unit)
         star.name = 'STAR'
         reflected = fits.ImageHDU(self.reflected.value)
-        reflected.header['FLUX_UNIT'] = str(self.reflected.unit)
+        reflected.header['U_FLUX'] = str(self.reflected.unit)
         reflected.name = 'REFLECTED'
         thermal = fits.ImageHDU(self.thermal.value)
-        thermal.header['FLUX_UNIT'] = str(self.thermal.unit)
+        thermal.header['U_FLUX'] = str(self.thermal.unit)
         thermal.name = 'THERMAL'
         noise = fits.ImageHDU(self.noise.value)
-        noise.header['FLUX_UNIT'] = str(self.noise.unit)
+        noise.header['U_FLUX'] = str(self.noise.unit)
         noise.name = 'NOISE'
 
         hdul = fits.HDUList([primary, obs_tab, tab1, tab2,
                             total, star, reflected, thermal, noise])
         hdul = hdul + self.layers
-        return hdul
+        return fits.HDUList(hdul)
 
     def write_fits(self, filename: str) -> None:
         """
@@ -512,6 +512,17 @@ class GCMdecoder:
         coord,_ = sep_header(self.header)
         Nlon,_,_,lon0,_,dlon,_ = coord
         return np.arange(int(Nlon))*float(dlon) + float(lon0)
+    def get_molecules(self):
+        with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
+            molec_data = json.loads(file.read())
+        _,variables = sep_header(self.header)
+        molecs = [var for var in variables if var in molec_data.keys()]
+        return molecs
+    def get_aerosols(self):
+        _,variables = sep_header(self.header)
+        aerosols = [var for var in variables if var+'_size' in variables]
+        aerosol_sizes = [aero+'_size' for aero in aerosols]
+        return aerosols, aerosol_sizes
     def __getitem__(self,item):
         _, variables = sep_header(self.header)
         if not item in variables:
@@ -569,10 +580,88 @@ class GCMdecoder:
                 return None
             else:
                 start+=size
+        
+    def remove(self,item):
+        """
+        remove an item from the gcm
+        """
+        coords, variables = sep_header(self.header)
+        if item not in variables:
+            return ValueError(f'Unknown {item}')
+        def get_array_length(var):
+            if var in self.DOUBLE:
+                return 2*self.get_3d_size(), 'double'
+            elif var in self.FLAT:
+                return self.get_2d_size(), 'flat'
+            else:
+                return self.get_3d_size(), 'single'
+        start = 0
+        for var in variables:
+            size,_ = get_array_length(var)
+            if item==var:
+                s = slice(start,start+size)
+                self.dat = np.delete(self.dat,s)
+            else:
+                start+=size
+        new_variables = [var for var in variables if item != var]
+        self.header = ','.join(coords+new_variables)
+        
     def copy_config(self,path_to_copy:Path,path_to_write:Path):
         """
         Copy a PSG config file but overwrite all GCM parameters and data
         """
+        def replace_line(line):
+            if b'<ATMOSPHERE-GCM-PARAMETERS>' in line:
+                return bytes('<ATMOSPHERE-GCM-PARAMETERS>' + self.header + '\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-LAYERS>' in line:
+                _,_,Nlayer = self.get_shape()
+                return bytes(f'<ATMOSPHERE-LAYERS>{Nlayer}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-NGAS>' in line:
+                n_molecs = len(self.get_molecules())
+                return bytes(f'<ATMOSPHERE-NGAS>{n_molecs}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-GAS>' in line:
+                molecs = ','.join(self.get_molecules())
+                return bytes(f'<ATMOSPHERE-GAS>{molecs}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-TYPE>' in line:
+                with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
+                    molec_data = json.loads(file.read())
+                molecs = self.get_molecules()
+                atm_types = ','.join([f'HIT[{molec_data[mol]["ID"]}]' for mol in molecs])
+                return bytes(f'<ATMOSPHERE-TYPE>{atm_types}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-ABUN>' in line:
+                n_molecs = len(self.get_molecules())
+                return bytes(f'<ATMOSPHERE-ABUN>{",".join(["1"]*n_molecs)}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-UNIT>' in line:
+                n_molecs = len(self.get_molecules())
+                return bytes(f'<ATMOSPHERE-ABUN>{",".join(["scl"]*n_molecs)}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-NAERO>' in line:
+                n_aero = len(self.get_aerosols()[0])
+                return bytes(f'<ATMOSPHERE-NAERO>{n_aero}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-AEROS>' in line:
+                aeros = ','.join(self.get_aerosols()[0])
+                return bytes(f'<ATMOSPHERE-AEROS>{aeros}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-ATYPE>' in line:
+                dat = {
+                    'Water': 'AFCRL_Water_HRI',
+                    'WaterIce': 'Warren_ice_HRI'
+                }
+                atypes = ','.join([dat[aero] for aero in self.get_aerosols()[0]])
+                return bytes(f'<ATMOSPHERE-ATYPE>{atypes}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-AABUN>' in line:
+                n_aero = len(self.get_aerosols()[0])
+                return bytes(f'<ATMOSPHERE-AABUN>{",".join(["1"]*n_aero)}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-AUNIT>' in line:
+                n_aero = len(self.get_aerosols()[0])
+                return bytes(f'<ATMOSPHERE-AUNIT>{",".join(["scl"]*n_aero)}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-ASIZE>' in line:
+                n_aero = len(self.get_aerosols()[0])
+                return bytes(f'<ATMOSPHERE-ASIZE>{",".join(["1"]*n_aero)}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-ASUNI>' in line:
+                n_aero = len(self.get_aerosols()[0])
+                return bytes(f'<ATMOSPHERE-ASUNI>{",".join(["scl"]*n_aero)}\n',encoding='UTF-8')
+            else:
+                return line + b'\n'
+
         with open(path_to_copy,'rb') as infile:
             with open(path_to_write, 'wb') as outfile:
                 contents = infile.read()
@@ -580,10 +669,7 @@ class GCMdecoder:
                 b = b.replace(b'</BINARY>',b'')
                 lines = t.split(b'\n')
                 for line in lines:
-                    if b'<ATMOSPHERE-GCM-PARAMETERS>' in line:
-                        outfile.write(bytes('<ATMOSPHERE-GCM-PARAMETERS>' + self.header + '\n',encoding='UTF-8'))
-                    else:
-                        outfile.write(line + b'\n')
+                    outfile.write(replace_line(line))
                 outfile.write(b'<BINARY>')
                 outfile.write(np.asarray(self.dat,dtype='float32',order='C'))
                 outfile.write(b'</BINARY>')
