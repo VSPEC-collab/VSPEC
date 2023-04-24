@@ -144,6 +144,7 @@ def test_spot_map_pixels():
     assert (umbra*sin_theta.value).sum() == pytest.approx(
         ((penumbra & ~umbra)*sin_theta.value).sum(), rel=0.05)
 
+
 def test_spot_surface_fraction():
     """
     Test StarSpot.sufrace_fraction
@@ -151,59 +152,69 @@ def test_spot_surface_fraction():
     stellar_rad = 1000*u.km
     star_surface_area = 4*np.pi*stellar_rad**2
     spot = init_test_spot(A0=0.01*star_surface_area)
-    sub_obs = {'lat':0*u.deg,'lon':0*u.deg}
-    assert spot.surface_fraction(sub_obs,stellar_rad) == pytest.approx(0.02,rel=0.01)
-    sub_obs = {'lat':0*u.deg,'lon':180*u.deg}
-    assert spot.surface_fraction(sub_obs,stellar_rad) == pytest.approx(0.0,rel=0.01)
+    sub_obs = {'lat': 0*u.deg, 'lon': 0*u.deg}
+    assert spot.surface_fraction(
+        sub_obs, stellar_rad) == pytest.approx(0.02, rel=0.01)
+    sub_obs = {'lat': 0*u.deg, 'lon': 180*u.deg}
+    assert spot.surface_fraction(
+        sub_obs, stellar_rad) == pytest.approx(0.0, rel=0.01)
+
 
 def test_spot_age():
     """
     Test StarSpot.age
     """
-    spot = init_test_spot(A0=10*MSH,Amax=100*MSH,growth_rate=1/u.day,decay_rate = 10*MSH/u.day,growing=True)
+    spot = init_test_spot(A0=10*MSH, Amax=100*MSH, growth_rate=1 /
+                          u.day, decay_rate=10*MSH/u.day, growing=True)
     step = 1*u.day
-    assert to_float(spot.area_current,MSH) == pytest.approx(10,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(10, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current,MSH) == pytest.approx(20,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(20, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current,MSH) == pytest.approx(40,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(40, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current,MSH) == pytest.approx(80,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(80, rel=0.01)
     spot.age(step)
     assert not spot.is_growing
 
-    spot = init_test_spot(A0=100*MSH,Amax=100*MSH,growth_rate=1/u.day,decay_rate = 10*MSH/u.day,growing=False)
-    assert to_float(spot.area_current,MSH) == pytest.approx(100,rel=0.01)
+    spot = init_test_spot(A0=100*MSH, Amax=100*MSH, growth_rate=1 /
+                          u.day, decay_rate=10*MSH/u.day, growing=False)
+    assert to_float(spot.area_current, MSH) == pytest.approx(100, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current,MSH) == pytest.approx(90,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(90, rel=0.01)
     spot.age(9*step)
-    assert to_float(spot.area_current,MSH) == pytest.approx(0,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(0, rel=0.01)
 
-    spot = init_test_spot(A0=10*MSH,Amax=100*MSH,growth_rate=1/u.day,decay_rate = 10*MSH/u.day,growing=True)
+    spot = init_test_spot(A0=10*MSH, Amax=100*MSH, growth_rate=1 /
+                          u.day, decay_rate=10*MSH/u.day, growing=True)
     step = 1*u.day
-    assert to_float(spot.area_current,MSH) == pytest.approx(10,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(10, rel=0.01)
     spot.age(20*step)
-    assert to_float(spot.area_current,MSH) == pytest.approx(0,rel=0.01)
+    assert to_float(spot.area_current, MSH) == pytest.approx(0, rel=0.01)
+
 
 def test_init_spot_collection():
     """
     Test spot initialization
     """
     N = 4
-    collec = SpotCollection(*[init_test_spot() for i in range(N)],Nlat=300,Nlon=600)
-    expected_grid = CoordinateGrid(300,600)
+    collec = SpotCollection(*[init_test_spot()
+                            for i in range(N)], Nlat=300, Nlon=600)
+    expected_grid = CoordinateGrid(300, 600)
     for spot in collec.spots:
-        assert isinstance(spot,StarSpot)
+        assert isinstance(spot, StarSpot)
     assert collec.gridmaker == expected_grid
     for spot in collec.spots:
         assert spot.gridmaker == collec.gridmaker
+
 
 def test_spot_collection_add_spot():
     """
     Test `SpotCollection.add_spot()`
     """
     N = 4
-    collec = SpotCollection(*[init_test_spot() for i in range(N)],Nlat=300,Nlon=600)
+    collec = SpotCollection(*[init_test_spot()
+                            for i in range(N)], Nlat=300, Nlon=600)
     assert len(collec.spots) == N
     new_spot = init_test_spot()
     collec.add_spot(new_spot)
@@ -215,7 +226,59 @@ def test_spot_collection_add_spot():
         assert spot.gridmaker == collec.gridmaker
 
 
+def test_spot_collection_clean_spotlist():
+    """
+    Test `SpotCollection.clean_spotlist()`
+    """
+    N = 4
+    spots = [init_test_spot() for i in range(N)] + \
+        [init_test_spot(A0=0*MSH, growing=True)]
+    collec = SpotCollection(*spots, Nlat=300, Nlon=600)
+    collec.clean_spotlist()
+    assert len(collec.spots) == N+1
+    spots = [init_test_spot() for i in range(N)] + \
+        [init_test_spot(A0=0*MSH, growing=False)]
+    collec = SpotCollection(*spots, Nlat=300, Nlon=600)
+    collec.clean_spotlist()
+    assert len(collec.spots) == N
 
+
+def test_spot_collection_map_pixels():
+    """
+    Test `SpotCollection.map_pixels()`
+    """
+    R_star = 0.15*u.R_sun
+    Teff = 3300*u.K
+    spots = [
+        init_test_spot(Teff_umbra=2500*u.K, Teff_penumbra=2500*u.K),
+        init_test_spot(Teff_umbra=2700*u.K, Teff_penumbra=2700*u.K)
+    ]
+    collec = SpotCollection(*spots, Nlat=300, Nlon=600)
+    pmap = collec.map_pixels(R_star, Teff)
+    assert not np.any(pmap == 2700*u.K)
+
+    spots = [
+        init_test_spot(Teff_umbra=3500*u.K, Teff_penumbra=3500*u.K),
+        init_test_spot(Teff_umbra=3700*u.K, Teff_penumbra=3700*u.K)
+    ]
+    collec = SpotCollection(*spots, Nlat=300, Nlon=600)
+    pmap = collec.map_pixels(R_star, Teff)
+    assert np.all(pmap == Teff)
+
+
+def test_spot_collection_age():
+    """
+    Test `SpotCollection.age()`
+    """
+    spot = init_test_spot(A0=10*MSH, Amax=100*MSH, growth_rate=1 /
+                          u.day, decay_rate=10*MSH/u.day, growing=True)
+    time = 1*u.day
+    collec = SpotCollection(spot, Nlat=300, Nlon=600)
+    assert collec.spots[0].area_current == 10*MSH
+    collec.age(time)
+    assert collec.spots[0].area_current == 20*MSH
+    collec.age(time*20)
+    assert len(collec.spots) == 0
 
 
 if __name__ in '__main__':
@@ -227,3 +290,7 @@ if __name__ in '__main__':
     test_spot_surface_fraction()
     test_spot_age()
     test_init_spot_collection()
+    test_spot_collection_add_spot()
+    test_spot_collection_clean_spotlist()
+    test_spot_collection_map_pixels()
+    test_spot_collection_age()
