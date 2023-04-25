@@ -232,6 +232,13 @@ def test_CoordinateGrid():
     other = helpers.CoordinateGrid(i,j)
     assert grid == other
 
+def test_round_teff():
+    """
+    Test `VSPEC.helpers.round_teff`
+    """
+    teff = 100.3*u.K
+    assert helpers.round_teff(teff) == 100*u.K
+
 
 if __name__ in '__main__':
     test_to_float()

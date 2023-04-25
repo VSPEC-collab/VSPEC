@@ -38,4 +38,16 @@ def test_facula_init():
     assert np.all(fac.r < 180*u.deg)
     assert np.max(to_float(fac.r, u.deg)) == pytest.approx(180, abs=1)
 
+def test_facula_age():
+    """
+    Test `Facula.age()`
+    """
+    lifetime = 10*u.hr
+    fac = init_facula(Rmax=100*u.km,R0=100/np.e*u.km,lifetime=lifetime,growing=True)
+    fac.age(lifetime*0.5)
+    assert fac.current_R == 100*u.km
+    assert not fac.is_growing
+    fac.age(lifetime*0.5)
+    assert fac.current_R == 100/np.e*u.km
+
 

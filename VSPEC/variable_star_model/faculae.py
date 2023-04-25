@@ -8,7 +8,7 @@ import numpy as np
 from astropy import units as u
 from astropy.units.quantity import Quantity
 
-from VSPEC.helpers import CoordinateGrid
+from VSPEC.helpers import CoordinateGrid, round_teff
 
 
 class Facula:
@@ -98,8 +98,8 @@ class Facula:
         self.Rmax = Rmax
         self.current_R = R0
         self.Zw = Zw
-        self.Teff_floor = self.round_teff(Teff_floor)
-        self.Teff_wall = self.round_teff(Teff_wall)
+        self.Teff_floor = round_teff(Teff_floor)
+        self.Teff_wall = round_teff(Teff_wall)
         self.lifetime = lifetime
         self.is_growing = growing
         self.floor_threshold = floor_threshold
@@ -154,25 +154,6 @@ class Facula:
         else:
             self.current_R = self.current_R * np.exp(-2*time/self.lifetime)
 
-    def round_teff(self, teff):
-        """
-        Round the effective temperature to the nearest integer.
-        The goal is to reduce the number of unique effective temperatures
-        while not affecting the accuracy of the model.
-
-        Parameters
-        ----------
-        teff : astropy.units.Quantity 
-            The temperature to round.
-
-        Returns
-        -------
-        astropy.units.Quantity 
-            The rounded temperature.
-        """
-        val = teff.value
-        unit = teff.unit
-        return int(round(val)) * unit
 
     def effective_area(self, angle, N=101):
         """
@@ -192,7 +173,7 @@ class Facula:
             values are the area. Both are `astropy.units.Quantity` objects.
         """
         if self.current_R < self.floor_threshold:
-            return {self.round_teff(self.Teff_floor): 0.0 * u.km**2, self.round_teff(self.Teff_wall): np.pi*self.current_R**2 * np.cos(angle)}
+            return {round_teff(self.Teff_floor): 0.0 * u.km**2, round_teff(self.Teff_wall): np.pi*self.current_R**2 * np.cos(angle)}
         else:
             # distance from center along azmuth of disk
             x = np.linspace(0, 1, N) * self.current_R
@@ -205,7 +186,7 @@ class Facula:
             Zeffs[no_floor] = h[no_floor]*np.cos(angle)
             Reffs[no_floor] = 0
 
-            return {self.round_teff(self.Teff_wall): np.trapz(Zeffs, x), self.round_teff(self.Teff_floor): np.trapz(Reffs, x)}
+            return {round_teff(self.Teff_wall): np.trapz(Zeffs, x), round_teff(self.Teff_floor): np.trapz(Reffs, x)}
 
     def fractional_effective_area(self, angle: Quantity[u.deg],
                                   N: int = 101) -> Dict[Quantity[u.K], Quantity]:

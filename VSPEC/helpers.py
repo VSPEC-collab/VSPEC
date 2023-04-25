@@ -335,3 +335,23 @@ class CoordinateGrid:
             raise TypeError('other must be of type CoordinateGrid')
         else:
             return (self.Nlat == other.Nlat) & (self.Nlon == other.Nlon)
+
+def round_teff(teff):
+    """
+    Round the effective temperature to the nearest integer.
+    The goal is to reduce the number of unique effective temperatures
+    while not affecting the accuracy of the model.
+
+    Parameters
+    ----------
+    teff : astropy.units.Quantity 
+        The temperature to round.
+
+    Returns
+    -------
+    astropy.units.Quantity 
+        The rounded temperature.
+    """
+    val = teff.value
+    unit = teff.unit
+    return int(round(val)) * unit
