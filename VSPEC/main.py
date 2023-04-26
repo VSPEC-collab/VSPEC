@@ -474,7 +474,7 @@ class ObservationModel:
         self.star.get_flares_over_observation(
             self.params.total_observation_time)
 
-    def calculate_composite_stellar_spectrum(self, sub_obs_coords, tstart, tfinish):
+    def calculate_composite_stellar_spectrum(self, sub_obs_coords, tstart, tfinish,granulation_fraction=0.0):
         """
         Compute the stellar spectrum given an integration window and the
         side of the star facing the observer.
@@ -487,6 +487,8 @@ class ObservationModel:
             The starting time of the observation.
         tfinish : astropy.units.Quantity [time]
             The ending time of the observation.
+        granulation_fraction : float
+            The fraction of the quiet photosphere that has a lower Teff due to granulation
 
         Returns
         -------
@@ -500,7 +502,7 @@ class ObservationModel:
         ValueError
             If wavenelength coordinates do not match.
         """
-        surface_dict = self.star.calc_coverage(sub_obs_coords)
+        surface_dict = self.star.calc_coverage(sub_obs_coords,granulation_fraction=granulation_fraction)
         visible_flares = self.star.get_flare_int_over_timeperiod(
             tstart, tfinish, sub_obs_coords)
         base_wave, base_flux = self.get_model_spectrum(self.params.star_teff)
@@ -805,6 +807,7 @@ class ObservationModel:
 
         time_step = self.params.total_observation_time / self.params.total_images
         planet_time_step = self.params.total_observation_time / self.params.planet_images
+        granulation_fractions = self.star.get_granulation_coverage(observation_info['time'])
 
         for index in self.wrap_iterator(range(self.params.total_images), desc='Build Spectra', total=self.params.total_images, position=0, leave=True):
 
@@ -814,6 +817,7 @@ class ObservationModel:
             planetPhase = observation_info['phase'][index]
             sub_obs_lon = observation_info['sub_obs_lon'][index]
             sub_obs_lat = observation_info['sub_obs_lat'][index]
+            granulation_fraction = granulation_fractions[index]
             N1, N2 = self.get_planet_indicies(planet_times, tindex)
             N1_frac = 1 - \
                 to_float(
@@ -823,9 +827,11 @@ class ObservationModel:
             sub_planet_lat = observation_info['sub_planet_lat'][index]
 
             comp_wave, comp_flux = self.calculate_composite_stellar_spectrum({'lat': sub_obs_lat,
-                                                                              'lon': sub_obs_lon}, tstart, tfinish)
+                                                                              'lon': sub_obs_lon}, tstart, tfinish,
+                                                                              granulation_fraction=granulation_fraction)
             wave, to_planet_flux = self.calculate_composite_stellar_spectrum({'lat': sub_planet_lat,
-                                                                              'lon': sub_planet_lon}, tstart, tfinish)
+                                                                              'lon': sub_planet_lon}, tstart, tfinish,
+                                                                              granulation_fraction=granulation_fraction)
             assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
 
             wave, reflection_flux_adj = self.calculate_reflected_spectra(
