@@ -223,8 +223,8 @@ class Star:
             pix_sum = ((pix.astype('float32') * ld * jacobian)
                        [int_map == 0]).sum()
             if (teff == self.Teff) and (granulation_fraction>0.0): # Quiet Photosphere
-                data[teff] = pix_sum(1-granulation_fraction)
-                data[teff-self.granulation.dteff] = pix_sum(granulation_fraction)
+                data[teff] = pix_sum*(1-granulation_fraction)
+                data[teff-self.granulation.dteff] = pix_sum*(granulation_fraction)
             data[teff] = pix_sum
         for i in map_keys.keys():
             facula = self.faculae.faculae[i]
