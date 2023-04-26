@@ -13,6 +13,21 @@ time_unit = u.hr
 class GranulationKernel(kernels.Kernel):
     """
     GP Kernel to describe Granulation
+
+    Parameters
+    ----------
+    scale : float
+        A scalar coefficient for the kernel function.
+    period : float
+        The period of the kernel in hours.
+    
+    Notes
+    -----
+    This kernel is based on [1]_.
+
+    References
+    ----------
+    .. [1] Gordon, T. A., Agol, E., & Foreman-Mackey, D. 2020, AJ, 160, 240
     """
 
     def __init__(self, scale, period):
@@ -28,7 +43,18 @@ class GranulationKernel(kernels.Kernel):
             * jnp.cos((self.freq*tau/jnp.sqrt(2))-(jnp.pi/4)))
 
 
-def build_gp(params, X):
+def build_gp(params:dict, X:np.ndarray)->GaussianProcess:
+    """
+    Build Gaussian Process
+
+    Parameters
+    ----------
+    params : dict
+        GP parameters for this instance.
+    X : np.ndarray
+        The time coordinates for this GP instance.
+
+    """
     kernel = GranulationKernel(params['scale'], params['period'])
     return GaussianProcess(
         kernel,
