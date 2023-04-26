@@ -155,7 +155,7 @@ class Facula:
             self.current_R = self.current_R * np.exp(-2*time/self.lifetime)
 
 
-    def effective_area(self, angle, N=101):
+    def effective_area(self, angle, N=201):
         """
         Calculate the effective area of the floor and walls when projected on a disk.
 
@@ -176,14 +176,14 @@ class Facula:
             return {round_teff(self.Teff_floor): 0.0 * u.km**2, round_teff(self.Teff_wall): np.pi*self.current_R**2 * np.cos(angle)}
         else:
             # distance from center along azmuth of disk
-            x = np.linspace(0, 1, N) * self.current_R
+            x = np.linspace(-1, 1, N) * self.current_R
             # effective radius of the 1D facula approximation
             h = np.sqrt(self.current_R**2 - x**2)
             critical_angles = np.arctan(2*h/self.Zw)
             Zeffs = np.sin(angle)*np.ones(N) * self.Zw
             Reffs = np.cos(angle)*h*2 - self.Zw * np.sin(angle)
             no_floor = critical_angles < angle
-            Zeffs[no_floor] = h[no_floor]*np.cos(angle)
+            Zeffs[no_floor] = 2*h[no_floor]*np.cos(angle)
             Reffs[no_floor] = 0
 
             return {round_teff(self.Teff_wall): np.trapz(Zeffs, x), round_teff(self.Teff_floor): np.trapz(Reffs, x)}

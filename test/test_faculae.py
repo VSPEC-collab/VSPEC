@@ -50,4 +50,67 @@ def test_facula_age():
     fac.age(lifetime*0.5)
     assert fac.current_R == 100/np.e*u.km
 
+def test_facula_effective_area():
+    """
+    Test `Facula.effective_area()`
+    """
+    aunit = u.km**2
+    tfloor = 2500*u.K
+    twall = 3900*u.K
+    # flat cold spot case
+    radius = 100*u.km
+    depth = 0*u.km
+    fac = init_facula(R0=radius,Teff_floor=tfloor,Teff_wall=twall,Zw=depth)
+    angle=0*u.deg
+    d = fac.effective_area(angle,N=201)
+    assert d[twall]==0*aunit
+    assert d[tfloor].to_value(aunit)==pytest.approx((np.pi*(radius)**2).to_value(aunit),rel=1e-3)
+    angle=5*u.deg
+    d = fac.effective_area(angle,N=201)
+    assert d[twall]==0*aunit
+    assert d[tfloor].to_value(aunit)==pytest.approx((np.pi*(radius)**2*np.cos(angle)).to_value(aunit),rel=1e-3)
+    # flat hot spot case (~inf depth)
+    radius = 100*u.km
+    depth = 1e9*u.km
+    fac = init_facula(R0=radius,Teff_floor=tfloor,Teff_wall=twall,Zw=depth)
+    angle=5*u.deg
+    d = fac.effective_area(angle,N=201)
+    assert d[tfloor]==0*aunit
+    assert d[twall].to_value(aunit)==pytest.approx((np.pi*(radius)**2*np.cos(angle)).to_value(aunit),rel=1e-3)
+    # normal case
+    radius = 100*u.km
+    depth = 100*u.km
+    fac = init_facula(R0=radius,Teff_floor=tfloor,Teff_wall=twall,Zw=depth)
+    angle=5*u.deg
+    d1 = fac.effective_area(angle,N=201)
+    angle=6*u.deg
+    d2 = fac.effective_area(angle,N=201)
+    assert d1[tfloor]/d1[twall] > d2[tfloor]/d2[twall]
+    assert d1[tfloor] > d2[tfloor]
+    assert d1[twall] < d2[twall]
+    angle = np.arctan(2*radius/depth) # critical
+    d = fac.effective_area(angle,N=201)
+    assert d[tfloor].to_value(aunit) == pytest.approx(0,abs=1e-6)
+    angle = np.arctan(2*radius/depth) - 1*u.deg # not quite critical
+    d = fac.effective_area(angle,N=201)
+    assert not d[tfloor].to_value(aunit) == pytest.approx(0,abs=1e-6)
+    # threshold not reached case
+    radius = 100*u.km
+    depth = 100*u.km
+    threshold = 200*u.km
+    fac = init_facula(R0=radius,Teff_floor=tfloor,Teff_wall=twall,Zw=depth,floor_threshold=threshold)
+    angle=5*u.deg
+    d = fac.effective_area(angle,N=201)
+    assert d[tfloor]==0*aunit
+    assert d[twall].to_value(aunit)==pytest.approx((np.pi*(radius)**2*np.cos(angle)).to_value(aunit),rel=1e-3)
 
+
+
+
+
+
+
+if __name__ in '__main__':
+    test_facula_init()
+    test_facula_age()
+    test_facula_effective_area()
