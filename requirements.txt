@@ -6,3 +6,4 @@ scipy
 pathlib
 tqdm
 h5py
+tinygp
