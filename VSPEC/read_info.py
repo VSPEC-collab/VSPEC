@@ -95,6 +95,14 @@ class ParamModel:
         Log of the minimum energy flares to be considered in ergs.
     star_flare_log_E_erg_Nsteps : int
         The number of flare energy steps to consider.
+    star_granulation_mean : float
+        The mean coverage of low-teff granulation.
+    star_granulation_amp : float
+        The amplitude of granulation oscillations.
+    star_granulation_period : astropy.units.Quantity
+        The period of granulation oscillations.
+    star_granulation_dteff : astropy.units.Quantity
+        The difference between the quiet photosphere and the low-teff granulation region.
     star_mass : astropy.units.Quantity [mass]
         The mass of the star.
     star_radius : astropy.units.Quantity [distance]
@@ -295,6 +303,12 @@ class ParamModel:
             'Star', 'star_flare_log_E_erg_min')
         self.star_flare_log_E_erg_Nsteps = configParser.getint(
             'Star', 'star_flare_log_E_erg_Nsteps')
+        
+        self.star_granulation_mean = configParser.getfloat('Star','star_granulation_mean')
+        self.star_granulation_amp = configParser.getfloat('Star','star_granulation_amp')
+        per_unit = u.Unit(configParser.get('Star','star_granulation_period_unit'))
+        self.star_granulation_period = configParser.getfloat('Star','star_granulation_period')*per_unit
+        self.star_granulation_dteff = configParser.getfloat('Star','star_granulation_dteff')*u.K
 
         self.star_mass = configParser.getfloat('Star', 'star_mass') * u.M_sun
         self.star_radius = configParser.getfloat(

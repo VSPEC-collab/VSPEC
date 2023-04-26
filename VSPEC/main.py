@@ -18,6 +18,7 @@ import warnings
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
+from VSPEC.variable_star_model import granules
 from VSPEC.files import build_directories, N_ZFILL, get_filename
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
@@ -432,11 +433,18 @@ class ObservationModel:
         )
         ld_params = [1-self.params.ld_a1-self.params.ld_a2,
                      self.params.ld_a1, self.params.ld_a2]
+        granulation = granules.Granulation(
+            self.params.star_granulation_mean,
+            self.params.star_granulation_amp,
+            self.params.star_granulation_period,
+            self.params.star_granulation_dteff
+        )
         self.star = vsm.Star(self.params.star_teff, self.params.star_radius,
                              self.params.star_rot_period, empty_spot_collection, empty_fac_collection,
                              name=self.params.star_name, distance=self.params.system_distance,
                              Nlat=self.params.Nlat, Nlon=self.params.Nlon, flare_generator=flare_generator,
-                             spot_generator=spot_generator, fac_generator=fac_generator, ld_params=ld_params)
+                             spot_generator=spot_generator, fac_generator=fac_generator, ld_params=ld_params,
+                             granulation=granulation)
 
     def warm_up_star(self, spot_warmup_time: u.Quantity[u.day] = 0*u.day, facula_warmup_time: u.Quantity[u.day] = 0*u.day):
         """
