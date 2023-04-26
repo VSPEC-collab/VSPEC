@@ -13,6 +13,7 @@ from VSPEC.helpers import MSH
 from VSPEC.variable_star_model.spots import StarSpot, SpotCollection, SpotGenerator
 from VSPEC.variable_star_model.faculae import Facula, FaculaCollection, FaculaGenerator
 from VSPEC.variable_star_model.flares import StellarFlare, FlareCollection, FlareGenerator
+from VSPEC.variable_star_model.granules import Granulation
 
 
 class Star:
@@ -93,6 +94,7 @@ class Star:
                  flare_generator: FlareGenerator = None,
                  spot_generator: SpotGenerator = None,
                  fac_generator: FaculaGenerator = None,
+                 granulation: Granulation = None,
                  ld_params: list = [0, 1, 0]):
         self.name = name
         self.Teff = Teff
@@ -125,6 +127,7 @@ class Star:
                 R_peak=300*u.km, R_HWHM=100*u.km, Nlon=Nlon, Nlat=Nlat)
         else:
             self.fac_generator = fac_generator
+        self.granulation = granulation
         self.ld_params = ld_params
 
     def get_pixelmap(self):
@@ -178,7 +181,7 @@ class Star:
         """
         self.faculae.add_faculae(facula)
 
-    def calc_coverage(self, sub_obs_coords):
+    def calc_coverage(self, sub_obs_coords,granulation_fraction=0.0):
         """
         Calculate coverage
 
@@ -192,6 +195,8 @@ class Star:
             This is the point that is at the center of the stellar disk from the view of
             an observer. Format: {'lat':lat,'lon':lon} where lat and lon are
             `astropy.units.Quantity` objects.
+        granulation_fraction : float
+            The fraction of the quiet photosphere that has a lower Teff due to granulation
 
         Returns
         -------
@@ -217,6 +222,9 @@ class Star:
             pix = self.map == teff
             pix_sum = ((pix.astype('float32') * ld * jacobian)
                        [int_map == 0]).sum()
+            if (teff == self.Teff) and (granulation_fraction>0.0): # Quiet Photosphere
+                data[teff] = pix_sum(1-granulation_fraction)
+                data[teff-self.granulation.dteff] = pix_sum(granulation_fraction)
             data[teff] = pix_sum
         for i in map_keys.keys():
             facula = self.faculae.faculae[i]
@@ -500,3 +508,23 @@ class Star:
             coverage, self.radius)
         self.spots.add_spot(new_spots)
         self.map = self.get_pixelmap()
+    
+
+    def get_granulation_coverage(self,time:u.Quantity)->np.ndarray:
+        """
+        Calculate the coverage by granulation at each point in `time`.
+
+        Parameters
+        ----------
+        time : astropy.units.Quantity
+            The points on the time axis.
+        
+        Returns
+        -------
+        np.ndarray
+            The coverage corresponding to each `time` point.
+        """
+        if self.granulation is None:
+            return np.zeros(shape=time.shape)
+        else:
+            return self.granulation.get_coverage(time)
