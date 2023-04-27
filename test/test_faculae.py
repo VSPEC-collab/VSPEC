@@ -104,7 +104,55 @@ def test_facula_effective_area():
     assert d[tfloor]==0*aunit
     assert d[twall].to_value(aunit)==pytest.approx((np.pi*(radius)**2*np.cos(angle)).to_value(aunit),rel=1e-3)
 
+def test_facula_fractional_effective_area():
+    """
+    Test `Facula.fractional_effective_area()`
+    """
+    tfloor = 2500*u.K
+    twall = 3900*u.K
+    radius = 100*u.km
+    depth = 100*u.km
+    fac = init_facula(R0=radius,Teff_floor=tfloor,Teff_wall=twall,Zw=depth)
+    angle=0*u.deg
+    d = fac.fractional_effective_area(angle,N=201)
+    assert (d[tfloor]+d[twall]).to_value(u.dimensionless_unscaled) == pytest.approx(1.0,rel=1e-6)
+    angle=5*u.deg
+    d = fac.fractional_effective_area(angle,N=201)
+    assert (d[tfloor]+d[twall]).to_value(u.dimensionless_unscaled) == pytest.approx(1.0,rel=1e-6)
+    angle=90*u.deg
+    d = fac.fractional_effective_area(angle,N=201)
+    assert (d[tfloor]+d[twall]).to_value(u.dimensionless_unscaled) == pytest.approx(1.0,rel=1e-6)
 
+def test_facula_angular_radius():
+    """
+    Test `Facula.angular_radius()`
+    """
+    radius = 100*u.km
+    r_star = 0.15*u.R_sun
+    fac = init_facula(R0=radius)
+    arc_length = (radius/r_star).to_value(u.dimensionless_unscaled)*u.rad
+    assert fac.angular_radius(r_star).to_value(u.deg) == pytest.approx(arc_length.to_value(u.deg),rel=1e-6)
+
+def test_facula_map_pixels():
+    """
+    Test `Facula.map_pixels()`
+    """
+    
+    r_star = 0.15*u.R_sun
+    lat = 0*u.deg
+    lon = 0*u.deg
+    radius = 0*u.km
+    fac = init_facula(R0=radius,lat=lat,lon=lon)
+    pmap = fac.map_pixels(r_star)
+    assert np.all(pmap==0)
+    radius = np.pi*r_star
+    fac = init_facula(R0=radius,lat=lat,lon=lon)
+    pmap = fac.map_pixels(r_star)
+    assert np.all(pmap==1)
+    radius = np.pi*r_star*0.9
+    fac = init_facula(R0=radius,lat=lat,lon=lon)
+    pmap = fac.map_pixels(r_star)
+    assert not np.all(pmap==1)
 
 
 
