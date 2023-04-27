@@ -287,7 +287,7 @@ class FaculaCollection:
         else:
             self.gridmaker = gridmaker
         for facula in faculae:
-            facula.gridmaker = self.gridmaker
+            facula.set_gridmaker(self.gridmaker)
 
     def add_faculae(self, facula):
         """
@@ -299,10 +299,9 @@ class FaculaCollection:
             Facula object(s) to add.
         """
         if isinstance(facula, Facula):
-            facula.gridmaker = self.gridmaker
-        else:
-            for fac in facula:
-                fac.gridmaker = self.gridmaker
+            facula = [facula]
+        for fac in facula:
+            fac.set_gridmaker(self.gridmaker)
         self.faculae += tuple(facula)
 
     def clean_faclist(self) -> None:

@@ -154,6 +154,91 @@ def test_facula_map_pixels():
     pmap = fac.map_pixels(r_star)
     assert not np.all(pmap==1)
 
+def test_fac_collection_init():
+    """
+    Test `FaculaCollection.__init__()`
+    """
+    N = 4
+    collec = FaculaCollection(*[init_facula(Nlat=400,Nlon=600) for i in range(N)],Nlat=300,Nlon=600)
+    expected_grid = CoordinateGrid(300, 600)
+    for facula in collec.faculae:
+        assert isinstance(facula, Facula)
+    assert collec.gridmaker == expected_grid
+    for facula in collec.faculae:
+        assert facula.gridmaker == collec.gridmaker
+
+def test_fac_collection_add_facula():
+    """
+    Test `FaculaCollection.add_facula()`
+    """
+    N = 4
+    collec = FaculaCollection(*[init_facula(Nlat=400,Nlon=600) for i in range(N)],Nlat=300,Nlon=600)
+    assert len(collec.faculae) == N
+    collec.add_faculae(init_facula(Nlat=400,Nlon=600))
+    assert len(collec.faculae) == N+1
+    for facula in collec.faculae:
+        assert facula.r.shape == collec.gridmaker.zeros().shape
+        assert facula.gridmaker == collec.gridmaker
+    collec.add_faculae((init_facula(Nlat=400,Nlon=600),init_facula(Nlat=400,Nlon=600)))
+    assert len(collec.faculae) == N+1+2
+    for facula in collec.faculae:
+        assert facula.gridmaker == collec.gridmaker
+    
+def test_fac_collection_clean_faclist():
+    """
+    Test `FaculaCollection.clean_faclist()`
+    """
+    rmax = 100*u.km
+    collec = FaculaCollection(init_facula(Rmax=rmax,R0=0.8*rmax,growing=True))
+    collec.clean_faclist()
+    assert len(collec.faculae) == 1
+    collec = FaculaCollection(init_facula(Rmax=rmax,R0=0.8*rmax,growing=False))
+    collec.clean_faclist()
+    assert len(collec.faculae) == 1
+    collec = FaculaCollection(init_facula(Rmax=rmax,R0=0.01*rmax,growing=True))
+    collec.clean_faclist()
+    assert len(collec.faculae) == 1
+    collec = FaculaCollection(init_facula(Rmax=rmax,R0=0.01*rmax,growing=False))
+    collec.clean_faclist()
+    assert len(collec.faculae) == 0
+
+def test_fac_collection_age():
+    """
+    Test `FaculaCollection.age()`
+    """
+    lifetime = 10*u.hr
+    N = 4
+    collec = FaculaCollection(
+        *[init_facula(Rmax=100*u.km,R0=100/np.e*u.km,lifetime=lifetime,growing=True) for i in range(N)]
+    )
+    collec.age(lifetime*0.5)
+    for facula in collec.faculae:
+        assert facula.current_R == 100*u.km
+    collec.age(lifetime*0.5)
+    for facula in collec.faculae:
+        assert facula.current_R == 100*u.km/np.e
+    collec.age(lifetime*0.5)
+    assert len(collec.faculae) == 0
+
+def test_fac_collection_map_pixels():
+    """
+    Test `FaculaCollection.map_pixels()`
+    """
+    lats = [-20,0,20]
+    collec = FaculaCollection(
+        *[init_facula(lat=lat*u.deg,R0=1000*u.km) for lat in lats],
+        Nlat=400,Nlon=800
+    )
+    r_star = 0.15*u.R_sun
+    teff = 3000*u.K
+    pixmap = (collec.gridmaker.zeros()+1)*teff
+    pmap,d = collec.map_pixels(pixmap,r_star,teff)
+    n_faculae = len(collec.faculae)
+    for i in range(n_faculae+1):
+        assert np.any(pmap==i)
+    for i in range(n_faculae):
+        assert i in d.keys()
+
 
 
 
@@ -162,3 +247,11 @@ if __name__ in '__main__':
     test_facula_init()
     test_facula_age()
     test_facula_effective_area()
+    test_facula_fractional_effective_area()
+    test_facula_angular_radius()
+    test_facula_map_pixels()
+    test_fac_collection_init()
+    test_fac_collection_add_facula()
+    test_fac_collection_clean_faclist()
+    test_fac_collection_age()
+    test_fac_collection_map_pixels()
