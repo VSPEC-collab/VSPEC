@@ -239,6 +239,17 @@ def test_fac_collection_map_pixels():
     for i in range(n_faculae):
         assert i in d.keys()
 
+def test_fac_gen_init():
+    """
+    Test for `FaculaGenerator.__init__()`
+    """
+    gen = FaculaGenerator(Nlat=300,Nlon=600)
+    assert isinstance(gen.R0,float)
+    assert isinstance(gen.sig_R,float)
+    assert isinstance(gen.T0,float)
+    assert isinstance(gen.sig_T,float)
+    assert gen.gridmaker == CoordinateGrid(300,600)
+
 
 
 

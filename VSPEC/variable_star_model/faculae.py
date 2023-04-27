@@ -445,17 +445,18 @@ class FaculaGenerator:
                  T_peak: Quantity[u.hr] = 6.2*u.hr,
                  T_HWHM: Quantity[u.hr] = 4.7*u.hr,
                  coverage: float = 0.0001,
-                 dist: str = 'iso', Nlon: int = 1000,
+                 dist: str = 'iso',
+                 Nlon: int = 1000,
                  Nlat: int = 500,
                  gridmaker=None,
                  teff_bounds=(2500*u.K, 3900*u.K)):
 
         self.radius_unit = u.km
         self.lifetime_unit = u.hr
-        self.R0 = np.log10(R_peak/self.radius_unit)
-        self.sig_R = np.log10((R_peak + R_HWHM)/self.radius_unit) - self.R0
-        self.T0 = np.log10(T_peak/self.lifetime_unit)
-        self.sig_T = np.log10((T_peak + T_HWHM)/self.lifetime_unit) - self.T0
+        self.R0 = np.log10(R_peak/self.radius_unit).to_value(u.dimensionless_unscaled)
+        self.sig_R = np.log10((R_peak + R_HWHM)/self.radius_unit).to_value(u.dimensionless_unscaled) - self.R0
+        self.T0 = np.log10(T_peak/self.lifetime_unit).to_value(u.dimensionless_unscaled)
+        self.sig_T = np.log10((T_peak + T_HWHM)/self.lifetime_unit).to_value(u.dimensionless_unscaled) - self.T0
         assert isinstance(coverage, float)
         self.coverage = coverage
         self.dist = dist
