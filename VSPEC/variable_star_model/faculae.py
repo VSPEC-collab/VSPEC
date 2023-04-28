@@ -108,8 +108,8 @@ class Facula:
             self.set_gridmaker(CoordinateGrid(Nlat, Nlon))
         else:
             self.set_gridmaker(gridmaker)
-        
-    def set_gridmaker(self,gridmaker:CoordinateGrid):
+
+    def set_gridmaker(self, gridmaker: CoordinateGrid):
         """
         Set the `gridmaker` attribute safely.
 
@@ -124,7 +124,6 @@ class Facula:
         lon0 = self.lon
         self.r = 2 * np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
                                        + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
-
 
     def age(self, time: Quantity[u.day]):
         """
@@ -153,7 +152,6 @@ class Facula:
                 self.current_R = self.current_R * np.exp(2*time/self.lifetime)
         else:
             self.current_R = self.current_R * np.exp(-2*time/self.lifetime)
-
 
     def effective_area(self, angle, N=201):
         """
@@ -453,10 +451,14 @@ class FaculaGenerator:
 
         self.radius_unit = u.km
         self.lifetime_unit = u.hr
-        self.R0 = np.log10(R_peak/self.radius_unit).to_value(u.dimensionless_unscaled)
-        self.sig_R = np.log10((R_peak + R_HWHM)/self.radius_unit).to_value(u.dimensionless_unscaled) - self.R0
-        self.T0 = np.log10(T_peak/self.lifetime_unit).to_value(u.dimensionless_unscaled)
-        self.sig_T = np.log10((T_peak + T_HWHM)/self.lifetime_unit).to_value(u.dimensionless_unscaled) - self.T0
+        self.R0 = np.log10(
+            R_peak/self.radius_unit).to_value(u.dimensionless_unscaled)
+        self.sig_R = np.log10(
+            (R_peak + R_HWHM)/self.radius_unit).to_value(u.dimensionless_unscaled) - self.R0
+        self.T0 = np.log10(
+            T_peak/self.lifetime_unit).to_value(u.dimensionless_unscaled)
+        self.sig_T = np.log10(
+            (T_peak + T_HWHM)/self.lifetime_unit).to_value(u.dimensionless_unscaled) - self.T0
         assert isinstance(coverage, float)
         self.coverage = coverage
         self.dist = dist
@@ -539,6 +541,91 @@ class FaculaGenerator:
         teff = np.clip(teff, *self.teff_bounds)
         return teff
 
+    def get_n_faculae_expected(self, time: u.Quantity, rad_star: u.Quantity) -> float:
+        """
+        Over a given time duration, compute the number of new faculae to create.
+
+        Parameters
+        ----------
+        time : astropy.units.Quantity 
+            Time over which to create faculae.
+        rad_star : astropy.units.Quantity 
+            Radius of the star.
+
+        Returns
+        -------
+        float
+            The expected number of faculae to be birthed in the given time.
+        """
+        N_exp = (self.coverage * 4*np.pi*rad_star**2 / ((10**self.R0*self.radius_unit)**2 * np.pi)
+                 * time/(10**self.T0 * self.lifetime_unit * 2)).to_value(u.Unit(''))
+        return N_exp
+
+    def get_coords(self, N: int):
+        """
+        Generate random coordinates for new Faculae to be centered at.
+
+        Parameters
+        ----------
+        N : int
+            The number of lat/lon pairs to create.
+
+        Returns
+        -------
+        lats : astropy.units.Quantity
+            The latitude coordinates of the new faculae.
+        lons : astropy.units.Quantity
+            The longitude coordinates of the new faculae.
+
+        Raises
+        ------
+        NotimplementedError
+            If `dist` is 'solar'.
+        ValueError
+            If `dist` is not recognized.
+        """
+        if self.dist == 'iso':
+            X = np.random.random(size=N)
+            lats = np.arcsin(2*X - 1)/np.pi * 180*u.deg
+            lons = np.random.random(size=N) * 360 * u.deg
+            return lats, lons
+        elif self.dist == 'solar':
+            raise NotImplementedError(
+                f'{self.dist} has not been implemented as a distribution')
+        else:
+            raise ValueError(
+                f'{self.dist} is not recognized as a distribution')
+
+    def generate_faculae(self, N: int, Teff_star: u.Quantity):
+        """
+        Generate a given number of new Faculae
+
+        Parameters
+        ----------
+        N : int
+            The number of faculae to generate.
+        Teff_star : astropy.units.Quantity 
+            Temperature of the star.
+
+        Returns
+        -------
+        tuple of Facula
+            Tuple of new faculae.
+        """
+        mu = np.random.normal(loc=0, scale=1, size=N)
+        max_radii = 10**(self.R0 + self.sig_R * mu) * self.radius_unit
+        lifetimes = 10**(self.T0 + self.sig_T * mu) * self.lifetime_unit
+        starting_radii = max_radii / np.e**2
+        lats, lons = self.get_coords(N)
+        teff_floor = self.get_floor_teff(max_radii, Teff_star)
+        teff_wall = self.get_wall_teff(max_radii, teff_floor)
+        new_faculae = []
+        for i in range(N):
+            new_faculae.append(Facula(lats[i], lons[i], max_radii[i], starting_radii[i], teff_floor[i],
+                                      teff_wall[i], lifetimes[i], growing=True, floor_threshold=20*u.km, Zw=100*u.km,
+                                      Nlon=self.Nlon, Nlat=self.Nlat))
+        return tuple(new_faculae)
+
     def birth_faculae(self, time: u.Quantity, rad_star: u.Quantity, Teff_star: u.Quantity):
         """
         Over a given time duration, compute the number of new faculae to create.
@@ -557,43 +644,7 @@ class FaculaGenerator:
         -------
         tuple of Facula
             Tuple of new faculae.
-
-        Raises
-        ------
-        NotimplementedError
-            If `dist` is 'solar'.
-        ValueError
-            If `dist` is not recognized.
-
-
         """
-        N_exp = (self.coverage * 4*np.pi*rad_star**2 / ((10**self.R0*self.radius_unit)**2 * np.pi)
-                 * time/(10**self.T0 * self.lifetime_unit * 2)).to(u.Unit(''))
-
-        N = max(0, round(np.random.normal(loc=N_exp, scale=np.sqrt(N_exp))))
-        mu = np.random.normal(loc=0, scale=1, size=N)
-        max_radii = 10**(self.R0 + self.sig_R * mu) * self.radius_unit
-        lifetimes = 10**(self.T0 + self.sig_T * mu) * self.lifetime_unit
-        starting_radii = max_radii / np.e**2
-        lats = None
-        lons = None
-        if self.dist == 'iso':
-            x = np.linspace(-90, 90, 180, endpoint=False)*u.deg
-            p = np.cos(x)
-            lats = (np.random.choice(x, p=p/p.sum(), size=N) +
-                    np.random.random(size=N)) * u.deg
-            lons = np.random.random(size=N) * 360 * u.deg
-        elif self.dist == 'solar':
-            raise NotImplementedError(
-                f'{self.dist} has not been implemented as a distribution')
-        else:
-            raise ValueError(
-                f'{self.dist} is not recognized as a distribution')
-        teff_floor = self.get_floor_teff(max_radii, Teff_star)
-        teff_wall = self.get_wall_teff(max_radii, teff_floor)
-        new_faculae = []
-        for i in range(N):
-            new_faculae.append(Facula(lats[i], lons[i], max_radii[i], starting_radii[i], teff_floor[i],
-                                      teff_wall[i], lifetimes[i], growing=True, floor_threshold=20*u.km, Zw=100*u.km,
-                                      Nlon=self.Nlon, Nlat=self.Nlat))
-        return tuple(new_faculae)
+        N_exp = self.get_n_faculae_expected(time, rad_star)
+        N = np.random.poisson(lam=N_exp)
+        return self.generate_faculae(N, Teff_star)
