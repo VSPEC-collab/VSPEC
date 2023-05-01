@@ -399,7 +399,7 @@ class PhaseAnalyzer:
         filename : str
         """
         hdul = self.to_fits()
-        hdul.writeto(filename)
+        hdul.writeto(filename,overwrite=True)
     def to_twocolumn(self,index:tuple,outfile:str,fmt='ppm',wl='um'):
         """
         Write data to a two column file that can be used in a retrival.
@@ -606,7 +606,7 @@ class GCMdecoder:
         new_variables = [var for var in variables if item != var]
         self.header = ','.join(coords+new_variables)
         
-    def copy_config(self,path_to_copy:Path,path_to_write:Path):
+    def copy_config(self,path_to_copy:Path,path_to_write:Path,NMAX=2,LMAX=2):
         """
         Copy a PSG config file but overwrite all GCM parameters and data
         """
@@ -659,6 +659,10 @@ class GCMdecoder:
             elif b'<ATMOSPHERE-ASUNI>' in line:
                 n_aero = len(self.get_aerosols()[0])
                 return bytes(f'<ATMOSPHERE-ASUNI>{",".join(["scl"]*n_aero)}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-NMAX>' in line:
+                return bytes(f'<ATMOSPHERE-NMAX>{NMAX}\n',encoding='UTF-8')
+            elif b'<ATMOSPHERE-LMAX>' in line:
+                return bytes(f'<ATMOSPHERE-LMAX>{LMAX}\n',encoding='UTF-8')
             else:
                 return line + b'\n'
 
