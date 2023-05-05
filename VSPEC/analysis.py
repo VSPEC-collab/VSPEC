@@ -494,6 +494,14 @@ class GCMdecoder:
     def from_psg(cls,filename):
         head,dat = get_gcm_binary(filename)
         return cls(head,dat)
+    def rename_var(self,oldname,newname):
+        coords,vars = sep_header(self.header)
+        if oldname in vars:
+            vars = [newname if var==oldname else var for var in vars]
+        else:
+            raise KeyError(f'Variable {oldname} not in header.')
+        new_header = ','.join(coords+vars)
+        self.header=new_header
     def get_shape(self):
         coord,_ = sep_header(self.header)
         Nlon,Nlat,Nlayer, _,_,_,_ = coord
