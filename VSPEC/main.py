@@ -94,16 +94,29 @@ class ObservationModel:
         """
         teffs = arrange_teff(self.params.star_teff_min,self.params.star_teff_max)
         for teff in self.wrap_iterator(teffs,desc='Binning Spectra', total=len(teffs)):
-            stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
-                                              file_name_writer=stellar_spectra.get_binned_filename,
-                                              binned_path=self.dirs['binned'],
-                                              resolving_power=self.params.resolving_power,
-                                              lam1=self.params.lambda_min,
-                                              lam2=self.params.lambda_max,
-                                              model_unit_wavelength=u.AA,
-                                              model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
-                                              target_unit_wavelength=self.params.target_wavelength_unit,
-                                              target_unit_flux=self.params.target_flux_unit)
+            try:
+                stellar_spectra.bin_cached_model(to_float(teff, u.K),
+                                                file_name_writer=stellar_spectra.get_binned_filename,
+                                                binned_path=self.dirs['binned'],
+                                                resolving_power=self.params.resolving_power,
+                                                lam1=self.params.lambda_min,
+                                                lam2=self.params.lambda_max,
+                                                model_unit_wavelength=u.AA,
+                                                model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
+                                                target_unit_wavelength=self.params.target_wavelength_unit,
+                                                target_unit_flux=self.params.target_flux_unit)
+
+            except ValueError:
+                stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
+                                                file_name_writer=stellar_spectra.get_binned_filename,
+                                                binned_path=self.dirs['binned'],
+                                                resolving_power=self.params.resolving_power,
+                                                lam1=self.params.lambda_min,
+                                                lam2=self.params.lambda_max,
+                                                model_unit_wavelength=u.AA,
+                                                model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
+                                                target_unit_wavelength=self.params.target_wavelength_unit,
+                                                target_unit_flux=self.params.target_flux_unit)
 
     def read_spectrum(self, teff: u.Quantity)->typing.Tuple[u.Quantity,u.Quantity]:
         """

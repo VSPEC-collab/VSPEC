@@ -6,14 +6,16 @@ write model stellar spectra.
 
 from pathlib import Path
 from typing import Union, Tuple, Callable
-
+from jax import jit, numpy as jnp, lax
 import numpy as np
 import pandas as pd
 import h5py
-from scipy.interpolate import interp2d
+from scipy.interpolate import interp2d, interp1d
 from astropy import units as u, constants as c
 from VSPEC.helpers import to_float, isclose
-from VSPEC.files import RAW_PHOENIX_PATH
+from VSPEC.files import RAW_PHOENIX_PATH, BINNED_PHOENIX_PATH
+
+PRE_BINNED = (1000,50)
 
 def get_wavelengths(resolving_power: int, lam1: float, lam2: float) -> np.ndarray:
     """
@@ -46,8 +48,7 @@ def get_wavelengths(resolving_power: int, lam1: float, lam2: float) -> np.ndarra
     lams = np.array(lams)
     return lams
 
-
-def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
+def fast_bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
                  lam1: u.Quantity = None, lam2: u.Quantity = None,
                  model_unit_wavelength: u.Unit = u.AA,
                  model_unit_flux: u.Unit = u.Unit('erg cm-2 s-1 cm-1'),
@@ -55,7 +56,7 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
                  target_unit_flux: u.Unit = u.Unit('W m-2 um-1')
                  ) -> Tuple[u.Quantity, u.Quantity]:
     """
-    Bin raw data.
+    Bin raw data. Experimental!!
 
     Read in a raw H5 spectrum and bin it to the desired resolving power.
 
@@ -88,14 +89,134 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
         Flux points of the new spectrum.
     """
     fh5 = h5py.File(path, 'r')
+    wl_data = fh5['PHOENIX_SPECTRUM/wl']
+    if lam1 is None:
+        lam1 = np.min(wl_data)*model_unit_wavelength
+    if lam2 is None:
+        lam2 = np.max(wl_data)*model_unit_wavelength
+    wl = wl_data[:]
+    region_to_bin = (wl >= lam1.to_value(model_unit_wavelength)) & (wl <= lam2.to_value(model_unit_wavelength))
+    wl = (np.array(wl)[region_to_bin]*model_unit_wavelength).to(target_unit_wavelength)
+    fl_data = fh5['PHOENIX_SPECTRUM/flux']
+    scale = (1*model_unit_flux).to_value(target_unit_flux)
+    fl = np.array(fl_data[:])
+    fl = fl[region_to_bin]
+    fl = np.power(10.,fl)* scale
+    binned_wavelengths = get_wavelengths(resolving_power,
+                                         to_float(
+                                             lam1, target_unit_wavelength),
+                                         to_float(lam2, target_unit_wavelength)) * target_unit_wavelength
+    bin_number = np.digitize(wl[:-1],binned_wavelengths[:-1]) # bin ids
+    dlam = np.diff(wl).to_value(target_unit_wavelength) #width of each hires channel um
+    binned_dlam = np.diff(binned_wavelengths).to_value(target_unit_wavelength) #width of each low res channel um
+
+    weights = fl[:-1]*dlam #W m-2 hi res channel
+    binned_flux = np.bincount(bin_number-1,weights)
+    return binned_wavelengths[:-1], binned_flux/binned_dlam * target_unit_flux
+
+def bin_from_cache(teff:int,
+                 resolving_power: int = 50,
+                 lam1: u.Quantity = None, lam2: u.Quantity = None,
+                 model_unit_wavelength: u.Unit = u.AA,
+                 model_unit_flux: u.Unit = u.Unit('erg cm-2 s-1 cm-1'),
+                 target_unit_wavelength: u.Unit = u.um,
+                 target_unit_flux: u.Unit = u.Unit('W m-2 um-1')):
+    R_to_use = None
+    interp_only = False
+    for R in sorted(PRE_BINNED):
+        if R >= resolving_power:
+            if R==resolving_power:
+                interp_only = True
+            R_to_use = R
+            break
+    if R_to_use is None:
+        raise ValueError('No suitible pre-binned spectrum could be found')
+    
+    wl,fl = read_binned_spectrum(
+        get_binned_filename(teff),
+        get_cached_file_dir(R_to_use)
+    )
+    wl = wl.to(target_unit_wavelength)
+    fl = fl.to(target_unit_flux)
+    if lam1 is None:
+        lam1 = np.min(wl)
+    if lam2 is None:
+        lam2 = np.max(wl)
+    binned_wavelengths = get_wavelengths(resolving_power,
+                                         to_float(
+                                             lam1, target_unit_wavelength),
+                                         to_float(lam2, target_unit_wavelength)) * target_unit_wavelength
+    if interp_only:
+        binned_flux = interp1d(
+            wl.to_value(target_unit_wavelength),
+            fl.to_value(target_unit_flux)
+        )(binned_wavelengths.to_value(target_unit_wavelength)[:-1])
+        return binned_wavelengths[:-1], binned_flux*target_unit_flux
+    else:
+        region_to_bin = (wl >= lam1) & (wl <= lam2)
+        wl = wl[region_to_bin]
+        fl = fl[region_to_bin]
+        binned_flux = bin_spectra(
+            np.array(wl.to_value(target_unit_wavelength)),
+            np.array(fl.to_value(target_unit_flux)),
+            np.array(binned_wavelengths.to_value(target_unit_wavelength))
+        )
+        return binned_wavelengths[:-1], binned_flux*target_unit_flux
+
+
+
+def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
+                 lam1: u.Quantity = None, lam2: u.Quantity = None,
+                 model_unit_wavelength: u.Unit = u.AA,
+                 model_unit_flux: u.Unit = u.Unit('erg cm-2 s-1 cm-1'),
+                 target_unit_wavelength: u.Unit = u.um,
+                 target_unit_flux: u.Unit = u.Unit('W m-2 um-1'),
+                 use_jax:bool = False
+                 ) -> Tuple[u.Quantity, u.Quantity]:
+    """
+    Bin raw data.
+
+    Read in a raw H5 spectrum and bin it to the desired resolving power.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Location of the model spectrum.
+    resolving_power : int, default=50
+        Resolving power of the binned spectrum.
+    lam1 : astropy.units.Quantity [length], default=None
+        Starting wavelength of binned spectrum. Defaults to the
+        shortest wavelength in the raw file.
+    lam2 : astropy.units.quantity.Quantity [length], default=None
+        Ending wavelength of binned spectrum. Defaults to the
+        longest wavelength in the raw file.
+    model_unit_wavelength : '~astropy.units.Unit' [length], default=u.AA
+        Wavelength unit of the model.
+    model_unit_flux : astropy.units.Unit [flux], default=u.Unit('erg cm-2 s-1 cm-1')
+        Flux unit of the model.
+    target_unit_wavelength : astropy.units.Unit [length], default=u.um
+        Wavelength unit of the binned spectrum.
+    target_unit_flux : astropy.units.Unit [flux], default=u.Unit('W m-2 um-1')
+        Flux unit of the binned spectrum.
+    use_jax : bool, default=False
+        Use the JAX implementation of the loop. Don't do this yet.
+
+    Returns
+    -------
+    binned_wavelength : astropy.units.quantity.Quantity [length]
+        Wavelength points of the binned spectrum.
+    binned_flux : astropy.units.quantity.Quantity [flux]
+        Flux points of the new spectrum.
+    """
+    fh5 = h5py.File(path, 'r')
     wl = fh5['PHOENIX_SPECTRUM/wl'][()] * model_unit_wavelength
     fl = 10.**fh5['PHOENIX_SPECTRUM/flux'][()] * model_unit_flux
     wl = wl.to(target_unit_wavelength)
     fl = fl.to(target_unit_flux)
     if lam1 is None:
-        lam1 = min(wl)
+        lam1 = np.min(wl)
     if lam2 is None:
-        lam2 = max(wl)
+        lam2 = np.max(wl)
     binned_wavelengths = get_wavelengths(resolving_power,
                                          to_float(
                                              lam1, target_unit_wavelength),
@@ -103,20 +224,71 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
     region_to_bin = (wl >= lam1) & (wl <= lam2)
     wl = wl[region_to_bin]
     fl = fl[region_to_bin]
+    if use_jax:
+        binned_flux = jax_bin_spectra(
+        jnp.array(wl.to_value(target_unit_wavelength)),
+        jnp.array(fl.to_value(target_unit_flux)),
+        jnp.array(binned_wavelengths.to_value(target_unit_wavelength))
+    )
+    else:
+        binned_flux = bin_spectra(
+            np.array(wl.to_value(target_unit_wavelength)),
+            np.array(fl.to_value(target_unit_flux)),
+            np.array(binned_wavelengths.to_value(target_unit_wavelength))
+        )
+        # binned_flux = []
+        # for i in range(len(binned_wavelengths) - 1):
+        #     lam_cen = binned_wavelengths[i]
+        #     upper = 0.5*(lam_cen + binned_wavelengths[i+1])
+        #     if i == 0:
+        #         # dl = upper - lam_cen # uncomment to sample blue of first pixel
+        #         lower = lam_cen  # - dl
+        #     else:
+        #         lower = 0.5*(lam_cen + binned_wavelengths[i-1])
+        #     reg = (wl >= lower) & (wl < upper)
+        #     binned_flux.append(to_float(fl[reg].mean(), target_unit_flux))
+        # binned_flux = np.array(binned_flux)
+    return binned_wavelengths[:-1], binned_flux*target_unit_flux
+
+def bin_spectra(wl_old:np.array,fl_old:np.array,wl_new:np.array):
     binned_flux = []
-    for i in range(len(binned_wavelengths) - 1):
-        lam_cen = binned_wavelengths[i]
-        upper = 0.5*(lam_cen + binned_wavelengths[i+1])
+    for i in range(len(wl_new) - 1):
+        lam_cen = wl_new[i]
+        upper = 0.5*(lam_cen + wl_new[i+1])
         if i == 0:
             # dl = upper - lam_cen # uncomment to sample blue of first pixel
             lower = lam_cen  # - dl
         else:
-            lower = 0.5*(lam_cen + binned_wavelengths[i-1])
-        reg = (wl >= lower) & (wl < upper)
-        binned_flux.append(to_float(fl[reg].mean(), target_unit_flux))
-    binned_flux = np.array(binned_flux) * target_unit_flux
-    binned_wavelengths = binned_wavelengths[:-1]
-    return binned_wavelengths, binned_flux
+            lower = 0.5*(lam_cen + wl_new[i-1])
+        reg = (wl_old >= lower) & (wl_old < upper)
+        binned_flux.append(fl_old[reg].mean())
+    binned_flux = np.array(binned_flux)
+    return binned_flux
+
+@jit
+def jax_bin_spectra(wl_old:jnp.array,fl_old:jnp.array,wl_new:jnp.array):
+    """
+    implement in JAX. BAD!
+    """
+    binned_flux = []
+    for i in range(len(wl_new) - 1):
+        lam_cen = wl_new[i]
+        upper = 0.5*(lam_cen + wl_new[i+1])
+        if i == 0:
+            # dl = upper - lam_cen # uncomment to sample blue of first pixel
+            lower = lam_cen  # - dl
+        else:
+            lower = 0.5*(lam_cen + wl_new[i-1])
+        reg = jnp.greater_equal(wl_old,jnp.array([lower]))
+        jnp.logical_and(
+            jnp.greater_equal(wl_old,jnp.array([lower])),
+            jnp.less(wl_old,jnp.array([upper]))
+        )
+        # indices = jnp.where(reg)
+        binned_flux.append(jnp.mean(fl_old,where=reg))
+    binned_flux = jnp.array(binned_flux)
+    return binned_flux
+
 
 
 def get_phoenix_path(teff: Union[float, int]) -> Path:
@@ -188,6 +360,9 @@ def write_binned_spectrum(wavelength: u.Quantity, flux: u.Quantity, filename: st
             file.write(f'\n{wl:.6e}, {fl:.6e}')
 
 
+def get_cached_file_dir(R:int):
+    return Path(BINNED_PHOENIX_PATH) / f'R_{R:0>6}'
+
 def read_binned_spectrum(filename: str,
                          path: Path = Path('./binned_data/')
                          ) -> Tuple[u.Quantity, u.Quantity]:
@@ -219,6 +394,21 @@ def read_binned_spectrum(filename: str,
     wavelength = data[wave_col].values * u.Unit(wave_unit_str)
     flux = data[flux_col].values * u.Unit(flux_unit_str)
     return wavelength, flux
+
+def bin_cached_model(teff: Union[float, int], file_name_writer: Callable = get_binned_filename,
+                      binned_path: Path = Path('./binned_data/'),
+                      resolving_power: int = 50, lam1: u.Quantity = None, lam2: u.Quantity = None,
+                      model_unit_wavelength: u.Unit = u.AA,
+                      model_unit_flux: u.Unit = u.Unit('erg cm-2 s-1 cm-1'),
+                      target_unit_wavelength: u.Unit = u.um,
+                      target_unit_flux: u.Unit = u.Unit('W m-2 um-1')) -> None:
+    wavelength,flux = bin_from_cache(teff,resolving_power,lam1,lam2,
+                            model_unit_wavelength,model_unit_flux,
+                            target_unit_wavelength,target_unit_flux)
+    write_binned_spectrum(
+        wavelength, flux, file_name_writer(teff), path=binned_path)
+    
+
 
 
 def bin_phoenix_model(teff: Union[float, int], file_name_writer: Callable = get_binned_filename,

@@ -18,6 +18,11 @@ RAW_PHOENIX_PATH = Path(__file__).parent / 'data' / 'NextGenModels' / 'RawData'
     The path to the raw PHOENIX stellar models.
 """
 
+BINNED_PHOENIX_PATH = Path(__file__).parent / 'data' / 'NextGenModels' / 'binned'
+"""str
+    The path to the binned PHOENIX stellar models.
+"""
+
 EXAMPLE_GCM_PATH = Path(__file__).parent / 'data' / 'GCMs'
 """str
     The path to example GCMs.
