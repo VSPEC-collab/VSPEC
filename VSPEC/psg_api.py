@@ -19,9 +19,9 @@ from VSPEC.helpers import to_float, isclose
 warnings.simplefilter('ignore', category=u.UnitsWarning)
 
 
-def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
+def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov',
              api_key: str = None, output_type: str = None, app: str = None,
-             outfile: str = None) -> None:
+             outfile: str = None, config_data: str = None) -> None:
     """
     Call the PSG api
 
@@ -29,7 +29,7 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
 
     Parameters
     ----------
-    config_path : str or pathlib.Path
+    config_path : str or pathlib.Path, default=None
         The path to the `PSG` config file.
     psg_url : str, default='https://psg.gsfc.nasa.gov'
         The URL of the `PSG` API. Use 'http://localhost:3000' if running locally.
@@ -42,11 +42,28 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
         The PSG app to call. For example: 'globes'
     outfile : str, default=None
         The path to write the PSG output.
+    config_data : str, default=None
+        The data contained by a config file. Essentially removes the need
+        to write a config to file.
+
+    Raises
+    ------
+    ValueError
+        If `config_path` and `config_data` are both `None`
     """
     data = {}
-    with open(config_path, 'rb') as file:
-        dat = file.read()
-    data['file'] = dat
+    if config_path is not None:
+        with open(config_path, 'rb') as file:
+            dat = file.read()
+        data['file'] = dat
+    else:
+        if config_data is None:
+            raise ValueError(
+                'A config file or the files contents must be specified '
+                'using the `config_path` or `config_data` parameters'
+            )
+        else:
+            data['file'] = config_data
     if api_key is not None:
         data['key'] = api_key
     if app is not None:

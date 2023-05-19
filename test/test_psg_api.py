@@ -50,6 +50,24 @@ def test_call_api_local():
         outfile.unlink()
         raise exc
     outfile.unlink()
+@pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+def test_call_api_nofile():
+    """
+    Run tests for `VSPEC.psg_api.call_api()` while giving the file contents rather than the path.
+    """
+    psg_url = 'http://localhost:3000'
+    outfile = Path('test.rad')
+    with open(PSG_CONFIG_PATH,'r',encoding='UTF-8') as file:
+        file_contents = file.read()
+    call_api(None,psg_url,output_type='rad',outfile=outfile,config_data=file_contents)
+    try:
+        assert outfile.exists()
+    except Exception as exc:
+        outfile.unlink()
+        raise exc
+    outfile.unlink()
+    with pytest.raises(ValueError):
+        call_api(None,psg_url,output_type='rad',outfile=outfile,config_data=None)
 
 def test_write_static_config():
     """
