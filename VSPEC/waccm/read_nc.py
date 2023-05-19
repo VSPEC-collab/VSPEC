@@ -103,7 +103,6 @@ def get_psurf(data:Dataset,itime:int):
     -------
     psurf : np.ndarray
         The surface pressure (N_lat,N_lon) in bar
-
     """
     psurf = data.variables['PS'][itime,:,:]
     ps_unit = u.Unit(data.variables['PS'].units)
@@ -123,11 +122,109 @@ def get_pressure(data:Dataset,itime:int):
     Returns
     -------
     pressure : np.ndarray
-        The surface pressure (N_layers,N_lat,N_lon) in bar
-
+        The pressure (N_layers,N_lat,N_lon) in bar
     """
     hyam = np.flipud(data.variables['hyam'][:])
     hybm = np.flipud(data.variables['hybm'][:])
     ps = get_psurf(data,itime)
     pressure = hyam[:, np.newaxis, np.newaxis] + hybm[:, np.newaxis, np.newaxis] * ps[np.newaxis, :, :]
     return pressure
+
+def get_temperature(data:Dataset,itime:int):
+    """
+    Get the temperature.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    
+    Returns
+    -------
+    temperature : np.ndarray
+        The temperature (N_layers,N_lat,N_lon) in K
+    """
+    temperature = np.flip(np.array(data.variables['T'][itime,:,:,:]),axis=0)
+    return temperature
+def get_tsurf(data:Dataset,itime:int):
+    """
+    Get the surface temperature.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    
+    Returns
+    -------
+    tsurf : np.ndarray
+        The surface temperature (N_lat,N_lon) in K
+    """
+    tsurf = np.array(data.variables['TS'][itime,:,:])
+    return tsurf
+
+def get_winds(data:Dataset,itime:int):
+    """
+    Get the winds.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    
+    Returns
+    -------
+    U : np.ndarray
+        The wind speed in the U direction (N_layers,N_lat,N_lon) in m/s
+    V : np.ndarray
+        The wind speed in the V direction (N_layers,N_lat,N_lon) in m/s
+    """
+    U = np.flip(np.array(data.variables['U'][itime,:,:,:]),axis=0)
+    V = np.flip(np.array(data.variables['V'][itime,:,:,:]),axis=0)
+    return U, V
+
+def get_coords(data:Dataset):
+    """
+    Get latitude and longitude coordinates.
+
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+
+    Returns
+    -------
+    lat : np.ndarray
+        The latitude coordinates in degrees (N_lat,)
+    lon : np.ndarray
+        The longitude coodinates in degrees (N_lon,)
+    """
+    lat = np.array(data.variables['lat'][:])
+    lon = np.array(data.variables['lon'][:])
+    return lat,lon
+
+def get_albedo(data:Dataset,itime:int):
+    """
+    Get the albedo.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    
+    Returns
+    -------
+    albedo : np.ndarray
+        The albedo (N_lat,N_lon)
+    """
+    albedo = np.array(data.variables['ASDIR'][itime,:,:])
+    return albedo
+

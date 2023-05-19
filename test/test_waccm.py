@@ -46,7 +46,41 @@ def test_pressure():
         press = rw.get_pressure(data,0)
         _,N_layer,N_lat,N_lon = get_shape(data)
         assert press.shape == (N_layer,N_lat,N_lon)
+def test_tsurf():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        tsurf = rw.get_tsurf(data,0)
+        _,_,N_lat,N_lon = get_shape(data)
+        assert tsurf.shape == (N_lat,N_lon)
 
+def test_temperature():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        temp = rw.get_temperature(data,0)
+        tsurf = rw.get_tsurf(data,0)
+        _,N_layer,N_lat,N_lon = get_shape(data)
+        assert temp.shape == (N_layer,N_lat,N_lon)
+        res = temp[0,:,:] - tsurf
+        assert np.median(np.abs(res/tsurf)) < 0.1
+def test_get_winds():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        U,V = rw.get_winds(data,0)
+        _,N_layer,N_lat,N_lon = get_shape(data)
+        assert U.shape == (N_layer,N_lat,N_lon)
+        assert V.shape == (N_layer,N_lat,N_lon)
+
+def test_get_coords():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        lat,lon = rw.get_coords(data)
+        _,_,N_lat,N_lon = get_shape(data)
+        assert lat.shape == (N_lat,)
+        assert lon.shape == (N_lon,)
+        tsurf = rw.get_tsurf(data,0)
+        plt.pcolormesh(lon,lat,tsurf)
+
+def test_albedo():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        albedo = rw.get_albedo(data,0)
+        _,_,N_lat,N_lon = get_shape(data)
+        assert albedo.shape == (N_lat,N_lon)
 
 
 if __name__ in '__main__':
@@ -55,6 +89,11 @@ if __name__ in '__main__':
     # test_validate_vars()
     # test_get_time_index()
     # test_get_shape()
-    test_surface_pressure()
-    test_pressure()
+    # test_surface_pressure()
+    # test_pressure()
+    # test_tsurf()
+    # test_temperature()
+    # test_get_winds()
+    # test_get_coords()
+    test_albedo()
 
