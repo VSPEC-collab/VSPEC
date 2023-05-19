@@ -9,6 +9,8 @@ from os import chdir
     
 from VSPEC.waccm.read_nc import validate_variables, get_time_index, time_unit,get_shape
 import VSPEC.waccm.read_nc as rw
+import VSPEC.waccm.write_psg as wp
+from VSPEC.psg_api import call_api
 
 chdir(Path(__file__).parent)
 
@@ -104,6 +106,24 @@ def test_molecules():
         assert molecs['N2'].shape == (N_layer,N_lat,N_lon)
         assert np.all(np.abs(molecs['CO2']+molecs['H2O']+molecs['N2']-1) < 1e-6)
 
+def test_write_cfg_params():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        molecs = rw.get_molecule_suite(data,0,['CO2','H2O'],background='N2')
+        aerosols = ['Water','WaterIce']
+        params = wp.get_cfg_params(data,molecs,aerosols)
+        assert isinstance(params,dict)
+
+def test_write_binary_array():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        b,mol = wp.get_binary_array(data,0,['CO2','H2O'],['Water','WaterIce'],'N2')
+        0
+def test_get_cfg_contents():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        contents = wp.get_cfg_contents(data,0,['CO2','H2O'],['Water','WaterIce'],'N2')
+        # call_api(output_type='set',app='globes',config_data=contents)
+    with open('test_gcms/waccmt0.gcm','wb') as file:
+        file.write(contents)
+        0
 
 
 if __name__ in '__main__':
@@ -120,5 +140,8 @@ if __name__ in '__main__':
     # test_get_coords()
     # test_albedo()
     # test_aerosol()
-    test_molecules()
+    # test_molecules()
+    # test_write_cfg_params()
+    # test_write_binary_array()
+    test_get_cfg_contents()
 
