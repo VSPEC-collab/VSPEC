@@ -81,6 +81,29 @@ def test_albedo():
         albedo = rw.get_albedo(data,0)
         _,_,N_lat,N_lon = get_shape(data)
         assert albedo.shape == (N_lat,N_lon)
+def test_aerosol():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        water,water_size = rw.get_aerosol(data,0,'CLDLIQ','REL')
+        _,N_layer,N_lat,N_lon = get_shape(data)
+        assert water.shape == (N_layer,N_lat,N_lon)
+        assert water_size.shape == (N_layer,N_lat,N_lon)
+        water,water_size = rw.get_water(data,0)
+        assert water.shape == (N_layer,N_lat,N_lon)
+        assert water_size.shape == (N_layer,N_lat,N_lon)
+        ice,ice_size = rw.get_ice(data,0)
+        assert ice.shape == (N_layer,N_lat,N_lon)
+        assert ice_size.shape == (N_layer,N_lat,N_lon)
+def test_molecules():
+    with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
+        co2 = rw.get_molecule(data,0,'CO2')
+        _,N_layer,N_lat,N_lon = get_shape(data)
+        assert co2.shape == (N_layer,N_lat,N_lon)
+        molecs = rw.get_molecule_suite(data,0,['CO2','H2O'],background='N2')
+        assert molecs['CO2'].shape == (N_layer,N_lat,N_lon)
+        assert molecs['H2O'].shape == (N_layer,N_lat,N_lon)
+        assert molecs['N2'].shape == (N_layer,N_lat,N_lon)
+        assert np.all(np.abs(molecs['CO2']+molecs['H2O']+molecs['N2']-1) < 1e-6)
+
 
 
 if __name__ in '__main__':
@@ -95,5 +118,7 @@ if __name__ in '__main__':
     # test_temperature()
     # test_get_winds()
     # test_get_coords()
-    test_albedo()
+    # test_albedo()
+    # test_aerosol()
+    test_molecules()
 

@@ -16,7 +16,7 @@ import json
 from astropy import units as u
 import numpy as np
 
-from VSPEC.waccm.config import psg_pressure_unit
+from VSPEC.waccm.config import psg_pressure_unit, psg_aerosol_size_unit
 
 VAR_LIST = Path(__file__).parent / 'variables.json'
 
@@ -226,5 +226,144 @@ def get_albedo(data:Dataset,itime:int):
         The albedo (N_lat,N_lon)
     """
     albedo = np.array(data.variables['ASDIR'][itime,:,:])
+    albedo = np.where((albedo>=0) & (albedo<=1.0) & (np.isfinite(albedo)), albedo, 0.3)
     return albedo
+
+def get_aerosol(data:Dataset,itime:int,name:str,size:str):
+    """
+    Get the abundance and size of an aerosol.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    name : str
+        The variable name of the aerosol.
+    size : str
+        The variable name of the aerosol size.
+    
+    Returns
+    -------
+    aero : np.ndarray
+        The abundance of the aerosol in kg/kg (N_layers,N_lat,N_lon)
+    aero_size : np.ndarray
+        The size of the aerosol in m (N_layers,N_lat,N_lon)
+    
+    """
+    aero = np.flip(np.array(data.variables[name][itime,:,:,:]),axis=0)
+    aero = np.where((aero>0) & (np.isfinite(aero)), aero, 1e-30)
+
+    aero_size = np.flip(np.array(data.variables[size][itime,:,:,:]),axis=0)
+    aero_size = np.where((aero_size>0) & (np.isfinite(aero_size)), aero_size, 1.)
+
+    aero_size_unit = u.Unit(data.variables[size].units)
+    return aero, aero_size * (1*aero_size_unit).to_value(psg_aerosol_size_unit)
+
+def get_water(data:Dataset,itime:int):
+    """
+    Shortcut for calling `get_aerosol` for liquid water.
+
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    
+    Returns
+    -------
+    water : np.ndarray
+        The abundance of water in kg/kg (N_layers,N_lat,N_lon)
+    water_size : np.ndarray
+        The size of water in m (N_layers,N_lat,N_lon)
+    """
+    name = 'CLDLIQ'
+    size = 'REL'
+    return get_aerosol(data,itime,name,size)
+def get_ice(data:Dataset,itime:int):
+    """
+    Shortcut for calling `get_aerosol` for water ice.
+
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    
+    Returns
+    -------
+    waterice : np.ndarray
+        The abundance of ice in kg/kg (N_layers,N_lat,N_lon)
+    waterice_size : np.ndarray
+        The size of ice in m (N_layers,N_lat,N_lon)
+    """
+    name = 'CLDICE'
+    size = 'REI'
+    return get_aerosol(data,itime,name,size)
+
+def get_molecule(data:Dataset,itime:int,name:str):
+    """
+    Get the abundance of a molecule.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    name : str
+        The variable name of the molecule.
+    
+    Returns
+    -------
+    molec : np.ndarray
+        The volume mixing ratio of the molecule in mol/mol (N_layers,N_lat,N_lon)
+    """
+    molec = np.flip(np.array(data.variables[name][itime,:,:,:]),axis=0)
+    molec = np.where((molec>0) & (np.isfinite(molec)), molec, 1e-30)
+    return molec
+
+def get_molecule_suite(data:Dataset,itime:int,names:list,background:str=None)->dict:
+    """
+    Get the abundance of a suite of molecules.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The dataset to use.
+    itime : int
+        The timestep to use.
+    names : list of str
+        The variable names of the molecules.
+    background : str, default=None
+        The variable name of a background gas to include.
+    
+    Returns
+    -------
+    molec : dict
+        The volume mixing ratios of the molecules in mol/mol (N_layers,N_lat,N_lon)
+    """
+    molecs = dict()
+    for name in names:
+        molecs[name] = get_molecule(data,itime,name)
+    if background is not None:
+        if background in names:
+            raise ValueError(
+                'Do not know how to handle specifying a background'
+                'gas that is already in our dataset.'
+            )
+        else:
+            _,N_layer,N_lat,N_lon = get_shape(data)
+            background_abn = np.ones(shape=(N_layer,N_lat,N_lon))
+            for abn in molecs.values():
+                background_abn -= abn
+            if np.any(background_abn<0):
+                raise ValueError('Cannot have negative abundance.')
+            molecs[background] = background_abn
+    return molecs
+
+
 
