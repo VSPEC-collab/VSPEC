@@ -322,7 +322,12 @@ def get_molecule(data:Dataset,itime:int,name:str):
     molec : np.ndarray
         The volume mixing ratio of the molecule in mol/mol (N_layers,N_lat,N_lon)
     """
-    molec = np.flip(np.array(data.variables[name][itime,:,:,:]),axis=0)
+    def molec_translator(name):
+        if name == 'NO2':
+            return 'NOX'
+        else:
+            return name
+    molec = np.flip(np.array(data.variables[molec_translator(name)][itime,:,:,:]),axis=0)
     molec = np.where((molec>0) & (np.isfinite(molec)), molec, 1e-30)
     return molec
 
