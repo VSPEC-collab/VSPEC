@@ -128,7 +128,7 @@ def test_get_cfg_contents():
 
 if __name__ in '__main__':
 
-    # read_TR1()
+    read_TR1()
     # test_validate_vars()
     # test_get_time_index()
     # test_get_shape()

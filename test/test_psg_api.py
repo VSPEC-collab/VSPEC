@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from astropy import units as u
 
-from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected
+from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected, parse_full_output
 from VSPEC.helpers import is_port_in_use
 from VSPEC.read_info import ParamModel
 
@@ -128,11 +128,15 @@ def test_get_reflected():
     with pytest.raises(ValueError):
         get_reflected(hires,atm_therm,planet_name)
 
-
-
-
-
-
+@pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+def test_text_parse():
+    psg_url = 'http://localhost:3000'
+    outfile = None
+    with open(PSG_CONFIG_PATH,'r',encoding='UTF-8') as file:
+        file_contents = file.read()
+    text = call_api(None,psg_url,output_type='all',outfile=outfile,config_data=file_contents)
+    result = parse_full_output(text)
+    result
 
 
 if __name__ in '__main__':
@@ -140,6 +144,8 @@ if __name__ in '__main__':
         test_call_api_nonlocal()
     if is_port_in_use(3000):
         test_call_api_local()
+        test_call_api_nofile()
+        test_text_parse()
     test_write_static_config()
     test_PSGrad()
     

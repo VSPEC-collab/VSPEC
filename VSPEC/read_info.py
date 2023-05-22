@@ -374,7 +374,21 @@ class ParamModel:
         self.Nlon = configParser.getint('Model', 'map_Nlon')
         gcm_path = configParser.get('Model', 'gcm_path')
         self.gcm_path = Path(filename).parent / gcm_path
+        self.use_netcdf = configParser.getboolean('Model', 'use_netcdf')
+        netcdf_path = configParser.get('Model', 'netcdf_path')
+        self.netcdf_path = Path(filename).parent / netcdf_path
+        netcdf_tstart_unit = u.Unit(configParser.get('Model','netcdf_tstart_unit'))
+        netcdf_tstart = configParser.getfloat('Model','netcdf_tstart')
+        if netcdf_tstart is None:
+            self.netcdf_tstart = None
+        else:
+            self.netcdf_tstart = netcdf_tstart*netcdf_tstart_unit
+        self.nc_molecs = configParser.get('Model', 'nc_molecs').split(',')
+        self.nc_background = configParser.get('Model', 'nc_background')
+        self.nc_aerosols = configParser.get('Model', 'nc_aerosols').split(',')
         self.use_globes = configParser.getboolean('Model', 'use_globes')
+        if not self.use_globes:
+            raise ValueError('VSPEC no longer supports not using globes.')
         self.gcm_binning = configParser.getint('Model', 'gcm_binning')
         self.planet_phase_binning = configParser.getint(
             'Model', 'planet_phase_binning')
