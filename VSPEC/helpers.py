@@ -11,6 +11,7 @@ from numpy import isclose as np_isclose
 import numpy as np
 import pandas as pd
 import socket
+from os import system
 
 MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
 """Micro-solar hemisphere
@@ -136,6 +137,22 @@ def is_port_in_use(port: int) -> bool:
     """
     socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     return socket_obj.connect_ex(('localhost', port)) == 0
+
+def set_psg_state(running:bool):
+    """
+    Set the local PSG state.
+
+    Parameters
+    ----------
+    running : bool
+        Whether the end PSG state should be running.
+    """
+    psg_port = 3000
+    if is_port_in_use(psg_port) and not running:
+        system('docker stop psg')
+    elif not is_port_in_use(psg_port) and running:
+        system('docker start psg')
+        
 
 
 def arrange_teff(minteff: u.Quantity, maxteff: u.Quantity):

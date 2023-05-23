@@ -15,6 +15,7 @@ import pandas as pd
 from astropy import units as u
 from tqdm.auto import tqdm
 import warnings
+from netCDF4 import Dataset
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
@@ -23,9 +24,12 @@ from VSPEC.files import build_directories, N_ZFILL, get_filename
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
 from VSPEC.helpers import plan_to_df
-from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected
+from VSPEC.psg_api import call_api, PSGrad, get_reflected,get_static_psg_parameters,cfg_to_bytes
+from VSPEC.psg_api import change_psg_parameters, parse_full_output
 from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
+from VSPEC.waccm.write_psg import get_cfg_contents
+from VSPEC.waccm.read_nc import get_time_index
 
 
 class ObservationModel:
@@ -204,7 +208,7 @@ class ObservationModel:
                               self.params.planet_obliquity,
                               self.params.planet_obliquity_direction)
 
-    def get_observation_plan(self, observation_parameters: SystemGeometry):
+    def get_observation_plan(self, observation_parameters: SystemGeometry,planet=False):
         """
         Compute the locations and geometries of each object in this simulation.
 
@@ -212,6 +216,9 @@ class ObservationModel:
         ----------
         observation_parameters : VSPEC.geometry.SystemGeometry
             An object containting the system geometry.
+        planet : bool
+            If true, use the planet phase binning parameter to
+            compute the number of steps.
 
         Returns
         -------
@@ -219,28 +226,13 @@ class ObservationModel:
             A dictionary of arrays describing the geometry at each
             epoch. Each dict value is an astropy.units.Quantity array.
         """
+        if planet:
+            N_obs = self.params.planet_images
+        else:
+            N_obs = self.params.total_images
         return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
-                                                           self.params.total_observation_time, N_obs=self.params.total_images)
-
-    def get_planet_observation_plan(self, observation_parameters: SystemGeometry):
-        """
-        Compute the locations and geometries of each object in this simulation.
-        Bin in the phase dimension if planet phase binning is specified.
-
-        Parameters
-        ----------
-        observation_parameters : VSPEC.geometry.SystemGeometry
-            An object containting the system geometry.
-
-        Returns
-        -------
-        dict
-            A dictionary of arrays describing the geometry at each
-            epoch. Each dict value is an astropy.units.Quantity array.
-        """
-        return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
-                                                           self.params.total_observation_time, N_obs=self.params.planet_images)
-                                            
+                                                           self.params.total_observation_time, N_obs=N_obs)
+                                   
     def check_psg(self):
         """
         Check that PSG is running
@@ -267,7 +259,119 @@ class ObservationModel:
             msg += 'After 100 API calls in a 24hr period you will need to get a key. '
             msg += 'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook)'
             warnings.warn(msg,RuntimeWarning)
-        
+
+    def get_api_key(self):
+        """
+        Get the PSG API key
+        """
+        if self.params.api_key_path:
+            with open(self.params.api_key_path, 'r', encoding='UTF-8') as file:
+                api_key = file.read()
+        else:
+            api_key = None
+        return api_key
+
+    def upload_gcm(self,is_ncdf:bool,obstime:u.Quantity=0*u.s,update=False):
+        """
+        Upload GCM file to PSG
+
+        Parameters
+        ----------
+        is_ncdf : bool
+            Whether or not to use a netCDF file for the GCM
+        obstime : astropy.units.Quantity, default=0*u.s
+            The time since the start of the observation.
+        update : bool
+            Whether to use the `'upd'` keyword rather than `'set'`
+        """
+        if not is_ncdf:
+            with open(self.params.gcm_path,'rb') as file:
+                content = file.read()
+        else:
+            with Dataset(self.params.netcdf_path,'r',format='NETCDF4') as data:
+                itime = get_time_index(data,obstime + self.params.netcdf_tstart)
+                content = get_cfg_contents(
+                    data=data,
+                    itime=itime,
+                    molecules=self.params.nc_molecs,
+                    aerosols=self.params.nc_aerosols,
+                    background=self.params.nc_background
+                )
+        call_api(
+            config_path=None,
+            psg_url=self.params.psg_url,
+            api_key=self.get_api_key(),
+            output_type='upd' if update else 'set',
+            app='globes',
+            outfile=None,
+            config_data=content
+        )
+    
+    def set_static_config(self):
+        params = get_static_psg_parameters(self.params)
+        content = cfg_to_bytes(params)
+        call_api(
+            config_path=None,
+            psg_url=self.params.psg_url,
+            api_key=self.get_api_key(),
+            output_type='upd',
+            app='globes',
+            outfile=None,
+            config_data=content
+        )
+    def update_config(
+        self,
+        phase:u.Quantity,
+        orbit_radius_coeff:float,
+        sub_stellar_lon:u.Quantity,
+        sub_stellar_lat:u.Quantity,
+        pl_sub_obs_lon:u.Quantity,
+        pl_sub_obs_lat:u.Quantity,
+        include_star:bool
+        ):
+        params = change_psg_parameters(
+            params=self.params,
+            phase=phase,
+            orbit_radius_coeff=orbit_radius_coeff,
+            sub_stellar_lon=sub_stellar_lon,
+            sub_stellar_lat=sub_stellar_lat,
+            pl_sub_obs_lon=pl_sub_obs_lon,
+            pl_sub_obs_lat=pl_sub_obs_lat,
+            include_star=include_star
+        )
+        content = cfg_to_bytes(params)
+        call_api(
+            config_path=None,
+            psg_url=self.params.psg_url,
+            api_key=self.get_api_key(),
+            output_type='upd',
+            app='globes',
+            outfile=None,
+            config_data=content
+        )
+
+    def run_psg(self,path_dict:dict,i:int):
+        content = bytes(f'<OBJECT-NAME>{self.params.planet_name}',encoding='UTF-8')
+        response = call_api(
+            config_path=None,
+            psg_url=self.params.psg_url,
+            api_key=self.get_api_key(),
+            output_type='all',
+            app='globes',
+            outfile=None,
+            config_data=content
+        )
+        output_data = parse_full_output(response)
+        for key,path in path_dict.items():
+            filename = get_filename(i,N_ZFILL,key)
+            with open(path/filename, 'wt', encoding='UTF-8') as file:
+                if not (key == 'lyr' and self.params.use_molec_signatures==False):
+                    file.write(output_data[key])
+
+
+
+
+
     def build_planet(self):
         """
         Use the PSG GlobES API to construct a planetary phase curve.
@@ -285,38 +389,15 @@ class ObservationModel:
 
         ####################################
         # Initial upload of GCM
-        gcm_path = self.params.gcm_path
-        cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
-        if not self.params.use_globes:
-            system(f'cp {gcm_path} {cfg_path}')
-        url = self.params.psg_url
-        call_type = 'set'
-        if self.params.use_globes:
-            app = 'globes'
-        else:
-            app = None
-        outfile = None
-        if self.params.api_key_path:
-            with open(self.params.api_key_path, 'r', encoding='UTF-8') as file:
-                api_key = file.read()
-        else:
-            api_key = None
-        call_api(gcm_path, psg_url=url, api_key=api_key,
-                 output_type=call_type, app=app, outfile=outfile)
+
+        self.upload_gcm(
+            is_ncdf=self.params.use_netcdf,
+            obstime=0*u.s,
+            update=False
+        )
         ####################################
         # Set observation parameters that do not change
-        cfg_path = Path(self.dirs['data']) / 'cfg_temp.txt'
-        write_static_config(cfg_path,self.params,file_mode=file_mode)
-
-        url = self.params.psg_url
-        call_type = 'upd'
-        if self.params.use_globes:
-            app = 'globes'
-        else:
-            app = None
-        outfile = None
-        call_api(cfg_path, psg_url=url, api_key=api_key,
-                 output_type=call_type, app=app, outfile=outfile)
+        self.set_static_config()
         # # debug
         # call_api(cfg_path,psg_url=url,api_key=api_key,
         #         output_type='all',app=app,outfile='temp_out.txt')
@@ -324,101 +405,64 @@ class ObservationModel:
         ####################################
         # Calculate observation parameters
         observation_parameters = self.get_observation_parameters()
-        obs_plan = self.get_planet_observation_plan(observation_parameters)
+        obs_plan = self.get_observation_plan(observation_parameters,planet=True)
 
         obs_info_filename = Path(self.dirs['data']) / 'observation_info.csv'
-        obs_df = plan_to_df(obs_plan)
-        obs_df.to_csv(obs_info_filename, sep=',', index=False)
+        plan_to_df(obs_plan).to_csv(obs_info_filename, sep=',', index=False)
 
-        print(
-            f'Starting at phase {self.params.planet_initial_phase}, observe for {self.params.total_observation_time} in {self.params.planet_images} steps')
-        print('Phases = ' +
-              str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
+        if self.verbose > 0:
+            print(
+                f'Starting at phase {self.params.planet_initial_phase}, observe for {self.params.total_observation_time} in {self.params.planet_images} steps')
+            print('Phases = ' +
+                str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
         ####################################
         # iterate through phases
         for i in self.wrap_iterator(range(self.params.planet_images), desc='Build Planet', total=self.params.planet_images):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
-            orbit_radius_coeff = obs_plan['orbit_radius'][i]
-
             pl_sub_obs_lon = obs_plan['planet_sub_obs_lon'][i]
             pl_sub_obs_lat = obs_plan['planet_sub_obs_lat'][i]
+            orbit_radius_coeff = obs_plan['orbit_radius'][i]
+            obs_time = obs_plan['time'][i] - obs_plan['time'][0]
+            if self.params.use_netcdf:
+                self.upload_gcm(
+                    is_ncdf=self.params.use_netcdf,
+                    obstime=obs_time,
+                    update=True
+                )
+            
             # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
-            with open(cfg_path, file_mode) as fr:
-                fr.write('<OBJECT-STAR-TYPE>%s\n' %
-                         self.params.psg_star_template)
-                fr.write('<OBJECT-SEASON>%f\n' % to_float(phase, u.deg))
-                fr.write('<OBJECT-STAR-DISTANCE>%f\n' %
-                         to_float(orbit_radius_coeff*self.params.planet_semimajor_axis, u.AU))
-                fr.write(
-                    f'<OBJECT-SOLAR-LONGITUDE>{to_float(sub_stellar_lon,u.deg):.4f}\n')
-                fr.write(
-                    f'<OBJECT-SOLAR-LATITUDE>{to_float(sub_stellar_lat,u.deg)}\n')
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' %
-                         to_float(pl_sub_obs_lon, u.deg))
-                fr.write('<OBJECT-OBS-LATITUDE>%f\n' %
-                         to_float(pl_sub_obs_lat, u.deg))
-                # fr.write('<GEOMETRY-STAR-DISTANCE>0.000000e+00')
-                fr.close()
-            # call api to get combined spectra
-            url = self.params.psg_url
-            call_type = None
-            if self.params.use_globes:
-                app = 'globes'
-            else:
-                app = None
-            outfile = Path(self.dirs['psg_combined']) / get_filename(i,N_ZFILL,'rad')
-            call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile)
-            # call api to get noise
-            url = self.params.psg_url
-            call_type = 'noi'
-            if self.params.use_globes:
-                app = 'globes'
-            else:
-                app = None
-            outfile = Path(self.dirs['psg_noise']) / get_filename(i,N_ZFILL,'noi')
-            call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile)
-
-            # call api to get config
-            url = self.params.psg_url
-            call_type = 'cfg'
-            app = 'globes'
-            outfile = Path(self.dirs['psg_configs']) / get_filename(i,N_ZFILL,'cfg')
-            call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile)
-
+            self.update_config(
+                phase=phase,
+                orbit_radius_coeff=orbit_radius_coeff,
+                sub_stellar_lon=sub_stellar_lon,
+                sub_stellar_lat=sub_stellar_lat,
+                pl_sub_obs_lon=pl_sub_obs_lon,
+                pl_sub_obs_lat=pl_sub_obs_lat,
+                include_star=True
+            )
+            path_dict = {
+                'rad':Path(self.dirs['psg_combined']),
+                'noi':Path(self.dirs['psg_noise']),
+                'cfg':Path(self.dirs['psg_configs'])
+            }
+            self.run_psg(path_dict,i)
             # write updates to config file to remove star flux
-            with open(cfg_path, file_mode) as fr:
-                # phase *= -1
-                fr.write('<OBJECT-STAR-TYPE>-\n')
-                fr.write('<OBJECT-OBS-LONGITUDE>%f\n' %
-                         to_float(pl_sub_obs_lon, u.deg))
-                fr.write('<OBJECT-OBS-LATITUDE>%f\n' %
-                         to_float(pl_sub_obs_lat, u.deg))
-                fr.close()
-            # call api to get thermal spectra
-            url = self.params.psg_url
-            call_type = None
-            if self.params.use_globes:
-                app = 'globes'
-            else:
-                app = None
-            outfile = Path(self.dirs['psg_thermal']) / get_filename(i,N_ZFILL,'rad')
-            call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile)
-            # call api to get layers
-            url = self.params.psg_url
-            call_type = 'lyr'
-            if self.params.use_globes:
-                app = 'globes'
-            else:
-                app = None
-            outfile = Path(self.dirs['psg_layers']) / get_filename(i,N_ZFILL,'lyr')
-            call_api(cfg_path, psg_url=url, api_key=api_key,
-                     output_type=call_type, app=app, outfile=outfile)
+            self.update_config(
+                phase=phase,
+                orbit_radius_coeff=orbit_radius_coeff,
+                sub_stellar_lon=sub_stellar_lon,
+                sub_stellar_lat=sub_stellar_lat,
+                pl_sub_obs_lon=pl_sub_obs_lon,
+                pl_sub_obs_lat=pl_sub_obs_lat,
+                include_star=False
+            )
+            path_dict = {
+                'rad':Path(self.dirs['psg_thermal']),
+                'lyr':Path(self.dirs['psg_layers'])
+            }
+            self.run_psg(path_dict,i)
 
     def build_star(self):
         """
@@ -815,15 +859,15 @@ class ObservationModel:
             self.warm_up_star(spot_warmup_time=self.params.star_spot_warmup,
                               facula_warmup_time=self.params.star_fac_warmup)
         observation_parameters = self.get_observation_parameters()
-        observation_info = self.get_observation_plan(observation_parameters)
+        observation_info = self.get_observation_plan(observation_parameters,planet=False)
         # write observation info to file
         obs_info_filename = Path(
             self.dirs['all_model']) / 'observation_info.csv'
         obs_df = plan_to_df(observation_info)
         obs_df.to_csv(obs_info_filename, sep=',', index=False)
 
-        planet_observation_info = self.get_planet_observation_plan(
-            observation_parameters)
+        planet_observation_info = self.get_observation_plan(
+            observation_parameters,planet=True)
         planet_times = planet_observation_info['time']
 
         time_step = self.params.total_observation_time / self.params.total_images

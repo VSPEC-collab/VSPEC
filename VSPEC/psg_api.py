@@ -19,9 +19,9 @@ from VSPEC.helpers import to_float, isclose
 warnings.simplefilter('ignore', category=u.UnitsWarning)
 
 
-def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
+def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov',
              api_key: str = None, output_type: str = None, app: str = None,
-             outfile: str = None) -> None:
+             outfile: str = None, config_data: str = None) -> None:
     """
     Call the PSG api
 
@@ -29,7 +29,7 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
 
     Parameters
     ----------
-    config_path : str or pathlib.Path
+    config_path : str or pathlib.Path, default=None
         The path to the `PSG` config file.
     psg_url : str, default='https://psg.gsfc.nasa.gov'
         The URL of the `PSG` API. Use 'http://localhost:3000' if running locally.
@@ -42,11 +42,28 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
         The PSG app to call. For example: 'globes'
     outfile : str, default=None
         The path to write the PSG output.
+    config_data : str, default=None
+        The data contained by a config file. Essentially removes the need
+        to write a config to file.
+
+    Raises
+    ------
+    ValueError
+        If `config_path` and `config_data` are both `None`
     """
     data = {}
-    with open(config_path, 'rb') as file:
-        dat = file.read()
-    data['file'] = dat
+    if config_path is not None:
+        with open(config_path, 'rb') as file:
+            dat = file.read()
+        data['file'] = dat
+    else:
+        if config_data is None:
+            raise ValueError(
+                'A config file or the files contents must be specified '
+                'using the `config_path` or `config_data` parameters'
+            )
+        else:
+            data['file'] = config_data
     if api_key is not None:
         data['key'] = api_key
     if app is not None:
@@ -58,6 +75,101 @@ def call_api(config_path: str, psg_url: str = 'https://psg.gsfc.nasa.gov',
     if outfile is not None:
         with open(outfile, 'w', encoding='UTF-8') as file:
             file.write(reply.text)
+        return None
+    else:
+        return reply.text
+
+
+def parse_full_output(output_text:str):
+    pattern = r'results_([\w]+).txt'
+    split_text = re.split(pattern,output_text)
+    names = split_text[1::2]
+    content = split_text[2::2]
+    data = {}
+    for name,dat in zip(names,content):
+        data[name] = dat
+    return data
+
+
+
+def get_static_psg_parameters(params: ParamModel)->dict:
+    """
+    Get the static (i.e. not phase or time dependent) parameters
+    for PSG.
+
+    Parameters
+    ----------
+    params : VSPEC.ParamModel
+        The parameters to fill the config with.
+    
+    Returns
+    -------
+    config : dict
+        The parameters translated into the PSG format.
+    """
+    bool_to_str = {True: 'Y', False: 'N'}
+    config = {}
+    config['OBJECT'] = 'Exoplanet'
+    config['OBJECT-NAME'] = params.planet_name
+    config['OBJECT-DIAMETER'] = to_float(2*params.planet_radius, u.km)
+    config['OBJECT-GRAVITY'] = params.planet_grav
+    config['OBJECT-GRAVITY-UNIT'] = params.planet_grav_mode
+    config['OBJECT-STAR-TYPE'] = params.psg_star_template
+    config['OBJECT-STAR-DISTANCE'] = to_float(params.planet_semimajor_axis, u.AU)
+    config['OBJECT-PERIOD'] = to_float(params.planet_orbital_period, u.day)
+    config['OBJECT-ECCENTRICITY'] = params.planet_eccentricity
+    config['OBJECT-PERIAPSIS'] = to_float(params.system_phase_of_periasteron, u.deg)
+    config['OBJECT-STAR-TEMPERATURE'] = to_float(params.star_teff, u.K)
+    config['OBJECT-STAR-RADIUS'] = to_float(params.star_radius, u.R_sun)
+    config['GEOMETRY'] = 'Observatory'
+    config['GEOMETRY-OBS-ALTITUDE'] = to_float(params.system_distance, u.pc)
+    config['GEOMETRY-ALTITUDE-UNIT'] = 'pc'
+    config['GENERATOR-RANGE1'] = to_float(params.lambda_min, params.target_wavelength_unit)
+    config['GENERATOR-RANGE2'] = to_float(params.lambda_max, params.target_wavelength_unit)
+    config['GENERATOR-RANGEUNIT'] = params.target_wavelength_unit
+    config['GENERATOR-RESOLUTION'] = params.resolving_power
+    config['GENERATOR-RESOLUTIONUNIT'] = 'RP'
+    config['GENERATOR-BEAM'] = params.beamValue
+    config['GENERATOR-BEAM-UNIT'] = params.beamUnit
+    config['GENERATOR-CONT-STELLAR'] = 'Y'
+    config['OBJECT-INCLINATION'] = to_float(params.system_inclination, u.deg)
+    config['OBJECT-SOLAR-LATITUDE'] = '0.0'
+    config['OBJECT-OBS-LATITUDE'] = '0.0'
+    config['GENERATOR-RADUNITS'] = params.psg_rad_unit
+    config['GENERATOR-GCM-BINNING'] = params.gcm_binning
+    config['GENERATOR-GAS-MODEL'] = bool_to_str[params.use_molec_signatures]
+    config['GENERATOR-NOISE'] = params.detector_type
+    config['GENERATOR-NOISEOTEMP'] = params.detector_temperature
+    config['GENERATOR-NOISEOEFF'] = f"{params.detector_throughput:.1f}"
+    config['GENERATOR-NOISEOEMIS'] = f"{params.detector_emissivity:.1f}"
+    config['GENERATOR-NOISEFRAMES'] = params.detector_number_of_integrations
+    config['GENERATOR-NOISEPIXELS'] = params.detector_pixel_sampling
+    config['GENERATOR-NOISE1'] = params.detector_read_noise
+    config['GENERATOR-DIAMTELE'] = f"{params.telescope_diameter:.1f}"
+    config['GENERATOR-TELESCOPE'] = 'SINGLE'
+    config['GENERATOR-TELESCOPE1'] = '1'
+    config['GENERATOR-TELESCOPE2'] = '1.0'
+    config['GENERATOR-TELESCOPE3'] = '1.0'
+    return config
+
+def cfg_to_bytes(config:dict)->bytes:
+    """
+    Convert a PSG config dictionary into a bytes sequence.
+
+    Parameters
+    ----------
+    config : dict
+        The dictionary containing PSG parameters
+    
+    Returns
+    -------
+    bytes
+        A bytes object containing the file content.
+    """
+    s = b''
+    for key,value in config.items():
+        s += bytes(f'<{key}>{value}\n',encoding='UTF-8')
+    return s
 
 
 def write_static_config(path: Path, params: ParamModel, file_mode: str = 'w') -> None:
@@ -76,73 +188,33 @@ def write_static_config(path: Path, params: ParamModel, file_mode: str = 'w') ->
         Flag telling `open` which file method to use. In the case
         that GlobES is off, this should be ``'a'`` for append.
     """
-    with open(path, file_mode, encoding="ascii") as file:
-        bool_to_str = {True: 'Y', False: 'N'}
-        file.write('<OBJECT>Exoplanet\n')
-        file.write(f'<OBJECT-NAME>{params.planet_name}\n')
-        file.write('<OBJECT-DIAMETER>%f\n' %
-                   to_float(2*params.planet_radius, u.km))
-        file.write('<OBJECT-GRAVITY>%f\n' % params.planet_grav)
-        file.write(f'<OBJECT-GRAVITY-UNIT>{params.planet_grav_mode}\n')
-        file.write('<OBJECT-STAR-TYPE>%s\n' % params.psg_star_template)
-        file.write('<OBJECT-STAR-DISTANCE>%f\n' %
-                   to_float(params.planet_semimajor_axis, u.AU))
-        file.write('<OBJECT-PERIOD>%f\n' %
-                   to_float(params.planet_orbital_period, u.day))
-        file.write('<OBJECT-ECCENTRICITY>%f\n' %
-                   params.planet_eccentricity)
-        file.write('<OBJECT-PERIAPSIS>%f\n' %
-                   to_float(params.system_phase_of_periasteron, u.deg))
-        file.write('<OBJECT-STAR-TEMPERATURE>%f\n' %
-                   to_float(params.star_teff, u.K))
-        file.write('<OBJECT-STAR-RADIUS>%f\n' %
-                   to_float(params.star_radius, u.R_sun))
-        file.write('<GEOMETRY>Observatory\n')
-        file.write('<GEOMETRY-OBS-ALTITUDE>%f\n' %
-                   to_float(params.system_distance, u.pc))
-        file.write('<GEOMETRY-ALTITUDE-UNIT>pc\n')
-        file.write('<GENERATOR-RANGE1>%f\n' %
-                   to_float(params.lambda_min, params.target_wavelength_unit))
-        file.write('<GENERATOR-RANGE2>%f\n' %
-                   to_float(params.lambda_max, params.target_wavelength_unit))
-        file.write(
-            f'<GENERATOR-RANGEUNIT>{params.target_wavelength_unit}\n')
-        file.write('<GENERATOR-RESOLUTION>%f\n' %
-                   params.resolving_power)
-        file.write('<GENERATOR-RESOLUTIONUNIT>RP\n')
-        file.write('<GENERATOR-BEAM>%d\n' % params.beamValue)
-        file.write('<GENERATOR-BEAM-UNIT>%s\n' % params.beamUnit)
-        file.write('<GENERATOR-CONT-STELLAR>Y\n')
-        file.write('<OBJECT-INCLINATION>%s\n' %
-                   to_float(params.system_inclination, u.deg))
-        file.write('<OBJECT-SOLAR-LATITUDE>0.0\n')
-        file.write('<OBJECT-OBS-LATITUDE>0.0\n')
-        file.write('<GENERATOR-RADUNITS>%s\n' % params.psg_rad_unit)
-        file.write('<GENERATOR-GCM-BINNING>%d\n' % params.gcm_binning)
-        file.write(
-            f'<GENERATOR-GAS-MODEL>{bool_to_str[params.use_molec_signatures]}\n')
-        file.write(f'<GENERATOR-NOISE>{params.detector_type}\n')
-        file.write(
-            f'<GENERATOR-NOISE2>{params.detector_dark_current}\n')
-        file.write(
-            f'<GENERATOR-NOISETIME>{params.detector_integration_time}\n')
-        file.write(
-            f'<GENERATOR-NOISEOTEMP>{params.detector_temperature}\n')
-        file.write(
-            f'<GENERATOR-NOISEOEFF>{params.detector_throughput:.1f}\n')
-        file.write(
-            f'<GENERATOR-NOISEOEMIS>{params.detector_emissivity:.1f}\n')
-        file.write(
-            f'<GENERATOR-NOISEFRAMES>{params.detector_number_of_integrations}\n')
-        file.write(
-            f'<GENERATOR-NOISEPIXELS>{params.detector_pixel_sampling}\n')
-        file.write(f'<GENERATOR-NOISE1>{params.detector_read_noise}\n')
-        file.write(
-            f'<GENERATOR-DIAMTELE>{params.telescope_diameter:.1f}\n')
-        file.write('<GENERATOR-TELESCOPE>SINGLE\n')
-        file.write('<GENERATOR-TELESCOPE1>1\n')
-        file.write('<GENERATOR-TELESCOPE2>1.0\n')
-        file.write('<GENERATOR-TELESCOPE3>1.0\n')
+    config = get_static_psg_parameters(params)
+    content = cfg_to_bytes(config)
+    with open(path,f'{file_mode}b') as file:
+        file.write(content)
+
+def change_psg_parameters(
+    params:ParamModel,
+    phase:u.Quantity,
+    orbit_radius_coeff:float,
+    sub_stellar_lon:u.Quantity,
+    sub_stellar_lat:u.Quantity,
+    pl_sub_obs_lon:u.Quantity,
+    pl_sub_obs_lat:u.Quantity,
+    include_star:bool
+    ):
+    """
+    
+    """
+    config = {}
+    config['OBJECT-STAR-TYPE'] = params.psg_star_template if include_star else '-'
+    config['OBJECT-SEASON'] = f'{phase.to_value(u.deg):.4f}'
+    config['OBJECT-STAR-DISTANCE'] = f'{(orbit_radius_coeff*params.planet_semimajor_axis).to_value(u.AU):.4f}'
+    config['OBJECT-SOLAR-LONGITUDE'] = f'{sub_stellar_lon.to_value(u.deg)}'
+    config['OBJECT-SOLAR-LATITUDE'] = f'{sub_stellar_lat.to_value(u.deg)}'
+    config['OBJECT-OBS-LONGITUDE'] = f'{pl_sub_obs_lon.to_value(u.deg)}'
+    config['OBJECT-OBS-LATITUDE'] = f'{pl_sub_obs_lat.to_value(u.deg)}'
+    return config
 
 
 class PSGrad:

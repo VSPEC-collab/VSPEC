@@ -7,13 +7,15 @@ from pathlib import Path
 import pytest
 from astropy import units as u
 
-from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected
-from VSPEC.helpers import is_port_in_use
+from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected, parse_full_output
+from VSPEC.helpers import is_port_in_use,set_psg_state
 from VSPEC.read_info import ParamModel
 
 API_KEY_PATH = Path.home() / 'psg_key.txt'
 PSG_CONFIG_PATH = Path(__file__).parent / 'data' / 'test_cfg.txt'
 VSPEC_CONFIG_PATH = Path(__file__).parent / 'default.cfg'
+PSG_PORT = 3000
+
 
 
 
@@ -36,11 +38,13 @@ def test_call_api_nonlocal():
         outfile.unlink()
         raise exc
     outfile.unlink()
-@pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+# @pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
 def test_call_api_local():
     """
     Run tests for `VSPEC.psg_api.call_api()`
     """
+    previous_state = is_port_in_use(PSG_PORT)
+    set_psg_state(True)
     psg_url = 'http://localhost:3000'
     outfile = Path('test.rad')
     call_api(PSG_CONFIG_PATH,psg_url,output_type='rad',outfile=outfile)
@@ -50,13 +54,35 @@ def test_call_api_local():
         outfile.unlink()
         raise exc
     outfile.unlink()
+    set_psg_state(previous_state)
+# @pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+def test_call_api_nofile():
+    """
+    Run tests for `VSPEC.psg_api.call_api()` while giving the file contents rather than the path.
+    """
+    previous_state = is_port_in_use(PSG_PORT)
+    set_psg_state(True)
+    psg_url = 'http://localhost:3000'
+    outfile = Path(__file__).parent / 'data' / 'test.rad'
+    with open(PSG_CONFIG_PATH,'r',encoding='UTF-8') as file:
+        file_contents = file.read()
+    call_api(None,psg_url,output_type='rad',outfile=outfile,config_data=file_contents)
+    try:
+        assert outfile.exists()
+    except Exception as exc:
+        outfile.unlink()
+        raise exc
+    outfile.unlink()
+    with pytest.raises(ValueError):
+        call_api(None,psg_url,output_type='rad',outfile=outfile,config_data=None)
+    set_psg_state(previous_state)
 
 def test_write_static_config():
     """
     Run tests for `VSPEC.psg_api.write_static_config()`
     """
     params = ParamModel(VSPEC_CONFIG_PATH)
-    outfile = Path('test_cfg.txt')
+    outfile = Path(__file__).parent / 'data' / 'test.cfg'
     try:
         write_static_config(outfile,params,'w')
     except Exception as exc:
@@ -110,18 +136,26 @@ def test_get_reflected():
     with pytest.raises(ValueError):
         get_reflected(hires,atm_therm,planet_name)
 
-
-
-
-
-
+# @pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+def test_text_parse():
+    previous_state = is_port_in_use(PSG_PORT)
+    set_psg_state(True)
+    psg_url = 'http://localhost:3000'
+    outfile = None
+    with open(PSG_CONFIG_PATH,'r',encoding='UTF-8') as file:
+        file_contents = file.read()
+    text = call_api(None,psg_url,output_type='all',outfile=outfile,config_data=file_contents)
+    result = parse_full_output(text)
+    assert 'cfg' in result.keys()
+    set_psg_state(previous_state)
 
 
 if __name__ in '__main__':
     if API_KEY_PATH.exists():
         test_call_api_nonlocal()
-    if is_port_in_use(3000):
-        test_call_api_local()
+    test_call_api_local()
+    test_call_api_nofile()
+    test_text_parse()
     test_write_static_config()
     test_PSGrad()
     

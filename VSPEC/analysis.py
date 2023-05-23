@@ -700,7 +700,7 @@ class GCMdecoder:
         for mol, dat in molec_data.items():
             mass = dat['mass']
             try:
-                data = self[mol]
+                data = 10**self[mol]
                 mean_molec_mass += data*mass*u.g/u.mol
             except KeyError:
                 pass
@@ -727,7 +727,7 @@ class GCMdecoder:
         """
         Get the column density of a gas at each point on the gcm.
         """
-        abn = self[mol]*u.mol/u.mol
+        abn = 10**self[mol]*u.mol/u.mol
         P = 10**self['Pressure']*u.bar
         T = self['Temperature']*u.K
         partial_pressure = P*abn
