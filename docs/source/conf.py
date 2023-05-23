@@ -37,9 +37,11 @@ extensions = [
     'numpydoc',
     'sphinx.ext.intersphinx',
     'nbsphinx',
-    'nbsphinx_link'
+    'nbsphinx_link',
+    'sphinxcontrib.bibtex'
 ]
 numpydoc_show_class_members = False
+bibtex_bibfiles = ['refs.bib']
 
 
 # Add any paths that contain templates here, relative to this directory.
