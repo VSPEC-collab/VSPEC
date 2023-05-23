@@ -189,7 +189,7 @@ def write_static_config(path: Path, params: ParamModel, file_mode: str = 'w') ->
         that GlobES is off, this should be ``'a'`` for append.
     """
     config = get_static_psg_parameters(params)
-    content = cfg_to_bytes(content)
+    content = cfg_to_bytes(config)
     with open(path,f'{file_mode}b') as file:
         file.write(content)
 
