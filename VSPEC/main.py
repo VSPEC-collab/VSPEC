@@ -365,7 +365,8 @@ class ObservationModel:
         for key,path in path_dict.items():
             filename = get_filename(i,N_ZFILL,key)
             with open(path/filename, 'wt', encoding='UTF-8') as file:
-                file.write(output_data[key])
+                if not (key == 'lyr' and self.params.use_molec_signatures==False):
+                    file.write(output_data[key])
 
 
 
