@@ -4,6 +4,7 @@ Planet Parameters
 
 from astropy import units as u
 
+
 class GravityParameters:
     """
     Class representing gravity parameters.
@@ -39,18 +40,21 @@ class GravityParameters:
     psg_units = {
         'gravity': u.Unit('m s-2'),
         'density': u.Unit('g cm-3'),
-        'mass' : u.kg
+        'mass': u.kg
     }
+
     def __init__(
         self,
-        mode:str,
-        value:u.Quantity
+        mode: str,
+        value: u.Quantity
     ):
-        self.mode=mode
+        self.mode = mode
         self._value = value
+
     @property
     def value(self):
         return self._value.to_value(self.psg_units[self.mode])
+
 
 class PlanetParameters:
     """
@@ -120,16 +124,16 @@ class PlanetParameters:
 
     def __init__(
         self,
-        name:str,
-        radius:u.Quantity,
-        gravity:GravityParameters,
-        semimajor_axis:u.Quantity,
-        orbit_period:u.Quantity,
-        rotation_period:u.Quantity,
-        obliquity:u.Quantity,
-        obliquity_direction:u.Quantity,
-        init_phase:u.Quantity,
-        init_substellar_lon:u.Quantity
+        name: str,
+        radius: u.Quantity,
+        gravity: GravityParameters,
+        semimajor_axis: u.Quantity,
+        orbit_period: u.Quantity,
+        rotation_period: u.Quantity,
+        obliquity: u.Quantity,
+        obliquity_direction: u.Quantity,
+        init_phase: u.Quantity,
+        init_substellar_lon: u.Quantity
     ):
         self.name = name
         self.radius = radius
@@ -141,8 +145,9 @@ class PlanetParameters:
         self.obliquity_direction = obliquity_direction
         self.init_phase = init_phase
         self.init_substellar_lon = init_substellar_lon
+
     @classmethod
-    def proxcenb(cls,init_phase:u.Quantity,init_substellar_lon:u.Quantity):
+    def proxcenb(cls, init_phase: u.Quantity, init_substellar_lon: u.Quantity):
         """
         Proxima Centauri b :cite:p:`2022A&A...658A.115F`
 
@@ -162,18 +167,19 @@ class PlanetParameters:
         """
         return cls(
             name='Prox Cen b',
-            radius = 1.03*u.M_earth, # Earth density
-            gravity = GravityParameters('mass',1.07*u.M_earth),
-            semimajor_axis = 0.04856*u.AU,
-            orbit_period = 11.1868*u.day,
-            rotation_period = 11.1868*u.day,
-            obliquity = 0*u.deg,
-            obliquity_direction = 0*u.deg,
-            init_phase = init_phase,
-            init_substellar_lon = init_substellar_lon
+            radius=1.03*u.M_earth,  # Earth density
+            gravity=GravityParameters('mass', 1.07*u.M_earth),
+            semimajor_axis=0.04856*u.AU,
+            orbit_period=11.1868*u.day,
+            rotation_period=11.1868*u.day,
+            obliquity=0*u.deg,
+            obliquity_direction=0*u.deg,
+            init_phase=init_phase,
+            init_substellar_lon=init_substellar_lon
         )
+
     @classmethod
-    def std(cls,init_phase:u.Quantity,init_substellar_lon:u.Quantity):
+    def std(cls, init_phase: u.Quantity, init_substellar_lon: u.Quantity):
         """
         The default VSPEC planet.
 
@@ -192,15 +198,15 @@ class PlanetParameters:
         """
         return cls(
             name='Exoplanet',
-            radius = 1.*u.M_earth,
-            gravity = GravityParameters('mass',1.0*u.M_earth),
-            semimajor_axis = 0.05*u.AU,
-            orbit_period = 10*u.day,
-            rotation_period = 10*u.day,
-            obliquity = 0*u.deg,
-            obliquity_direction = 0*u.deg,
-            init_phase = init_phase,
-            init_substellar_lon = init_substellar_lon
+            radius=1.*u.M_earth,
+            gravity=GravityParameters('mass', 1.0*u.M_earth),
+            semimajor_axis=0.05*u.AU,
+            orbit_period=10*u.day,
+            rotation_period=10*u.day,
+            obliquity=0*u.deg,
+            obliquity_direction=0*u.deg,
+            init_phase=init_phase,
+            init_substellar_lon=init_substellar_lon
         )
 
 
@@ -237,4 +243,3 @@ class SystemParameters:
         self.distance = distance
         self.inclination = inclination
         self.phase_of_periasteron = phase_of_periasteron
-
