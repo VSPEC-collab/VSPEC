@@ -73,7 +73,8 @@ class PlanetParameters:
     obliquity : astropy.units.Quantity
         The obliquity (tilt) of the planet.
     obliquity_direction : astropy.units.Quantity
-        The direction of the planet's obliquity.
+        The direction of the planet's obliquity. The true anomaly
+        at which the planet's north pole faces away from the star.
     init_phase : astropy.units.Quantity
         The initial phase of the planet.
     init_substellar_lon : astropy.units.Quantity
@@ -96,7 +97,8 @@ class PlanetParameters:
     obliquity : astropy.units.Quantity
         The obliquity (tilt) of the planet.
     obliquity_direction : astropy.units.Quantity
-        The direction of the planet's obliquity.
+        The direction of the planet's obliquity. The true anomaly
+        at which the planet's north pole faces away from the star.
     init_phase : astropy.units.Quantity
         The initial phase of the planet.
     init_substellar_lon : astropy.units.Quantity
@@ -200,4 +202,39 @@ class PlanetParameters:
             init_phase = init_phase,
             init_substellar_lon = init_substellar_lon
         )
+
+
+class SystemParameters:
+    """
+    Class representing system parameters.
+
+    Parameters
+    ----------
+    distance : astropy.units.Quantity
+        The distance to the system.
+    inclination : astropy.units.Quantity
+        The inclination angle of the system. Transit occurs at 90 degrees.
+    phase_of_periasteron : astropy.units.Quantity
+        The phase (as seen from the observer) of the planet when it reaches periasteron.
+
+    Attributes
+    ----------
+    distance : astropy.units.Quantity
+        The distance to the system.
+    inclination : astropy.units.Quantity
+        The inclination angle of the system. Transit occurs at 90 degrees.
+    phase_of_periasteron : astropy.units.Quantity
+        The phase (as seen from the observer) of the planet when it reaches periasteron.
+
+    """
+
+    def __init__(
+        self,
+        distance,
+        inclination,
+        phase_of_periasteron
+    ):
+        self.distance = distance
+        self.inclination = inclination
+        self.phase_of_periasteron = phase_of_periasteron
 
