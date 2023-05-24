@@ -13,7 +13,7 @@ import pandas as pd
 import socket
 from os import system
 
-MSH = u.def_unit('micro solar hemisphere', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
+MSH = u.def_unit('msh', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
 """Micro-solar hemisphere
 
 This is a standard unit in heliophysics that
