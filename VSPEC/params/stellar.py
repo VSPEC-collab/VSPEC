@@ -471,7 +471,10 @@ class StarParameters:
         The parameters of the flares on the star.
     granulation : GranulationParameters
         The parameters of the granulation on the star.
-
+    Nlat : int
+        Number of latitudes in the stellar surface.
+    Nlon : int
+        Number of longitudes in the stellar surface.
     Attributes
     ----------
     template : str
@@ -498,6 +501,10 @@ class StarParameters:
         The parameters of the flares on the star.
     granulation : GranulationParameters
         The parameters of the granulation on the star.
+    Nlat : int
+        Number of latitudes in the stellar surface.
+    Nlon : int
+        Number of longitudes in the stellar surface.
     """
 
     def __init__(
@@ -513,7 +520,9 @@ class StarParameters:
         spots: SpotParameters,
         faculae: FaculaParameters,
         flares: FlareParameters,
-        granulation: GranulationParameters
+        granulation: GranulationParameters,
+        Nlat: int,
+        Nlon: int
     ):
         self.template = template
         self.teff = teff
@@ -527,6 +536,8 @@ class StarParameters:
         self.faculae = faculae
         self.flares = flares
         self.granulation = granulation
+        self.Nlat = Nlat,
+        self.Nlon = Nlon
 
     @classmethod
     def static_proxima(cls):
@@ -542,7 +553,8 @@ class StarParameters:
             spots=SpotParameters.none(),
             faculae=FaculaParameters.none(),
             flares=FlareParameters.none(),
-            granulation=GranulationParameters.none()
+            granulation=GranulationParameters.none(),
+            Nlat=500, Nlon=1000
         )
 
     @classmethod
@@ -559,7 +571,8 @@ class StarParameters:
             spots=SpotParameters.mdwarf(),
             faculae=FaculaParameters.none(),
             flares=FlareParameters.none(),
-            granulation=GranulationParameters.none()
+            granulation=GranulationParameters.none(),
+            Nlat=500, Nlon=1000
         )
 
     @classmethod
@@ -576,7 +589,8 @@ class StarParameters:
             spots=SpotParameters.none(),
             faculae=FaculaParameters.none(),
             flares=FlareParameters.std(),
-            granulation=GranulationParameters.none()
+            granulation=GranulationParameters.none(),
+            Nlat=500, Nlon=1000
         )
 
     @classmethod
@@ -593,5 +607,6 @@ class StarParameters:
             spots=SpotParameters.mdwarf(),
             faculae=FaculaParameters.none(),
             flares=FlareParameters.std(),
-            granulation=GranulationParameters.std()
+            granulation=GranulationParameters.std(),
+            Nlat=500, Nlon=1000
         )
