@@ -3,12 +3,15 @@ Stellar Parameters
 """
 from astropy import units as u
 import numpy as np
+
+
 from VSPEC.config import stellar_area_unit
 
 from VSPEC.helpers import MSH
+from VSPEC.params.base import BaseParameters
 
 
-class LimbDarkeningParameters:
+class LimbDarkeningParameters(BaseParameters):
     """
     Limb Darkening Parameters for the Quadratic
     Limb Darkening Law
@@ -32,14 +35,20 @@ class LimbDarkeningParameters:
     Quadratic Law (Kopal, 1950)
     .. math::
 
-        \frac{I(\mu)}{I(1)} = 1 - u_1 (1-mu) - u_2 (1-mu)^2
+        \frac{I(\mu)}{I(1)} = 1 - u_1 (1-\mu) - u_2 (1-\mu)^2
 
-    We use values taken from 
     """
 
     def __init__(self, u1: float, u2: float):
         self.u1 = u1
         self.u2 = u2
+
+    @classmethod
+    def _from_dict(cls, d):
+        return cls(
+            float(d['u1']),
+            float(d['u2'])
+        )
 
     @classmethod
     def solar(cls):
@@ -73,7 +82,7 @@ class LimbDarkeningParameters:
         return cls(1., 0.)
 
 
-class SpotParameters:
+class SpotParameters(BaseParameters):
     """
     Spot Parameters
 
@@ -176,16 +185,33 @@ class SpotParameters:
                 '`equillibrium_coverage` must be between 0 and 1.')
 
     @classmethod
+    def _from_dict(cls, d):
+        u.add_enabled_units([MSH])
+        return cls(
+            distribution=str(d['distribution']),
+            initial_coverage=float(d['initial_coverage']),
+            equillibrium_coverage=float(d['equillibrium_coverage']),
+            warmup=u.Quantity(d['warmup']),
+            area_mean=u.Quantity(d['area_mean']),
+            area_logsigma=float(d['area_logsigma']),
+            teff_umbra=u.Quantity(d['teff_umbra']),
+            teff_penumbra=u.Quantity(d['teff_penumbra']),
+            growth_rate=u.Quantity(d['growth_rate']),
+            decay_rate=u.Quantity(d['decay_rate']),
+            initial_area=u.Quantity(d['initial_area'])
+        )
+
+    @classmethod
     def none(cls):
         """
         No spots
         """
         return cls(
             'iso', 0., 0., 0.,
-            u.LogQuantity(500*MSH), 0.2,
+            500*MSH, 0.2,
             100*u.K, 100*u.K,
             0./u.day, 0*MSH/u.day,
-            10*u.MSH
+            10*MSH
         )
 
     @classmethod
@@ -195,10 +221,10 @@ class SpotParameters:
         """
         return cls(
             'iso', 0.2, 0., 0.,
-            u.LogQuantity(500*MSH), 0.2,
+            500*MSH, 0.2,
             2500*u.K, 2700*u.K,
             0./u.day, 0*MSH/u.day,
-            10*u.MSH
+            10*MSH
         )
 
     @classmethod
@@ -208,14 +234,14 @@ class SpotParameters:
         """
         return cls(
             'solar', 0.1, 0.1, 30*u.day,
-            u.LogQuantity(500*MSH), 0.2,
+            500*MSH, 0.2,
             2500*u.K, 2700*u.K,
             0.52/u.day, 10.8*MSH/u.day,
-            10*u.MSH
+            10*MSH
         )
 
 
-class FaculaParameters:
+class FaculaParameters(BaseParameters):
     """
     Facula Parameters
 
@@ -264,7 +290,7 @@ class FaculaParameters:
         mean_radius: u.Quantity,
         hwhm_radius: u.Quantity,
         mean_timescale: u.Quantity,
-        hwhm_timescale: u.Quantity,
+        hwhm_timescale: u.Quantity
     ):
         self.distribution = distribution
         self.equillibrium_coverage = equillibrium_coverage
@@ -286,6 +312,18 @@ class FaculaParameters:
                 '`equillibrium_coverage` must be between 0 and 1.')
 
     @classmethod
+    def _from_dict(cls, d):
+        return cls(
+            distribution=str(d['distribution']),
+            equillibrium_coverage=float(d['equillibrium_coverage']),
+            warmup=u.Quantity(d['warmup']),
+            mean_radius=u.Quantity(d['mean_radius']),
+            hwhm_radius=u.Quantity(d['hwhm_radius']),
+            mean_timescale=u.Quantity(d['mean_timescale']),
+            hwhm_timescale=u.Quantity(d['hwhm_timescale']),
+        )
+
+    @classmethod
     def none(cls):
         return cls(
             'iso', 0.000, 0*u.s,
@@ -302,7 +340,7 @@ class FaculaParameters:
         )
 
 
-class FlareParameters:
+class FlareParameters(BaseParameters):
     """
     Parameters
     ----------
@@ -364,6 +402,19 @@ class FlareParameters:
         self.E_steps = E_steps
 
     @classmethod
+    def _from_dict(cls, d):
+        return cls(
+            group_probability=float(d['group_probability']),
+            teff_mean=u.Quantity(d['teff_mean']),
+            teff_sigma=u.Quantity(d['teff_sigma']),
+            fwhm_mean=u.LogQuantity(d['fwhm_mean']),
+            fwhm_sigma=float(d['fwhm_sigma']),
+            E_min=u.LogQuantity(d['E_min']),
+            E_max=u.LogQuantity(d['E_max']),
+            E_steps=int(d['E_steps'])
+        )
+
+    @classmethod
     def none(cls):
         return cls(
             0.5, 9000*u.K, 500*u.K,
@@ -382,7 +433,7 @@ class FlareParameters:
         )
 
 
-class GranulationParameters:
+class GranulationParameters(BaseParameters):
     """
     Granulation Parameters
 
@@ -429,6 +480,15 @@ class GranulationParameters:
             raise ValueError('`amp` must be between 0 and 1.')
 
     @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            mean=float(d['mean']),
+            amp=float(d['amp']),
+            period=u.Quantity(d['period']),
+            dteff=u.Quantity(d['dteff'])
+        )
+
+    @classmethod
     def std(cls):
         return cls(
             0.2, 0.01, 5*u.day, 200*u.K
@@ -441,7 +501,7 @@ class GranulationParameters:
         )
 
 
-class StarParameters:
+class StarParameters(BaseParameters):
     """
     Class to store stellar model parameters.
 
@@ -538,6 +598,25 @@ class StarParameters:
         self.granulation = granulation
         self.Nlat = Nlat,
         self.Nlon = Nlon
+
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            template=str(d['template']),
+            teff=u.Quantity(d['teff']),
+            mass=u.Quantity(d['mass']),
+            radius=u.Quantity(d['radius']),
+            period=u.Quantity(d['period']),
+            offset_magnitude=u.Quantity(d['offset_magnitude']),
+            offset_direction=u.Quantity(d['offset_direction']),
+            ld=LimbDarkeningParameters.from_dict(d['ld']),
+            spots=SpotParameters.from_dict(d['spots']),
+            faculae=FaculaParameters.from_dict(d['faculae']),
+            flares=FlareParameters.from_dict(d['flares']),
+            granulation=GranulationParameters.from_dict(d['granulation']),
+            Nlat=int(d['Nlat']),
+            Nlon=int(d['Nlon'])
+        )
 
     @classmethod
     def static_proxima(cls):
