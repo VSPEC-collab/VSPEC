@@ -65,20 +65,22 @@ class GravityParameters(BaseParameters):
         """
 
         return self._value.to_value(self.psg_units[self.mode])
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            mode = str(d['mode']),
-            value = u.Quantity(d['value'])
+            mode=str(d['mode']),
+            value=u.Quantity(d['value'])
         )
-    def to_psg(self)->dict:
+
+    def to_psg(self) -> dict:
         """
-        Convert the gravity parameter to the PSG input format.
+        Convert the gravity parameters to the PSG input format.
 
         Returns
         -------
         dict
-            A dictionary representing the gravity parameter in the PSG input format.
+            A dictionary representing the gravity parameters in the PSG input format.
 
         """
 
@@ -86,6 +88,7 @@ class GravityParameters(BaseParameters):
             'OBJECT-GRAVITY': f'{self.value:.4e}',
             'OBJECT-GRAVITY-UNIT': self.mode
         }
+
 
 class PlanetParameters(BaseParameters):
     """
@@ -207,20 +210,21 @@ class PlanetParameters(BaseParameters):
         return psg_dict
 
     @classmethod
-    def _from_dict(cls,d:dict):
+    def _from_dict(cls, d: dict):
         return cls(
-            name = str(d['name']),
-            radius = u.Quantity(d['radius']),
-            gravity = GravityParameters.from_dict(d['gravity']),
-            semimajor_axis = u.Quantity(d['semimajor_axis']),
-            orbit_period = u.Quantity(d['orbit_period']),
-            rotation_period = u.Quantity(d['rotation_period']),
-            eccentricity = float(d['eccentricity']),
-            obliquity = u.Quantity(d['obliquity']),
-            obliquity_direction = u.Quantity(d['obliquity_direction']),
-            init_phase = u.Quantity(d['init_phase']),
-            init_substellar_lon = u.Quantity(d['init_substellar_lon'])
+            name=str(d['name']),
+            radius=u.Quantity(d['radius']),
+            gravity=GravityParameters.from_dict(d['gravity']),
+            semimajor_axis=u.Quantity(d['semimajor_axis']),
+            orbit_period=u.Quantity(d['orbit_period']),
+            rotation_period=u.Quantity(d['rotation_period']),
+            eccentricity=float(d['eccentricity']),
+            obliquity=u.Quantity(d['obliquity']),
+            obliquity_direction=u.Quantity(d['obliquity_direction']),
+            init_phase=u.Quantity(d['init_phase']),
+            init_substellar_lon=u.Quantity(d['init_substellar_lon'])
         )
+
     @classmethod
     def proxcenb(cls, init_phase: u.Quantity, init_substellar_lon: u.Quantity):
         """
