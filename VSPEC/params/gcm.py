@@ -5,11 +5,13 @@ from pathlib import Path
 from astropy import units as u
 from netCDF4 import Dataset
 
+from VSPEC.config import psg_encoding
+from VSPEC.params.base import BaseParameters
 from VSPEC.waccm.read_nc import get_time_index
 from VSPEC.waccm.write_psg import get_cfg_contents
 
 
-class binaryGCM:
+class binaryGCM(BaseParameters):
     """
     Class to store a GCM given in the PSG format.
 
@@ -60,9 +62,15 @@ class binaryGCM:
         else:
             with open(self.path, 'rb') as file:
                 return file.read()
+    @classmethod
+    def _from_dict(cls,d:dict):
+        return cls(
+            path = None if d.get('path',None) is None else Path(d.get('path',None)),
+            data = None if d.get('data',None) is None else bytes(d.get('data',None),encoding=psg_encoding)
+        )
 
 
-class waccmGCM:
+class waccmGCM(BaseParameters):
     """
     Class to store and provide access to Whole Atmosphere
     Community Climate Model (WACCM) data.
@@ -132,9 +140,18 @@ class waccmGCM:
                 aerosols=self.aerosols,
                 background=self.background
             )
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            path = Path(d['path']),
+            tstart = u.Quantity(d['tstart']),
+            molecules = list(d['molecules']),
+            aerosols = list(d['aerosols']),
+            background = None if d.get('background',None) is None else str(d.get('background',None))
+        )
 
 
-class APIkey:
+class APIkey(BaseParameters):
     """
     Class to store a PSG API key.
     Do not commit your API key to a git repository!
@@ -184,8 +201,17 @@ class APIkey:
         else:
             with open(self.path,'rt',encoding='UTF-8') as file:
                 return file.read()
+    @classmethod
+    def _from_dict(cls,d:dict):
+        return cls(
+            path = None if d.get('path',None) is None else Path(d.get('path',None)),
+            value = None if d.get('value',None) is None else str(d.get('value',None))
+        )
+    @classmethod
+    def none(cls):
+        return cls(None,None)
 
-class psgParameters:
+class psgParameters(BaseParameters):
     """
     Class to store parameters for the Planetary Spectrum Generator (PSG).
 
@@ -228,7 +254,30 @@ class psgParameters:
         api_key:APIkey
     ):
         self.gcm_binning = gcm_binning
-        self.phase_binning = phase_binning,
-        self.use_molecular_signatures = use_molecular_signatures,
+        self.phase_binning = phase_binning
+        self.use_molecular_signatures = use_molecular_signatures
         self.url = url
         self.api_key = api_key
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            gcm_binning = int(d['gcm_binning']),
+            phase_binning = int(d['phase_binning']),
+            use_molecular_signatures = bool(d['use_molecular_signatures']),
+            url = str(d['url']),
+            api_key = APIkey.none() if d.get('api_key',None) is None else APIkey.from_dict(d['api_key'])
+        )
+    def to_psg(self):
+        """
+        Convert the PSG parameters to the PSG input format.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the PSG parameters in the PSG input format.
+
+        """
+        return {
+            'GENERATOR-GCM-BINNING': f'{self.gcm_binning}',
+            'GENERATOR-GAS-MODEL': 'Y' if self.use_molecular_signatures else 'N',
+        }
