@@ -62,11 +62,14 @@ class binaryGCM(BaseParameters):
         else:
             with open(self.path, 'rb') as file:
                 return file.read()
+
     @classmethod
-    def _from_dict(cls,d:dict):
+    def _from_dict(cls, d: dict):
         return cls(
-            path = None if d.get('path',None) is None else Path(d.get('path',None)),
-            data = None if d.get('data',None) is None else bytes(d.get('data',None),encoding=psg_encoding)
+            path=None if d.get('path', None) is None else Path(
+                d.get('path', None)),
+            data=None if d.get('data', None) is None else bytes(
+                d.get('data', None), encoding=psg_encoding)
         )
 
 
@@ -140,14 +143,16 @@ class waccmGCM(BaseParameters):
                 aerosols=self.aerosols,
                 background=self.background
             )
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            path = Path(d['path']),
-            tstart = u.Quantity(d['tstart']),
-            molecules = list(d['molecules']),
-            aerosols = list(d['aerosols']),
-            background = None if d.get('background',None) is None else str(d.get('background',None))
+            path=Path(d['path']),
+            tstart=u.Quantity(d['tstart']),
+            molecules=list(d['molecules']),
+            aerosols=list(d['aerosols']),
+            background=None if d.get('background', None) is None else str(
+                d.get('background', None))
         )
 
 
@@ -179,11 +184,12 @@ class APIkey(BaseParameters):
 
     def __init__(
         self,
-        path:Path=None,
-        value:str=None
+        path: Path = None,
+        value: str = None
     ):
         self.path = path
         self._value = value
+
     @property
     def value(self):
         """
@@ -199,17 +205,22 @@ class APIkey(BaseParameters):
         if self.path is None:
             return self._value
         else:
-            with open(self.path,'rt',encoding='UTF-8') as file:
+            with open(self.path, 'rt', encoding='UTF-8') as file:
                 return file.read()
+
     @classmethod
-    def _from_dict(cls,d:dict):
+    def _from_dict(cls, d: dict):
         return cls(
-            path = None if d.get('path',None) is None else Path(d.get('path',None)),
-            value = None if d.get('value',None) is None else str(d.get('value',None))
+            path=None if d.get('path', None) is None else Path(
+                d.get('path', None)),
+            value=None if d.get('value', None) is None else str(
+                d.get('value', None))
         )
+
     @classmethod
     def none(cls):
-        return cls(None,None)
+        return cls(None, None)
+
 
 class psgParameters(BaseParameters):
     """
@@ -247,26 +258,29 @@ class psgParameters(BaseParameters):
 
     def __init__(
         self,
-        gcm_binning:int,
-        phase_binning:int,
-        use_molecular_signatures:bool,
-        url:str,
-        api_key:APIkey
+        gcm_binning: int,
+        phase_binning: int,
+        use_molecular_signatures: bool,
+        url: str,
+        api_key: APIkey
     ):
         self.gcm_binning = gcm_binning
         self.phase_binning = phase_binning
         self.use_molecular_signatures = use_molecular_signatures
         self.url = url
         self.api_key = api_key
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            gcm_binning = int(d['gcm_binning']),
-            phase_binning = int(d['phase_binning']),
-            use_molecular_signatures = bool(d['use_molecular_signatures']),
-            url = str(d['url']),
-            api_key = APIkey.none() if d.get('api_key',None) is None else APIkey.from_dict(d['api_key'])
+            gcm_binning=int(d['gcm_binning']),
+            phase_binning=int(d['phase_binning']),
+            use_molecular_signatures=bool(d['use_molecular_signatures']),
+            url=str(d['url']),
+            api_key=APIkey.none() if d.get(
+                'api_key', None) is None else APIkey.from_dict(d['api_key'])
         )
+
     def to_psg(self):
         """
         Convert the PSG parameters to the PSG input format.
