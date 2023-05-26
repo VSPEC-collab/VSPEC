@@ -3,6 +3,7 @@
 This module standardizes all of the file handling
 done by VSPEC.
 """
+from typing import Dict
 from pathlib import Path
 import warnings
 
@@ -53,7 +54,7 @@ def check_and_build_dir(path: Path) -> None:
         path.mkdir()
 
 
-def build_directories(name_of_run: str, path: Path = Path('.')) -> dict:
+def build_directories(data_path: Path) -> Dict[str,Path]:
     """
     Build VSPEC directory structure
 
@@ -74,7 +75,7 @@ def build_directories(name_of_run: str, path: Path = Path('.')) -> dict:
     dict
         Mapping to each of the `VSPEC` output subdirectories
     """
-    parent_folder = path / name_of_run
+    parent_folder = data_path
     check_and_build_dir(parent_folder)
     data_folder = parent_folder / 'Data'
     check_and_build_dir(data_folder)
