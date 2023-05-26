@@ -10,7 +10,7 @@ from jax import jit, numpy as jnp, lax
 import numpy as np
 import pandas as pd
 import h5py
-from scipy.interpolate import interp2d, interp1d
+from scipy.interpolate import interp1d, RegularGridInterpolator
 from astropy import units as u, constants as c
 from VSPEC.helpers import to_float, isclose
 from VSPEC.files import RAW_PHOENIX_PATH, BINNED_PHOENIX_PATH
@@ -499,9 +499,11 @@ def interpolate_spectra(target_teff: u.Quantity,
         raise ValueError(
             'Cannot interpolate between spectra that do not share a wavelength axis.')
     flux_unit = flux1.unit
-    interp = interp2d(wave1, [to_float(teff1, u.K), to_float(teff2, u.K)],
-                      [to_float(flux1, flux_unit), to_float(flux2, flux_unit)])
-    return wave1, interp(wave1, to_float(target_teff, u.K)) * flux_unit
+    interp = RegularGridInterpolator(
+        ([to_float(teff1, u.K), to_float(teff2, u.K)],wave1),
+        [to_float(flux1, flux_unit), to_float(flux2, flux_unit)]
+    )
+    return wave1, interp((to_float(target_teff, u.K),wave1),'linear') * flux_unit
 
 
 def blackbody(wavelength: u.Quantity, teff: u.Quantity, area: u.Quantity, distance: u.Quantity,
