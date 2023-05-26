@@ -1,3 +1,8 @@
+header:
+  data_path: test_run
+  teff_min: 2300 K
+  teff_max: 3700 K
+  desc: This is a VSPEC test run.
 star:
   template: M
   teff: 3300 K

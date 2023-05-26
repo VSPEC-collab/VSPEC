@@ -11,12 +11,54 @@ from VSPEC.params.planet import PlanetParameters,SystemParameters
 from VSPEC.params.gcm import gcmParameters,psgParameters
 from VSPEC.params.observation import InstrumentParameters, ObservationParameters
 
+class Header(BaseParameters):
+    """
+    Header for VSPEC simulation
+
+    Parameters:
+    -----------
+    data_path : pathlib.Path
+        The path to store run data.
+    desc : str, default=None
+        A description of the run.
+    
+    Attributes:
+    -----------
+    data_path : pathlib.Path
+        The path to store run data.
+    desc : str or None
+        A description of the run.
+
+    """
+    def __init__(
+        self,
+        data_path:Path,
+        teff_min:u.Quantity,
+        teff_max:u.Quantity,
+        desc:str=None
+    ):
+        self.data_path = data_path
+        self.teff_min = teff_min
+        self.teff_max = teff_max
+        self.desc = desc
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            data_path = Path(d['data_path']),
+            teff_min = u.Quantity(d['teff_min']),
+            teff_max = u.Quantity(d['teff_max']),
+            desc = None if d.get('desc',None) is None else str(d.get('desc',None))
+        )
+
+
 class Parameters(BaseParameters):
     """
     Class to store parameters for a VSPEC simulation.
 
     Parameters:
     -----------
+    header : Header
+        The VSPEC simulation header.
     star : StarParameters
         The parameters related to the star.
     planet : PlanetParameters
@@ -34,6 +76,8 @@ class Parameters(BaseParameters):
 
     Attributes:
     -----------
+    header : Header
+        The VSPEC simulation header.
     star : StarParameters
         The parameters related to the star.
     planet : PlanetParameters
@@ -59,6 +103,7 @@ class Parameters(BaseParameters):
 
     def __init__(
         self,
+        header:Header,
         star:StarParameters,
         planet:PlanetParameters,
         system:SystemParameters,
@@ -67,6 +112,7 @@ class Parameters(BaseParameters):
         inst:InstrumentParameters,
         gcm:gcmParameters
     ):
+        self.header = header
         self.star = star
         self.planet = planet
         self.system = system
@@ -77,6 +123,7 @@ class Parameters(BaseParameters):
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
+            header = Header.from_dict(d['header']),
             star = StarParameters.from_dict(d['star']),
             planet = PlanetParameters.from_dict(d['planet']),
             system = SystemParameters.from_dict(d['system']),
