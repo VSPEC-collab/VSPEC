@@ -2,7 +2,7 @@ import pytest
 from pathlib import Path
 from astropy import units as u
 
-from VSPEC.params.gcm import binaryGCM, waccmGCM
+from VSPEC.params.gcm import binaryGCM, waccmGCM, gcmParameters
 
 def test_binaryGCM_with_path():
     # Create a temporary GCM file
@@ -58,9 +58,9 @@ def test_waccmGCM_content():
     # Define the parameters for the waccmGCM instance
     path = nc_path
     tstart = 1 * u.year
-    molecules = ['O2', 'N2']
-    aerosols = ['H2O']
-    background = 'CH4'
+    molecules = 'O2, CO2'
+    aerosols = 'Water'
+    background = 'N2'
 
     # Instantiate waccmGCM
     waccm = waccmGCM(path, tstart, molecules, aerosols, background)
@@ -79,8 +79,8 @@ def test_waccmGCM_from_dict():
     waccm_dict = {
         'path': '/path/to/netcdf',
         'tstart': '1 day',
-        'molecules': ['O2', 'CO2'],
-        'aerosols': ['Water'],
+        'molecules': 'O2, CO2',
+        'aerosols': 'Water',
         'background': 'N2'
     }
 
@@ -93,3 +93,80 @@ def test_waccmGCM_from_dict():
     assert waccm.molecules == ['O2', 'CO2']
     assert waccm.aerosols == ['Water']
     assert waccm.background == 'N2'
+
+
+def test_gcmParameters_content_binary():
+    # Create a binaryGCM instance
+    binary_gcm = binaryGCM(data = b'GCM data')
+    
+    # Create a gcmParameters instance with binaryGCM
+    gcm_params = gcmParameters(gcm=binary_gcm)
+    
+    # Test the content method
+    content = gcm_params.content()
+    
+    # Assert that the content is not empty
+    assert content == b'GCM data'
+
+
+def test_gcmParameters_content_waccm():
+    # Create a waccmGCM instance
+    waccm_gcm = waccmGCM(path=Path('/path/to/waccm.nc'), tstart=100 * u.day,
+                         molecules=['O2', 'CO2'], aerosols=['Water', 'WaterIce'],
+                         background='N2')
+    
+    # Create a gcmParameters instance with waccmGCM
+    gcm_params = gcmParameters(gcm=waccm_gcm)
+    
+    # Assert that the content is not empty
+    assert gcm_params.gcm.path == Path('/path/to/waccm.nc')
+
+
+def test_gcmParameters_from_dict_binary():
+    # Create a dictionary representation of the gcmParameters instance with binaryGCM
+    gcm_dict = {
+        'binary': {
+            'data': 'GCM data'
+        }
+    }
+    
+    # Create a gcmParameters instance from the dictionary
+    gcm_params = gcmParameters.from_dict(gcm_dict)
+    
+    # Assert that the gcm attribute is an instance of binaryGCM
+    assert isinstance(gcm_params.gcm, binaryGCM)
+    assert gcm_params.content() == b'GCM data'
+
+
+def test_gcmParameters_from_dict_waccm():
+    # Create a dictionary representation of the gcmParameters instance with waccmGCM
+    gcm_dict = {
+        'waccm': {
+            'path': '/path/to/waccm.nc',
+            'tstart': '100',
+            'molecules': 'O2, CO2',
+            'aerosols': 'Water, WaterIce',
+            'background': 'N2'
+        }
+    }
+    
+    # Create a gcmParameters instance from the dictionary
+    gcm_params = gcmParameters.from_dict(gcm_dict)
+    
+    # Assert that the gcm attribute is an instance of waccmGCM
+    assert isinstance(gcm_params.gcm, waccmGCM)
+
+
+def test_gcmParameters_from_dict_invalid():
+    # Create an invalid dictionary representation without 'binary' or 'waccm' keys
+    gcm_dict = {
+        'invalid': {
+            'path': '/path/to/data',
+            'tstart': '100',
+            'molecules': 'O2, N2'
+        }
+    }
+    
+    # Test that KeyError is raised when constructing gcmParameters from the invalid dictionary
+    with pytest.raises(KeyError):
+        gcmParameters.from_dict(gcm_dict)

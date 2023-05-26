@@ -4,6 +4,7 @@ GCM parameters module
 from pathlib import Path
 from astropy import units as u
 from netCDF4 import Dataset
+from typing import Union
 
 from VSPEC.config import psg_encoding
 from VSPEC.params.base import BaseParameters
@@ -149,11 +150,58 @@ class waccmGCM(BaseParameters):
         return cls(
             path=Path(d['path']),
             tstart=u.Quantity(d['tstart']),
-            molecules=list(d['molecules']),
-            aerosols=list(d['aerosols']),
+            molecules=list(d['molecules'].replace(' ','').split(',')),
+            aerosols=list(d['aerosols'].replace(' ','').split(',')),
             background=None if d.get('background', None) is None else str(
                 d.get('background', None))
         )
+
+class gcmParameters(BaseParameters):
+    """
+    Class to store GCM parameters.
+
+    Parameters:
+    -----------
+    gcm : binaryGCM or waccmGCM
+        The GCM instance containing the GCM data.
+
+    Attributes:
+    -----------
+    gcm : binaryGCM or waccmGCM
+        The GCM instance containing the GCM data.
+
+    Methods:
+    --------
+    content(**kwargs)
+        Get the content of the GCM for the specified observation parameters.
+
+    Class Methods:
+    --------------
+    _from_dict(d: dict)
+        Construct a gcmParameters instance from a dictionary representation.
+
+    """
+
+    def __init__(
+        self,
+        gcm:Union[binaryGCM,waccmGCM]
+    ):
+        self.gcm = gcm
+
+    def content(self,**kwargs):
+        return self.gcm.content(**kwargs)
+    @classmethod
+    def _from_dict(cls, d: dict):
+        if 'binary' in d:
+            return cls(
+                gcm=binaryGCM.from_dict(d['binary'])
+            )
+        elif 'waccm' in d:
+            return cls(
+                gcm=waccmGCM.from_dict(d['waccm'])
+            )
+        else:
+            raise KeyError(f'`binary` or `waccm` not in {list(d.keys())}')
 
 
 class APIkey(BaseParameters):

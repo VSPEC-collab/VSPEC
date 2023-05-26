@@ -3,9 +3,10 @@ Observation parameters
 """
 from astropy import units as u
 from VSPEC.config import flux_unit as default_flux_unit
+from VSPEC.params.base import BaseParameters
 
 
-class ObservationParameters:
+class ObservationParameters(BaseParameters):
     """
     Class storing parameters for observations.
 
@@ -15,6 +16,11 @@ class ObservationParameters:
         The total duration of the observation.
     integration_time : astropy.units.Quantity
         The integration time of each epoch of observation.
+    zodi : float
+        The level of the zodiacal background. From 
+        PSG handbook: '(1.0:Ecliptic pole/minimum, 
+        2.0:HST/JWST low values, 10.0:Normal values,
+        100.0:Close to ecliptic/Sun)'
 
     Attributes
     ----------
@@ -22,6 +28,11 @@ class ObservationParameters:
         The total duration of the observation.
     integration_time : astropy.units.Quantity
         The integration time of each epoch of observation.
+    zodi : float
+        The level of the zodiacal background. From 
+        PSG handbook: '(1.0:Ecliptic pole/minimum, 
+        2.0:HST/JWST low values, 10.0:Normal values,
+        100.0:Close to ecliptic/Sun)'
 
     Raises
     ------
@@ -39,15 +50,21 @@ class ObservationParameters:
         self,
         observation_time: u.Quantity,
         integration_time: u.Quantity,
+        zodi: float
     ):
         self.observation_time = observation_time
         self.integration_time = integration_time
+        self.zodi = zodi
         self._validate()
 
     def _validate(self):
         if self.integration_time > self.observation_time:
             raise ValueError(
                 'Length of integrations cannot be longer than the total observation.')
+        if self.zodi < 1.0:
+            raise ValueError(
+                'Zodi background must be >= 1.0'
+            )
 
     @property
     def total_images(self) -> int:
@@ -62,9 +79,31 @@ class ObservationParameters:
         """
 
         return int(round((self.observation_time/self.integration_time).to_value(u.dimensionless_unscaled)))
+    
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            observation_time = u.Quantity(d['observation_time']),
+            integration_time = u.Quantity(d['integration_time']),
+            zodi = float(d['zodi'])
+        )
+    def to_psg(self):
+        """
+        Convert the observation parameters to the PSG input format.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the observation parameters in the PSG input format.
+
+        """
+        return {
+            'GEOMETRY': 'Observatory',
+            'GENERATOR-TELESCOPE2': f'{self.zodi}'
+        }
 
 
-class BandpassParameters:
+class BandpassParameters(BaseParameters):
     """
     Class to store bandpass parameters for observations.
 
@@ -101,20 +140,48 @@ class BandpassParameters:
         The unit of flux used for the bandpass parameters.
     """
 
+    psg_rad_mapper = {u.Unit('W m-2 um-1'): 'Wm2um'}
+
     def __init__(
         self,
         wl_blue: u.Quantity,
         wl_red: u.Quantity,
         resolving_power: int,
         wavelength_unit: u.Unit,
-        flux_unit: u.Unit,
+        flux_unit: u.Unit
     ):
         self.wl_blue = wl_blue
         self.wl_red = wl_red
         self.resolving_power = resolving_power
         self.wavelength_unit = wavelength_unit
         self.flux_unit = flux_unit
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            wl_blue = u.Quantity(d['wl_blue']),
+            wl_red = u.Quantity(d['wl_red']),
+            resolving_power = int(d['resolving_power']),
+            wavelength_unit = u.Unit(d['wavelength_unit']),
+            flux_unit = u.Unit(d['flux_unit'])
+        )
+    def to_psg(self):
+        """
+        Convert the bandpass parameters to the PSG input format.
 
+        Returns
+        -------
+        dict
+            A dictionary representing the bandpass parameters in the PSG input format.
+
+        """
+        return {
+            'GENERATOR-RANGE1': f'{self.wl_blue.to_value(self.wavelength_unit):.2f}',
+            'GENERATOR-RANGE2': f'{self.wl_red.to_value(self.wavelength_unit):.2f}',
+            'GENERATOR-RANGEUNIT': self.wavelength_unit.to_string(),
+            'GENERATOR-RESOLUTION': f'{self.resolving_power}',
+            'GENERATOR-RESOLUTIONUNIT': 'RP',
+            'GENERATOR-RADUNITS': self.psg_rad_mapper[self.flux_unit]
+        }
     @classmethod
     def mirecle(cls):
         """
@@ -139,7 +206,7 @@ class BandpassParameters:
         )
 
 
-class ccdParameters:
+class ccdParameters(BaseParameters):
     """
     Class to store CCD parameters for observations.
 
@@ -194,6 +261,35 @@ class ccdParameters:
         self.throughput = throughput
         self.emissivity = emissivity
         self.temperature = temperature
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            pixel_sampling = int(d['pixel_sampling']),
+            read_noise = u.Quantity(d['read_noise']),
+            dark_current = u.Quantity(d['dark_current']),
+            throughput = float(d['throughput']),
+            emissivity = float(d['emissivity']),
+            temperature = u.Quantity(d['temperature'])
+        )
+    def to_psg(self)->dict:
+        """
+        Convert the CCD parameters to the PSG input format.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the CCD parameters in the PSG input format.
+
+        """
+        return {
+            'GENERATOR-NOISE': 'CCD',
+            'GENERATOR-NOISEPIXELS': f'{self.pixel_sampling}',
+            'GENERATOR-NOISE1': f'{self.read_noise.to_value(u.electron):.1f}',
+            'GENERATOR-NOISE2': f'{self.dark_current.to_value(u.electron/u.s):.1f}',
+            'GENERATOR-NOISEOEFF': f'{self.throughput:.2f}',
+            'GENERATOR-NOISEOEMIS': f'{self.emissivity:.2f}',
+            'GENERATOR-NOISEOTEMP': f'{self.temperature.to_value(u.K):.1f}'
+        }
 
     @classmethod
     def mirecle(cls):
@@ -221,7 +317,7 @@ class ccdParameters:
         )
 
 
-class DetectorParameters:
+class DetectorParameters(BaseParameters):
     """
     Class to store detector parameters for observations.
 
@@ -258,6 +354,29 @@ class DetectorParameters:
         self.beam_width = beam_width
         self.integration_time = integration_time
         self.ccd = ccd
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            beam_width = u.Quantity(d['beam_width']),
+            integration_time = u.Quantity(d['integration_time']),
+            ccd = ccdParameters.from_dict(d['ccd']),
+        )
+    def to_psg(self)->dict:
+        """
+        Convert the detector parameters to the PSG input format.
+
+        Returns
+        -------
+        dict
+            A dictionary representing the detector parameters in the PSG input format.
+
+        """
+        config = {
+            'GENERATOR-BEAM': f'{self.beam_width.to_value(u.arcsec):.4f}',
+            'GENERATOR-BEAM-UNIT': 'arcsec'
+        }
+        config.update(self.ccd.to_psg())
+        return config
 
     @classmethod
     def mirecle(cls):
@@ -281,7 +400,7 @@ class DetectorParameters:
         )
 
 
-class InstrumentParameters:
+class InstrumentParameters(BaseParameters):
     """
     Class to store instrument parameters for observations.
 
@@ -319,7 +438,30 @@ class InstrumentParameters:
         self.aperture = aperture
         self.bandpass = bandpass
         self.detector = detector
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            aperture = u.Quantity(d['aperture']),
+            bandpass = BandpassParameters.from_dict(d['bandpass']),
+            detector = DetectorParameters.from_dict(d['detector'])
+        )
+    def to_psg(self):
+        """
+        Convert the instrument parameters to the PSG input format.
 
+        Returns
+        -------
+        dict
+            A dictionary representing the instrument parameters in the PSG input format.
+
+        """
+        config = {
+            'GENERATOR-DIAMTELE': f'{self.aperture.to_value(u.m):.2f}',
+            'GENERATOR-TELESCOPE': 'SINGLE'
+        }
+        config.update(self.bandpass.to_psg())
+        config.update(self.detector.to_psg())
+        return config
     @classmethod
     def mirecle(cls):
         """

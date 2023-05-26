@@ -350,13 +350,13 @@ class FlareParameters(BaseParameters):
         The mean temperature of the flare blackbody.
     teff_sigma : astropy.units.quantity.Quantity [temperature]
         The standard deviation of the generated flare temperature.
-    fwhm_mean : astropy.units.LogQuantity
+    fwhm_mean : astropy.units.Quantity
         The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
     fwhm_sigma : float
         The standard deviation of the logarithm of the FWHM of the flare in days.
-    E_min : astropy.units.LogQuantity
+    E_min : astropy.units.Quantity
         Log of the minimum energy flares to be considered in ergs.
-    E_max : astropy.units.LogQuantity
+    E_max : astropy.units.Quantity
         Log of the maximum energy flares to be considered in ergs.
     E_steps : int
         The number of flare energy steps to consider.
@@ -369,13 +369,13 @@ class FlareParameters(BaseParameters):
         The mean temperature of the flare blackbody.
     teff_sigma : astropy.units.quantity.Quantity [temperature]
         The standard deviation of the generated flare temperature.
-    fwhm_mean : astropy.units.LogQuantity
+    fwhm_mean : astropy.units.Quantity
         The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
     fwhm_sigma : float
         The standard deviation of the logarithm of the FWHM of the flare in days.
-    E_min : astropy.units.LogQuantity
+    E_min : astropy.units.Quantity
         Log of the minimum energy flares to be considered in ergs.
-    E_max : astropy.units.LogQuantity
+    E_max : astropy.units.Quantity
         Log of the maximum energy flares to be considered in ergs.
     E_steps : int
         The number of flare energy steps to consider.
@@ -386,10 +386,10 @@ class FlareParameters(BaseParameters):
         group_probability: float,
         teff_mean: u.Quantity,
         teff_sigma: u.Quantity,
-        fwhm_mean: u.LogQuantity,
+        fwhm_mean: u.Quantity,
         fwhm_sigma: float,
-        E_min: u.LogQuantity,
-        E_max: u.LogQuantity,
+        E_min: u.Quantity,
+        E_max: u.Quantity,
         E_steps: int
     ):
         self.group_probability = group_probability
@@ -407,10 +407,10 @@ class FlareParameters(BaseParameters):
             group_probability=float(d['group_probability']),
             teff_mean=u.Quantity(d['teff_mean']),
             teff_sigma=u.Quantity(d['teff_sigma']),
-            fwhm_mean=u.LogQuantity(d['fwhm_mean']),
+            fwhm_mean=u.Quantity(d['fwhm_mean']),
             fwhm_sigma=float(d['fwhm_sigma']),
-            E_min=u.LogQuantity(d['E_min']),
-            E_max=u.LogQuantity(d['E_max']),
+            E_min=u.Quantity(d['E_min']),
+            E_max=u.Quantity(d['E_max']),
             E_steps=int(d['E_steps'])
         )
 
@@ -418,8 +418,8 @@ class FlareParameters(BaseParameters):
     def none(cls):
         return cls(
             0.5, 9000*u.K, 500*u.K,
-            u.LogQuantity(0.14*u.day), 0.3,
-            u.LogQuantity(10**32.5*u.erg), u.LogQuantity(10**34.5*u.erg),
+            u.Quantity(0.14*u.day), 0.3,
+            u.Quantity(10**32.5*u.erg), u.Quantity(10**34.5*u.erg),
             0
         )
 
@@ -427,8 +427,8 @@ class FlareParameters(BaseParameters):
     def std(cls):
         return cls(
             0.5, 9000*u.K, 500*u.K,
-            u.LogQuantity(0.14*u.day), 0.3,
-            u.LogQuantity(10**32.5*u.erg), u.LogQuantity(10**34.5*u.erg),
+            u.Quantity(0.14*u.day), 0.3,
+            u.Quantity(10**32.5*u.erg), u.Quantity(10**34.5*u.erg),
             100
         )
 
@@ -617,6 +617,13 @@ class StarParameters(BaseParameters):
             Nlat=int(d['Nlat']),
             Nlon=int(d['Nlon'])
         )
+    def to_psg(self)->dict:
+        return {
+            'OBJECT-STAR-TYPE': self.template,
+            'OBJECT-STAR-TEMPERATURE': f'{self.teff.to_value(u.K):.1f}',
+            'OBJECT-STAR-RADIUS': f'{self.radius.to_value(u.R_sun):.4f}',
+            'GENERATOR-CONT-STELLAR': 'Y'
+        }
 
     @classmethod
     def static_proxima(cls):

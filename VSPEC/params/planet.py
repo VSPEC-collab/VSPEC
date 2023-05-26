@@ -291,7 +291,7 @@ class PlanetParameters(BaseParameters):
         )
 
 
-class SystemParameters:
+class SystemParameters(BaseParameters):
     """
     Class representing system parameters.
 
@@ -317,10 +317,33 @@ class SystemParameters:
 
     def __init__(
         self,
-        distance,
-        inclination,
-        phase_of_periasteron
+        distance:u.Quantity,
+        inclination:u.Quantity,
+        phase_of_periasteron:u.Quantity
     ):
         self.distance = distance
         self.inclination = inclination
         self.phase_of_periasteron = phase_of_periasteron
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            distance = u.Quantity(d['distance']),
+            inclination = u.Quantity(d['inclination']),
+            phase_of_periasteron = u.Quantity(d['phase_of_periasteron']),
+        )
+    def to_psg(self)->dict:
+        """
+        Convert the parameters to the PSG config format.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the parameters in the PSG config format.
+
+        """
+        return {
+            'GEOMETRY-OBS-ALTITUDE': f'{self.distance.to_value(u.pc):.4f}',
+            'GEOMETRY-ALTITUDE-UNIT': 'pc',
+            'OBJECT-INCLINATION': f'{self.inclination.to_value(u.deg):.4f}',
+            'OBJECT-PERIAPSIS': f'{self.phase_of_periasteron.to_value(u.deg):.4f}'
+        }
