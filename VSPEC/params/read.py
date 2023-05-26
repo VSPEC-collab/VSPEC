@@ -163,3 +163,9 @@ class Parameters(BaseParameters):
         config.update(self.obs.to_psg())
         config.update(self.psg.to_psg())
         config.update(self.inst.to_psg())
+    @property
+    def flux_correction(self)->float:
+        """
+        Correction for the solid angle of the star.
+        """
+        return (self.star.radius/self.system.distance).to_value(u.dimensionless_unscaled)**2
