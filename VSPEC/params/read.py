@@ -169,3 +169,16 @@ class Parameters(BaseParameters):
         Correction for the solid angle of the star.
         """
         return (self.star.radius/self.system.distance).to_value(u.dimensionless_unscaled)**2
+    @property
+    def star_total_images(self)->int:
+        """
+        The total number of epochs to simulate the star.
+        """
+        return self.obs.total_images
+    @property
+    def planet_total_images(self)->int:
+        """
+        The total number of epochs to simulate the planet.
+        """
+        return self.obs.total_images // self.psg.phase_binning
+    
