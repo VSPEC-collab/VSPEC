@@ -30,6 +30,7 @@ from VSPEC.read_info import ParamModel
 from VSPEC.analysis import read_lyr
 from VSPEC.waccm.write_psg import get_cfg_contents
 from VSPEC.waccm.read_nc import get_time_index
+from VSPEC.params.read import Parameters
 
 
 class ObservationModel:
@@ -55,9 +56,10 @@ class ObservationModel:
         The variable host star.
     """
 
-    def __init__(self, config_path, verbose=1):
+    def __init__(self, config_path:Path, verbose=1):
         self.verbose = verbose
-        self.params = ParamModel(config_path)
+        self.params = Parameters.from_yaml(config_path)
+        # self.params = ParamModel(config_path)
         self.build_directories()
         self.star = None
 
@@ -87,7 +89,7 @@ class ObservationModel:
         """
         Build the file system for this run.
         """
-        self.dirs = build_directories(self.params.star_name)
+        self.dirs = build_directories(self.params.header.data_path)
 
     def bin_spectra(self):
         """
@@ -96,31 +98,34 @@ class ObservationModel:
         This method loads high-resolution spectra and bins them to the required resolution. The binned spectra are then
         written to a local file (`self.dirs['binned']/...`).
         """
-        teffs = arrange_teff(self.params.star_teff_min,self.params.star_teff_max)
+        teffs = arrange_teff(
+            self.params.header.teff_min,
+            self.params.header.teff_max
+        )
         for teff in self.wrap_iterator(teffs,desc='Binning Spectra', total=len(teffs)):
             try:
                 stellar_spectra.bin_cached_model(to_float(teff, u.K),
                                                 file_name_writer=stellar_spectra.get_binned_filename,
                                                 binned_path=self.dirs['binned'],
-                                                resolving_power=self.params.resolving_power,
-                                                lam1=self.params.lambda_min,
-                                                lam2=self.params.lambda_max,
+                                                resolving_power=self.params.inst.bandpass.resolving_power,
+                                                lam1=self.params.inst.bandpass.wl_blue,
+                                                lam2=self.params.inst.bandpass.wl_red,
                                                 model_unit_wavelength=u.AA,
                                                 model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
-                                                target_unit_wavelength=self.params.target_wavelength_unit,
-                                                target_unit_flux=self.params.target_flux_unit)
+                                                target_unit_wavelength=self.params.inst.bandpass.wavelength_unit,
+                                                target_unit_flux=self.params.inst.bandpass.flux_unit)
 
             except ValueError:
                 stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
                                                 file_name_writer=stellar_spectra.get_binned_filename,
                                                 binned_path=self.dirs['binned'],
-                                                resolving_power=self.params.resolving_power,
-                                                lam1=self.params.lambda_min,
-                                                lam2=self.params.lambda_max,
+                                                resolving_power=self.params.inst.bandpass.resolving_power,
+                                                lam1=self.params.inst.bandpass.wl_blue,
+                                                lam2=self.params.inst.bandpass.wl_red,
                                                 model_unit_wavelength=u.AA,
                                                 model_unit_flux=u.Unit('erg s-1 cm-2 cm-1'),
-                                                target_unit_wavelength=self.params.target_wavelength_unit,
-                                                target_unit_flux=self.params.target_flux_unit)
+                                                target_unit_wavelength=self.params.inst.bandpass.wavelength_unit,
+                                                target_unit_flux=self.params.inst.bandpass.flux_unit)
 
     def read_spectrum(self, teff: u.Quantity)->typing.Tuple[u.Quantity,u.Quantity]:
         """
@@ -159,12 +164,12 @@ class ObservationModel:
             The flux of the spectrum, corrected for system distance.
         """
         if Teff == 0*u.K: # for testing
-            star_teff = self.params.star_teff
+            star_teff = self.params.star.teff
             wave1, flux1 = self.read_spectrum(star_teff - (star_teff % (100*u.K)))
             return wave1, flux1*0
         elif (Teff % (100*u.K)==0*u.K):
             wave1, flux1 = self.read_spectrum(Teff)
-            return wave1, flux1*self.params.distanceFluxCorrection
+            return wave1, flux1*self.params.flux_correction
         else:
             
             model_teffs = get_surrounding_teffs(Teff)
@@ -177,7 +182,7 @@ class ObservationModel:
             wavelength, flux = stellar_spectra.interpolate_spectra(Teff,
                                                                    model_teffs[0], wave1, flux1,
                                                                    model_teffs[1], wave2, flux2)
-            return wavelength, flux*self.params.distanceFluxCorrection
+            return wavelength, flux*self.params.flux_correction
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
@@ -192,21 +197,21 @@ class ObservationModel:
             An bbject storing the geometric observation parameters
             of this simulation.
         """
-        return SystemGeometry(self.params.system_inclination,
-                              0*u.deg,
-                              self.params.planet_initial_phase,
-                              self.params.star_rot_period,
-                              self.params.planet_orbital_period,
-                              self.params.planet_semimajor_axis,
-                              self.params.planet_rotational_period,
-                              self.params.planet_init_substellar_lon,
-                              self.params.star_rot_offset_from_orbital_plane,
-                              self.params.star_rot_offset_angle_from_pariapse,
-                              self.params.planet_eccentricity,
-                              self.params.system_phase_of_periasteron,
-                              self.params.system_distance,
-                              self.params.planet_obliquity,
-                              self.params.planet_obliquity_direction)
+        return SystemGeometry(inclination= self.params.system.inclination,
+                              init_stellar_lon = 0*u.deg, 
+                              init_planet_phase= self.params.planet.init_phase,
+                              stellar_period= self.params.star.period,
+                              orbital_period= self.params.planet.orbit_period,
+                              semimajor_axis= self.params.planet.semimajor_axis,
+                              planetary_rot_period= self.params.planet.rotation_period,
+                              planetary_init_substellar_lon= self.params.planet.init_substellar_lon,
+                              stellar_offset_amp= self.params.star.offset_magnitude,
+                              stellar_offset_phase = self.params.star.offset_direction,
+                              eccentricity= self.params.planet.eccentricity,
+                              phase_of_periasteron= self.params.system.phase_of_periasteron,
+                              system_distance = self.params.system.distance,
+                              obliquity = self.params.planet.obliquity,
+                              obliquity_direction = self.params.planet.obliquity_direction)
 
     def get_observation_plan(self, observation_parameters: SystemGeometry,planet=False):
         """
@@ -227,11 +232,11 @@ class ObservationModel:
             epoch. Each dict value is an astropy.units.Quantity array.
         """
         if planet:
-            N_obs = self.params.planet_images
+            N_obs = self.params.planet_total_images
         else:
-            N_obs = self.params.total_images
-        return observation_parameters.get_observation_plan(self.params.planet_initial_phase,
-                                                           self.params.total_observation_time, N_obs=N_obs)
+            N_obs = self.params.star_total_images
+        return observation_parameters.get_observation_plan(self.params.planet.init_phase,
+                                                           self.params.obs.observation_time, N_obs=N_obs)
                                    
     def check_psg(self):
         """
@@ -260,18 +265,8 @@ class ObservationModel:
             msg += 'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook)'
             warnings.warn(msg,RuntimeWarning)
 
-    def get_api_key(self):
-        """
-        Get the PSG API key
-        """
-        if self.params.api_key_path:
-            with open(self.params.api_key_path, 'r', encoding='UTF-8') as file:
-                api_key = file.read()
-        else:
-            api_key = None
-        return api_key
 
-    def upload_gcm(self,is_ncdf:bool,obstime:u.Quantity=0*u.s,update=False):
+    def upload_gcm(self,obstime:u.Quantity=0*u.s,update=False):
         """
         Upload GCM file to PSG
 
@@ -284,23 +279,15 @@ class ObservationModel:
         update : bool
             Whether to use the `'upd'` keyword rather than `'set'`
         """
-        if not is_ncdf:
-            with open(self.params.gcm_path,'rb') as file:
-                content = file.read()
-        else:
-            with Dataset(self.params.netcdf_path,'r',format='NETCDF4') as data:
-                itime = get_time_index(data,obstime + self.params.netcdf_tstart)
-                content = get_cfg_contents(
-                    data=data,
-                    itime=itime,
-                    molecules=self.params.nc_molecs,
-                    aerosols=self.params.nc_aerosols,
-                    background=self.params.nc_background
-                )
+        if self.params.gcm.gcmtype == 'binary':
+            kwargs = {}
+        elif self.params.gcm.gcmtype == 'waccm':
+            kwargs = {'obs_time':obstime}
+        content = self.params.gcm.content(**kwargs)
         call_api(
             config_path=None,
-            psg_url=self.params.psg_url,
-            api_key=self.get_api_key(),
+            psg_url=self.params.psg.url,
+            api_key=self.params.psg.api_key.value,
             output_type='upd' if update else 'set',
             app='globes',
             outfile=None,
@@ -308,12 +295,12 @@ class ObservationModel:
         )
     
     def set_static_config(self):
-        params = get_static_psg_parameters(self.params)
+        params = self.params.to_psg()
         content = cfg_to_bytes(params)
         call_api(
             config_path=None,
-            psg_url=self.params.psg_url,
-            api_key=self.get_api_key(),
+            psg_url=self.params.psg.url,
+            api_key=self.params.psg.api_key.value,
             output_type='upd',
             app='globes',
             outfile=None,
@@ -342,8 +329,8 @@ class ObservationModel:
         content = cfg_to_bytes(params)
         call_api(
             config_path=None,
-            psg_url=self.params.psg_url,
-            api_key=self.get_api_key(),
+            psg_url=self.params.psg.url,
+            api_key=self.params.psg.api_key.value,
             output_type='upd',
             app='globes',
             outfile=None,
@@ -354,8 +341,8 @@ class ObservationModel:
         content = bytes(f'<OBJECT-NAME>{self.params.planet_name}',encoding='UTF-8')
         response = call_api(
             config_path=None,
-            psg_url=self.params.psg_url,
-            api_key=self.get_api_key(),
+            psg_url=self.params.psg.url,
+            api_key=self.params.psg.api_key.value,
             output_type='all',
             app='globes',
             outfile=None,
@@ -365,7 +352,7 @@ class ObservationModel:
         for key,path in path_dict.items():
             filename = get_filename(i,N_ZFILL,key)
             with open(path/filename, 'wt', encoding='UTF-8') as file:
-                if not (key == 'lyr' and self.params.use_molec_signatures==False):
+                if not (key == 'lyr' and self.params.psg.use_molecular_signatures is False):
                     file.write(output_data[key])
 
 
@@ -382,16 +369,10 @@ class ObservationModel:
         self.check_psg()
         # for not using globes, append all configurations instead of rewritting
 
-        if self.params.use_globes:
-            file_mode = 'w'
-        else:
-            file_mode = 'a'
-
         ####################################
         # Initial upload of GCM
 
         self.upload_gcm(
-            is_ncdf=self.params.use_netcdf,
             obstime=0*u.s,
             update=False
         )
@@ -412,12 +393,12 @@ class ObservationModel:
 
         if self.verbose > 0:
             print(
-                f'Starting at phase {self.params.planet_initial_phase}, observe for {self.params.total_observation_time} in {self.params.planet_images} steps')
+                f'Starting at phase {self.params.planet.init_phase}, observe for {self.params.obs.observation_time} in {self.params.planet_total_images} steps')
             print('Phases = ' +
                 str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
         ####################################
         # iterate through phases
-        for i in self.wrap_iterator(range(self.params.planet_images), desc='Build Planet', total=self.params.planet_images):
+        for i in self.wrap_iterator(range(self.params.planet_total_images), desc='Build Planet', total=self.params.planet_total_images):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
@@ -425,9 +406,8 @@ class ObservationModel:
             pl_sub_obs_lat = obs_plan['planet_sub_obs_lat'][i]
             orbit_radius_coeff = obs_plan['orbit_radius'][i]
             obs_time = obs_plan['time'][i] - obs_plan['time'][0]
-            if self.params.use_netcdf:
+            if self.params.gcm.gcmtype == 'waccm':
                 self.upload_gcm(
-                    is_ncdf=self.params.use_netcdf,
                     obstime=obs_time,
                     update=True
                 )
