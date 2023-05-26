@@ -190,6 +190,14 @@ class gcmParameters(BaseParameters):
 
     def content(self,**kwargs):
         return self.gcm.content(**kwargs)
+    @property
+    def gcmtype(self)->str:
+        if isinstance(self.gcm,binaryGCM):
+            return 'binary'
+        elif isinstance(self.gcm,waccmGCM):
+            return 'waccm'
+        else:
+            raise TypeError('Unknown GCM type')
     @classmethod
     def _from_dict(cls, d: dict):
         if 'binary' in d:
