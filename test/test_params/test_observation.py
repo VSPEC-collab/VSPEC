@@ -1,20 +1,20 @@
 import pytest
 from astropy import units as u
+import numpy as np
 
 from VSPEC.config import flux_unit as default_flux_unit
 from VSPEC.params.observation import BandpassParameters, ObservationParameters,ccdParameters,DetectorParameters,InstrumentParameters
+from VSPEC.params.observation import TelescopeParameters, SingleDishParameters, CoronagraphParameters
 
 def test_ObservationParameters_init():
     # Create ObservationParameters with valid values
     observation_time = 10 * u.hour
     integration_time = 1 * u.minute
-    zodi = 1.
-    obs_params = ObservationParameters(observation_time, integration_time,zodi)
+    obs_params = ObservationParameters(observation_time, integration_time)
 
     # Perform assertions on the instance attributes
     assert obs_params.observation_time == observation_time
     assert obs_params.integration_time == integration_time
-    assert obs_params.zodi == zodi
 
     # Create ObservationParameters with invalid values (integration time longer than observation time)
     invalid_observation_time = 1 * u.hour
@@ -22,21 +22,15 @@ def test_ObservationParameters_init():
 
     # Check that ValueError is raised when creating ObservationParameters with invalid values
     with pytest.raises(ValueError):
-        ObservationParameters(invalid_observation_time, invalid_integration_time,zodi)
+        ObservationParameters(invalid_observation_time, invalid_integration_time)
 
-    # Create ObservationParameters with invalid values (zodi less than 1)
-    invalid_zodi = 0
-
-    # Check that ValueError is raised when creating ObservationParameters with invalid values
-    with pytest.raises(ValueError):
-        ObservationParameters(observation_time, integration_time,invalid_zodi)
 
 def test_ObservationParameters_total_images():
     # Create ObservationParameters with observation time of 10 hours and integration time of 1 hour
     observation_time = 10 * u.hour
     integration_time = 1 * u.hour
     zodi = 1.0
-    obs_params = ObservationParameters(observation_time, integration_time,zodi)
+    obs_params = ObservationParameters(observation_time, integration_time)
 
     # Calculate the expected total number of images
     expected_total_images = 10
@@ -49,7 +43,6 @@ def test_ObservationParameters_from_dict():
     obs_params_data = {
         "observation_time": '10 day',
         "integration_time": '1 day',
-        'zodi':'1.0'
     }
 
     # Create an ObservationParameters instance using the from_dict class method
@@ -287,6 +280,85 @@ def test_DetectorParameters_mirecle():
     assert detector_params.ccd.temperature == 35 * u.K
 
 
+@pytest.fixture
+def single_dish_parameters():
+    return SingleDishParameters(aperture=4 * u.m, zodi=10.0)
+
+@pytest.fixture
+def coronagraph_parameters():
+    iwa_x = np.array([1.0, 2.0, 3.0])
+    iwa_y = np.array([0.1, 0.2, 0.3])
+    return CoronagraphParameters(
+        aperture=8 * u.m,
+        zodi=5.0,
+        exozodi=2.0,
+        contrast=1e-6,
+        iwa_x=iwa_x,
+        iwa_y=iwa_y,
+    )
+
+def test_single_dish_parameters(single_dish_parameters):
+    assert single_dish_parameters.aperture == 4 * u.m
+    assert single_dish_parameters.mode == 'single'
+    assert single_dish_parameters.zodi == 10.0
+
+    psg_config = single_dish_parameters.to_psg()
+    assert psg_config['GEOMETRY'] == 'Observatory'
+    assert psg_config['GENERATOR-DIAMTELE'] == '4.00'
+    assert psg_config['GENERATOR-TELESCOPE'] == 'SINGLE'
+    assert psg_config['GENERATOR-TELESCOPE2'] == '10.00'
+
+def test_single_dish_parameters_mirecle():
+    mirecle_parameters = SingleDishParameters.mirecle()
+    assert mirecle_parameters.aperture == 2 * u.m
+    assert mirecle_parameters.mode == 'single'
+    assert mirecle_parameters.zodi == 1.0
+
+def test_coronagraph_parameters(coronagraph_parameters:CoronagraphParameters):
+    assert coronagraph_parameters.aperture == 8 * u.m
+    assert coronagraph_parameters.mode == 'coronagraph'
+    assert coronagraph_parameters.zodi == 5.0
+    assert coronagraph_parameters.exozodi == 2.0
+    assert coronagraph_parameters.contrast == 1e-6
+    assert np.array_equal(coronagraph_parameters.iwa_x, np.array([1.0, 2.0, 3.0]))
+    assert np.array_equal(coronagraph_parameters.iwa_y, np.array([0.1, 0.2, 0.3]))
+
+    psg_config = coronagraph_parameters.to_psg()
+    assert psg_config['GEOMETRY'] == 'Observatory'
+    assert psg_config['GENERATOR-DIAMTELE'] == '8.00'
+    assert psg_config['GENERATOR-TELESCOPE'] == 'CORONA'
+    assert psg_config['GENERATOR-TELESCOPE2'] == '5.00,2.00'
+    assert psg_config['GENERATOR-TELESCOPE1'] == '1.00e-06'
+    assert psg_config['GENERATOR-TELESCOPE3'] == '1.00e+00@1.00e-01,2.00e+00@2.00e-01,3.00e+00@3.00e-01'
+
+def test_from_dict_single_dish_parameters():
+    d = {
+        'aperture': '4.0 m',
+        'zodi': '10.0',
+    }
+    parameters = SingleDishParameters.from_dict(d)
+    assert parameters.aperture == 4 * u.m
+    assert parameters.zodi == 10.0
+
+def test_from_dict_coronagraph_parameters():
+    d = {
+        'aperture': '8.0 m',
+        'zodi': '5.0',
+        'exozodi': '2.0',
+        'contrast': '1e-6',
+        'iwa_x': '1.0,2.0,3.0',
+        'iwa_y': '0.1,0.2,0.3',
+    }
+    parameters = CoronagraphParameters._from_dict(d)
+    assert parameters.aperture == 8 * u.m
+    assert parameters.zodi == 5.0
+    assert parameters.exozodi == 2.0
+    assert parameters.contrast == 1e-6
+    assert np.array_equal(parameters.iwa_x, np.array([1.0, 2.0, 3.0],dtype='float32'))
+    assert np.array_equal(parameters.iwa_y, np.array([0.1, 0.2, 0.3],dtype='float32'))
+
+
+
 def test_InstrumentParameters_init():
     # Create bandpass parameters for the instrument
     wl_blue = 1 * u.um
@@ -311,11 +383,11 @@ def test_InstrumentParameters_init():
     detector_params = DetectorParameters(beam_width, integration_time, ccd_params)
 
     # Create InstrumentParameters with valid values
-    aperture = 2 * u.m
-    instrument_params = InstrumentParameters(aperture, bandpass_params, detector_params)
+    telescope = SingleDishParameters(2*u.m,1.5)
+    instrument_params = InstrumentParameters(telescope, bandpass_params, detector_params)
 
     # Perform assertions on the instance attributes
-    assert instrument_params.aperture == aperture
+    assert instrument_params.telescope.aperture == 2*u.m
     assert instrument_params.bandpass == bandpass_params
     assert instrument_params.detector == detector_params
 
@@ -343,13 +415,15 @@ def test_InstrumentParameters_to_psg():
     detector_params = DetectorParameters(beam_width, integration_time, ccd_params)
 
     # Create InstrumentParameters with specific values
-    aperture = 2 * u.m
-    instrument_params = InstrumentParameters(aperture, bandpass_params, detector_params)
+    telescope = SingleDishParameters(2*u.m,1.5)
+    instrument_params = InstrumentParameters(telescope, bandpass_params, detector_params)
 
     # Define the expected PSG input format dictionary
     expected_dict = {
-        'GENERATOR-DIAMTELE': f'{aperture.to_value(u.m):.2f}',
+        'GEOMETRY': 'Observatory',
+        'GENERATOR-DIAMTELE': f'{(2*u.m).to_value(u.m):.2f}',
         'GENERATOR-TELESCOPE': 'SINGLE',
+        'GENERATOR-TELESCOPE2' : '1.50',
         'GENERATOR-RANGE1': f'{wl_blue.to_value(wavelength_unit):.2f}',
         'GENERATOR-RANGE2': f'{wl_red.to_value(wavelength_unit):.2f}',
         'GENERATOR-RANGEUNIT': wavelength_unit.to_string(),
@@ -375,7 +449,7 @@ def test_InstrumentParameters_mirecle():
     instrument_params = InstrumentParameters.mirecle()
 
     # Perform assertions on the instance attributes
-    assert instrument_params.aperture == 2 * u.m
+    assert instrument_params.telescope.aperture == 2 * u.m
 
     # Check if the bandpass and detector parameters are initialized correctly
     assert isinstance(instrument_params.bandpass, BandpassParameters)
@@ -398,7 +472,10 @@ def test_InstrumentParameters_mirecle():
 def test_InstrumentParameters_from_dict():
     # Create a dictionary representing instrument parameters
     instrument_dict = {
-        'aperture': '2.5 m',
+        'single': {
+            'aperture': '2.5 m',
+            'zodi': '1.0'
+        },
         'bandpass': {
             'wl_blue': '1.2 um',
             'wl_red': '2.4 um',
@@ -424,7 +501,7 @@ def test_InstrumentParameters_from_dict():
     instrument_params = InstrumentParameters.from_dict(instrument_dict)
 
     # Perform assertions on the instance attributes
-    assert instrument_params.aperture == 2.5 * u.m
+    assert instrument_params.telescope.aperture == 2.5 * u.m
 
     # Check if the bandpass parameters are initialized correctly
     assert isinstance(instrument_params.bandpass, BandpassParameters)
