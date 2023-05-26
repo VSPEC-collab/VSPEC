@@ -1,7 +1,9 @@
 """
 Observation parameters
 """
+from typing import Union
 from astropy import units as u
+import numpy as np
 from VSPEC.config import flux_unit as default_flux_unit
 from VSPEC.params.base import BaseParameters
 
@@ -16,11 +18,7 @@ class ObservationParameters(BaseParameters):
         The total duration of the observation.
     integration_time : astropy.units.Quantity
         The integration time of each epoch of observation.
-    zodi : float
-        The level of the zodiacal background. From 
-        PSG handbook: '(1.0:Ecliptic pole/minimum, 
-        2.0:HST/JWST low values, 10.0:Normal values,
-        100.0:Close to ecliptic/Sun)'
+    
 
     Attributes
     ----------
@@ -28,11 +26,6 @@ class ObservationParameters(BaseParameters):
         The total duration of the observation.
     integration_time : astropy.units.Quantity
         The integration time of each epoch of observation.
-    zodi : float
-        The level of the zodiacal background. From 
-        PSG handbook: '(1.0:Ecliptic pole/minimum, 
-        2.0:HST/JWST low values, 10.0:Normal values,
-        100.0:Close to ecliptic/Sun)'
 
     Raises
     ------
@@ -50,21 +43,15 @@ class ObservationParameters(BaseParameters):
         self,
         observation_time: u.Quantity,
         integration_time: u.Quantity,
-        zodi: float
     ):
         self.observation_time = observation_time
         self.integration_time = integration_time
-        self.zodi = zodi
         self._validate()
 
     def _validate(self):
         if self.integration_time > self.observation_time:
             raise ValueError(
                 'Length of integrations cannot be longer than the total observation.')
-        if self.zodi < 1.0:
-            raise ValueError(
-                'Zodi background must be >= 1.0'
-            )
 
     @property
     def total_images(self) -> int:
@@ -85,23 +72,7 @@ class ObservationParameters(BaseParameters):
         return cls(
             observation_time = u.Quantity(d['observation_time']),
             integration_time = u.Quantity(d['integration_time']),
-            zodi = float(d['zodi'])
         )
-    def to_psg(self):
-        """
-        Convert the observation parameters to the PSG input format.
-
-        Returns
-        -------
-        dict
-            A dictionary representing the observation parameters in the PSG input format.
-
-        """
-        return {
-            'GEOMETRY': 'Observatory',
-            'GENERATOR-TELESCOPE2': f'{self.zodi}'
-        }
-
 
 class BandpassParameters(BaseParameters):
     """
@@ -399,6 +370,186 @@ class DetectorParameters(BaseParameters):
             ccd=ccdParameters.mirecle()
         )
 
+class TelescopeParameters(BaseParameters):
+    """
+    Base class for telescope Parameters.
+
+    Parameters
+    ----------
+    aperture : astropy.units.Quantity
+        The aperture size of the telescope.
+    mode : str
+        The mode of the telescope. Valid values are 'single' or 'coronagraph'.
+    zodi : float
+        The level of the zodiacal background. Acceptable values range from
+        1.0 (Ecliptic pole/minimum) to 100.0 (Close to ecliptic/Sun).
+
+    Other Parameters
+    ----------------
+    kwargs
+        Additional parameters specific to the telescope.
+
+    Attributes
+    ----------
+    aperture : astropy.units.Quantity
+        The aperture size of the telescope.
+    mode : str
+        The mode of the telescope.
+    zodi : float
+        The level of the zodiacal background.
+    """
+
+
+    _mode_translator = {
+        'single': 'SINGLE',
+        'coronagraph': 'CORONA',
+    }
+    def __init__(
+        self,
+        aperture:u.Quantity,
+        mode:str,
+        zodi:float,
+        **kwargs
+    ):
+        self.aperture = aperture
+        self.mode = mode
+        self.zodi = zodi
+        for key,value in kwargs.items():
+            self.__setattr__(key,value)
+    def _to_psg(self):
+        return {}
+    def to_psg(self):
+        """
+        Convert telescope parameters to PSG format.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the PSG configuration for the telescope.
+        """
+
+        config = {
+            'GEOMETRY': 'Observatory',
+            'GENERATOR-DIAMTELE': f'{self.aperture.to_value(u.m):.2f}',
+            'GENERATOR-TELESCOPE': self._mode_translator[self.mode],
+        }
+        config.update(self._to_psg())
+        return config
+
+class SingleDishParameters(TelescopeParameters):
+    """
+    Parameters for a single dish telescope.
+
+    Parameters
+    ----------
+    aperture : astropy.units.Quantity
+        The aperture size of the telescope.
+    zodi : float
+        The level of the zodiacal background. Acceptable values range from
+        1.0 (Ecliptic pole/minimum) to 100.0 (Close to ecliptic/Sun).
+    """
+
+    def __init__(self, aperture: u.Quantity,zodi:float):
+        super().__init__(aperture, 'single',zodi)
+    def _to_psg(self):
+        return {
+            'GENERATOR-TELESCOPE2': f'{self.zodi:.2f}'
+        }
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            aperture = u.Quantity(d['aperture']),
+            zodi = float(d['zodi'])
+        )
+    @classmethod
+    def mirecle(cls):
+        """
+        Create a SingleDishParameters instance with MIRECLE parameters [1].
+
+        Returns
+        -------
+        SingleDishParameters
+            The created SingleDishParameters instance with MIRECLE parameters.
+        
+        References:
+        -----------
+        [1] :cite:t:`2022AJ....164..176M`
+        """
+
+        return cls(2*u.m, 1.0)
+
+class CoronagraphParameters(TelescopeParameters):
+    """
+    Parameters for a coronagraph telescope.
+
+    Parameters
+    ----------
+    aperture : astropy.units.Quantity
+        The aperture size of the telescope.
+    zodi : float
+        The level of the zodiacal background. Acceptable values range from
+        1.0 (Ecliptic pole/minimum) to 100.0 (Close to ecliptic/Sun).
+    exozodi : float
+        The level of the exozodiacal background.
+    contrast : float
+        The contrast level.
+    iwa_x : np.ndarray
+        The inner working angle (IWA) values in units of lambda/D.
+    iwa_y : np.ndarray
+        The coronagraph throughput as a function of IWA .
+    """
+
+    def __init__(
+        self,
+        aperture: u.Quantity,
+        zodi: float,
+        exozodi: float,
+        contrast: float,
+        iwa_x:  np.ndarray,
+        iwa_y:  np.ndarray
+    ):
+        super().__init__(
+            aperture,
+            'coronagraph',
+            zodi,
+            exozodi = exozodi,
+            contrast = contrast,
+            iwa_x = np.atleast_1d(iwa_x),
+            iwa_y = np.atleast_1d(iwa_y)
+        )
+    @property
+    def iwa_psg(self)->str:
+        """
+        Format the inner working angle (IWA) parameters for PSG.
+
+        Returns
+        -------
+        str
+            The formatted inner working angle (IWA) parameters.
+        """
+
+        pairs = []
+        for x,y in zip(self.iwa_x,self.iwa_y):
+            pairs.append(f'{x:.2e}@{y:.2e}')
+        return ','.join(pairs)
+    def _to_psg(self):
+        return {
+            'GENERATOR-TELESCOPE2': f'{self.zodi:.2f},{self.exozodi:.2f}',
+            'GENERATOR-TELESCOPE1': f'{self.contrast:.2e}',
+            'GENERATOR-TELESCOPE3': self.iwa_psg
+        }
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            aperture = u.Quantity(d['aperture']),
+            zodi = float(d['zodi']),
+            exozodi = float(d['exozodi']),
+            contrast = float(d['contrast']),
+            iwa_x = np.fromstring(d['iwa_x'],dtype='float32',sep=','),
+            iwa_y = np.fromstring(d['iwa_y'],dtype='float32',sep=',')
+        )
+
+
 
 class InstrumentParameters(BaseParameters):
     """
@@ -406,8 +557,8 @@ class InstrumentParameters(BaseParameters):
 
     Parameters:
     -----------
-    aperture : astropy.units.Quantity
-        The aperture size of the instrument.
+    telescope : TelescopeParameters
+        The telescope parameters for the instrument.
     bandpass : BandpassParameters
         The bandpass parameters for the instrument.
     detector : DetectorParameters
@@ -420,8 +571,8 @@ class InstrumentParameters(BaseParameters):
 
     Attributes:
     -----------
-    aperture : astropy.units.Quantity
-        The aperture size of the instrument.
+    telescope : TelescopeParameters
+        The telescope parameters for the instrument.
     bandpass : BandpassParameters
         The bandpass parameters for the instrument.
     detector : DetectorParameters
@@ -431,17 +582,23 @@ class InstrumentParameters(BaseParameters):
 
     def __init__(
         self,
-        aperture: u.Quantity,
+        telescope: Union[SingleDishParameters,CoronagraphParameters],
         bandpass: BandpassParameters,
         detector: DetectorParameters
     ):
-        self.aperture = aperture
+        self.telescope = telescope
         self.bandpass = bandpass
         self.detector = detector
     @classmethod
     def _from_dict(cls, d: dict):
+        if 'coronagraph' in d.keys():
+            telescope = CoronagraphParameters.from_dict(d['coronagraph'])
+        elif 'single' in d.keys():
+            telescope = SingleDishParameters.from_dict(d['single'])
+        else:
+            raise KeyError('Cannot find Telescope Parameters key')
         return cls(
-            aperture = u.Quantity(d['aperture']),
+            telescope = telescope,
             bandpass = BandpassParameters.from_dict(d['bandpass']),
             detector = DetectorParameters.from_dict(d['detector'])
         )
@@ -456,9 +613,8 @@ class InstrumentParameters(BaseParameters):
 
         """
         config = {
-            'GENERATOR-DIAMTELE': f'{self.aperture.to_value(u.m):.2f}',
-            'GENERATOR-TELESCOPE': 'SINGLE'
         }
+        config.update(self.telescope.to_psg())
         config.update(self.bandpass.to_psg())
         config.update(self.detector.to_psg())
         return config
@@ -478,7 +634,7 @@ class InstrumentParameters(BaseParameters):
         [1] :cite:t:`2022AJ....164..176M`
         """
         return cls(
-            aperture=2*u.m,
+            telescope=SingleDishParameters.mirecle(),
             bandpass=BandpassParameters.mirecle(),
             detector=DetectorParameters.mirecle()
         )

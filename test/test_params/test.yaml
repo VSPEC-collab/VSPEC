@@ -71,9 +71,10 @@ system:
 obs:
   observation_time: 10 hour
   integration_time: 1 hour
-  zodi: 1
 inst:
-  aperture: 2 m
+  single:
+    aperture: 2 m
+    zodi: 1.0
   bandpass:
     wl_blue: 1 um
     wl_red: 18 um
