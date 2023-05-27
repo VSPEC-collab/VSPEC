@@ -204,7 +204,7 @@ class PlanetParameters(BaseParameters):
             'OBJECT-DIAMETER': f'{2*self.radius.to_value(planet_radius_unit):.4f}',
             'OBJECT-STAR-DISTANCE': f'{self.semimajor_axis.to_value(planet_distance_unit):.4f}',
             'OBJECT-PERIOD': f'{self.orbit_period.to_value(period_unit):.4f}',
-            'OBJECT-ECCENTRICITY': f'{self.eccentricity:.4f}',
+            'OBJECT-ECCENTRICITY': f'{self.eccentricity:.5f}',
         }
         psg_dict.update(self.gravity.to_psg())
         return psg_dict
@@ -344,6 +344,6 @@ class SystemParameters(BaseParameters):
         return {
             'GEOMETRY-OBS-ALTITUDE': f'{self.distance.to_value(u.pc):.4f}',
             'GEOMETRY-ALTITUDE-UNIT': 'pc',
-            'OBJECT-INCLINATION': f'{self.inclination.to_value(u.deg):.4f}',
-            'OBJECT-PERIAPSIS': f'{self.phase_of_periasteron.to_value(u.deg):.4f}'
+            'OBJECT-INCLINATION': f'{self.inclination.to_value(u.deg):.2f}',
+            'OBJECT-PERIAPSIS': f'{self.phase_of_periasteron.to_value(u.deg):.2f}'
         }

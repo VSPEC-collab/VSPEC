@@ -579,7 +579,7 @@ class SpotGenerator:
         ValueError
             If an unknown value is given for distribution.
         """
-        new_max_areas = np.random.lognormal(mean=np.log(
+        new_max_areas = np.random.lognormal(mean=np.log10(
             self.average_spot_area/MSH), sigma=self.spot_area_spread, size=N)*MSH
         new_r_A = np.random.normal(loc=5, scale=1, size=N)
         while np.any(new_r_A <= 0):

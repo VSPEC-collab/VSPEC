@@ -163,7 +163,7 @@ class SpotParameters(BaseParameters):
         self.initial_coverage = initial_coverage
         self.equillibrium_coverage = equillibrium_coverage
         self.warmup = warmup
-        self.area_logmean = np.log10(area_mean/stellar_area_unit)
+        self.area_mean = area_mean
         self.area_logsigma = area_logsigma
         self.teff_umbra = teff_umbra
         self.teff_penumbra = teff_penumbra
@@ -596,7 +596,7 @@ class StarParameters(BaseParameters):
         self.faculae = faculae
         self.flares = flares
         self.granulation = granulation
-        self.Nlat = Nlat,
+        self.Nlat = Nlat
         self.Nlon = Nlon
 
     @classmethod

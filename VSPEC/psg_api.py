@@ -13,8 +13,8 @@ import pandas as pd
 import numpy as np
 import requests
 
-from VSPEC.read_info import ParamModel
-from VSPEC.helpers import to_float, isclose
+from VSPEC.params.read import Parameters
+from VSPEC.helpers import isclose
 
 warnings.simplefilter('ignore', category=u.UnitsWarning)
 
@@ -87,70 +87,8 @@ def parse_full_output(output_text:str):
     content = split_text[2::2]
     data = {}
     for name,dat in zip(names,content):
-        data[name] = dat
+        data[name] = dat.strip()
     return data
-
-
-
-def get_static_psg_parameters(params: ParamModel)->dict:
-    """
-    Get the static (i.e. not phase or time dependent) parameters
-    for PSG.
-
-    Parameters
-    ----------
-    params : VSPEC.ParamModel
-        The parameters to fill the config with.
-    
-    Returns
-    -------
-    config : dict
-        The parameters translated into the PSG format.
-    """
-    bool_to_str = {True: 'Y', False: 'N'}
-    config = {}
-    config['OBJECT'] = 'Exoplanet'
-    config['OBJECT-NAME'] = params.planet_name
-    config['OBJECT-DIAMETER'] = to_float(2*params.planet_radius, u.km)
-    config['OBJECT-GRAVITY'] = params.planet_grav
-    config['OBJECT-GRAVITY-UNIT'] = params.planet_grav_mode
-    config['OBJECT-STAR-TYPE'] = params.psg_star_template
-    config['OBJECT-STAR-DISTANCE'] = to_float(params.planet_semimajor_axis, u.AU)
-    config['OBJECT-PERIOD'] = to_float(params.planet_orbital_period, u.day)
-    config['OBJECT-ECCENTRICITY'] = params.planet_eccentricity
-    config['OBJECT-PERIAPSIS'] = to_float(params.system_phase_of_periasteron, u.deg)
-    config['OBJECT-STAR-TEMPERATURE'] = to_float(params.star_teff, u.K)
-    config['OBJECT-STAR-RADIUS'] = to_float(params.star_radius, u.R_sun)
-    config['GEOMETRY'] = 'Observatory'
-    config['GEOMETRY-OBS-ALTITUDE'] = to_float(params.system_distance, u.pc)
-    config['GEOMETRY-ALTITUDE-UNIT'] = 'pc'
-    config['GENERATOR-RANGE1'] = to_float(params.lambda_min, params.target_wavelength_unit)
-    config['GENERATOR-RANGE2'] = to_float(params.lambda_max, params.target_wavelength_unit)
-    config['GENERATOR-RANGEUNIT'] = params.target_wavelength_unit
-    config['GENERATOR-RESOLUTION'] = params.resolving_power
-    config['GENERATOR-RESOLUTIONUNIT'] = 'RP'
-    config['GENERATOR-BEAM'] = params.beamValue
-    config['GENERATOR-BEAM-UNIT'] = params.beamUnit
-    config['GENERATOR-CONT-STELLAR'] = 'Y'
-    config['OBJECT-INCLINATION'] = to_float(params.system_inclination, u.deg)
-    config['OBJECT-SOLAR-LATITUDE'] = '0.0'
-    config['OBJECT-OBS-LATITUDE'] = '0.0'
-    config['GENERATOR-RADUNITS'] = params.psg_rad_unit
-    config['GENERATOR-GCM-BINNING'] = params.gcm_binning
-    config['GENERATOR-GAS-MODEL'] = bool_to_str[params.use_molec_signatures]
-    config['GENERATOR-NOISE'] = params.detector_type
-    config['GENERATOR-NOISEOTEMP'] = params.detector_temperature
-    config['GENERATOR-NOISEOEFF'] = f"{params.detector_throughput:.1f}"
-    config['GENERATOR-NOISEOEMIS'] = f"{params.detector_emissivity:.1f}"
-    config['GENERATOR-NOISEFRAMES'] = params.detector_number_of_integrations
-    config['GENERATOR-NOISEPIXELS'] = params.detector_pixel_sampling
-    config['GENERATOR-NOISE1'] = params.detector_read_noise
-    config['GENERATOR-DIAMTELE'] = f"{params.telescope_diameter:.1f}"
-    config['GENERATOR-TELESCOPE'] = 'SINGLE'
-    config['GENERATOR-TELESCOPE1'] = '1'
-    config['GENERATOR-TELESCOPE2'] = '1.0'
-    config['GENERATOR-TELESCOPE3'] = '1.0'
-    return config
 
 def cfg_to_bytes(config:dict)->bytes:
     """
@@ -171,30 +109,18 @@ def cfg_to_bytes(config:dict)->bytes:
         s += bytes(f'<{key}>{value}\n',encoding='UTF-8')
     return s
 
-
-def write_static_config(path: Path, params: ParamModel, file_mode: str = 'w') -> None:
+def cfg_to_dict(config:str)->dict:
     """
-    Write the initial PSG configuration file for a phase curve simulation.
-    This occurs after the GCM is uploaded and before we start iterating through
-    phase.
-
-    Parameters
-    ----------
-    path : str or pathlib.Path
-        The path to write the config to.
-    params : VSPEC.ParamModel
-        The parameters to fill the config with.
-    file_mode : str, default='r'
-        Flag telling `open` which file method to use. In the case
-        that GlobES is off, this should be ``'a'`` for append.
+    Convert a PSG config file into a dictionary.
     """
-    config = get_static_psg_parameters(params)
-    content = cfg_to_bytes(config)
-    with open(path,f'{file_mode}b') as file:
-        file.write(content)
+    cfg = {}
+    for line in config.split('\n'):
+        key,value = line.replace('<','').split('>')
+        cfg.update({key:value})
+    return cfg
 
 def change_psg_parameters(
-    params:ParamModel,
+    params:Parameters,
     phase:u.Quantity,
     orbit_radius_coeff:float,
     sub_stellar_lon:u.Quantity,
@@ -207,9 +133,9 @@ def change_psg_parameters(
     
     """
     config = {}
-    config['OBJECT-STAR-TYPE'] = params.psg_star_template if include_star else '-'
+    config['OBJECT-STAR-TYPE'] = params.star.template if include_star else '-'
     config['OBJECT-SEASON'] = f'{phase.to_value(u.deg):.4f}'
-    config['OBJECT-STAR-DISTANCE'] = f'{(orbit_radius_coeff*params.planet_semimajor_axis).to_value(u.AU):.4f}'
+    config['OBJECT-STAR-DISTANCE'] = f'{(orbit_radius_coeff*params.planet.semimajor_axis).to_value(u.AU):.4f}'
     config['OBJECT-SOLAR-LONGITUDE'] = f'{sub_stellar_lon.to_value(u.deg)}'
     config['OBJECT-SOLAR-LATITUDE'] = f'{sub_stellar_lat.to_value(u.deg)}'
     config['OBJECT-OBS-LONGITUDE'] = f'{pl_sub_obs_lon.to_value(u.deg)}'
@@ -269,12 +195,12 @@ class PSGrad:
             'radiance_unit': u.dimensionless_unscaled,
 
         }
-        for i, item in enumerate(raw_header):
+        for _, item in enumerate(raw_header):
             if 'WARNING' in item:
-                warning, kind, message = item.split('|')
+                _, kind, message = item.split('|')
                 header['warnings'].append(dict(kind=kind, message=message))
             elif 'ERROR' in item:
-                error, kind, message = item.split('|')
+                _, kind, message = item.split('|')
                 header['errors'].append(dict(kind=kind, message=message))
             elif '3D spectroscopic simulation' in item:
                 header['binning'] = int(re.findall(r'of ([\d]+) \(', item)[0])

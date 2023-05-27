@@ -160,9 +160,9 @@ class Parameters(BaseParameters):
         config.update(self.star.to_psg())
         config.update(self.planet.to_psg())
         config.update(self.system.to_psg())
-        config.update(self.obs.to_psg())
         config.update(self.psg.to_psg())
         config.update(self.inst.to_psg())
+        return config
     @property
     def flux_correction(self)->float:
         """

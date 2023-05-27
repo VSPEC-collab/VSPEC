@@ -384,7 +384,7 @@ class FlareGenerator:
         the energy range by 0.2 dex in order to clip it later. This is not a
         long-term fix.
         """
-        return np.logspace(self.log_E_erg_min - 0.2, self.log_E_erg_max, self.log_E_erg_Nsteps)*u.erg
+        return np.logspace(self.log_E_erg_min, self.log_E_erg_max, self.log_E_erg_Nsteps)*u.erg
 
     def generate_teff(self):
         """ 

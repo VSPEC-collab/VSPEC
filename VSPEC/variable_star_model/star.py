@@ -77,10 +77,11 @@ class Star:
         Spot generator object.
     fac_generator : FaculaGenerator
         Facula generator object.
-    ld_params : list
-        Limb-darkening parameters.
+    u1 : float
+        Limb-darkening parameter u1.
+    u2 : float
+        Limb-darkening parameter u2.
     """
-
     def __init__(self, Teff: u.Quantity,
                  radius: u.Quantity,
                  period: u.Quantity,
@@ -95,7 +96,9 @@ class Star:
                  spot_generator: SpotGenerator = None,
                  fac_generator: FaculaGenerator = None,
                  granulation: Granulation = None,
-                 ld_params: list = [0, 1, 0]):
+                 u1: float = 1,
+                 u2: float = 0
+    ):
         self.name = name
         self.Teff = Teff
         self.radius = radius
@@ -128,7 +131,8 @@ class Star:
         else:
             self.fac_generator = fac_generator
         self.granulation = granulation
-        self.ld_params = ld_params
+        self.u1 = u1
+        self.u2 = u2
 
     def get_pixelmap(self):
         """
@@ -180,6 +184,16 @@ class Star:
 
         """
         self.faculae.add_faculae(facula)
+    def ld_mask(self,mu)->np.ndarray:
+        """
+        Get a translucent mask based on limb darkeining parameters.
+
+
+        """
+        mask = 1 - self.u1 * (1 - mu) - self.u2 * (1 - mu)**2
+        behind_star = mu<0.
+        mask[behind_star] = 0
+        return mask
 
     def calc_coverage(self, sub_obs_coords,granulation_fraction=0.0):
         """
@@ -207,9 +221,7 @@ class Star:
         cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
                  + np.cos(sub_obs_coords['lat']) * np.cos(latgrid)
                  * np.cos(sub_obs_coords['lon']-longrid))
-        ld = cos_c**0 * self.ld_params[0] + cos_c**1 * \
-            self.ld_params[1] + cos_c**2 * self.ld_params[2]
-        ld[cos_c < 0] = 0
+        ld = self.ld_mask(cos_c)
         jacobian = np.sin(latgrid + 90*u.deg)
 
         int_map, map_keys = self.faculae.map_pixels(
@@ -271,9 +283,7 @@ class Star:
         cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
                  + np.cos(sub_obs_coords['lat']) * np.cos(latgrid)
                  * np.cos(sub_obs_coords['lon']-longrid))
-        ld = cos_c**0 * self.ld_params[0] + cos_c**1 * \
-            self.ld_params[1] + cos_c**2 * self.ld_params[2]
-        ld[cos_c < 0] = 0
+        ld = self.ld_mask(cos_c)
         return ld
 
     def birth_spots(self, time):
