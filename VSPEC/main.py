@@ -23,7 +23,7 @@ from VSPEC.variable_star_model import granules
 from VSPEC.files import build_directories, N_ZFILL, get_filename
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
-from VSPEC.helpers import plan_to_df
+from VSPEC.helpers import plan_to_df, get_planet_indicies
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
 from VSPEC.analysis import read_lyr
@@ -388,7 +388,13 @@ class ObservationModel:
             except KeyError as err:
                 msg += f'Expected key not in config:{str(err)}\n'
             except AssertionError as err:
-                msg += f'{str(err)}\n'
+                if key == 'OBJECT-INCLINATION':
+                    if np.sin(float(value)*u.deg) == np.sin(float(cfg_dict[key])*u.deg):
+                        pass
+                    else:
+                        msg += f'{str(err)}\n'
+                else:
+                    msg += f'{str(err)}\n'
         if not msg == '':
             raise RuntimeError(f'PSG config validation error:\n{msg}')
 
@@ -591,7 +597,18 @@ class ObservationModel:
         self.star.get_flares_over_observation(
             self.params.obs.observation_time)
 
-    def calculate_composite_stellar_spectrum(self, sub_obs_coords, tstart, tfinish, granulation_fraction=0.0):
+    def calculate_composite_stellar_spectrum(
+        self,
+        sub_obs_coords,
+        tstart,
+        tfinish,
+        granulation_fraction:float=0.0,
+        orbit_radius:u.Quantity = 1*u.AU,
+        planet_radius:u.Quantity = 1*u.R_earth,
+        phase:u.Quantity = 90*u.deg,
+        inclination:u.Quantity = 0*u.deg,
+        transit_depth:np.ndarray or float = 0
+    ):
         """
         Compute the stellar spectrum given an integration window and the
         side of the star facing the observer.
@@ -619,18 +636,37 @@ class ObservationModel:
         ValueError
             If wavenelength coordinates do not match.
         """
-        surface_dict = self.star.calc_coverage(
-            sub_obs_coords, granulation_fraction=granulation_fraction)
+        total,covered,pl_frac = self.star.calc_coverage(
+            sub_obs_coords,
+            granulation_fraction=granulation_fraction,
+            orbit_radius = orbit_radius,
+            planet_radius = planet_radius,
+            phase = phase,
+            inclination = inclination
+        )
         visible_flares = self.star.get_flare_int_over_timeperiod(
             tstart, tfinish, sub_obs_coords)
         base_wave, base_flux = self.get_model_spectrum(self.params.star.teff)
         base_flux = base_flux * 0
-        for teff, coverage in surface_dict.items():
+        # add up star flux before considering transit
+        for teff, coverage in total.items():
             if coverage > 0:
                 wave, flux = self.get_model_spectrum(teff)
                 if not np.all(isclose(base_wave, wave, 1e-3*u.um)):
                     raise ValueError('All wavelength axes must be equivalent.')
                 base_flux = base_flux + flux * coverage
+        # get flux of transited region
+        transit_flux = base_flux*0
+        for teff, coverage in covered.items():
+            if coverage > 0:
+                wave, flux = self.get_model_spectrum(teff)
+                if not np.all(isclose(base_wave, wave, 1e-3*u.um)):
+                    raise ValueError('All wavelength axes must be equivalent.')
+                transit_flux = transit_flux + flux * coverage
+        # scale according to effective radius
+        transit_flux = transit_flux * transit_depth
+        base_flux = base_flux - transit_flux
+        # add in flares
         for flare in visible_flares:
             teff = flare['Teff']
             timearea = flare['timearea']
@@ -639,49 +675,10 @@ class ObservationModel:
                                              target_unit_flux=self.params.inst.bandpass.flux_unit)
             base_flux = base_flux + flux
 
-        return base_wave, base_flux
-
-    def get_planet_indicies(self, planet_times: u.Quantity, tindex: u.Quantity) -> tuple[int, int]:
-        """
-        Get the incicies of the planet spectra to interpolate over.
-        This is a helper function that allows for interpolation of planet spectra.
-        Since the planet changes over much longer timescales than the star (flares, etc),
-        it makes sense to only run PSG once for multiple "integrations".
-
-        Parameters
-        ----------
-        planet_times : astropy.units.Quantity [time]
-            The times (cast to since periasteron) at which the planet spectrum was taken.
-        tindex : astropy.units.Quantity [time]
-            The epoch of the current observation. The goal is to place this between
-            two elements of `planet_times`
-
-        Returns
-        -------
-        int
-            The index of `planet_times` before `tindex`
-        int
-            The index of `planet_times` after `tindex`
-
-        Raises
-        ------
-        ValueError
-            If multiple elements of 'planet_times' are equal to 'tindex'.
-        """
-        after = planet_times > tindex
-        equal = planet_times == tindex
-        if equal.sum() == 1:
-            N1 = np.argwhere(equal)[0][0]
-            N2 = np.argwhere(equal)[0][0]
-        elif equal.sum() > 1:
-            raise ValueError('There must be a duplicate time')
-        elif equal.sum() == 0:
-            N2 = np.argwhere(after)[0][0]
-            N1 = N2 - 1
-        return N1, N2
+        return base_wave, base_flux, pl_frac
 
     def calculate_reflected_spectra(self, N1, N2, N1_frac,
-                                    sub_planet_wavelength, sub_planet_flux):
+                                    sub_planet_wavelength, sub_planet_flux,pl_frac:float):
         """
         Calculate the reflected spectrum based on PSG output and
         our own stellar model. We scale the reflected spectra from PSG
@@ -699,6 +696,9 @@ class ObservationModel:
             Wavelengths for validation.
         sub_planet_flux : astropy.units.Quantity [flambda]
             Stellar flux to scale to.
+        pl_frac : float
+            The fraction of the planet that is visible (in case of
+            eclipse)
 
         Returns
         -------
@@ -743,8 +743,77 @@ class ObservationModel:
             planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
             reflected.append(planet_reflection_adj)
 
-        return sub_planet_wavelength, reflected[0] * N1_frac + reflected[1] * (1-N1_frac)
+        return sub_planet_wavelength, reflected[0] * N1_frac + reflected[1] * (1-N1_frac)*pl_frac
 
+    def get_transit(
+        self,
+        N1:int,
+        N2:int,
+        N1_frac:float,
+        phase:u.Quantity,
+        orbit_radius:u.Quantity
+        ):
+        """
+        Get the transit spectra calculated by PSG
+
+        Parameters
+        ----------
+        N1 : int
+            The planet index immediately before the current epoch.
+        N2 : int
+            The planet index immediately after the current epoch.
+        N1_frac : float
+            The fraction of the `N1` epoch to use in interpolation.
+        pl_frac : float
+            The fraction of the planet that is visible (not eclipsed)
+
+        Returns
+        -------
+        wavelength : astropy.units.Quantity [wavelength]
+            The wavelength of the thermal emission.
+        flux : astropy.units.Quantity [flambda]
+            The flux of the thermal emission.
+
+        Raises
+        ------
+        ValueError
+            If the PSG flux unit code is not recognized.
+        ValueError
+            If the wavelength coordinates from the loaded spectra do not match.
+        """
+        psg_cmb_path1 = Path(
+            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
+        psg_cmb_path2 = Path(
+            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
+
+        wavelength = []
+        transit = []
+
+        for psg_cmb_path in [psg_cmb_path1, psg_cmb_path2]:
+            cmb_rad = PSGrad.from_rad(psg_cmb_path)
+
+            wavelength.append(cmb_rad.data['Wave/freq'])
+            try:
+                transit.append(
+                    -1*cmb_rad.data['Transit']/cmb_rad.data['Stellar']
+                )
+            except KeyError:
+                transit.append(
+                    0*cmb_rad.data['Stellar']/cmb_rad.data['Stellar']
+                )
+
+        if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
+            raise ValueError('The wavelength coordinates must be equivalent.')
+        frac_absorbed = transit[0]*N1_frac + transit[1]*(1-N1_frac)
+        pl_frac_covering = 1-self.star.get_pl_frac(
+            phase+180*u.deg, orbit_radius,self.params.planet.radius,self.params.system.inclination
+        ) * (self.params.planet.radius/self.params.star.radius).to_value(u.dimensionless_unscaled)**2
+        if pl_frac_covering == 0:
+            normalized_frac_absorbed = pl_frac_covering*0
+        else:
+            normalized_frac_absorbed = frac_absorbed/pl_frac_covering
+        return wavelength[0], normalized_frac_absorbed
+    
     def calculate_noise(self, N1: int, N2: int, N1_frac: float, time_scale_factor: float, cmb_wavelength, cmb_flux):
         """
         Calculate the noise in our model based on the noise output from PSG.
@@ -817,7 +886,7 @@ class ObservationModel:
                     + (noise.data['Background'])**2)
         return cmb_wavelength, np.sqrt(noise_sq) * time_scale_factor
 
-    def get_thermal_spectrum(self, N1: int, N2: int, N1_frac: float):
+    def get_thermal_spectrum(self, N1: int, N2: int, N1_frac: float,pl_frac:float):
         """
         Get the thermal emission spectra calculated by PSG
 
@@ -829,6 +898,8 @@ class ObservationModel:
             The planet index immediately after the current epoch.
         N1_frac : float
             The fraction of the `N1` epoch to use in interpolation.
+        pl_frac : float
+            The fraction of the planet that is visible (not eclipsed)
 
         Returns
         -------
@@ -864,7 +935,7 @@ class ObservationModel:
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
 
-        return wavelength[0], thermal[0]*N1_frac + thermal[1]*(1-N1_frac)
+        return wavelength[0], thermal[0]*N1_frac + thermal[1]*(1-N1_frac)*pl_frac
 
     def get_layer_data(self, N1: int, N2: int, N1_frac: float) -> pd.DataFrame:
         """
@@ -935,31 +1006,53 @@ class ObservationModel:
             tindex = observation_info['time'][index]
             tstart = tindex - observation_info['time'][0]
             tfinish = tstart + time_step
-            planetPhase = observation_info['phase'][index]
+            planet_phase = observation_info['phase'][index]
             sub_obs_lon = observation_info['sub_obs_lon'][index]
             sub_obs_lat = observation_info['sub_obs_lat'][index]
+            orbital_radius = observation_info['orbit_radius'][index] * self.params.planet.semimajor_axis
             granulation_fraction = granulation_fractions[index]
-            N1, N2 = self.get_planet_indicies(planet_times, tindex)
-            N1_frac = 1 - \
-                to_float(
-                    (tindex - planet_times[N1])/planet_time_step, u.Unit(''))
+            N1, N2 = get_planet_indicies(planet_times, tindex)
+            N1_frac = (planet_times[N2] - planet_times[index])/planet_time_step
+            N1_frac = N1_frac.to_value(u.dimensionless_unscaled)
+            # N1_frac = 1 - \
+            #     to_float(
+            #         (tindex - planet_times[N1])/planet_time_step, u.Unit(''))
 
             sub_planet_lon = observation_info['sub_planet_lon'][index]
             sub_planet_lat = observation_info['sub_planet_lat'][index]
+            
 
-            comp_wave, comp_flux = self.calculate_composite_stellar_spectrum({'lat': sub_obs_lat,
-                                                                              'lon': sub_obs_lon}, tstart, tfinish,
-                                                                             granulation_fraction=granulation_fraction)
-            wave, to_planet_flux = self.calculate_composite_stellar_spectrum({'lat': sub_planet_lat,
-                                                                              'lon': sub_planet_lon}, tstart, tfinish,
-                                                                             granulation_fraction=granulation_fraction)
+            wave, transit_depth = self.get_transit(N1,N2,N1_frac,planet_phase,orbital_radius)
+
+            comp_wave, comp_flux, pl_frac = self.calculate_composite_stellar_spectrum(
+                {'lat': sub_obs_lat,'lon': sub_obs_lon}, tstart, tfinish,
+                granulation_fraction=granulation_fraction,
+                orbit_radius=orbital_radius,
+                planet_radius = self.params.planet.radius,
+                phase = planet_phase,
+                inclination = self.params.system.inclination,
+                transit_depth=transit_depth
+            )
+            wave, true_star, _ = self.calculate_composite_stellar_spectrum(
+                {'lat': sub_obs_lat,'lon': sub_obs_lon}, tstart, tfinish,
+                granulation_fraction=granulation_fraction,
+                orbit_radius=orbital_radius,
+                planet_radius = self.params.planet.radius,
+                phase = planet_phase,
+                inclination = self.params.system.inclination,
+                transit_depth=0.
+            )
+            wave, to_planet_flux,_ = self.calculate_composite_stellar_spectrum(
+                {'lat': sub_planet_lat,'lon': sub_planet_lon}, tstart, tfinish,
+                granulation_fraction=granulation_fraction
+            )
             assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
 
             wave, reflection_flux_adj = self.calculate_reflected_spectra(
-                N1, N2, N1_frac, comp_wave, to_planet_flux)
+                N1, N2, N1_frac, comp_wave, to_planet_flux,pl_frac)
             assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
 
-            wave, thermal_spectrum = self.get_thermal_spectrum(N1, N2, N1_frac)
+            wave, thermal_spectrum = self.get_thermal_spectrum(N1, N2, N1_frac,pl_frac)
             assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
 
             combined_flux = comp_flux + reflection_flux_adj + thermal_spectrum
@@ -972,7 +1065,7 @@ class ObservationModel:
 
             df = pd.DataFrame({
                 f'wavelength[{str(comp_wave.unit)}]': comp_wave.value,
-                f'star[{str(comp_flux.unit)}]': comp_flux.value,
+                f'star[{str(true_star.unit)}]': true_star.value,
                 f'star_towards_planet[{str(to_planet_flux.unit)}]': to_planet_flux.value,
                 f'reflected[{str(reflection_flux_adj.unit)}]': reflection_flux_adj.value,
                 f'planet_thermal[{str(thermal_spectrum.unit)}]': thermal_spectrum.value,

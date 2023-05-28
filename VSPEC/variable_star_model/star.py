@@ -7,12 +7,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
 from astropy.units.quantity import Quantity
+from typing import Tuple
 
 from VSPEC.helpers import CoordinateGrid
-from VSPEC.helpers import MSH
-from VSPEC.variable_star_model.spots import StarSpot, SpotCollection, SpotGenerator
-from VSPEC.variable_star_model.faculae import Facula, FaculaCollection, FaculaGenerator
-from VSPEC.variable_star_model.flares import StellarFlare, FlareCollection, FlareGenerator
+from VSPEC.helpers import MSH, get_angle_between, proj_ortho, calc_circ_fraction_inside_unit_circle
+from VSPEC.variable_star_model.spots import SpotCollection, SpotGenerator
+from VSPEC.variable_star_model.faculae import FaculaCollection, FaculaGenerator, Facula
+from VSPEC.variable_star_model.flares import FlareCollection, FlareGenerator
 from VSPEC.variable_star_model.granules import Granulation
 
 
@@ -22,18 +23,16 @@ class Star:
 
     Parameters
     ----------
-    Teff : astropy.units.Quantity 
+    Teff : astropy.units.Quantity
         Effective temperature of the stellar photosphere.
-    radius : astropy.units.Quantity 
+    radius : astropy.units.Quantity
         Stellar radius.
-    period : astropy.units.Quantity 
+    period : astropy.units.Quantity
         Stellar rotational period.
     spots : SpotCollection
         Initial spots on the stellar surface.
     faculae : FaculaCollection
         Initial faculae on the stellar surface.
-    name : str, default=''
-        Name of the star.
     distance : astropy.units.Quantity , default=1*u.pc
         Distance to the star.
     Nlat : int, default=500
@@ -53,15 +52,13 @@ class Star:
 
     Attributes
     ----------
-    name : str
-        Name of the star.
-    Teff : astropy.units.Quantity 
+    Teff : astropy.units.Quantity
         Effective temperature of the stellar photosphere.
-    radius : astropy.units.Quantity 
+    radius : astropy.units.Quantity
         Stellar radius.
-    distance : astropy.units.Quantity 
+    distance : astropy.units.Quantity
         Distance to the star.
-    period : astropy.units.Quantity 
+    period : astropy.units.Quantity
         Stellar rotational period.
     spots : SpotCollection
         Spots on the stellar surface.
@@ -69,7 +66,7 @@ class Star:
         Faculae on the stellar surface.
     gridmaker : CoordinateGrid
         Object to create the coordinate grid of the surface.
-    map : astropy.units.Quantity 
+    map : astropy.units.Quantity
         Pixel map of the stellar surface.
     flare_generator : FlareGenerator
         Flare generator object.
@@ -87,7 +84,6 @@ class Star:
                  period: u.Quantity,
                  spots: SpotCollection,
                  faculae: FaculaCollection,
-                 name: str = '',
                  distance: u.Quantity = 1*u.pc,
                  Nlat: int = 500,
                  Nlon: int = 1000,
@@ -99,7 +95,6 @@ class Star:
                  u1: float = 1,
                  u2: float = 0
     ):
-        self.name = name
         self.Teff = Teff
         self.radius = radius
         self.distance = distance
@@ -110,7 +105,6 @@ class Star:
             self.gridmaker = CoordinateGrid(Nlat, Nlon)
         else:
             self.gridmaker = gridmaker
-        self.map = self.get_pixelmap()
         self.faculae.gridmaker = self.gridmaker
         self.spots.gridmaker = self.gridmaker
 
@@ -133,8 +127,18 @@ class Star:
         self.granulation = granulation
         self.u1 = u1
         self.u2 = u2
+        self.set_spot_grid()
+        self.set_fac_grid()
 
-    def get_pixelmap(self):
+    def set_spot_grid(self):
+        for spot in self.spots.spots:
+            spot.set_gridmaker(self.gridmaker)
+    def set_fac_grid(self):
+        for fac in self.faculae.faculae:
+            fac.set_gridmaker(self.gridmaker)
+
+    @property
+    def map(self):
         """
         Create a map of the stellar surface based on spots.
 
@@ -159,7 +163,6 @@ class Star:
         """
         self.spots.age(time)
         self.faculae.age(time)
-        self.map = self.get_pixelmap()
 
     def add_spot(self, spot):
         """
@@ -171,7 +174,6 @@ class Star:
             The `StarSpot` object(s) to add.
         """
         self.spots.add_spot(spot)
-        self.map = self.get_pixelmap()
 
     def add_fac(self, facula):
         """
@@ -184,18 +186,189 @@ class Star:
 
         """
         self.faculae.add_faculae(facula)
+
+    def get_mu(self,lat0:u.Quantity,lon0:u.Quantity):
+        """
+        Get the cosine of the angle from disk center.
+
+        Parameters
+        ----------
+        lat0 : astropy.units.Quantity
+            The sub-observer latitude.
+        lon0 : astropy.units.Quantity
+            The sub-observer longitude
+        
+        Returns
+        -------
+        mu : np.ndarray
+            An array of cos(x) where x is
+            the angle from disk center.
+        
+        Notes
+        -----
+        Recall
+        ..math:
+            \mu = cos(x)
+        """
+        latgrid, longrid = self.gridmaker.grid()
+        mu = (np.sin(lat0) * np.sin(latgrid)
+                 + np.cos(lat0) * np.cos(latgrid)
+                 * np.cos(lon0-longrid))
+        return mu
+
     def ld_mask(self,mu)->np.ndarray:
         """
         Get a translucent mask based on limb darkeining parameters.
 
+        Parameters
+        ----------
+        mu : np.ndarray
+            The cosine of the angle from disk center
 
+        Returns
+        -------
+        mask : np.ndarray
+            The limb-darkened mask.
         """
         mask = 1 - self.u1 * (1 - mu) - self.u2 * (1 - mu)**2
         behind_star = mu<0.
         mask[behind_star] = 0
         return mask
+    
+    def get_jacobian(self)->np.ndarray:
+        """
+        Get the relative area of each point.
 
-    def calc_coverage(self, sub_obs_coords,granulation_fraction=0.0):
+        Returns
+        -------
+        jacobian : np.ndarray
+            The area of each point
+        """
+        latgrid, _ = self.gridmaker.grid()
+        jacobian = np.sin(latgrid + 90*u.deg)
+        return jacobian
+    
+    def add_faculae_to_map(
+        self,
+        lat0:u.Quantity,
+        lon0:u.Quantity
+    ):
+        """
+        Add the faculae to the surface map.
+
+        Parameters
+        ----------
+        lat0 : astropy.units.Quantity
+            The sub-observer latitude.
+        lon0 : astropy.units.Quantity
+            The sub-observer longitude.
+        
+        Returns
+        -------
+        teffmap : astropy.units.Quantity
+            A temperature map of the surface
+        """
+        map_from_spots = self.map
+        mu = self.get_mu(lat0,lon0)
+        faculae:Tuple[Facula] = self.faculae.faculae
+        for facula in faculae:
+            angle = get_angle_between(lat0,lon0,facula.lat,facula.lon)
+            inside_fac = facula.map_pixels(self.radius)
+            fracs = facula.fractional_effective_area(angle)
+            teff_wall, teff_floor = fracs.keys()
+            frac = fracs[teff_wall].value
+            mu_of_fac_pix = mu[inside_fac]
+            border_mu = np.percentile(mu_of_fac_pix,100*frac)
+            wall_pix = inside_fac & (mu <= border_mu)
+            floor_pix = inside_fac & (mu > border_mu)
+            map_from_spots[wall_pix] = teff_wall
+            map_from_spots[floor_pix] = teff_floor
+        return map_from_spots
+    
+    def get_pl_frac(
+        self,
+        angle_past_midtransit:u.Quantity,
+        orbit_radius:u.Quantity,
+        planet_radius:u.Quantity,
+        inclination:u.Quantity
+    ):
+        """
+        Get planet fraction
+
+        Parameters
+        ----------
+        angle_past_midtransit : astropy.units.Quantity
+            The phase of the planet past the 180 degree mid transit point.
+        orbit_radius : astropy.units.Quantity
+            The radius of the planet's orbit.
+        radius : astropy.units.Quantity
+            The radius of the planet.
+        
+        inclination : astropy.units.Quantity
+            The inclination of the planet. 90 degrees is transiting.
+        """
+        x = (orbit_radius/self.radius * np.sin(angle_past_midtransit)).to_value(u.dimensionless_unscaled)
+        y = (orbit_radius/self.radius * np.cos(angle_past_midtransit) * np.cos(inclination)).to_value(u.dimensionless_unscaled)
+        rad = (planet_radius/self.radius).to_value(u.dimensionless_unscaled)
+        return 1-calc_circ_fraction_inside_unit_circle(x,y,rad)
+
+    def get_transit_mask(
+        self,
+        lat0:u.Quantity,
+        lon0:u.Quantity,
+        orbit_radius:u.Quantity,
+        radius:u.Quantity,
+        phase:u.Quantity,
+        inclination:u.Quantity
+    ):
+        """
+        Get a mask describing which pixels are covered by a transiting planet.
+
+        Parameters
+        ----------
+        lat0 : astropy.units.Quantity
+            The sub-observer latitude.
+        lon0 : astropy.units.Quantity
+            The sub-observer longitude.
+        orbit_radius : astropy.units.Quantity
+            The radius of the planet's orbit.
+        radius : astropy.units.Quantity
+            The radius of the planet.
+        phase : astropy.units.Quantity
+            The phase of the planet. 180 degrees is mid transit.
+        inclination : astropy.units.Quantity
+            The inclination of the planet. 90 degrees is transiting.
+        """
+        eclipse = False
+        if np.cos(phase) > 0:
+            eclipse = True
+        angle_past_midtransit = phase - 180*u.deg
+        x = (orbit_radius/self.radius * np.sin(angle_past_midtransit)).to_value(u.dimensionless_unscaled)
+        y = (orbit_radius/self.radius * np.cos(angle_past_midtransit) * np.cos(inclination)).to_value(u.dimensionless_unscaled)
+        rad = (radius/self.radius).to_value(u.dimensionless_unscaled)
+        if np.sqrt(x**2 + y**2) > 1 + 2*rad: # no transit
+            return self.gridmaker.zeros().astype('bool'), 1.0
+        elif eclipse:
+            planet_fraction = self.get_pl_frac(angle_past_midtransit,orbit_radius,radius,inclination)
+            return self.gridmaker.zeros().astype('bool'), planet_fraction
+        else:
+            llat,llon = self.gridmaker.grid()
+            xcoord,ycoord = proj_ortho(lat0,lon0,llat,llon)
+            rad_map = np.sqrt((xcoord-x)**2 + (ycoord-y)**2)
+            covered = np.where(rad_map<=rad,1,0).astype('bool')
+            return covered,1.0
+
+
+    def calc_coverage(
+        self,
+        sub_obs_coords:dict,
+        granulation_fraction:float=0.0,
+        orbit_radius:u.Quantity = 1*u.AU,
+        planet_radius:u.Quantity = 1*u.R_earth,
+        phase:u.Quantity = 90*u.deg,
+        inclination:u.Quantity = 0*u.deg
+
+    ):
         """
         Calculate coverage
 
@@ -214,49 +387,50 @@ class Star:
 
         Returns
         -------
-        dict
+        total_data : dict
             Dictionary with Keys as Teff quantities and Values as surface fraction floats.
+        covered_data : dict
+            Dictionary with Keys as Teff quantities and Values as surface fraction floats covered
+            by a transiting planet.
+        pl_frac : float
+            The fraction of the planet that is visble. This is in case of an eclipse.
         """
-        latgrid, longrid = self.gridmaker.grid()
-        cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
-                 + np.cos(sub_obs_coords['lat']) * np.cos(latgrid)
-                 * np.cos(sub_obs_coords['lon']-longrid))
+        cos_c = self.get_mu(sub_obs_coords['lat'],sub_obs_coords['lon'])
         ld = self.ld_mask(cos_c)
-        jacobian = np.sin(latgrid + 90*u.deg)
+        jacobian = self.get_jacobian()
 
-        int_map, map_keys = self.faculae.map_pixels(
-            self.map, self.radius, self.Teff)
+        surface_map = self.add_faculae_to_map(sub_obs_coords['lat'],sub_obs_coords['lon'])
+        covered, pl_frac = self.get_transit_mask(
+            sub_obs_coords['lat'],sub_obs_coords['lon'],
+            orbit_radius=orbit_radius,
+            radius=planet_radius,
+            phase=phase,
+            inclination=inclination
+        )
 
-        Teffs = np.unique(self.map)
-        data = {}
-        # spots and photosphere
+        Teffs = np.unique(surface_map)
+        total_data = {}
+        covered_data = {}
+        total_area = np.sum(ld*jacobian)
         for teff in Teffs:
-            pix = self.map == teff
-            pix_sum = ((pix.astype('float32') * ld * jacobian)
-                       [int_map == 0]).sum()
-            if (teff == self.Teff) and (granulation_fraction>0.0): # Quiet Photosphere
-                data[teff] = pix_sum*(1-granulation_fraction)
-                data[teff-self.granulation.dteff] = pix_sum*(granulation_fraction)
-            data[teff] = pix_sum
-        for i in map_keys.keys():
-            facula = self.faculae.faculae[i]
-            angle = 2 * np.arcsin(np.sqrt(np.sin(0.5*(facula.lat - sub_obs_coords['lat']))**2
-                                          + np.cos(facula.lat)*np.cos(sub_obs_coords['lat']) * np.sin(0.5*(facula.lon - sub_obs_coords['lon']))**2))
-            frac_area_dict = facula.fractional_effective_area(angle)
-            loc = int_map == map_keys[i]
-            pix_sum = (loc.astype('float32') * ld * jacobian).sum()
-            for teff in frac_area_dict.keys():
-                if teff in data:
-                    data[teff] = data[teff] + pix_sum * frac_area_dict[teff]
-                else:
-                    data[teff] = pix_sum * frac_area_dict[teff]
-        total = 0
-        for teff in data.keys():
-            total += data[teff]
-        # normalize
-        for teff in data.keys():
-            data[teff] = data[teff]/total
-        return data
+            pix_has_teff = np.where(surface_map==teff,1,0)
+            nominal_area = np.sum(pix_has_teff*ld*jacobian)
+            covered_area = np.sum(pix_has_teff*ld*jacobian*(covered))
+            total_data[teff] = (nominal_area/total_area).to_value(u.dimensionless_unscaled)
+            covered_data[teff] = (covered_area/total_area).to_value(u.dimensionless_unscaled)
+        granulation_teff = self.Teff - self.granulation.dteff
+        if granulation_teff not in Teffs: # initialize. This way it's okay if there's something else with that Teff too.
+            total_data[granulation_teff] = 0
+            covered_data[granulation_teff] = 0
+        
+        phot_frac = total_data[self.Teff]
+        total_data[self.Teff] =  phot_frac * (1-granulation_fraction)
+        total_data[granulation_teff] += phot_frac * granulation_fraction
+        phot_frac = covered_data[self.Teff]
+        covered_data[self.Teff] =  phot_frac * (1-granulation_fraction)
+        covered_data[granulation_teff] += phot_frac * granulation_fraction
+
+        return total_data,covered_data,pl_frac
 
     def calc_orthographic_mask(self, sub_obs_coords):
         """
@@ -297,8 +471,7 @@ class Star:
 
         """
         self.spots.add_spot(self.spot_generator.birth_spots(time, self.radius))
-        self.map = self.get_pixelmap()
-
+        
     def birth_faculae(self, time):
         """
         Create new faculae from a facula generator.
@@ -331,7 +504,7 @@ class Star:
             Bolometric average Teff of stellar disk.
 
         """
-        dat = self.calc_coverage(sub_obs_coords)
+        dat,_,_ = self.calc_coverage(sub_obs_coords)
         num = 0
         den = 0
         for teff in dat.keys():
@@ -370,30 +543,23 @@ class Star:
         # This makes cartopy and optional dependency
         import cartopy.crs as ccrs
 
-        pmap = self.get_pixelmap().value
+        pmap = self.add_faculae_to_map(view_angle['lat'],view_angle['lon']).value
+        lat,lon = self.gridmaker.oned()
         proj = ccrs.Orthographic(
             central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
         fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
         ax = plt.axes(projection=proj, fc="r")
         ax.outline_patch.set_linewidth(0.0)
-        ax.imshow(
-            pmap.T,
-            origin="upper",
+        ax.imshow(lat,lon,pmap.T,
             transform=ccrs.PlateCarree(),
-            extent=[0, 360, -90, 90],
-            interpolation="none",
             cmap='viridis',
-            regrid_shape=(self.gridmaker.Nlat, self.gridmaker.Nlon)
+
         )
         if sub_obs_point is not None:
             mask = self.calc_orthographic_mask(sub_obs_point)
-            ax.imshow(
+            ax.imshow(lat,lon,
                 mask.T,
-                origin="lower",
                 transform=ccrs.PlateCarree(),
-                extent=[0, 360, -90, 90],
-                interpolation="none",
-                regrid_shape=(self.gridmaker.Nlat, self.gridmaker.Nlon),
                 cmap='gray',
                 alpha=0.7
             )
@@ -517,7 +683,6 @@ class Star:
         new_spots = self.spot_generator.generate_mature_spots(
             coverage, self.radius)
         self.spots.add_spot(new_spots)
-        self.map = self.get_pixelmap()
     
 
     def get_granulation_coverage(self,time:u.Quantity)->np.ndarray:
@@ -537,4 +702,5 @@ class Star:
         if self.granulation is None:
             return np.zeros(shape=time.shape)
         else:
-            return self.granulation.get_coverage(time)
+            coverage = self.granulation.get_coverage(time)
+            return np.where(np.isnan(coverage),0,coverage)

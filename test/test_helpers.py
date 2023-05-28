@@ -290,12 +290,58 @@ def test_round_teff():
     assert helpers.round_teff(teff) == 100*u.K
 
 
+def test_get_angle_between():
+    cases = [
+        {   'args':[0,0,0,0]*u.deg,'pred':0*u.deg   },
+        {   'args':[0,0,90,0]*u.deg,'pred':90*u.deg   },
+        {   'args':[0,0,40,0]*u.deg,'pred':40*u.deg   },
+        {   'args':[0,0,0,120]*u.deg,'pred':120*u.deg   },
+        {   'args':[0,0,0,-120]*u.deg,'pred':120*u.deg   },
+        {   'args':[90,0,-90,0]*u.deg,'pred':180*u.deg   },
+    ]
+    for case in cases:
+        assert helpers.get_angle_between(*case['args']).to_value(u.deg) == pytest.approx(case['pred'].to_value(u.deg),abs=1)
+
+
+def test_circle_intersection():
+    cases = [
+        {   'args':[0,0,1], 'pred':1.0    },
+        {   'args':[0,0,0.5], 'pred':1.0    },
+        {   'args':[0,0.5,0.5], 'pred':1.0    },
+        {   'args':[2,0,0.5], 'pred':0.0    },
+    ]
+    for case in cases:
+        calc = helpers.calc_circ_fraction_inside_unit_circle(*case['args'])
+        pred = case['pred']
+        assert calc == pytest.approx(pred,rel=1e-6)
+    assert helpers.calc_circ_fraction_inside_unit_circle(1,0,1) < 0.5
+    assert helpers.calc_circ_fraction_inside_unit_circle(0.6,0,0.5) >0.5
+
+def test_get_planet_indices():
+    planet_times = np.array([0, 1, 2, 3, 4]) * u.day
+    tindex = 2.5 * u.day
+
+    N1, N2 = helpers.get_planet_indicies(planet_times, tindex)
+
+    planet_times = np.array([0, 1, 2, 3, 4]) * u.day
+    tindex = 2 * u.day
+    N1, N2 = helpers.get_planet_indicies(planet_times, tindex)
+
+    assert N1 == 2
+    assert N2 == 2
+
+
+
+
+
 if __name__ in '__main__':
-    test_to_float()
-    test_isclose()
-    test_get_transit_radius()
-    test_is_port_in_use()
-    test_set_psg_state()
-    test_arrange_teff()
-    test_plan_to_df()
-    test_CoordinateGrid()
+    # test_to_float()
+    # test_isclose()
+    # test_get_transit_radius()
+    # test_is_port_in_use()
+    # test_set_psg_state()
+    # test_arrange_teff()
+    # test_plan_to_df()
+    # test_CoordinateGrid()
+    # test_circle_intersection()
+    test_get_planet_indices()
