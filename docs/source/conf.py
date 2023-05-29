@@ -38,10 +38,18 @@ extensions = [
     'sphinx.ext.intersphinx',
     'nbsphinx',
     'nbsphinx_link',
-    'sphinxcontrib.bibtex'
+    'sphinxcontrib.bibtex',
+    'sphinx_gallery.gen_gallery',
 ]
 numpydoc_show_class_members = False
 bibtex_bibfiles = ['refs.bib']
+
+# Settings for sphinx gallery
+sphinx_gallery_conf = {
+     'examples_dirs': '../../examples',   # path to your example scripts
+     'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
+}
+
 
 
 # Add any paths that contain templates here, relative to this directory.
