@@ -2,6 +2,27 @@
 
 This module contains the code to govern the
 behavior of a variable star.
+
+The `VSPEC` star model is designed modularly to allow
+for both simple and complex behaviors. Currently, it
+is represended by a rectangular grid of points on the stellar
+surface, each assigned an effective temperature. At any given
+time, the model computes the surface coverage fractions of
+each temperature visible to the observer, accounting for the
+shperical geometry, limb darkening, and any occultation
+from a transiting planet.
+
+Once the surface coverage is calculated, a composite spectrum
+is computed from a grid of PHOENIX stellar spectra :cite:p:`2013A&A...553A...6H`.
+As of `VSPEC 0.1`, we have spectra between 2300 K and 3900 K, with steps of
+100 K. Each spectrum has :math:`\log{g} = 5.0` and solar metalicity.
+The raw spectra span from 0.1 to 20 um with 5e-6 um steps, however binned
+versions are available for faster runtimes.
+
+The attributes of the `Star` class describe the bulk properties of the star,
+including radius, period, and the effective temperature of quiet photosphere.
+Herein we refer to this temperature as the photosphere temperature to differentiate
+it from the temperature of spots, faculae, or other sources of variability
 """
 import numpy as np
 import matplotlib.pyplot as plt
