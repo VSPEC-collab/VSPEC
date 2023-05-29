@@ -1025,7 +1025,7 @@ class ObservationModel:
             orbital_radius = observation_info['orbit_radius'][index] * self.params.planet.semimajor_axis
             granulation_fraction = granulation_fractions[index]
             N1, N2 = get_planet_indicies(planet_times, tindex)
-            N1_frac = (planet_times[N2] - planet_times[index])/planet_time_step
+            N1_frac = (planet_times[N2] - tindex)/planet_time_step
             N1_frac = N1_frac.to_value(u.dimensionless_unscaled)
             # N1_frac = 1 - \
             #     to_float(
