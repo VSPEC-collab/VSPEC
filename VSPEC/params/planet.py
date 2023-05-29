@@ -1,5 +1,5 @@
 """
-Planet Parameters
+Planetary and System Parameters Module
 """
 
 from astropy import units as u

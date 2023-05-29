@@ -36,7 +36,7 @@ class LimbDarkeningParameters(BaseParameters):
     .. math::
 
         \frac{I(\mu)}{I(1)} = 1 - u_1 (1-\mu) - u_2 (1-\mu)^2
-
+    
     """
 
     def __init__(self, u1: float, u2: float):
@@ -342,6 +342,8 @@ class FaculaParameters(BaseParameters):
 
 class FlareParameters(BaseParameters):
     """
+    Class to store stellar flare parameters
+
     Parameters
     ----------
     group_probability : float

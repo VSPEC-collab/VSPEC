@@ -14,4 +14,5 @@ VSPEC Modules
    modules/analysis
    modules/files
    modules/helpers
+   modules/waccm
    

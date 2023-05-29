@@ -30,8 +30,15 @@ but the code is much more general.
 
    intro
    components
-   tutorials
-   input_params
+   modules/params
+   references
+
+Examples
+========
+.. toctree::
+   :maxdepth: 1
+
+   auto_examples/index   
 
 
 

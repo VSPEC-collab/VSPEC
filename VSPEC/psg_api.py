@@ -81,6 +81,19 @@ def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov'
 
 
 def parse_full_output(output_text:str):
+    """
+    Parse PSG full output.
+
+    Parameters
+    ----------
+    output_text : str
+        The output of a PSG 'all' call.
+
+    Returns
+    -------
+    dict
+        The parsed, separated output files.
+    """
     pattern = r'results_([\w]+).txt'
     split_text = re.split(pattern,output_text)
     names = split_text[1::2]
@@ -128,9 +141,33 @@ def change_psg_parameters(
     pl_sub_obs_lon:u.Quantity,
     pl_sub_obs_lat:u.Quantity,
     include_star:bool
-    ):
+    )->dict:
     """
+    Get the time-dependent PSG parameters
+
+    Parameters
+    ----------
+    params : VSPEC.params.Parameters
+        The parameters of this VSPEC simulation
+    phase : astropy.units.Quantity
+        The phase of the planet
+    orbit_radius_coeff : float
+        The planet-star distance normalized to the semimajor axis.
+    sub_stellar_lon : astropy.units.Quantity
+        The sub-stellar longitude of the planet.
+    sub_stellar_lat : astropy.units.Quantity
+        The sub-stellar latitude of the planet.
+    pl_sub_obs_lon : astropy.units.Quantity
+        The sub-observer longitude of the planet.
+    pl_sub_obs_lat : astropy.units.Quantity
+        The sub-observer latitude of the planet.
+    include_star : bool
+        If True, include the star in the simulation.
     
+    Returns
+    -------
+    config : dict
+        The PSG config in dictionary form.
     """
     config = {}
     config['OBJECT-STAR-TYPE'] = params.star.template if include_star else '-'
