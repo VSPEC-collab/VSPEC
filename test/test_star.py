@@ -276,11 +276,37 @@ def test_calc_coverage():
     )
     0
 
-
+def test_plot_surface():
+    Teff = 3000 * u.K
+    radius = 0.15 * u.R_sun
+    period = 10 * u.day
+    sgen = SpotGenerator(1000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,starting_size=500*MSH,distribution='iso')
+    spots = SpotCollection(*sgen.birth_spots(100*u.day,radius))
+    fgen = FaculaGenerator(R_peak = 0.2*u.R_sun,coverage=0.4)
+    # facula = Facula(0*u.deg,40*u.deg,0.1*u.R_sun,0.02*u.R_sun,2700*u.K,3700*u.K,1*u.hr,True,Zw=10000*u.km)
+    faculae = FaculaCollection(*fgen.birth_faculae(10*u.hr,radius,Teff))
+    for fac in faculae.faculae:
+        fac.Zw = 0.01*u.R_sun
+    # faculae = FaculaCollection(facula)
+    star = Star(Teff, radius, period, spots, faculae,Nlon=1000,Nlat=500,u1=0.4,u2=-1)
+    lon0,lat0 = 0*u.deg,0*u.deg
+    inclination = 90.*u.deg
+    phase = -0.0*u.deg+180*u.deg
+    planet_radius = 0.1*radius
+    semimajor_axis = 0.05*u.AU
+    proj = ccrs.Orthographic(
+            central_latitude=lat0.to_value(u.deg),
+            central_longitude=lon0.to_value(u.deg)
+    )
+    fig,axes = plt.subplots(1,1,subplot_kw={'projection': proj },figsize=(5,4))
+    # for i,ax in enumerate(axes):
+    star.plot_surface(lat0,lon0,axes,semimajor_axis,planet_radius,
+                        phase,inclination)
+    0
 
 
 
 
 
 if __name__ in '__main__':
-    test_calc_coverage()
+    test_plot_surface()

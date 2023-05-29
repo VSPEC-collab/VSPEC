@@ -113,7 +113,7 @@ class Star:
                  spot_generator: SpotGenerator = None,
                  fac_generator: FaculaGenerator = None,
                  granulation: Granulation = None,
-                 u1: float = 1,
+                 u1: float = 0,
                  u2: float = 0
     ):
         self.Teff = Teff
@@ -263,6 +263,18 @@ class Star:
         mask[behind_star] = 0
         return mask
     
+    def ld_mask_for_plotting(self,mu)->np.ndarray:
+        """
+        Same as above, but does not add the extra 1
+        because that is already accounted for by the projection.
+        """
+        mask = 1 - (self.u1) * (1 - mu) - self.u2 * (1 - mu)**2
+        behind_star = mu<0.
+        mask[behind_star] = 0
+        return mask
+
+
+    
     def get_jacobian(self)->np.ndarray:
         """
         Get the relative area of each point.
@@ -312,6 +324,8 @@ class Star:
             map_from_spots[wall_pix] = teff_wall
             map_from_spots[floor_pix] = teff_floor
         return map_from_spots
+
+
     
     def get_pl_frac(
         self,
@@ -460,33 +474,6 @@ class Star:
 
         return total_data,covered_data,pl_frac
 
-    def calc_orthographic_mask(self, sub_obs_coords):
-        """
-        Calculate orthographic mask.
-
-        Get the value of the orthographic mask at each point on the stellar surface when
-        viewed from the specified sub-observation point. 
-
-
-        Parameters
-        ----------
-        sub_obs_coords : dict
-            A dictionary containing coordinates of the sub-observation point. This is the 
-            point that is at the center of the stellar disk from the view of an observer. 
-            Format: {'lat':lat,'lon':lon} where lat and lon are `astropy.units.Quantity` objects.
-
-        Returns
-        -------
-        numpy.ndarray
-            The effective pixel size when projected onto an orthographic map.
-        """
-
-        latgrid, longrid = self.gridmaker.grid()
-        cos_c = (np.sin(sub_obs_coords['lat']) * np.sin(latgrid)
-                 + np.cos(sub_obs_coords['lat']) * np.cos(latgrid)
-                 * np.cos(sub_obs_coords['lon']-longrid))
-        ld = self.ld_mask(cos_c)
-        return ld
 
     def birth_spots(self, time):
         """
@@ -539,105 +526,52 @@ class Star:
             num += teff**4 * dat[teff]
             den += dat[teff]
         return ((num/den)**(0.25)).to(u.K)
-
-    def plot_spots(self, view_angle, sub_obs_point=None):
+    
+    def plot_surface(
+        self,
+        lat0:u.Quantity,
+        lon0:u.Quantity,
+        ax:'GeoAxes'=None,
+        orbit_radius:u.Quantity=1*u.AU,
+        radius:u.Quantity=1*u.R_earth,
+        phase:u.Quantity=90*u.deg,
+        inclination:u.Quantity=0*u.deg
+    ):
         """
-        Plot spots on a map using the orthographic projection.
-
-        Parameters
-        ----------
-        view_angle: dict
-            Dictionary with two keys, 'lon' and 'lat', representing the longitude and
-            latitude of the center of the projection in degrees.
-        sub_obs_point: tuple, default=None
-            Tuple with two elements, representing the longitude and latitude of the
-            sub-observer point in degrees. If provided, a gray overlay is plotted
-            indicating the regions that are visible from the sub-observer point.
-
-        Returns
-        -------
-        fig: matplotlib.figure.Figure
-            The resulting figure object.
-
-        Notes
-        -----
-        This method uses the numpy and matplotlib libraries to plot a map of the spots
-        on the stellar surface using an orthographic projection centered at the
-        coordinates provided in the `view_angle` parameter. The pixel map is obtained
-        using the `get_pixelmap` method of `Star`. If the `sub_obs_point` parameter
-        is provided, a gray overlay is plotted indicating the visible regions from the
-        sub-observer point.
+        Add the transit to the surface map and plot.
         """
-        # This makes cartopy and optional dependency
         import cartopy.crs as ccrs
-
-        pmap = self.add_faculae_to_map(view_angle['lat'],view_angle['lon']).value
+        from cartopy.mpl.geoaxes import GeoAxes
+        proj = ccrs.Orthographic(
+            central_latitude=lat0.to_value(u.deg),
+            central_longitude=lon0.to_value(u.deg)
+        )
+        if ax is None:
+            _, ax = plt.subplots(subplot_kw={'projection': proj })
+            ax:GeoAxes = ax
+        elif ax.projection != proj:
+            ax.projection = (proj)
+        covered, pl_frac = self.get_transit_mask(
+            lat0,lon0,
+            orbit_radius=orbit_radius,
+            radius=radius,
+            phase=phase,
+            inclination=inclination
+        )
+        map_with_faculae = self.add_faculae_to_map(lat0,lon0).to_value(u.K)
         lat,lon = self.gridmaker.oned()
-        proj = ccrs.Orthographic(
-            central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
-        fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
-        ax = plt.axes(projection=proj, fc="r")
-        ax.outline_patch.set_linewidth(0.0)
-        ax.imshow(lat,lon,pmap.T,
-            transform=ccrs.PlateCarree(),
-            cmap='viridis',
-
-        )
-        if sub_obs_point is not None:
-            mask = self.calc_orthographic_mask(sub_obs_point)
-            ax.imshow(lat,lon,
-                mask.T,
-                transform=ccrs.PlateCarree(),
-                cmap='gray',
-                alpha=0.7
-            )
-        return fig
-
-    def plot_faculae(self, view_angle):
-        """
-        Plot faculae on a map using orthographic projection.
-
-        Parameters
-        ----------
-        view_angle: dict
-            Dictionary with two keys, 'lon' and 'lat', representing the longitude and
-            latitude of the center of the projection in degrees.
-
-        Returns
-        -------
-        fig: matplotlib.figure.Figure
-            The resulting figure object.
-
-        Notes
-        -----
-        This method uses the numpy and matplotlib libraries to plot a map of the faculae
-        on the stellar surface using an orthographic projection centered at the
-        coordinates provided in the `view_angle` parameter. The faculae are obtained from
-        the `Star`'s faculae attribute and are mapped onto pixels using the `map_pixels`
-        method. The resulting map is plotted using an intensity map with faculae pixels
-        represented by the value 1 and non-faculae pixels represented by the value 0.
-        """
-        # This makes cartopy and optional dependency
-        import cartopy.crs as ccrs
-
-        int_map, map_keys = self.faculae.map_pixels(
-            self.map, self.radius, self.Teff)
-        is_fac = ~(int_map == 0)
-        int_map[is_fac] = 1
-        proj = ccrs.Orthographic(
-            central_longitude=view_angle['lon'], central_latitude=view_angle['lat'])
-        fig = plt.figure(figsize=(5, 5), dpi=100, frameon=False)
-        ax = plt.axes(projection=proj, fc="r")
-        ax.outline_patch.set_linewidth(0.0)
-        ax.imshow(
-            int_map.T,
-            origin="upper",
-            transform=ccrs.PlateCarree(),
-            extent=[0, 360, -90, 90],
-            interpolation="none",
-            regrid_shape=(self.gridmaker.Nlat, self.gridmaker.Nlon)
-        )
-        return fig
+        lat = lat.to_value(u.deg)
+        lon = lon.to_value(u.deg)
+        im = ax.pcolormesh(lon,lat,map_with_faculae.T,transform=ccrs.PlateCarree())
+        plt.colorbar(im,ax=ax)
+        transit_mask = np.where(covered,1,np.nan)
+        zorder = 100 if pl_frac == 1. else -100
+        ax.contourf(lon,lat,transit_mask.T,colors='k',alpha=1,transform=ccrs.PlateCarree(),zorder=zorder)
+        mu = self.get_mu(lat0,lon0)
+        ld = self.ld_mask_for_plotting(mu)
+        alpha = 1-ld.T/np.max(ld.T)
+        ax.imshow(np.ones_like(ld), extent=(lon.min(), lon.max(), lat.min(), lat.max()),
+              transform=ccrs.PlateCarree(), origin='lower', alpha=alpha, cmap=plt.cm.get_cmap('gray'),zorder=100)
 
     def get_flares_over_observation(self, time_duration: Quantity[u.hr]):
         """
