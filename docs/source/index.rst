@@ -17,10 +17,12 @@ VSPEC (Variable Star PhasE Curve) is an exoplanet modeling suite that combines N
 (`PSG <https://psg.gsfc.nasa.gov>`_) with a custom variable star
 (based on the `spotty <https://github.com/mrtommyb/spotty>`_ and `xoflares <https://github.com/mrtommyb/xoflares>`_ packages).
 
-The goal of VSPEC is to simulate observations of non-transiting rocky planets around variable M dwarfs
-in order to build tools to disentangle the light from the planet from that of the host. However, this code
-has been designed to be used more generally, with planetary, stellar, and variability scenarios
-that can be designed by the user.
+``VSPEC`` is a general exoplanet observation modeling suite that is built to be modular. ``VSPEC`` can simulate
+phase curves of non-transiting planets, transits, eclipses, and direct-imaging spectroscopy. It uses
+a noise model from PSG, which is sophisticated enough to simulate realistic data for a variety of scenarios.
+
+The original motivation for ``VSPEC`` was to create synthetic datasets of Planetary Infrared Excess (PIE) observations,
+but the code is much more general.
 
 .. toctree::
    :maxdepth: 1
