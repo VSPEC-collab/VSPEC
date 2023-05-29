@@ -267,6 +267,9 @@ def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Qua
     elif 'Reflected' in therm_rad.data.keys():
         return therm_rad.data['Reflected']
     elif (planet_name in cmb_rad.data.keys()) and (planet_name in therm_rad.data.keys()):
-        return cmb_rad.data[planet_name] - therm_rad.data[planet_name]
+        try:
+            return cmb_rad.data[planet_name] - therm_rad.data[planet_name] - cmb_rad.data['Transit']
+        except KeyError:
+            return cmb_rad.data[planet_name] - therm_rad.data[planet_name]
     else:
         raise KeyError(f'Data array {planet_name} not found.')
