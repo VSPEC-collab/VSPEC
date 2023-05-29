@@ -250,8 +250,15 @@ class Star:
         -------
         mask : np.ndarray
             The limb-darkened mask.
+        
+        Notes
+        -----
+        To account for apparent size effect of points on the 
+        stellar surface, we add a factor of 1 to `u1`. This way,
+        in the (Lambertian) case of no-limb darkening, the user
+        can set u1 = 0, u2 = 0
         """
-        mask = 1 - self.u1 * (1 - mu) - self.u2 * (1 - mu)**2
+        mask = 1 - (self.u1+1) * (1 - mu) - self.u2 * (1 - mu)**2
         behind_star = mu<0.
         mask[behind_star] = 0
         return mask

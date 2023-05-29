@@ -79,7 +79,7 @@ class LimbDarkeningParameters(BaseParameters):
         """
         No limb darkening.
         """
-        return cls(1., 0.)
+        return cls(0., 0.)
 
 
 class SpotParameters(BaseParameters):
