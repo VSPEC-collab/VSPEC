@@ -15,3 +15,5 @@ psg_encoding = 'UTF-8'
 PSG_PORT = 3000
 
 PSG_EXT_URL = 'https://psg.gsfc.nasa.gov'
+
+PSG_CFG_MAX_LINES = 1500

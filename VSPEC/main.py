@@ -14,10 +14,12 @@ import pandas as pd
 from astropy import units as u
 from tqdm.auto import tqdm
 import warnings
+from functools import partial
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.variable_star_model import granules
+from VSPEC.config import PSG_CFG_MAX_LINES
 from VSPEC.files import build_directories, N_ZFILL, get_filename
 from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
@@ -60,6 +62,21 @@ class ObservationModel:
         self.build_directories()
         self.star = None
         self.rng = np.random.default_rng(self.params.header.seed)
+
+    class __flags__:
+        """
+        Flags attribute
+
+        Attributes
+        ----------
+        psg_needs_set : bool
+            For security reasons, PSG config files can contain a
+            maximum of ~2000 lines. After that number, the server
+            will no longer update after our API call. In this case,
+            we issue the `set` command. Unfortuantely, we must re-
+            upload the GCM.
+        """
+        psg_needs_set = True
 
     def wrap_iterator(self, iterator, **kwargs):
         """
@@ -290,6 +307,8 @@ class ObservationModel:
             outfile=None,
             config_data=content
         )
+        if not update:
+            self.__flags__.psg_needs_set = False
 
     def set_static_config(self):
         """
@@ -375,6 +394,9 @@ class ObservationModel:
         RuntimeError
             If the config recieved does not match the config sent.
         """
+        n_lines = len(cfg_from_psg.split('\n'))
+        if n_lines > PSG_CFG_MAX_LINES:
+            self.__flags__.psg_needs_set = True
         cfg_dict = cfg_to_dict(cfg_from_psg)
         expected_cfg = self.params.to_psg()
         msg = ''
@@ -444,9 +466,6 @@ class ObservationModel:
         ####################################
         # Set observation parameters that do not change
         self.set_static_config()
-        # # debug
-        # call_api(cfg_path,psg_url=url,api_key=api_key,
-        #         output_type='all',app=app,outfile='temp_out.txt')
 
         ####################################
         # Calculate observation parameters
@@ -472,22 +491,28 @@ class ObservationModel:
             pl_sub_obs_lat = obs_plan['planet_sub_obs_lat'][i]
             orbit_radius_coeff = obs_plan['orbit_radius'][i]
             obs_time = obs_plan['time'][i] - obs_plan['time'][0]
-            if self.params.gcm.gcmtype == 'waccm':
-                self.upload_gcm(
-                    obstime=obs_time,
-                    update=True
-                )
 
+            if (not self.params.gcm.is_staic) or self.__flags__.psg_needs_set:
+                # enter if we need a reset or if there is time dependence
+                upload = partial(self.upload_gcm,obstime=obs_time)
+                if self.__flags__.psg_needs_set: # do a reset if needed
+                    upload(update=False)
+                    self.set_static_config()
+                    self.__flags__.psg_needs_set = False
+                else: # update if it's just time dependence.
+                    upload(update=True)
+            
             # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
-            self.update_config(
+            update_config = partial(
+                self.update_config,
                 phase=phase,
                 orbit_radius_coeff=orbit_radius_coeff,
                 sub_stellar_lon=sub_stellar_lon,
                 sub_stellar_lat=sub_stellar_lat,
                 pl_sub_obs_lon=pl_sub_obs_lon,
-                pl_sub_obs_lat=pl_sub_obs_lat,
-                include_star=True
+                pl_sub_obs_lat=pl_sub_obs_lat
             )
+            update_config(include_star=True)
             path_dict = {
                 'rad': Path(self.dirs['psg_combined']),
                 'noi': Path(self.dirs['psg_noise']),
@@ -495,15 +520,7 @@ class ObservationModel:
             }
             self.run_psg(path_dict, i)
             # write updates to config file to remove star flux
-            self.update_config(
-                phase=phase,
-                orbit_radius_coeff=orbit_radius_coeff,
-                sub_stellar_lon=sub_stellar_lon,
-                sub_stellar_lat=sub_stellar_lat,
-                pl_sub_obs_lon=pl_sub_obs_lon,
-                pl_sub_obs_lat=pl_sub_obs_lat,
-                include_star=False
-            )
+            update_config(include_star=False)
             path_dict = {
                 'rad': Path(self.dirs['psg_thermal']),
                 'lyr': Path(self.dirs['psg_layers'])

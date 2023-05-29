@@ -34,6 +34,9 @@ class binaryGCM(BaseParameters):
         The path to the config file.
     data : bytes or None
         The data as a Python bytes object.
+    static : bool
+        If true, the GCM does not change with time.
+        (Set to True for `binaryGCM`)
 
     Methods
     -------
@@ -41,7 +44,7 @@ class binaryGCM(BaseParameters):
         Get the content of the GCM.
 
     """
-
+    static = True
     def __init__(self, path: Path = None, data: bytes = None):
         if path is None and data is None:
             raise ValueError('Must provide some way to access the data!')
@@ -91,6 +94,8 @@ class waccmGCM(BaseParameters):
         A list of aerosols to extract from the data.
     background : str, default=None
         The background molecule to include in the GCM.
+    static : bool, default=False
+        If true, the GCM does not change with time.
 
     Attributes
     ----------
@@ -104,6 +109,8 @@ class waccmGCM(BaseParameters):
         A list of aerosols to extract from the data.
     background : str or None
         The background background molecule to include in the GCM.
+    static : bool
+        If true, the GCM does not change with time.
 
     Methods
     -------
@@ -112,12 +119,13 @@ class waccmGCM(BaseParameters):
 
     """
 
-    def __init__(self, path: Path, tstart: u.Quantity, molecules: list, aerosols: list, background: str = None):
+    def __init__(self, path: Path, tstart: u.Quantity, molecules: list, aerosols: list, background: str = None,static:bool=False):
         self.path = path
         self.tstart = tstart
         self.molecules = molecules
         self.aerosols = aerosols
         self.background = background
+        self.static = static
 
     def content(self, obs_time: u.Quantity) -> bytes:
         """
@@ -169,6 +177,13 @@ class gcmParameters(BaseParameters):
     -----------
     gcm : binaryGCM or waccmGCM
         The GCM instance containing the GCM data.
+    
+    Properties
+    ----------
+    is_static : bool
+        True if the GCM changes with time.
+    gcmtype : str
+        A string identifier for the GCM type
 
     Methods:
     --------
@@ -190,6 +205,9 @@ class gcmParameters(BaseParameters):
 
     def content(self,**kwargs):
         return self.gcm.content(**kwargs)
+    @property
+    def is_staic(self)->bool:
+        return self.gcm.static
     @property
     def gcmtype(self)->str:
         if isinstance(self.gcm,binaryGCM):
