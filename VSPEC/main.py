@@ -101,31 +101,28 @@ class ObservationModel:
             self.params.header.teff_max
         )
         for teff in self.wrap_iterator(teffs, desc='Binning Spectra', total=len(teffs)):
+            def bin_spectrum(func):
+                """
+                func is a binning function.
+                This way I don't have to type the same arguments twice.
+                """
+                func(
+                    to_float(teff, u.K),
+                    file_name_writer=stellar_spectra.get_binned_filename,
+                    binned_path=self.dirs['binned'],
+                    resolving_power=self.params.inst.bandpass.resolving_power,
+                    lam1=self.params.inst.bandpass.wl_blue,
+                    lam2=self.params.inst.bandpass.wl_red,
+                    model_unit_wavelength=u.AA,
+                    model_unit_flux=u.Unit(
+                        'erg s-1 cm-2 cm-1'),
+                    target_unit_wavelength=self.params.inst.bandpass.wavelength_unit,
+                    target_unit_flux=self.params.inst.bandpass.flux_unit
+                )
             try:
-                stellar_spectra.bin_cached_model(to_float(teff, u.K),
-                                                 file_name_writer=stellar_spectra.get_binned_filename,
-                                                 binned_path=self.dirs['binned'],
-                                                 resolving_power=self.params.inst.bandpass.resolving_power,
-                                                 lam1=self.params.inst.bandpass.wl_blue,
-                                                 lam2=self.params.inst.bandpass.wl_red,
-                                                 model_unit_wavelength=u.AA,
-                                                 model_unit_flux=u.Unit(
-                                                     'erg s-1 cm-2 cm-1'),
-                                                 target_unit_wavelength=self.params.inst.bandpass.wavelength_unit,
-                                                 target_unit_flux=self.params.inst.bandpass.flux_unit)
-
+                bin_spectrum(stellar_spectra.bin_cached_model)
             except ValueError:
-                stellar_spectra.bin_phoenix_model(to_float(teff, u.K),
-                                                  file_name_writer=stellar_spectra.get_binned_filename,
-                                                  binned_path=self.dirs['binned'],
-                                                  resolving_power=self.params.inst.bandpass.resolving_power,
-                                                  lam1=self.params.inst.bandpass.wl_blue,
-                                                  lam2=self.params.inst.bandpass.wl_red,
-                                                  model_unit_wavelength=u.AA,
-                                                  model_unit_flux=u.Unit(
-                                                      'erg s-1 cm-2 cm-1'),
-                                                  target_unit_wavelength=self.params.inst.bandpass.wavelength_unit,
-                                                  target_unit_flux=self.params.inst.bandpass.flux_unit)
+                bin_spectrum(stellar_spectra.bin_phoenix_model)
 
     def read_spectrum(self, teff: u.Quantity) -> typing.Tuple[u.Quantity, u.Quantity]:
         """
