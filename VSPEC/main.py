@@ -7,7 +7,6 @@ and PSG.
 """
 
 from pathlib import Path
-from os import system
 import typing
 
 import numpy as np
@@ -15,7 +14,6 @@ import pandas as pd
 from astropy import units as u
 from tqdm.auto import tqdm
 import warnings
-from netCDF4 import Dataset
 
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
@@ -27,8 +25,6 @@ from VSPEC.helpers import plan_to_df, get_planet_indicies
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
 from VSPEC.analysis import read_lyr
-# from VSPEC.waccm.write_psg import get_cfg_contents
-# from VSPEC.waccm.read_nc import get_time_index
 from VSPEC.params.read import Parameters
 
 
@@ -53,14 +49,17 @@ class ObservationModel:
         The paths to model output directories.
     star : `VSPEC.variable_star_model.Star`
         The variable host star.
+    rng : numpy.random.Generator
+        A psudo-random number generator to be used in
+        the simulation.
     """
 
     def __init__(self, config_path: Path, verbose=1):
         self.verbose = verbose
         self.params = Parameters.from_yaml(config_path)
-        # self.params = ParamModel(config_path)
         self.build_directories()
         self.star = None
+        self.rng = np.random.default_rng(self.params.header.seed)
 
     def wrap_iterator(self, iterator, **kwargs):
         """

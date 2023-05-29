@@ -19,6 +19,12 @@ class Header(BaseParameters):
     -----------
     data_path : pathlib.Path
         The path to store run data.
+    max_teff : astropy.units.Quantity
+        The maximum Teff to bin.
+    min_teff : astropy.units.Quantity
+        The minimum Teff to bin.
+    seed : int, default=None
+        The seed for the random number generator.
     desc : str, default=None
         A description of the run.
     
@@ -26,6 +32,12 @@ class Header(BaseParameters):
     -----------
     data_path : pathlib.Path
         The path to store run data.
+    max_teff : astropy.units.Quantity
+        The maximum Teff to bin.
+    min_teff : astropy.units.Quantity
+        The minimum Teff to bin.
+    seed : int or None
+        The seed for the random number generator.
     desc : str or None
         A description of the run.
 
@@ -35,11 +47,13 @@ class Header(BaseParameters):
         data_path:Path,
         teff_min:u.Quantity,
         teff_max:u.Quantity,
+        seed: int,
         desc:str=None
     ):
         self.data_path = data_path
         self.teff_min = teff_min
         self.teff_max = teff_max
+        self.seed = seed
         self.desc = desc
     @classmethod
     def _from_dict(cls, d: dict):
@@ -47,6 +61,7 @@ class Header(BaseParameters):
             data_path = Path(d['data_path']),
             teff_min = u.Quantity(d['teff_min']),
             teff_max = u.Quantity(d['teff_max']),
+            seed = None if d.get('seed',None) is None else int(d.get('seed',None)),
             desc = None if d.get('desc',None) is None else str(d.get('desc',None))
         )
 
