@@ -2,6 +2,10 @@
 
 This contains all the code governing
 the behavior of spots.
+
+
+
+
 """
 from typing import List
 import typing as Typing
@@ -17,8 +21,15 @@ class StarSpot:
     """
     Star Spot
 
-    Class to govern behavior of spots on a star's surface.
-
+    Our star spot model is nearly entirely based on
+    observations of the sun. Sun spots can be resolved
+    and are well-studied, whereas spots on other stars
+    (e.g., M dwarfs) can only observed indirectly. We
+    therefore designed our spot model to mimic sun spots
+    but with parameterized values for spot temperature and 
+    lifetime that can be matched to observations of other 
+    stellar types and ages.
+    
     Parameters
     ----------
     lat : astropy.units.Quantity 
