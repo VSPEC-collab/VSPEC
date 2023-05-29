@@ -5,12 +5,12 @@ behavior of a variable star.
 
 The `VSPEC` star model is designed modularly to allow
 for both simple and complex behaviors. Currently, it
-is represended by a rectangular grid of points on the stellar
+is represented by a rectangular grid of points on the stellar
 surface, each assigned an effective temperature. At any given
 time, the model computes the surface coverage fractions of
 each temperature visible to the observer, accounting for the
-shperical geometry, limb darkening, and any occultation
-from a transiting planet.
+spherical geometry, limb darkening, and any occultation
+by a transiting planet.
 
 Once the surface coverage is calculated, a composite spectrum
 is computed from a grid of PHOENIX stellar spectra :cite:p:`2013A&A...553A...6H`.
@@ -22,7 +22,7 @@ versions are available for faster runtimes.
 The attributes of the `Star` class describe the bulk properties of the star,
 including radius, period, and the effective temperature of quiet photosphere.
 Herein we refer to this temperature as the photosphere temperature to differentiate
-it from the temperature of spots, faculae, or other sources of variability
+it from the temperature of spots, faculae, or other sources of variability.
 """
 import numpy as np
 import matplotlib.pyplot as plt
