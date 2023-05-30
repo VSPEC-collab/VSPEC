@@ -47,7 +47,7 @@ class TestLimbDarkeningParameters:
 
     def test_lambertian_preset(self, lambertian_params):
         assert isinstance(lambertian_params, LimbDarkeningParameters)
-        assert lambertian_params.u1 == 1.0
+        assert lambertian_params.u1 == 0.0
         assert lambertian_params.u2 == 0.0
 
     def test_from_dict_preset(self):

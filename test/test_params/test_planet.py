@@ -39,7 +39,7 @@ def test_planet_parameters_to_psg(planet_parameters:PlanetParameters):
     assert psg_dict['OBJECT-DIAMETER'] == f'{2*(1.5*u.R_earth).to_value(u.km):.4f}'
     assert psg_dict['OBJECT-STAR-DISTANCE'] == '0.1000'
     assert psg_dict['OBJECT-PERIOD'] == '20.0000'
-    assert psg_dict['OBJECT-ECCENTRICITY'] == '0.1000'
+    assert psg_dict['OBJECT-ECCENTRICITY'] == '0.10000'
     assert psg_dict['OBJECT-GRAVITY'] == '1.0000e+01'
     assert psg_dict['OBJECT-GRAVITY-UNIT'] == 'g'
 

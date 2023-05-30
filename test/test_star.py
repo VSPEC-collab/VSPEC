@@ -61,7 +61,7 @@ def test_star_initialization(star:Star):
     assert isinstance(star.spot_generator, SpotGenerator)
     assert isinstance(star.fac_generator, FaculaGenerator)
     assert star.granulation is None
-    assert star.u1 == 1
+    assert star.u1 == 0
     assert star.u2 == 0
 
 

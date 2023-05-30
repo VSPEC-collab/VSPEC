@@ -12,7 +12,7 @@ from VSPEC.helpers import is_port_in_use,set_psg_state
 
 API_KEY_PATH = Path.home() / 'psg_key.txt'
 PSG_CONFIG_PATH = Path(__file__).parent / 'data' / 'test_cfg.txt'
-VSPEC_CONFIG_PATH = Path(__file__).parent / 'default.cfg'
+VSPEC_CONFIG_PATH = Path(__file__).parent / 'default.yaml'
 PSG_PORT = 3000
 
 

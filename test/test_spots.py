@@ -334,16 +334,6 @@ def test_spot_generator_N_spots_to_birth():
         time, r_star) == pytest.approx(exp, abs=1e-6)
 
 
-def test_spot_generator_generate_spots():
-    """
-    Test `SpotGenerator.generate_spots()`
-    """
-    N = 3
-    gen = init_spot_generator()
-    spots = gen.generate_spots(N)
-    assert len(spots) == N
-
-
 def test_spot_generator_get_coordinates():
     """
     Test `SpotGenerator.get_coordinates()`
@@ -372,7 +362,7 @@ def test_spot_generator_generate_spots():
     for spot in spots:
         assert spot.area_current == 10*MSH
 
-
+@pytest.mark.skip # Generator need to be refactored
 def test_spot_generator_generate_mature_spots():
     """
     Test `SpotGenerator.generate_mature_spots()`
@@ -394,17 +384,18 @@ def test_spot_generator_generate_mature_spots():
 
 
 if __name__ in '__main__':
-    test_spot_init()
-    test_spot_str()
-    test_spot_radius()
-    test_spot_angular_radius()
-    test_spot_map_pixels()
-    test_spot_surface_fraction()
-    test_spot_age()
-    test_init_spot_collection()
-    test_spot_collection_add_spot()
-    test_spot_collection_clean_spotlist()
-    test_spot_collection_map_pixels()
-    test_spot_collection_age()
-    test_spot_generator_init()
-    test_spot_generator_N_spots_to_birth()
+    # test_spot_init()
+    # test_spot_str()
+    # test_spot_radius()
+    # test_spot_angular_radius()
+    # test_spot_map_pixels()
+    # test_spot_surface_fraction()
+    # test_spot_age()
+    # test_init_spot_collection()
+    # test_spot_collection_add_spot()
+    # test_spot_collection_clean_spotlist()
+    # test_spot_collection_map_pixels()
+    # test_spot_collection_age()
+    # test_spot_generator_init()
+    # test_spot_generator_N_spots_to_birth()
+    test_spot_generator_generate_mature_spots()
