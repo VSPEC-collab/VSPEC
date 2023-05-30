@@ -4,8 +4,11 @@ Observation parameters
 from typing import Union
 from astropy import units as u
 import numpy as np
+import yaml
+
+from VSPEC.files import PRESET_PATH
 from VSPEC.config import flux_unit as default_flux_unit
-from VSPEC.params.base import BaseParameters
+from VSPEC.params.base import BaseParameters, PSGtable, parse_table
 
 
 class ObservationParameters(BaseParameters):
@@ -175,6 +178,12 @@ class BandpassParameters(BaseParameters):
             u.um,
             default_flux_unit
         )
+    @classmethod
+    def miri_lrs(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['bandpass']['miri-lrs'])
 
 
 class ccdParameters(BaseParameters):
@@ -235,10 +244,10 @@ class ccdParameters(BaseParameters):
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            pixel_sampling = int(d['pixel_sampling']),
+            pixel_sampling = parse_table(d['pixel_sampling'],int),
             read_noise = u.Quantity(d['read_noise']),
             dark_current = u.Quantity(d['dark_current']),
-            throughput = float(d['throughput']),
+            throughput = parse_table(d['throughput'],float),
             emissivity = float(d['emissivity']),
             temperature = u.Quantity(d['temperature'])
         )
@@ -286,6 +295,13 @@ class ccdParameters(BaseParameters):
             emissivity=0.1,
             temperature=35*u.K
         )
+    @classmethod
+    def miri_lrs(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['ccd']['miri-lrs'])
+
 
 
 class DetectorParameters(BaseParameters):
@@ -348,6 +364,12 @@ class DetectorParameters(BaseParameters):
         }
         config.update(self.ccd.to_psg())
         return config
+    @classmethod
+    def miri_lrs(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['detector']['miri-lrs'])
 
     @classmethod
     def mirecle(cls):
@@ -477,6 +499,12 @@ class SingleDishParameters(TelescopeParameters):
         """
 
         return cls(2*u.m, 1.0)
+    @classmethod
+    def jwst(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['telescope']['jwst']['single'])
 
 class CoronagraphParameters(TelescopeParameters):
     """
@@ -638,3 +666,9 @@ class InstrumentParameters(BaseParameters):
             bandpass=BandpassParameters.mirecle(),
             detector=DetectorParameters.mirecle()
         )
+    @classmethod
+    def miri_lrs(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['instrument']['miri-lrs'])

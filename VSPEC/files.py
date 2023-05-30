@@ -33,7 +33,7 @@ MOLEC_DATA_PATH = Path(__file__).parent / 'data' / 'molec.json'
 """str
     The path to the file containing molecular data for analysis.
 """
-
+PRESET_PATH = Path(__file__).parent / 'presets'
 
 def check_and_build_dir(path: Path) -> None:
     """

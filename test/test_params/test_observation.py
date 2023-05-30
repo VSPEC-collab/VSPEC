@@ -3,6 +3,7 @@ from astropy import units as u
 import numpy as np
 
 from VSPEC.config import flux_unit as default_flux_unit
+from VSPEC.params.base import PSGtable
 from VSPEC.params.observation import BandpassParameters, ObservationParameters,ccdParameters,DetectorParameters,InstrumentParameters
 from VSPEC.params.observation import TelescopeParameters, SingleDishParameters, CoronagraphParameters
 
@@ -107,6 +108,16 @@ def test_BandpassParameters_mirecle():
     assert bandpass_params.resolving_power == 50
     assert bandpass_params.wavelength_unit == u.um
     assert bandpass_params.flux_unit == default_flux_unit
+def test_BandpassParameters_miri_lrs():
+    # Create a BandpassParameters instance using the mirecle class method
+    bandpass_params = BandpassParameters.miri_lrs()
+
+    # Perform assertions on the instance attributes
+    assert bandpass_params.wl_blue == 5.0 * u.um
+    assert bandpass_params.wl_red == 12.0 * u.um
+    assert bandpass_params.resolving_power == 100
+    assert bandpass_params.wavelength_unit == u.um
+    assert bandpass_params.flux_unit == default_flux_unit
 
 
 def test_ccdParameters_init():
@@ -184,6 +195,11 @@ def test_ccdParameters_mirecle():
     assert ccd_params.throughput == 0.5
     assert ccd_params.emissivity == 0.1
     assert ccd_params.temperature == 35 * u.K
+
+def test_ccdParameters_miri_lrs():
+    ccd_params = ccdParameters.miri_lrs()
+    assert isinstance(ccd_params.pixel_sampling, PSGtable)
+
 
 
 def test_DetectorParameters_init():
@@ -279,6 +295,20 @@ def test_DetectorParameters_mirecle():
     assert detector_params.ccd.emissivity == 0.1
     assert detector_params.ccd.temperature == 35 * u.K
 
+def test_DetectorParameters_miri_lrs():
+    # Create DetectorParameters instance using the miri-lrs class method
+    detector_params = DetectorParameters.miri_lrs()
+
+    # Perform assertions on the instance attributes
+    assert detector_params.beam_width == 5 * u.arcsec
+    assert detector_params.integration_time == 0.5 * u.s
+    assert isinstance(detector_params.ccd.pixel_sampling,PSGtable) 
+    assert detector_params.ccd.read_noise == 32 * u.electron
+    assert detector_params.ccd.dark_current == 0.2 * u.electron / u.s
+    assert isinstance(detector_params.ccd.throughput,PSGtable)
+    assert detector_params.ccd.emissivity == 0.1
+    assert detector_params.ccd.temperature == 50 * u.K
+
 
 @pytest.fixture
 def single_dish_parameters():
@@ -313,6 +343,12 @@ def test_single_dish_parameters_mirecle():
     assert mirecle_parameters.aperture == 2 * u.m
     assert mirecle_parameters.mode == 'single'
     assert mirecle_parameters.zodi == 1.0
+
+def test_single_dish_parameters_jwst():
+    mirecle_parameters = SingleDishParameters.jwst()
+    assert mirecle_parameters.aperture == 5.64 * u.m
+    assert mirecle_parameters.mode == 'single'
+    assert mirecle_parameters.zodi == 2.0
 
 def test_coronagraph_parameters(coronagraph_parameters:CoronagraphParameters):
     assert coronagraph_parameters.aperture == 8 * u.m
@@ -468,6 +504,30 @@ def test_InstrumentParameters_mirecle():
     assert instrument_params.detector.ccd.emissivity == 0.1
     assert instrument_params.detector.ccd.temperature == 35 * u.K
 
+def test_InstrumentParameters_miri_lrs():
+    # Call the mirecle class method
+    instrument_params = InstrumentParameters.miri_lrs()
+
+    # Perform assertions on the instance attributes
+    assert instrument_params.telescope.aperture == 5.64 * u.m
+
+    # Check if the bandpass and detector parameters are initialized correctly
+    assert isinstance(instrument_params.bandpass, BandpassParameters)
+    assert instrument_params.bandpass.wl_blue == 5 * u.um
+    assert instrument_params.bandpass.wl_red == 12 * u.um
+    assert instrument_params.bandpass.resolving_power == 100
+    assert instrument_params.bandpass.wavelength_unit == u.um
+
+    assert isinstance(instrument_params.detector, DetectorParameters)
+    assert instrument_params.detector.beam_width == 5 * u.arcsec
+    assert instrument_params.detector.integration_time == 0.5 * u.s
+    assert isinstance(instrument_params.detector.ccd.pixel_sampling,PSGtable)
+    assert instrument_params.detector.ccd.read_noise == 32 * u.electron
+    assert instrument_params.detector.ccd.dark_current == 0.2 * u.electron / u.s
+    assert isinstance(instrument_params.detector.ccd.throughput,PSGtable)
+    assert instrument_params.detector.ccd.emissivity == 0.1
+    assert instrument_params.detector.ccd.temperature == 50 * u.K
+
 
 def test_InstrumentParameters_from_dict():
     # Create a dictionary representing instrument parameters
@@ -522,3 +582,5 @@ def test_InstrumentParameters_from_dict():
     assert instrument_params.detector.ccd.emissivity == 0.2
     assert instrument_params.detector.ccd.temperature == 30 * u.K
 
+if __name__ in '__main__':
+    test_ccdParameters_miri_lrs()

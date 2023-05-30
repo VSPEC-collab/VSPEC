@@ -1,6 +1,7 @@
 """
 Base parameter class
 """
+import numpy as np
 
 class BaseParameters:
     """
@@ -49,6 +50,32 @@ class BaseParameters:
         of LimbDarkeningParameters.
         """
         if 'preset' in d.keys():
-            return getattr(cls,d['preset'])()
+            return getattr(cls,d['preset'].replace('-','_'))()
         else:
             return cls._from_dict(d)
+
+class PSGtable(BaseParameters):
+    """
+    Class to store Table data for PSG
+    """
+    def __init__(self,x:np.ndarray,y:np.ndarray):
+        self.x = x
+        self.y = y
+    def __str__(self):
+        pairs = []
+        for x,y in zip(self.x,self.y):
+            pairs.append(f'{y:.2e}@{x:.2e}')
+    @classmethod
+    def _from_dict(cls, d: dict):
+        return cls(
+            x = d['x'],
+            y = d['y']
+        )
+    def to_psg(self):
+        return self.__str__()
+
+def parse_table(val,cls):
+    if isinstance(val,dict):
+        return PSGtable.from_dict(val['table'])
+    else:
+        return cls(val)
