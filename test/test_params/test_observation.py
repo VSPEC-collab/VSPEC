@@ -318,14 +318,14 @@ def single_dish_parameters():
 def coronagraph_parameters():
     iwa_x = np.array([1.0, 2.0, 3.0])
     iwa_y = np.array([0.1, 0.2, 0.3])
+    iwa = PSGtable(iwa_x,iwa_y)
     return CoronagraphParameters(
         aperture=8 * u.m,
         zodi=5.0,
         exozodi=2.0,
         contrast=1e-6,
-        iwa_x=iwa_x,
-        iwa_y=iwa_y,
-    )
+        iwa = iwa
+        )
 
 def test_single_dish_parameters(single_dish_parameters):
     assert single_dish_parameters.aperture == 4 * u.m
@@ -356,8 +356,9 @@ def test_coronagraph_parameters(coronagraph_parameters:CoronagraphParameters):
     assert coronagraph_parameters.zodi == 5.0
     assert coronagraph_parameters.exozodi == 2.0
     assert coronagraph_parameters.contrast == 1e-6
-    assert np.array_equal(coronagraph_parameters.iwa_x, np.array([1.0, 2.0, 3.0]))
-    assert np.array_equal(coronagraph_parameters.iwa_y, np.array([0.1, 0.2, 0.3]))
+    assert isinstance(coronagraph_parameters.iwa,PSGtable)
+    assert np.array_equal(coronagraph_parameters.iwa.x, np.array([1.0, 2.0, 3.0],dtype='float32'))
+    assert np.array_equal(coronagraph_parameters.iwa.y, np.array([0.1, 0.2, 0.3],dtype='float32'))
 
     psg_config = coronagraph_parameters.to_psg()
     assert psg_config['GEOMETRY'] == 'Observatory'
@@ -365,7 +366,7 @@ def test_coronagraph_parameters(coronagraph_parameters:CoronagraphParameters):
     assert psg_config['GENERATOR-TELESCOPE'] == 'CORONA'
     assert psg_config['GENERATOR-TELESCOPE2'] == '5.00,2.00'
     assert psg_config['GENERATOR-TELESCOPE1'] == '1.00e-06'
-    assert psg_config['GENERATOR-TELESCOPE3'] == '1.00e+00@1.00e-01,2.00e+00@2.00e-01,3.00e+00@3.00e-01'
+    assert psg_config['GENERATOR-TELESCOPE3'] == '1.00e-01@1.00e+00,2.00e-01@2.00e+00,3.00e-01@3.00e+00'
 
 def test_from_dict_single_dish_parameters():
     d = {
@@ -382,16 +383,18 @@ def test_from_dict_coronagraph_parameters():
         'zodi': '5.0',
         'exozodi': '2.0',
         'contrast': '1e-6',
-        'iwa_x': '1.0,2.0,3.0',
-        'iwa_y': '0.1,0.2,0.3',
-    }
+        'iwa': {'table':{
+            'x': [1.,2.,3.],
+            'y': [0.1,0.2,0.3]
+        }}
+        }
     parameters = CoronagraphParameters._from_dict(d)
     assert parameters.aperture == 8 * u.m
     assert parameters.zodi == 5.0
     assert parameters.exozodi == 2.0
     assert parameters.contrast == 1e-6
-    assert np.array_equal(parameters.iwa_x, np.array([1.0, 2.0, 3.0],dtype='float32'))
-    assert np.array_equal(parameters.iwa_y, np.array([0.1, 0.2, 0.3],dtype='float32'))
+    assert np.array_equal(parameters.iwa.x, np.array([1.0, 2.0, 3.0],dtype='float32'))
+    assert np.array_equal(parameters.iwa.y, np.array([0.1, 0.2, 0.3],dtype='float32'))
 
 
 

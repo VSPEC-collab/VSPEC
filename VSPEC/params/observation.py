@@ -521,10 +521,8 @@ class CoronagraphParameters(TelescopeParameters):
         The level of the exozodiacal background.
     contrast : float
         The contrast level.
-    iwa_x : np.ndarray
-        The inner working angle (IWA) values in units of lambda/D.
-    iwa_y : np.ndarray
-        The coronagraph throughput as a function of IWA .
+    IWA : PSGtable
+        The inner working angle of the coronagraph
     """
 
     def __init__(
@@ -533,8 +531,7 @@ class CoronagraphParameters(TelescopeParameters):
         zodi: float,
         exozodi: float,
         contrast: float,
-        iwa_x:  np.ndarray,
-        iwa_y:  np.ndarray
+        iwa: PSGtable
     ):
         super().__init__(
             aperture,
@@ -542,29 +539,13 @@ class CoronagraphParameters(TelescopeParameters):
             zodi,
             exozodi = exozodi,
             contrast = contrast,
-            iwa_x = np.atleast_1d(iwa_x),
-            iwa_y = np.atleast_1d(iwa_y)
+            iwa = iwa
         )
-    @property
-    def iwa_psg(self)->str:
-        """
-        Format the inner working angle (IWA) parameters for PSG.
-
-        Returns
-        -------
-        str
-            The formatted inner working angle (IWA) parameters.
-        """
-
-        pairs = []
-        for x,y in zip(self.iwa_x,self.iwa_y):
-            pairs.append(f'{x:.2e}@{y:.2e}')
-        return ','.join(pairs)
     def _to_psg(self):
         return {
             'GENERATOR-TELESCOPE2': f'{self.zodi:.2f},{self.exozodi:.2f}',
             'GENERATOR-TELESCOPE1': f'{self.contrast:.2e}',
-            'GENERATOR-TELESCOPE3': self.iwa_psg
+            'GENERATOR-TELESCOPE3': str(self.iwa)
         }
     @classmethod
     def _from_dict(cls, d: dict):
@@ -573,8 +554,7 @@ class CoronagraphParameters(TelescopeParameters):
             zodi = float(d['zodi']),
             exozodi = float(d['exozodi']),
             contrast = float(d['contrast']),
-            iwa_x = np.fromstring(d['iwa_x'],dtype='float32',sep=','),
-            iwa_y = np.fromstring(d['iwa_y'],dtype='float32',sep=',')
+            iwa = PSGtable.from_dict(d['iwa']['table'])
         )
 
 

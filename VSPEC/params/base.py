@@ -59,12 +59,13 @@ class PSGtable(BaseParameters):
     Class to store Table data for PSG
     """
     def __init__(self,x:np.ndarray,y:np.ndarray):
-        self.x = x
-        self.y = y
+        self.x = np.array(x,dtype='float32')
+        self.y = np.array(y,dtype='float32')
     def __str__(self):
         pairs = []
         for x,y in zip(self.x,self.y):
             pairs.append(f'{y:.2e}@{x:.2e}')
+        return ','.join(pairs)
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
