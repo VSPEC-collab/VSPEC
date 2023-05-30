@@ -20,7 +20,7 @@ def tmp_dir():
     shutil.rmtree(tmpdir)
 
 
-def test_path_exists(tmp_dir):
+def test_path_exists(tmp_dir:Path):
     """
     Test path exists.
 
@@ -54,8 +54,7 @@ def test_build_directories(tmp_dir):
     Run tests for `VSPEC.files.build_directories()`
     """
     # call the function with a test run name and temporary directory
-    test_run_name = "test_run"
-    directories_dict = files.build_directories(test_run_name, path=tmp_dir)
+    directories_dict = files.build_directories(tmp_dir)
 
     # check that all subdirectories exist
     assert directories_dict['parent'].exists()

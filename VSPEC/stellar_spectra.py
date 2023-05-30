@@ -6,11 +6,10 @@ write model stellar spectra.
 
 from pathlib import Path
 from typing import Union, Tuple, Callable
-from jax import jit, numpy as jnp, lax
 import numpy as np
 import pandas as pd
 import h5py
-from scipy.interpolate import interp2d, interp1d
+from scipy.interpolate import interp1d, RegularGridInterpolator
 from astropy import units as u, constants as c
 from VSPEC.helpers import to_float, isclose
 from VSPEC.files import RAW_PHOENIX_PATH, BINNED_PHOENIX_PATH
@@ -121,6 +120,42 @@ def bin_from_cache(teff:int,
                  model_unit_flux: u.Unit = u.Unit('erg cm-2 s-1 cm-1'),
                  target_unit_wavelength: u.Unit = u.um,
                  target_unit_flux: u.Unit = u.Unit('W m-2 um-1')):
+    """
+    Bin from pre-binned spectrum.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Location of the model spectrum.
+    resolving_power : int, default=50
+        Resolving power of the binned spectrum.
+    lam1 : astropy.units.Quantity [length], default=None
+        Starting wavelength of binned spectrum. Defaults to the
+        shortest wavelength in the raw file.
+    lam2 : astropy.units.quantity.Quantity [length], default=None
+        Ending wavelength of binned spectrum. Defaults to the
+        longest wavelength in the raw file.
+    model_unit_wavelength : '~astropy.units.Unit' [length], default=u.AA
+        Wavelength unit of the model.
+    model_unit_flux : astropy.units.Unit [flux], default=u.Unit('erg cm-2 s-1 cm-1')
+        Flux unit of the model.
+    target_unit_wavelength : astropy.units.Unit [length], default=u.um
+        Wavelength unit of the binned spectrum.
+    target_unit_flux : astropy.units.Unit [flux], default=u.Unit('W m-2 um-1')
+        Flux unit of the binned spectrum.
+
+    Returns
+    -------
+    binned_wavelength : astropy.units.quantity.Quantity [length]
+        Wavelength points of the binned spectrum.
+    binned_flux : astropy.units.quantity.Quantity [flux]
+        Flux points of the new spectrum.
+    
+    Notes
+    -----
+    This function has the same signature as `bin_raw_data`, allowing it
+    to be used interchangably.
+    """
     R_to_use = None
     interp_only = False
     for R in sorted(PRE_BINNED):
@@ -170,8 +205,7 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
                  model_unit_wavelength: u.Unit = u.AA,
                  model_unit_flux: u.Unit = u.Unit('erg cm-2 s-1 cm-1'),
                  target_unit_wavelength: u.Unit = u.um,
-                 target_unit_flux: u.Unit = u.Unit('W m-2 um-1'),
-                 use_jax:bool = False
+                 target_unit_flux: u.Unit = u.Unit('W m-2 um-1')
                  ) -> Tuple[u.Quantity, u.Quantity]:
     """
     Bin raw data.
@@ -198,8 +232,6 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
         Wavelength unit of the binned spectrum.
     target_unit_flux : astropy.units.Unit [flux], default=u.Unit('W m-2 um-1')
         Flux unit of the binned spectrum.
-    use_jax : bool, default=False
-        Use the JAX implementation of the loop. Don't do this yet.
 
     Returns
     -------
@@ -224,33 +256,33 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
     region_to_bin = (wl >= lam1) & (wl <= lam2)
     wl = wl[region_to_bin]
     fl = fl[region_to_bin]
-    if use_jax:
-        binned_flux = jax_bin_spectra(
-        jnp.array(wl.to_value(target_unit_wavelength)),
-        jnp.array(fl.to_value(target_unit_flux)),
-        jnp.array(binned_wavelengths.to_value(target_unit_wavelength))
+    binned_flux = bin_spectra(
+        np.array(wl.to_value(target_unit_wavelength)),
+        np.array(fl.to_value(target_unit_flux)),
+        np.array(binned_wavelengths.to_value(target_unit_wavelength))
     )
-    else:
-        binned_flux = bin_spectra(
-            np.array(wl.to_value(target_unit_wavelength)),
-            np.array(fl.to_value(target_unit_flux)),
-            np.array(binned_wavelengths.to_value(target_unit_wavelength))
-        )
-        # binned_flux = []
-        # for i in range(len(binned_wavelengths) - 1):
-        #     lam_cen = binned_wavelengths[i]
-        #     upper = 0.5*(lam_cen + binned_wavelengths[i+1])
-        #     if i == 0:
-        #         # dl = upper - lam_cen # uncomment to sample blue of first pixel
-        #         lower = lam_cen  # - dl
-        #     else:
-        #         lower = 0.5*(lam_cen + binned_wavelengths[i-1])
-        #     reg = (wl >= lower) & (wl < upper)
-        #     binned_flux.append(to_float(fl[reg].mean(), target_unit_flux))
-        # binned_flux = np.array(binned_flux)
     return binned_wavelengths[:-1], binned_flux*target_unit_flux
 
 def bin_spectra(wl_old:np.array,fl_old:np.array,wl_new:np.array):
+    """
+    Bin spectra
+
+    This is a generic binning funciton.
+
+    Parameters
+    ----------
+    wl_old : np.ndarray
+        The original wavelength values.
+    fl_old : np.ndarray
+        The original flux values.
+    wl_new : np.ndarray
+        The new wavelength values.
+    
+    Returns
+    -------
+    fl_new : np.ndarray
+        The new flux values.
+    """
     binned_flux = []
     for i in range(len(wl_new) - 1):
         lam_cen = wl_new[i]
@@ -265,29 +297,6 @@ def bin_spectra(wl_old:np.array,fl_old:np.array,wl_new:np.array):
     binned_flux = np.array(binned_flux)
     return binned_flux
 
-@jit
-def jax_bin_spectra(wl_old:jnp.array,fl_old:jnp.array,wl_new:jnp.array):
-    """
-    implement in JAX. BAD!
-    """
-    binned_flux = []
-    for i in range(len(wl_new) - 1):
-        lam_cen = wl_new[i]
-        upper = 0.5*(lam_cen + wl_new[i+1])
-        if i == 0:
-            # dl = upper - lam_cen # uncomment to sample blue of first pixel
-            lower = lam_cen  # - dl
-        else:
-            lower = 0.5*(lam_cen + wl_new[i-1])
-        reg = jnp.greater_equal(wl_old,jnp.array([lower]))
-        jnp.logical_and(
-            jnp.greater_equal(wl_old,jnp.array([lower])),
-            jnp.less(wl_old,jnp.array([upper]))
-        )
-        # indices = jnp.where(reg)
-        binned_flux.append(jnp.mean(fl_old,where=reg))
-    binned_flux = jnp.array(binned_flux)
-    return binned_flux
 
 
 
@@ -361,6 +370,19 @@ def write_binned_spectrum(wavelength: u.Quantity, flux: u.Quantity, filename: st
 
 
 def get_cached_file_dir(R:int):
+    """
+    Get the filename of a cached spectrum
+
+    Parameters
+    ----------
+    R : int
+        The resolving power of the spectrum.
+    
+    Returns
+    -------
+    pathlib.Path
+        The path to the spectrum.
+    """
     return Path(BINNED_PHOENIX_PATH) / f'R_{R:0>6}'
 
 def read_binned_spectrum(filename: str,
@@ -402,6 +424,37 @@ def bin_cached_model(teff: Union[float, int], file_name_writer: Callable = get_b
                       model_unit_flux: u.Unit = u.Unit('erg cm-2 s-1 cm-1'),
                       target_unit_wavelength: u.Unit = u.um,
                       target_unit_flux: u.Unit = u.Unit('W m-2 um-1')) -> None:
+    """
+    Bin cached pre-binned model.
+
+    Parameters
+    ----------
+    teff : float or int
+        Effective temperature in Kelvin.
+    file_name_writer : callable, default=VSPEC.stellar_spectra.get_binned_filename
+        A function that maps teff to filename.
+    binned_path : pathlib.Path
+        Path to binned data.
+    resolving_power : int, default=50
+        Resolving power of the binned spectrum.
+    lam1 : astropy.units.quantity.Quantity [length], default=None
+        Starting wavelength of binned spectrum.
+    lam2 : astropy.units.quantity.Quantity [length], default=None
+        Ending wavelength of binned spectrum.
+    model_unit_wavelength : '~astropy.units.Unit' [length], default=u.AA
+        Wavelength unit of the model.
+    model_unit_flux : astropy.units.Unit [flux], default=u.Unit('erg cm-2 s-1 cm-1')
+        Flux unit of the model.
+    target_unit_wavelength : astropy.units.Unit [length], default=u.um
+        Wavelength unit of the binned spectrum.
+    target_unit_flux : astropy.units.Unit [flux], default=u.Unit('W m-2 um-1')
+        Flux unit of the binned spectrum.
+    
+    Notes
+    -----
+    This function has the same signature as `bin_phoenix_model`.
+    """
+
     wavelength,flux = bin_from_cache(teff,resolving_power,lam1,lam2,
                             model_unit_wavelength,model_unit_flux,
                             target_unit_wavelength,target_unit_flux)
@@ -499,9 +552,11 @@ def interpolate_spectra(target_teff: u.Quantity,
         raise ValueError(
             'Cannot interpolate between spectra that do not share a wavelength axis.')
     flux_unit = flux1.unit
-    interp = interp2d(wave1, [to_float(teff1, u.K), to_float(teff2, u.K)],
-                      [to_float(flux1, flux_unit), to_float(flux2, flux_unit)])
-    return wave1, interp(wave1, to_float(target_teff, u.K)) * flux_unit
+    interp = RegularGridInterpolator(
+        ([to_float(teff1, u.K), to_float(teff2, u.K)],wave1),
+        [to_float(flux1, flux_unit), to_float(flux2, flux_unit)]
+    )
+    return wave1, interp((to_float(target_teff, u.K),wave1),'linear') * flux_unit
 
 
 def blackbody(wavelength: u.Quantity, teff: u.Quantity, area: u.Quantity, distance: u.Quantity,

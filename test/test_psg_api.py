@@ -7,13 +7,12 @@ from pathlib import Path
 import pytest
 from astropy import units as u
 
-from VSPEC.psg_api import call_api, write_static_config, PSGrad, get_reflected, parse_full_output
+from VSPEC.psg_api import call_api, PSGrad, get_reflected, parse_full_output
 from VSPEC.helpers import is_port_in_use,set_psg_state
-from VSPEC.read_info import ParamModel
 
 API_KEY_PATH = Path.home() / 'psg_key.txt'
 PSG_CONFIG_PATH = Path(__file__).parent / 'data' / 'test_cfg.txt'
-VSPEC_CONFIG_PATH = Path(__file__).parent / 'default.cfg'
+VSPEC_CONFIG_PATH = Path(__file__).parent / 'default.yaml'
 PSG_PORT = 3000
 
 
@@ -77,21 +76,6 @@ def test_call_api_nofile():
         call_api(None,psg_url,output_type='rad',outfile=outfile,config_data=None)
     set_psg_state(previous_state)
 
-def test_write_static_config():
-    """
-    Run tests for `VSPEC.psg_api.write_static_config()`
-    """
-    params = ParamModel(VSPEC_CONFIG_PATH)
-    outfile = Path(__file__).parent / 'data' / 'test.cfg'
-    try:
-        write_static_config(outfile,params,'w')
-    except Exception as exc:
-        outfile.unlink()
-        raise exc
-    # if is_port_in_use(3000):
-    #     psg_url = 'http://localhost:3000'
-    #     call_api(outfile,psg_url,output_type='rad')
-    outfile.unlink()
 
 def test_PSGrad():
     """
@@ -156,6 +140,5 @@ if __name__ in '__main__':
     test_call_api_local()
     test_call_api_nofile()
     test_text_parse()
-    test_write_static_config()
     test_PSGrad()
     

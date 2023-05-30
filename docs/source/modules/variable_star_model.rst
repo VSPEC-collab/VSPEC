@@ -2,5 +2,5 @@
 =============================
 .. automodapi:: VSPEC.variable_star_model
     :no-heading:
-    :skip: Quantity
+    :skip: Quantity,CoordinateGrid
     :no-inheritance-diagram:

@@ -143,14 +143,12 @@ test/*/*/
 test/*/*.png
 test/*/*.ipynb
 test/test_gcms
-proxCen0spot/
-newproxcen/
-examples/
-testPlots.py
 
 .DS_stores
 *.gif
 
 docs/tutorials/*/*/Data
 docs/source/api
+docs/source/auto_examples
 docs/readme/default
+examples/*/*/Data

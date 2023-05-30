@@ -2,7 +2,7 @@
 ==============
 .. automodapi:: VSPEC.main
     :no-heading:
-    :skip: ParamModel
+    :skip: Parameters,partial
     :skip: Path
     :skip: SystemGeometry
     :skip: tqdm
