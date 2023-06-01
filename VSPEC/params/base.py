@@ -14,7 +14,7 @@ class BaseParameters:
     def _from_dict(cls,d:dict):
         return cls(**d)
     @classmethod
-    def from_dict(cls,d:dict):
+    def from_dict(cls,d:dict,*args):
         """
         Construct a BaseParameters (or subclass) instance from a dictionary.
 
@@ -52,7 +52,7 @@ class BaseParameters:
         if 'preset' in d.keys():
             return getattr(cls,d['preset'].replace('-','_'))()
         else:
-            return cls._from_dict(d)
+            return cls._from_dict(d,*args)
 
 class PSGtable(BaseParameters):
     """

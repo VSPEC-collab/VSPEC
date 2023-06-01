@@ -97,5 +97,19 @@ psg:
   use_molecular_signatures: True
   url: http://localhost:3000
 gcm:
-  binary:
-    path: test_gcms/modernearth.gcm
+  vspec:
+    nlon: 40
+    nlat : 30
+    nlayer: 10
+    epsilon: 6
+    gamma: 1.4
+    albedo: 0.3
+    emissivity: 1.0
+    psurf: 1 bar
+    ptop: 1e-5 bar
+    wind:
+      U: 0 m/s
+      V: 0 m/s
+    molecules:
+      CO2: 1e-4
+

@@ -8,6 +8,7 @@ Based on :cite:t:`2011ApJ...726...82C`
 from astropy import units as u, constants as c
 import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
+import warnings
 # from scipy.optimize import fsolve
 from copy import deepcopy
 from scipy.interpolate import interp1d
@@ -48,12 +49,38 @@ def get_psi(lon:u.Quantity):
     return np.where(alon<=180,alon,alon-360)*unit
 
 def pcos(x:u.Quantity):
+    """
+    'Positive cosine' -- max(cos(x),0)
+
+    Parameters
+    ----------
+    x : astropy.units.Quantity
+        The angle to take the cosine of.
+    
+    Returns
+    -------
+    np.ndarray
+        The maximum of 0 and cosine `x`.
+    """
     cos = np.cos(x)
     if isinstance(cos,u.Quantity):
         cos = cos.to_value(u.dimensionless_unscaled)
     return np.where(cos>0,cos,0)
 
 def colat(lat:u.Quantity):
+    """
+    Get the colatitude.
+
+    Parameters
+    ----------
+    lat : astropy.units.Quantity
+        The latitude.
+    
+    Returns
+    -------
+    colat : astropy.units.Quantity
+        The colatitude.
+    """
     return 90*u.deg - lat
 
 
@@ -74,81 +101,127 @@ def get_t0(
     r_star:u.Quantity,
     r_orbit:u.Quantity
 ):
+    """
+    Get the fiducial temperature for a planet's atmosphere, as
+    defined by :cite:t:`2011ApJ...726...82C`, equation 4.
+
+    Parameters
+    ----------
+    teff_star : astropy.units.Quantity
+        The effective temperature of the star.
+    albedo : float
+        The Bond albedo of the planet.
+    r_star : astropy.units.Quantity
+        The radius of the star.
+    r_orbit : astropy.units.Quantity
+        The orbital radius.
+    
+    Returns
+    -------
+    t0: astropy.units.Quantity
+        The fiducial temperature of the planet.
+    """
     return (star_teff * (1-albedo)**0.25 * np.sqrt(r_star/r_orbit)).to(u.K)
 
 
-def get_equillibrium_temp(
-    star_teff:u.Quantity,
-    albedo:float,
-    r_star:u.Quantity,
-    r_orbit:u.Quantity
-):
-    return (star_teff * (1-albedo)**0.25 * np.sqrt(r_star/2/r_orbit)).to(u.K)
-
-def get_equator_curve(epsilon,n_points):
+def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
     """
-    Best and most robust solver of the three.
-    I have not found a value of epsilon that breaks this.
+    Get the temperature along the equator given thermal
+    inertia `epsilon`. This is computed by integrating
+    equation 10 of :cite:t:`2011ApJ...726...82C`.
+
+    Parameters
+    ----------
+    epsilon : float
+        The thermal inertial of the planet.
+    n_points : int
+        The numer of longitude points to return in the final array.
+    mode : str
+        The method to use to find the solution. This can be one of
+        'ivp_reflect', 'bvp', 'ivp_iterate', 'analytic'.
+    
+    Returns
+    -------
+    lons : np.ndarray
+        The longitude points in radians, starting at -pi
+    tsurf : np.ndarray
+        The unitless ratio between the surface temperature and the fiducial temperature.
+
+    Warns
+    -----
+    RuntimeWarning
+        If the specified `mode` is not valid with the specified `epsilon`.
+
+    Notes
+    -----
+    Of the four solving methods, each has a region in which it is valid. Some are optimized for
+    `epsilon` ~ 1, some for small `epsilon`, and some for when `epsilon` is very large.
+
+    `ivp_reflect`: Integrate from pi to -pi, to find an initial condition to integrate
+    from -pi to pi. For small `epsilon`, this method is very robust. Valid for `epsilon` < 1
+
+    `bvp`: Solve the boundary condition problem for T(-pi) = T(pi). Valid for `epsilon` > 1
+
+    `ivp_interate`: Integrate the ODE until the boundaries are within 1%. Valid for `epsilon` < 0.5
+
+    `analytic`: Use an analytic approximation. Very fast, valid for `epsilon` > 10
+
     """
     lons = np.linspace(-np.pi,np.pi,n_points)
-    y0 = np.atleast_1d(1)
-    def func(phi,T):
-        return -(pcos(phi) - T**4)/epsilon
-    result = solve_ivp(func,(np.pi,-np.pi),y0=y0)
-    y_final = np.atleast_1d(np.mean(result.y[:,-1]))
     def func(phi,T):
         return (pcos(phi) - T**4)/epsilon
-    result = solve_ivp(func,(-np.pi,np.pi),y0=y_final,t_eval=(lons))
-    return result.t,result.y.T
-
-def get_equator_curve2(epsilon,n_points):
-    """
-    breaks for small epsilon
-    However, I think this is the 'correct' approach.
-    """
-    def func(phi,T):
-        return np.vstack((
-            (pcos(phi) - T**4)/epsilon
-        ))
-        # return (pcos(phi) - T**4)/epsilon
-    def bc(ya,yb):
-        return ya-yb
-    x0 = np.linspace(-np.pi,np.pi,n_points)
-    y0 = np.atleast_2d(np.exp(-x0**2))
-    result = solve_bvp(func,bc,x=x0,y=y0)
-    return result.x,result.y.T
-
-def get_equator_curve3(epsilon,n_points,tol=1e-3,niter=10):
-    """
-    breaks for small epsilon
-    """
-    def func(phi, T):
-        return (pcos(phi) - T**4) / epsilon
-    lons = np.linspace(-np.pi,np.pi,n_points)
-    y0 = np.atleast_1d(0.5)
-    for _ in range(niter):
-        result = solve_ivp(func,(-np.pi,np.pi),y0=y0,t_eval=lons)
-        phi = result.t
-        T = result.y.T
-        if np.abs(T[0]-T[-1]) < tol:
-            return phi,T
-        y0 = T[-1]
-    raise RuntimeError('No Convergence')
-def get_equator_curve4(epsilon,n_points):
-    """
-    breaks for small epsilon
-    """
-    lons = np.linspace(-np.pi/2,3*np.pi/2,n_points)
-    T_tild0 = np.pi**(-0.25)
-    gamma = 4*T_tild0**3/epsilon
-    T_tild_day = 3/4*T_tild0 + \
-    (gamma*np.cos(lons) + np.sin(lons)) / (epsilon * (1+gamma**2)) + \
-        np.exp(-gamma * lons) / (2*epsilon*(1+gamma**2)*np.sinh(np.pi*gamma/2))
-    T_tild_night = 3/4*T_tild0 + np.exp(-gamma*(lons-np.pi)) / (2*epsilon*(1+gamma**2)*np.sinh(np.pi*gamma/2))
-    day = (lons >= -np.pi/2) & (lons <= np.pi/2)
-    T = deepcopy(T_tild_day)
-    T[~day] = T_tild_night[~day]
-    return lons,T
+    def minus_func(phi,T):
+        return -(pcos(phi) - T**4)/epsilon
+    if mode == 'ivp_reflect':
+        if epsilon > 1:
+            msg = 'Using method `ivp_reflect` with `epsilon` > 1. Energy balance may be invalid.'
+            warnings.warn(msg,RuntimeWarning)
+        y0 = np.atleast_1d(1)
+        result = solve_ivp(minus_func,(np.pi,-np.pi),y0=y0)
+        y_final = np.atleast_1d(np.mean(result.y[:,-1]))
+        
+        result = solve_ivp(func,(-np.pi,np.pi),y0=y_final,t_eval=(lons))
+        return result.t,result.y.T
+    elif mode == 'bvp':
+        if epsilon < 1:
+            msg = 'Using method `bvp` with `epsilon` < 1. Energy balance may be invalid.'
+            warnings.warn(msg,RuntimeWarning)
+        def bfunc(phi,T):
+            return np.vstack((func(phi,T)))
+        def bc(ya,yb):
+            return ya-yb
+        y0 = np.atleast_2d(np.exp(-lons**2))
+        result = solve_bvp(bfunc,bc,x=lons,y=y0)
+        return result.x,result.y.T
+    elif mode == 'ivp_iterate':
+        if epsilon > 0.5:
+            msg = 'Using method `ivp_iterate` with `epsilon` > 0.5. Energy balance may be invalid.'
+            warnings.warn(msg,RuntimeWarning)
+        y0 = np.atleast_1d(0.5)
+        for _ in range(10):
+            result = solve_ivp(func,(-np.pi,np.pi),y0=y0,t_eval=lons)
+            phi = result.t
+            T = result.y.T
+            if np.abs(T[0]-T[-1])/T[-1] < 1e-2:
+                return phi,T
+        return phi,T
+    elif mode == 'analytic':
+        if epsilon < 10:
+            msg = 'Using method `analytic` with `epsilon` < 10. Energy balance may be invalid.'
+            warnings.warn(msg,RuntimeWarning)
+        lon_prime = np.where(lons<-np.pi/2,lons+2*np.pi,lons)
+        T_tild0 = np.pi**(-0.25)
+        gamma = 4*T_tild0**3/epsilon
+        T_tild_day = 3/4*T_tild0 + \
+        (gamma*np.cos(lon_prime) + np.sin(lon_prime)) / (epsilon * (1+gamma**2)) + \
+            np.exp(-gamma * lon_prime) / (2*epsilon*(1+gamma**2)*np.sinh(np.pi*gamma/2))
+        T_tild_night = 3/4*T_tild0 + np.exp(-gamma*(lon_prime-np.pi)) / (2*epsilon*(1+gamma**2)*np.sinh(np.pi*gamma/2))
+        day = (lon_prime >= -np.pi/2) & (lon_prime <= np.pi/2)
+        T = deepcopy(T_tild_day)
+        T[~day] = T_tild_night[~day]
+        return lons,np.atleast_2d(T).T
+    else:
+        raise ValueError(f'Unknown mode: {mode}')
 
 class TemperatureMap:
     """
@@ -168,10 +241,15 @@ class TemperatureMap:
         t0:u.Quantity
     ):
         n_points = 180
-        if epsilon < 0.5:
-            phi,T = get_equator_curve(epsilon,n_points)
+        if epsilon < 1:
+            mode = 'ivp_reflect'
+        elif epsilon < 10:
+            mode = 'bvp'
         else:
-            phi,T = get_equator_curve2(epsilon,n_points)
+            mode = 'analytic'
+
+        phi,T = get_equator_curve(epsilon,n_points,mode)
+        
         self.equator = interp1d(phi,T[:,0])
         self.epsilon = epsilon
         self.t0 = t0

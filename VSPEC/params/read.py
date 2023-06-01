@@ -145,7 +145,7 @@ class Parameters(BaseParameters):
             obs = ObservationParameters.from_dict(d['obs']),
             psg = psgParameters.from_dict(d['psg']),
             inst = InstrumentParameters.from_dict(d['inst']),
-            gcm = gcmParameters.from_dict(d['gcm'])
+            gcm = gcmParameters.from_dict(d)
         )
     @classmethod
     def from_yaml(cls, path: Path) -> 'Parameters':

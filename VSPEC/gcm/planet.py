@@ -183,7 +183,10 @@ class Planet:
     def psg_params(self):
         nlayers,_,_ = self.shape
         gases = [molec.name for molec in self.molecules.molecules]
-        aerosols = [aero.name for aero in self.aerosols.aerosols]
+        if self.aerosols is not None:
+            aerosols = [aero.name for aero in self.aerosols.aerosols]
+        else:
+            aerosols = []
         gas_types = [f'HIT[{mtype[gas]}]' if isinstance(mtype[gas],int) else mtype[gas] for gas in gases]
         aerosol_types = [atype[aerosol] for aerosol in aerosols]
         gcm_params = self.gcm_properties
@@ -196,15 +199,18 @@ class Planet:
             'ATMOSPHERE-TYPE': ','.join(gas_types),
             'ATMOSPHERE-ABUN': ','.join(['1']*len(gases)),
             'ATMOSPHERE-UNIT': ','.join(['scl']*len(gases)),
-            'ATMOSPHERE-NAERO': f'{len(aerosols)}',
-            'ATMOSPHERE-AEROS': ','.join(aerosols),
-            'ATMOSPHERE-ATYPE': ','.join(aerosol_types),
-            'ATMOSPHERE-AABUN': ','.join(['1']*len(aerosols)),
-            'ATMOSPHERE-AUNIT': ','.join(['scl']*len(aerosols)),
-            'ATMOSPHERE-ASIZE': ','.join(['1']*len(aerosols)),
-            'ATMOSPHERE-ASUNI': ','.join(['scl']*len(aerosols)),
             'ATMOSPHERE-GCM-PARAMETERS': gcm_params
         }
+        if len(aerosols) > 0:
+            params.update({
+                'ATMOSPHERE-NAERO': f'{len(aerosols)}',
+                'ATMOSPHERE-AEROS': ','.join(aerosols),
+                'ATMOSPHERE-ATYPE': ','.join(aerosol_types),
+                'ATMOSPHERE-AABUN': ','.join(['1']*len(aerosols)),
+                'ATMOSPHERE-AUNIT': ','.join(['scl']*len(aerosols)),
+                'ATMOSPHERE-ASIZE': ','.join(['1']*len(aerosols)),
+                'ATMOSPHERE-ASUNI': ','.join(['scl']*len(aerosols))
+            })
         return params
     @property
     def content(self)->bytes:
@@ -250,7 +256,7 @@ class Planet:
         gamma = float(d['planet']['gamma'])
         temperature = st.Temperature.from_adiabat(gamma,tsurf,pressure)
         molecules = Molecules.from_dict(d['molecules'],shape3d)
-        aerosols = None if 'aerosols' not in d else Aerosols.from_dict(d['aerosols'],shape3d)
+        aerosols = None if d.get('aerosols',None) is None else Aerosols.from_dict(d['aerosols'],shape3d)
         return cls(
             wind=wind,
             tsurf=tsurf,

@@ -6,8 +6,9 @@ from astropy import units as u, constants as c
 import numpy as np
 import pytest
 import matplotlib.pyplot as plt
+from time import time
 
-from VSPEC.gcm.heat_transfer import get_equillibrium_temp, get_flux
+from VSPEC.gcm.heat_transfer import get_flux
 import VSPEC.gcm.heat_transfer as ht
 
 def approx(val1,val2,rel):
@@ -47,71 +48,33 @@ def test_get_Teq():
     assert calc > equillibrium_temp_earth
     assert approx(calc,max_temp,0.01)
 
-def test_get_equillibrium_temp():
-    equillibrium_temp_earth = 255*u.K
-    teff_sun = 5800*u.K
-    earth_albedo = 0.306
-    r_sun = 1*u.R_sun
-    r_orbit = 1*u.AU
-    assert approx(get_equillibrium_temp(teff_sun,earth_albedo,r_sun,r_orbit), equillibrium_temp_earth,0.05)
 
-def test_get_equator_curve():
-    plt.plot(*ht.get_equator_curve(0.0001,180))
-    plt.plot(*ht.get_equator_curve(2*np.pi/10,180))
-    plt.plot(*ht.get_equator_curve(2*np.pi,180))
-    # plt.plot(*ht.get_equator_curve(10,lons))
-    0
-
-def test_get_equator_curve2():
-    # plt.plot(*ht.get_equator_curve2(0.001,180))
-    plt.plot(*ht.get_equator_curve2(2*np.pi/10,180))
-    plt.plot(*ht.get_equator_curve2(2*np.pi,180))
-
-def test_get_equator_curve3():
-    plt.plot(*ht.get_equator_curve3(0.01,180))
-    plt.plot(*ht.get_equator_curve3(2*np.pi/10,180))
-    plt.plot(*ht.get_equator_curve3(2*np.pi,180))
-    0
-
-def test_get_equator_curve4():
-    plt.plot(*ht.get_equator_curve4(0.01,180))
-    # plt.plot(*ht.get_equator_curve4(2*np.pi/10,180))
-    plt.plot(*ht.get_equator_curve4(2*np.pi,180))
-    0
-def test_equation_diagnotic():
-    eps = np.logspace(-3,3,10)
-    for i,func in enumerate([ht.get_equator_curve,ht.get_equator_curve2,ht.get_equator_curve3,ht.get_equator_curve4]):
+def test_equation_diagnostic():
+    n_steps = 30
+    eps = np.logspace(-4,3,n_steps)
+    expected = 0.75
+    for i, mode in enumerate(['ivp_reflect','bvp','analytic']):
+        start_time = time()
+        color=f'C{i}'
         dat = []
         for e in eps:
             try:
-                lon,temp = func(e,180)
+                lon,temp = ht.get_equator_curve(e,180,mode)
                 avg = np.mean(temp**4)**0.25
                 dat.append(avg)
             except RuntimeError:
                 dat.append(np.nan)
-        plt.plot(eps,dat,label=f'Method {i+1}')
+        dtime = time() - start_time
+        time_str = '10$^{%.1f}$' % np.log10(dtime/n_steps)
+        plt.plot(eps,np.array(dat)-expected,label=f'{mode} -- {time_str} s / iter',c=color)
     plt.xscale('log')
-    # plt.yscale('log')
+    plt.yscale('symlog')
     plt.xlabel('epsilon')
     plt.ylabel('Mean normalized temperature')
-    plt.ylim(0.3,1.5)
-    0
-
-
-def compare_equation_curve():
-    eps = 100
-    for i,func in enumerate([ht.get_equator_curve,ht.get_equator_curve2,ht.get_equator_curve3]):
-        try:
-            lon,temp = func(eps,180)
-            label = np.mean(temp**4)**0.25
-            plt.plot(lon,temp,label=f'{label:.2f}',c=f'C{i}')
-        except RuntimeError:
-            pass
+    plt.ylim(-1,1.3)
     plt.legend()
-    # plt.plot(*ht.get_equator_curve(eps,180))
-    # plt.plot(*ht.get_equator_curve2(eps,180))
-    # plt.plot(*ht.get_equator_curve3(eps,180))
     0
+
 
 def test_temp_map():
     eps = 6
@@ -136,5 +99,4 @@ def test_temp_map():
     plt.pcolormesh(lons,lats,t.value)
     0
 if __name__ in '__main__':
-    test_equation_diagnotic()
-    # test_get_equator_curve4()
+    test_equation_diagnostic()

@@ -293,10 +293,10 @@ class ObservationModel:
         update : bool
             Whether to use the `'upd'` keyword rather than `'set'`
         """
-        if self.params.gcm.gcmtype == 'binary':
-            kwargs = {}
-        elif self.params.gcm.gcmtype == 'waccm':
+        if self.params.gcm.gcmtype == 'waccm':
             kwargs = {'obs_time': obstime}
+        else:
+            kwargs = {} 
         content = self.params.gcm.content(**kwargs)
         call_api(
             config_path=None,
