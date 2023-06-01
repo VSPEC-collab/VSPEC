@@ -16,7 +16,7 @@ import json
 from astropy import units as u
 import numpy as np
 
-from VSPEC.waccm.config import psg_pressure_unit, psg_aerosol_size_unit
+from VSPEC.config import psg_pressure_unit, psg_aerosol_size_unit
 
 VAR_LIST = Path(__file__).parent / 'variables.json'
 
