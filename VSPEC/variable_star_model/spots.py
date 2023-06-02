@@ -517,7 +517,8 @@ class SpotGenerator:
                  coverage: float = 0.2,
                  Nlat: int = 500,
                  Nlon: int = 1000,
-                 gridmaker=None
+                 gridmaker=None,
+                 rng:np.random.Generator=np.random.default_rng()
                  ):
         self.average_spot_area = average_area
         self.spot_area_spread = area_spread
@@ -534,6 +535,7 @@ class SpotGenerator:
             self.gridmaker = CoordinateGrid(Nlat, Nlon)
         else:
             self.gridmaker = gridmaker
+        self.rng = rng
 
     def get_coordinates(self, N: int):
         """
@@ -558,13 +560,13 @@ class SpotGenerator:
         """
         if self.distribution == 'solar':
             # (dist approx from 2017ApJ...851...70M)
-            hemi = np.random.choice([-1, 1], size=N)
-            lat = np.random.normal(15, 5, size=N)*hemi*u.deg
-            lon = np.random.random(size=N)*360*u.deg
+            hemi = self.rng.choice([-1, 1], size=N)
+            lat = self.rng.normal(15, 5, size=N)*hemi*u.deg
+            lon = self.rng.random(size=N)*360*u.deg
         elif self.distribution == 'iso':
-            lon = np.random.random(size=N)*360*u.deg
+            lon = self.rng.random(size=N)*360*u.deg
             # use inverse transform to generate lats
-            X = np.random.random(size=N)
+            X = self.rng.random(size=N)
             lat = np.arcsin(2*X - 1)/np.pi * 180*u.deg
         else:
             raise ValueError(
@@ -590,11 +592,11 @@ class SpotGenerator:
         ValueError
             If an unknown value is given for distribution.
         """
-        new_max_areas = np.random.lognormal(mean=np.log10(
+        new_max_areas = self.rng.lognormal(mean=np.log10(
             self.average_spot_area/MSH), sigma=self.spot_area_spread, size=N)*MSH
-        new_r_A = np.random.normal(loc=5, scale=1, size=N)
+        new_r_A = self.rng.normal(loc=5, scale=1, size=N)
         while np.any(new_r_A <= 0):
-            new_r_A = np.random.normal(loc=5, scale=1, size=N)
+            new_r_A = self.rng.normal(loc=5, scale=1, size=N)
         lat, lon = self.get_coordinates(N)
 
         penumbra_teff = self.penumbra_teff
@@ -650,7 +652,7 @@ class SpotGenerator:
         N_exp = self.get_N_spots_to_birth(time, rad_star)
         # N_exp is the expectation value of N, but this is a poisson process
         # N = max(0, round(np.random.normal(loc=N_exp, scale=np.sqrt(N_exp))))
-        N = np.random.poisson(lam=N_exp)
+        N = self.rng.poisson(lam=N_exp)
 
         return self.generate_spots(N)
 
@@ -685,7 +687,7 @@ class SpotGenerator:
             if const_spot:
                 area0 = self.starting_size
                 area_range = new_spot.area_max - area0
-                area = np.random.random()*area_range + area0
+                area = self.rng.random()*area_range + area0
                 new_spot.area_current = area
             else:
                 decay_lifetime = (new_spot.area_max /
@@ -694,7 +696,7 @@ class SpotGenerator:
                 grow_lifetime = (np.log(
                     to_float(new_spot.area_max/self.starting_size, u.Unit('')))/tau).to(u.day)
                 lifetime = grow_lifetime+decay_lifetime
-                age = np.random.random() * lifetime
+                age = self.rng.random() * lifetime
                 new_spot.age(age)
             spots.append(new_spot)
             spot_solid_angle = new_spot.angular_radius(R_star)**2 * np.pi

@@ -553,7 +553,8 @@ class ObservationModel:
             self.params.star.spots.growth_rate, self.params.star.spots.decay_rate,
             self.params.star.spots.initial_area, self.params.star.spots.distribution,
             self.params.star.spots.equillibrium_coverage,
-            Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon
+            Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon,
+            rng=self.rng
         )
         fac_generator = vsm.FaculaGenerator(
             R_peak=self.params.star.faculae.mean_radius, R_HWHM=self.params.star.faculae.hwhm_radius,
