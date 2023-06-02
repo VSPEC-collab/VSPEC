@@ -40,12 +40,12 @@ def test_aerosols():
 def default_planet():
     shape3d = (10,30,20)
     shape2d = (30,20)
-    tsurf = st.SurfaceTemperature.from_map(shape2d,6.,5800*u.K,0.3,1*u.R_sun,1*u.AU)
-    press = st.Pressure.from_limits(10*u.bar,1e-5*u.bar,shape3d)
+    tsurf = st.SurfaceTemperature.from_map(shape2d,0.001,5800*u.K,0.3,1*u.R_sun,1*u.AU)
+    press = st.Pressure.from_limits(1*u.bar,1e-5*u.bar,shape3d)
     planet = pl.Planet(
         wind = pl.Winds(
-            st.Wind.contant('U',1*u.m/u.s,shape=shape3d),
-            st.Wind.contant('V',1*u.m/u.s,shape=shape3d)
+            st.Wind.contant('U',0*u.m/u.s,shape=shape3d),
+            st.Wind.contant('V',0*u.m/u.s,shape=shape3d)
         ),
         tsurf=tsurf,
         psurf=st.SurfacePressure.from_pressure(press),
@@ -54,24 +54,25 @@ def default_planet():
         temperature=st.Temperature.from_adiabat(1.4,tsurf,press),
         pressure=press,
         molecules=pl.Molecules(
-            (st.Molecule.constant('CO2',0.1*u.mol/u.mol,shape3d),)
+            (st.Molecule.constant('CO2',5e-4*u.mol/u.mol,shape3d),)
         ),
-        aerosols=pl.Aerosols(
-            aerosols=(st.Aerosol.constant('Water',0.2*u.kg/u.kg,shape3d),),
-            sizes=(st.AerosolSize.constant('Water_size',1*u.um,shape3d),)
-        )
+        aerosols=None
+        # aerosols=pl.Aerosols(
+        #     aerosols=(st.Aerosol.constant('Water',0.2*u.kg/u.kg,shape3d),),
+        #     sizes=(st.AerosolSize.constant('Water_size',1*u.um,shape3d),)
+        # )
     )
     return planet
 
 def test_planet():
     shape3d = (10,30,20)
     shape2d = (30,20)
-    tsurf = st.SurfaceTemperature.from_map(shape2d,1.,5800*u.K,0.3,1*u.R_sun,1*u.AU)
+    tsurf = st.SurfaceTemperature.from_map(shape2d,6,5800*u.K,0.3,1*u.R_sun,1*u.AU)
     press = st.Pressure.from_limits(1*u.bar,1e-5*u.bar,shape3d)
     planet = pl.Planet(
         wind = pl.Winds(
-            st.Wind.contant('U',1*u.m/u.s,shape=shape3d),
-            st.Wind.contant('V',1*u.m/u.s,shape=shape3d)
+            st.Wind.contant('U',0*u.m/u.s,shape=shape3d),
+            st.Wind.contant('V',0*u.m/u.s,shape=shape3d)
         ),
         tsurf=tsurf,
         psurf=st.SurfacePressure.constant(1*u.bar,shape2d),
@@ -80,12 +81,13 @@ def test_planet():
         temperature=st.Temperature.from_adiabat(1.4,tsurf,press),
         pressure=press,
         molecules=pl.Molecules(
-            (st.Molecule.constant('CO2',0.1*u.mol/u.mol,shape3d),)
+            (st.Molecule.constant('CO2',5e-4*u.mol/u.mol,shape3d),)
         ),
-        aerosols=pl.Aerosols(
-            aerosols=(st.Aerosol.constant('Water',0.2*u.kg/u.kg,shape3d),),
-            sizes=(st.AerosolSize.constant('Water_size',1*u.um,shape3d),)
-        )
+        aerosols=None
+        # aerosols=pl.Aerosols(
+        #     aerosols=(st.Aerosol.constant('Water',1e-20*u.kg/u.kg,shape3d),),
+        #     sizes=(st.AerosolSize.constant('Water_size',1*u.um,shape3d),)
+        # )
     )
 
 def test_planet_from_dict():
