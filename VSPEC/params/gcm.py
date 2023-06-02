@@ -10,6 +10,7 @@ from VSPEC.config import psg_encoding
 from VSPEC.params.base import BaseParameters
 from VSPEC.waccm.read_nc import get_time_index
 from VSPEC.waccm.write_psg import get_cfg_contents
+from VSPEC.gcm.planet import Planet
 
 
 class binaryGCM(BaseParameters):
@@ -164,6 +165,44 @@ class waccmGCM(BaseParameters):
                 d.get('background', None))
         )
 
+class vspecGCM(BaseParameters):
+    static = True
+    def __init__(
+        self,
+        gcm:Planet
+    ):
+        self.gcm = gcm
+    @classmethod
+    def _from_dict(cls, gcm_dict:dict,star_dict:dict,planet_dict:dict):
+        d = {
+            'shape':{
+                'nlayer':gcm_dict['nlayer'],
+                'nlon':gcm_dict['nlon'],
+                'nlat':gcm_dict['nlon']
+            },
+            'planet':{
+                'epsilon':gcm_dict['epsilon'],
+                'teff_star': star_dict['teff'],
+                'albedo': gcm_dict['albedo'],
+                'emissivity':gcm_dict['emissivity'],
+                'r_star': star_dict['radius'],
+                'r_orbit': planet_dict['semimajor_axis'],
+                'gamma': gcm_dict['gamma'],
+                'pressure':{
+                    'psurf': gcm_dict['psurf'],
+                    'ptop': gcm_dict['ptop']
+                },
+                'wind':gcm_dict['wind'],
+            },
+            'molecules':gcm_dict['molecules'],
+            'aerosols':gcm_dict.get('aerosols',None)
+        }
+        return cls(
+            gcm = Planet.from_dict(d)
+        )
+    def content(self)->bytes:
+        return self.gcm.content
+
 class gcmParameters(BaseParameters):
     """
     Class to store GCM parameters.
@@ -214,20 +253,29 @@ class gcmParameters(BaseParameters):
             return 'binary'
         elif isinstance(self.gcm,waccmGCM):
             return 'waccm'
+        elif isinstance(self.gcm,vspecGCM):
+            return 'vspec'
         else:
             raise TypeError('Unknown GCM type')
     @classmethod
     def _from_dict(cls, d: dict):
-        if 'binary' in d:
+        gcm_dict = d['gcm']
+        star_dict = d['star']
+        planet_dict = d['planet']
+        if 'binary' in gcm_dict:
             return cls(
-                gcm=binaryGCM.from_dict(d['binary'])
+                gcm=binaryGCM.from_dict(gcm_dict['binary'])
             )
-        elif 'waccm' in d:
+        elif 'waccm' in gcm_dict:
             return cls(
-                gcm=waccmGCM.from_dict(d['waccm'])
+                gcm=waccmGCM.from_dict(gcm_dict['waccm'])
+            )
+        elif 'vspec' in gcm_dict:
+            return cls(
+                gcm=vspecGCM.from_dict(gcm_dict['vspec'],star_dict,planet_dict)
             )
         else:
-            raise KeyError(f'`binary` or `waccm` not in {list(d.keys())}')
+            raise KeyError(f'`binary`, `waccm`, or `vspec` not in {list(d.keys())}')
 
 
 class APIkey(BaseParameters):

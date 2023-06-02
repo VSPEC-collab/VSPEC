@@ -245,8 +245,8 @@ class ccdParameters(BaseParameters):
     def _from_dict(cls, d: dict):
         return cls(
             pixel_sampling = parse_table(d['pixel_sampling'],int),
-            read_noise = u.Quantity(d['read_noise']),
-            dark_current = u.Quantity(d['dark_current']),
+            read_noise = parse_table(d['read_noise'],u.Quantity),
+            dark_current = parse_table(d['dark_current'],u.Quantity),
             throughput = parse_table(d['throughput'],float),
             emissivity = float(d['emissivity']),
             temperature = u.Quantity(d['temperature'])
@@ -264,9 +264,9 @@ class ccdParameters(BaseParameters):
         return {
             'GENERATOR-NOISE': 'CCD',
             'GENERATOR-NOISEPIXELS': f'{self.pixel_sampling}',
-            'GENERATOR-NOISE1': f'{self.read_noise.to_value(u.electron):.1f}',
-            'GENERATOR-NOISE2': f'{self.dark_current.to_value(u.electron/u.s):.1f}',
-            'GENERATOR-NOISEOEFF': f'{self.throughput:.2f}',
+            'GENERATOR-NOISE1': f'{self.read_noise.to_value(u.electron):.1f}' if isinstance(self.read_noise,u.Quantity) else str(self.read_noise),
+            'GENERATOR-NOISE2': f'{self.dark_current.to_value(u.electron/u.s):.1f}' if isinstance(self.dark_current,u.Quantity) else str(self.dark_current),
+            'GENERATOR-NOISEOEFF': f'{self.throughput:.2f}' if isinstance(self.throughput,float) else str(self.throughput),
             'GENERATOR-NOISEOEMIS': f'{self.emissivity:.2f}',
             'GENERATOR-NOISEOTEMP': f'{self.temperature.to_value(u.K):.1f}'
         }

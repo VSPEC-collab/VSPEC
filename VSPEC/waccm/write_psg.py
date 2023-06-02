@@ -8,7 +8,7 @@ from typing import List
 
 from VSPEC.waccm.read_nc import get_shape,get_coords
 import VSPEC.waccm.read_nc as rw
-from VSPEC.waccm.config import atmosphere_type_dict as mtype, aerosol_type_dict as atype, aerosol_name_dict
+from VSPEC.config import atmosphere_type_dict as mtype, aerosol_type_dict as atype, aerosol_name_dict
 
 
 
