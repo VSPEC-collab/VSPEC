@@ -1,7 +1,11 @@
-"""VSPEC variable star module
+"""
+Variable Star Module
+--------------------
 
-This module describes the stellar variability
-contianed in `VSPEC`'s model.
+This module defines the custom star that ``VSPEC`` uses to 
+add stellar variability to its datasets.
+
+Sources of variability include star spots, faculae, flares, and granulation.
 """
 from VSPEC.variable_star_model.star import Star
 from VSPEC.variable_star_model.spots import StarSpot, SpotCollection, SpotGenerator

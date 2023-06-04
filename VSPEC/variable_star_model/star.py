@@ -1,8 +1,4 @@
-"""VSPEC star
-
-This module contains the code to govern the
-behavior of a variable star.
-
+"""
 The `VSPEC` star model is designed modularly to allow
 for both simple and complex behaviors. Currently, it
 is represented by a rectangular grid of points on the stellar
@@ -14,12 +10,12 @@ by a transiting planet.
 
 Once the surface coverage is calculated, a composite spectrum
 is computed from a grid of PHOENIX stellar spectra :cite:p:`2013A&A...553A...6H`.
-As of `VSPEC 0.1`, we have spectra between 2300 K and 3900 K, with steps of
+As of ``VSPEC 0.1``, we have spectra between 2300 K and 3900 K, with steps of
 100 K. Each spectrum has :math:`\log{g} = 5.0` and solar metalicity.
 The raw spectra span from 0.1 to 20 um with 5e-6 um steps, however binned
 versions are available for faster runtimes.
 
-The attributes of the `Star` class describe the bulk properties of the star,
+The attributes of the ``Star`` class describe the bulk properties of the star,
 including radius, period, and the effective temperature of quiet photosphere.
 Herein we refer to this temperature as the photosphere temperature to differentiate
 it from the temperature of spots, faculae, or other sources of variability.
@@ -563,7 +559,7 @@ class Star:
         lat = lat.to_value(u.deg)
         lon = lon.to_value(u.deg)
         im = ax.pcolormesh(lon,lat,map_with_faculae.T,transform=ccrs.PlateCarree())
-        plt.colorbar(im,ax=ax)
+        plt.colorbar(im,ax=ax,label='$T_{eff}$ (L)')
         transit_mask = np.where(covered,1,np.nan)
         zorder = 100 if pl_frac == 1. else -100
         ax.contourf(lon,lat,transit_mask.T,colors='k',alpha=1,transform=ccrs.PlateCarree(),zorder=zorder)
