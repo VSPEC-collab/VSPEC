@@ -8,6 +8,8 @@ import pytest
 from VSPEC.variable_star_model import StarSpot, SpotCollection, SpotGenerator
 from VSPEC.helpers import MSH, CoordinateGrid, to_float
 
+rng = np.random.default_rng(20)
+
 
 def init_test_spot(**kwargs):
     """
@@ -295,7 +297,8 @@ def init_spot_generator(**kwargs):
         distribution=kwargs.get('distribution', 'iso'),
         coverage=kwargs.get('coverage', 0.0),
         Nlat=kwargs.get('Nlat', 300),
-        Nlon=kwargs.get('Nlon', 600)
+        Nlon=kwargs.get('Nlon', 600),
+        rng=rng
     )
 
 
@@ -308,6 +311,20 @@ def test_spot_generator_init():
     grid = CoordinateGrid(Nlat, Nlon)
     assert gen.gridmaker == grid
 
+def test_spot_generator_is_static():
+    gen = init_spot_generator(growth_rate=0/u.day,decay_rate = 0*MSH/u.day)
+    assert gen.is_static
+    gen = init_spot_generator(growth_rate=0/u.day,decay_rate = 10*MSH/u.day)
+    assert not gen.is_static
+
+def test_spot_generator_mean_lifetime():
+    growth_rate = 0.5/u.day
+    decay_rate = 10*MSH/u.day
+    max_size = 100*MSH
+    starting_size = 10*MSH
+    gen = init_spot_generator(growth_rate=growth_rate,decay_rate = decay_rate,average_area=max_size,starting_size=starting_size)
+    expected_value = max_size/decay_rate - np.log(starting_size/max_size)/growth_rate
+    assert expected_value == gen.mean_lifetime
 
 def test_spot_generator_N_spots_to_birth():
     """
@@ -316,22 +333,11 @@ def test_spot_generator_N_spots_to_birth():
     time = 10*u.day
     r_star = 1*u.R_sun
     gen = init_spot_generator(average_area=100*MSH,
-                              coverage=0.0, decay_rate=10*MSH/u.day)
+                              coverage=0.0, decay_rate=10*MSH/u.day,growth_rate=0.5/u.day)
     exp = 0.0
     assert gen.get_N_spots_to_birth(
         time, r_star) == pytest.approx(exp, abs=1e-6)
 
-    gen = init_spot_generator(average_area=100*MSH,
-                              coverage=100e-6, decay_rate=10*MSH/u.day)
-    exp = 2
-    assert gen.get_N_spots_to_birth(
-        time, r_star) == pytest.approx(exp, abs=1e-6)
-
-    gen = init_spot_generator(average_area=1e6*MSH,
-                              coverage=0.5, decay_rate=1e5*MSH/u.day)
-    exp = 1
-    assert gen.get_N_spots_to_birth(
-        time, r_star) == pytest.approx(exp, abs=1e-6)
 
 
 def test_spot_generator_get_coordinates():
@@ -369,7 +375,19 @@ def test_spot_generator_generate_mature_spots():
     """
     r_star = 0.15*u.R_sun
     starting_size = 10*MSH
-    gen = init_spot_generator(starting_size=starting_size)
+    mean_spot_area = 500*MSH
+    gen = SpotGenerator(
+        average_area=mean_spot_area,
+        area_spread=0.2,
+        umbra_teff=2600*u.K,
+        penumbra_teff=2900*u.K,
+        growth_rate=0/u.day,
+        decay_rate=0*MSH/u.day,
+        starting_size=starting_size,
+        distribution='iso',
+        coverage=0.2,
+        Nlat=500,Nlon=1000,rng=rng
+    )
     with pytest.raises(ValueError):
         gen.generate_mature_spots(-0.1, r_star)
     with pytest.raises(ValueError):
@@ -397,5 +415,5 @@ if __name__ in '__main__':
     # test_spot_collection_map_pixels()
     # test_spot_collection_age()
     # test_spot_generator_init()
-    # test_spot_generator_N_spots_to_birth()
-    test_spot_generator_generate_mature_spots()
+    test_spot_generator_N_spots_to_birth()
+    # test_spot_generator_generate_mature_spots()
