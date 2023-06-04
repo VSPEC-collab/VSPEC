@@ -99,63 +99,7 @@ intersphinx_mapping = {
     'h5py': ('https://docs.h5py.org/en/stable/', None),
 }
 
-# import pybtex.plugin
-# from pybtex.style.formatting.unsrt import Style as UnsrtStyle
-# from pybtex.style.formatting import toplevel
-# from pybtex.style.template import field, join, optional
-# from pybtex.database import Entry
-# # from pybtex.style.template import toplevel # ... and anything else needed
 
-# class ApJStyle(UnsrtStyle):
-#     journals = {
-#         r'\aj': 'AJ',
-#         r'\aap': 'A&A',
-#         r'\apj': 'ApJ'
-#     }
-#     def format_article(self, e:Entry):
-#         journal = self.journals[e.fields['journal']]
-#         template = '{author} {year}, {title}, {journal}, {link}'
-#         formatted_entry = template.format(
-#             author=e.fields['author'],
-#             title=e.fields['title'],
-#             journal=journal,
-#             year=e.fields['year'],
-#             link=e.fields['adsurl']
-#         )
-#         return formatted_entry
+bibtex_reference_style = 'author_year'
 
-
-# pybtex.plugin.register_plugin('pybtex.style.formatting', 'apj', ApJStyle)
-# bibtex_default_style = 'apj'
-
-
-# from dataclasses import dataclass, field
-# import sphinxcontrib.bibtex.plugin
-
-# from sphinxcontrib.bibtex.style.referencing import BracketStyle
-# from sphinxcontrib.bibtex.style.referencing.author_year \
-#     import AuthorYearReferenceStyle
-
-
-# def bracket_style() -> BracketStyle:
-#     return BracketStyle(
-#         left='(',
-#         right=')',
-#     )
-
-
-# @dataclass
-# class MyReferenceStyle(AuthorYearReferenceStyle):
-#     bracket_parenthetical: BracketStyle = field(default_factory=bracket_style)
-#     bracket_textual: BracketStyle = field(default_factory=bracket_style)
-#     bracket_author: BracketStyle = field(default_factory=bracket_style)
-#     bracket_label: BracketStyle = field(default_factory=bracket_style)
-#     bracket_year: BracketStyle = field(default_factory=bracket_style)
-
-
-# sphinxcontrib.bibtex.plugin.register_plugin(
-#     'sphinxcontrib.bibtex.style.referencing',
-#     'author_year_round', MyReferenceStyle)
-
-# bibtex_reference_style = 'author_year_round'
-
+bibtex_default_style = 'unsrt'
