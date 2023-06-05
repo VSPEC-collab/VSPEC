@@ -36,10 +36,8 @@ class ObservationModel:
 
     Parameters
     ----------
-    config_path : str or pathlib.Path
-        The path of the configuration file.
-    verbose : int, default=1
-        The verbosity level of the output.
+    params : VSPEC.params.Parameters
+        The parameters describing the VSPEC simulation.
 
     Attributes
     ----------
@@ -56,12 +54,28 @@ class ObservationModel:
         the simulation.
     """
 
-    def __init__(self, config_path: Path, verbose=1):
-        self.verbose = verbose
-        self.params = Parameters.from_yaml(config_path)
+    def __init__(
+        self,
+        params:Parameters
+    ):
+        self.params = params
+        self.verbose = params.header.verbose
         self.build_directories()
         self.star = None
         self.rng = np.random.default_rng(self.params.header.seed)
+    
+    @classmethod
+    def from_yaml(cls,config_path: Path):
+        """
+        Initialize a VSPEC run from a YAML file.
+
+        Parameters
+        ----------
+        config_path : pathlib.path
+            The path to the YAML file.
+        """
+        params = Parameters.from_yaml(config_path)
+        return cls(params)
 
     class __flags__:
         """
