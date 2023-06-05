@@ -207,7 +207,7 @@ class SpotParameters(BaseParameters):
         No spots
         """
         return cls(
-            'iso', 0., 0., 0.,
+            'iso', 0., 0., 0.*u.s,
             500*MSH, 0.2,
             100*u.K, 100*u.K,
             0./u.day, 0*MSH/u.day,
@@ -537,6 +537,7 @@ class StarParameters(BaseParameters):
         Number of latitudes in the stellar surface.
     Nlon : int
         Number of longitudes in the stellar surface.
+    
     Attributes
     ----------
     template : str

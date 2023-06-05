@@ -19,7 +19,7 @@ CFG_PATH = 'spot_lightcurve.yaml'
 #
 # We read in the config file and run the model.
 
-model = ObservationModel(CFG_PATH)
+model = ObservationModel.from_yaml(CFG_PATH)
 model.bin_spectra()
 model.build_planet()
 model.build_spectra()

@@ -5,8 +5,10 @@ from pathlib import Path
 from astropy import units as u
 from netCDF4 import Dataset
 from typing import Union
+import yaml
 
 from VSPEC.config import psg_encoding
+from VSPEC.files import PRESET_PATH
 from VSPEC.params.base import BaseParameters
 from VSPEC.waccm.read_nc import get_time_index
 from VSPEC.waccm.write_psg import get_cfg_contents
@@ -202,6 +204,22 @@ class vspecGCM(BaseParameters):
         )
     def content(self)->bytes:
         return self.gcm.content
+    @classmethod
+    def earth(cls,**kwargs):
+        path = PRESET_PATH / 'earth.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            gcm_dict:dict=data['gcm']
+            star_dict=data['star']
+            planet_dict=data['planet']
+            gcm_dict.update(**kwargs)
+
+            return cls._from_dict(
+                gcm_dict=gcm_dict,
+                star_dict=star_dict,
+                planet_dict=planet_dict
+            )
+
 
 class gcmParameters(BaseParameters):
     """
@@ -238,7 +256,7 @@ class gcmParameters(BaseParameters):
 
     def __init__(
         self,
-        gcm:Union[binaryGCM,waccmGCM]
+        gcm:Union[binaryGCM,Union[vspecGCM,waccmGCM]]
     ):
         self.gcm = gcm
 

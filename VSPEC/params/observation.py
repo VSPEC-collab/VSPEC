@@ -184,6 +184,12 @@ class BandpassParameters(BaseParameters):
         with open(path, 'r',encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['bandpass']['miri-lrs'])
+    @classmethod
+    def niriss_soss(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['bandpass']['niriss-soss'])
 
 
 class ccdParameters(BaseParameters):
@@ -301,6 +307,12 @@ class ccdParameters(BaseParameters):
         with open(path, 'r',encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['ccd']['miri-lrs'])
+    @classmethod
+    def niriss_soss(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['ccd']['niriss-soss'])
 
 
 
@@ -370,6 +382,12 @@ class DetectorParameters(BaseParameters):
         with open(path, 'r',encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['detector']['miri-lrs'])
+    @classmethod
+    def niriss_soss(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['detector']['niriss-soss'])
 
     @classmethod
     def mirecle(cls):
@@ -652,3 +670,9 @@ class InstrumentParameters(BaseParameters):
         with open(path, 'r',encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['instrument']['miri-lrs'])
+    @classmethod
+    def niriss_soss(cls):
+        path = PRESET_PATH / 'jwst.yaml'
+        with open(path, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data['instrument']['niriss-soss'])

@@ -1,6 +1,17 @@
-"""VSPEC Facula module
+"""
+Faculae are magnetically-generated regions of the solar
+surface that usually appear as bright points near the limb;
+we employ the ``hot wall'' model :cite:p:`1976SoPh...50..269S` where
+faculae are described as three-dimensional pores in the stellar
+surface with a hot, bright wall, and a cool, dark floor.
 
-This code describes the behavior of stellar faculae.
+Their three-dimensional structure causes faculae to behave differently
+depending on their angle from disk-center. Close to the limb, the hot wall
+is visible to the observer, and faculae appear as bright points. Near the center,
+however, the cool floor is exposed and faculae appear dark. To consider this effect
+in the faculae lightcurve, we compute the fraction of the facula's normalized
+area -- the area on the disk it would occupy as a flat spot -- that is occupied by
+each the hot wall and cool floor. This is done via numerical integral along the radius of the spot.
 """
 from typing import Dict
 
@@ -17,21 +28,21 @@ class Facula:
 
     Parameters
     ----------
-    lat : astropy.units.Quantity 
+    lat : astropy.units.Quantity
         Latitude of facula center
-    lon : astropy.units.Quantity 
+    lon : astropy.units.Quantity
         Longitude of facula center
-    Rmax : astropy.units.Quantity 
+    Rmax : astropy.units.Quantity
         Maximum radius of facula
-    R0 : astropy.units.Quantity 
+    R0 : astropy.units.Quantity
         Current radius of facula
-    Zw : astropy.units.Quantity 
+    Zw : astropy.units.Quantity
         Depth of the depression.
-    Teff_floor : astropy.units.Quantity 
+    Teff_floor : astropy.units.Quantity
         Effective temperature of the 'cool floor'
-    Teff_wall : astropy.units.Quantity 
+    Teff_wall : astropy.units.Quantity
         Effective temperature of the 'hot wall'
-    lifetime : astropy.units.Quantity 
+    lifetime : astropy.units.Quantity
         Facula lifetime
     growing : bool, default=True
         Whether or not the facula is still growing.
@@ -48,43 +59,43 @@ class Facula:
 
     Attributes
     ----------
-    lat : astropy.units.Quantity 
+    lat : astropy.units.Quantity
         Latitude of facula center.
-    lon : astropy.units.Quantity 
+    lon : astropy.units.Quantity
         Longitude of facula center.
-    Rmax : astropy.units.Quantity 
+    Rmax : astropy.units.Quantity
         Maximum radius of facula.
-    current_R : astropy.units.Quantity 
+    current_R : astropy.units.Quantity
         Current radius of facula.
-    Zw : astropy.units.Quantity 
+    Zw : astropy.units.Quantity
         Depth of the depression.
     Teff_floor : astropy.units.Quantity 
         Effective temperature of the 'cool floor'.
-    Teff_wall : astropy.units.Quantity 
+    Teff_wall : astropy.units.Quantity
         Effective temperature of the 'hot wall'.
-    lifetime : astropy.units.Quantity 
+    lifetime : astropy.units.Quantity
         Facula lifetime.
     is_growing : bool
         Whether or not the facula is still growing.
-    floor_threshold : astropy.units.Quantity 
+    floor_threshold : astropy.units.Quantity
         Facula radius under which the floor is no longer visible.
         Small faculae appear as bright points regardless of their
         distance to the limb.
     gridmaker : `CoordinateGrid` object
         A `CoordinateGrid` object to create the stellar sufrace grid.
-    r : astropy.units.Quantity 
+    r : astropy.units.Quantity
         The distance between the center of the faculae and each point on the stellar surface.
 
     Notes
     -----
     The "Hot wall" model of solar facule describes them as a depression on the
-    stellar surface with a hot wall and cool floor [1]_. Because if this, faculae
+    stellar surface with a hot wall and cool floor :cite:p:`1976SoPh...50..269S`. Because if this, faculae
     appear bright when they are near the limb (hot wall is visible) and dark when near
     the disk center (cool floor is visible).
 
     References
     ----------
-    .. [1] Spruit, H. C. 1976, SoPh, 50, 269
+    .. footbibliography::
     """
 
     def __init__(self,
@@ -169,6 +180,44 @@ class Facula:
         dict
             Effective area of the wall and floor. The keys are the Teff, the
             values are the area. Both are `astropy.units.Quantity` objects.
+        
+        Notes
+        -----
+        The effective area is computed by numerical integration. The visible area of the
+        hot wall is:
+
+        .. math::
+            \\int _{-R}^{R} Z_{\\rm eff} dr
+        
+        and the visible area of the cool floor is:
+
+        .. math::
+            \\int _{-R}^{R} Z_{\\rm eff} dr
+        
+        Where
+
+        .. math::
+            Z_{\\rm eff} = \\left\\{
+                \\begin{array}{lr}
+                    Z_w \\sin{\\alpha}, & \\text{if } \\alpha \\leq \\alpha_{\\rm crit} \\\\
+                    2\\sqrt{R^2 - r^2}\\cos{\\alpha}, & \\text{if } \\alpha > \\alpha_{\\rm crit}
+                \\end{array}
+                \\right\\}
+        
+        and 
+        
+        .. math::
+            R_{\\rm eff} = \\left\\{
+                \\begin{array}{lr}
+                    2\\sqrt{R^2 - r^2} - Z_w\\sin{\\alpha}, & \\text{if } \\alpha \\leq \\alpha_{\\rm crit} \\\\
+                    0, & \\text{if } \\alpha > \\alpha_{\\rm crit}
+                \\end{array}
+                \\right\\}
+        
+        for facula radius :math:`R`, depth :math:`Z_w`, and angle from disk-center :math:`\\alpha`. :math:`r` in
+        this numerical scheme is defined as the distance from the center of the facula along the radial line
+        connecting the facula center to the disk center. :math:`\\alpha_{\\rm crit}` is the value of alpha at
+        which the floor is no longer visible and is defined to be :math:`\\arctan{\\frac{2\\sqrt{R^2-r^2}}{Z_w}}`. 
         """
         if self.current_R < self.floor_threshold:
             return {round_teff(self.Teff_floor): 0.0 * u.km**2, round_teff(self.Teff_wall): np.pi*self.current_R**2 * np.cos(angle)}

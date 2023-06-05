@@ -25,6 +25,8 @@ class Header(BaseParameters):
         The minimum Teff to bin.
     seed : int, default=None
         The seed for the random number generator.
+    verbose : int, default=1,
+        The level of verbosity for the simulation.
     desc : str, default=None
         A description of the run.
     
@@ -38,6 +40,8 @@ class Header(BaseParameters):
         The minimum Teff to bin.
     seed : int or None
         The seed for the random number generator.
+    verbose : int
+        The level of verbosity for the simulation.
     desc : str or None
         A description of the run.
 
@@ -48,12 +52,14 @@ class Header(BaseParameters):
         teff_min:u.Quantity,
         teff_max:u.Quantity,
         seed: int,
+        verbose: int=1,
         desc:str=None
     ):
         self.data_path = data_path
         self.teff_min = teff_min
         self.teff_max = teff_max
         self.seed = seed
+        self.verbose = verbose
         self.desc = desc
     @classmethod
     def _from_dict(cls, d: dict):

@@ -278,7 +278,7 @@ class PlanetParameters(BaseParameters):
         """
         return cls(
             name='Exoplanet',
-            radius=1.*u.M_earth,
+            radius=1.*u.R_earth,
             gravity=GravityParameters('kg', 1.0*u.M_earth),
             semimajor_axis=0.05*u.AU,
             orbit_period=10*u.day,

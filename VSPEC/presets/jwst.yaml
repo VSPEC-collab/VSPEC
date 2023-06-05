@@ -20,17 +20,35 @@ ccd:
         ]
     emissivity: 0.1
     temperature: 50 K
+  niriss-soss:
+    pixel_sampling: 8
+    read_noise: 11.55 electron
+    dark_current: 0.005 electron/s
+    throughput: 0.4
+    emissivity: 0.1
+    temperature: 50 K
 detector:
   miri-lrs:
     beam_width: 5 arcsec
     integration_time: 0.5 s
     ccd:
       preset: miri-lrs
+  niriss-soss:
+    beam_width: 5 arcsec
+    integration_time: 0.5 s
+    ccd:
+      preset: niriss-soss
 bandpass:
   miri-lrs:
     wl_blue: 5 um
     wl_red: 12 um
     resolving_power: 100
+    wavelength_unit: um
+    flux_unit: W m-2 um-1
+  niriss-soss:
+    wl_blue: 0.6 um
+    wl_red:  2.8 um
+    resolving_power: 500
     wavelength_unit: um
     flux_unit: W m-2 um-1
 telescope:
@@ -46,4 +64,11 @@ instrument:
       preset: miri-lrs
     detector:
       preset: miri-lrs
+  niriss-soss:
+    single:
+      preset: jwst
+    bandpass:
+      preset: niriss-soss
+    detector:
+      preset: niriss-soss
 

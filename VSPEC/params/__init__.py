@@ -15,6 +15,7 @@ from VSPEC.params.gcm import APIkey
 from VSPEC.params.gcm import gcmParameters
 from VSPEC.params.gcm import binaryGCM
 from VSPEC.params.gcm import waccmGCM
+from VSPEC.params.gcm import vspecGCM
 from VSPEC.params.observation import ObservationParameters
 from VSPEC.params.observation import InstrumentParameters
 from VSPEC.params.observation import TelescopeParameters
