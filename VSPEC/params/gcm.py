@@ -375,6 +375,15 @@ class psgParameters(BaseParameters):
         interpolated to match the cadence of the variable star simulation.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    nmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of n-stream pairs - Use 0 for extinction
+        calculations only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
+    lmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of scattering Legendre polynomials used
+        for describing the phase function - Use 0 for extinction calculations
+        only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
     url : str
         URL of the Planetary Spectrum Generator.
     api_key : APIkey
@@ -389,6 +398,15 @@ class psgParameters(BaseParameters):
         Number of phase epochs to bin together when simulating the planet.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    nmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of n-stream pairs - Use 0 for extinction
+        calculations only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
+    lmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of scattering Legendre polynomials used
+        for describing the phase function - Use 0 for extinction calculations
+        only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
     url : str
         URL of the Planetary Spectrum Generator.
     api_key : APIkey
@@ -401,12 +419,16 @@ class psgParameters(BaseParameters):
         gcm_binning: int,
         phase_binning: int,
         use_molecular_signatures: bool,
+        nmax: int,
+        lmax: int,
         url: str,
         api_key: APIkey
     ):
         self.gcm_binning = gcm_binning
         self.phase_binning = phase_binning
         self.use_molecular_signatures = use_molecular_signatures
+        self.nmax = nmax
+        self.lmax=lmax
         self.url = url
         self.api_key = api_key
 
@@ -416,6 +438,8 @@ class psgParameters(BaseParameters):
             gcm_binning=int(d['gcm_binning']),
             phase_binning=int(d['phase_binning']),
             use_molecular_signatures=bool(d['use_molecular_signatures']),
+            nmax=int(d['nmax']),
+            lmax=int(d['lmax']),
             url=str(d['url']),
             api_key=APIkey.none() if d.get(
                 'api_key', None) is None else APIkey.from_dict(d['api_key'])
@@ -434,4 +458,6 @@ class psgParameters(BaseParameters):
         return {
             'GENERATOR-GCM-BINNING': f'{self.gcm_binning}',
             'GENERATOR-GAS-MODEL': 'Y' if self.use_molecular_signatures else 'N',
+            'ATMOSPHERE-NMAX': f'{self.nmax}',
+            'ATMOSPHERE-LMAX': f'{self.lmax}'
         }
