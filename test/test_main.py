@@ -19,7 +19,7 @@ chdir(Path(__file__).parent / 'data')
 @pytest.fixture
 def observation_model():
     # Create an ObservationModel instance with a test configuration file
-    return ObservationModel(cfg_path)
+    return ObservationModel.from_yaml(cfg_path)
 
 
 def test_observation_model_initialization(observation_model:ObservationModel):

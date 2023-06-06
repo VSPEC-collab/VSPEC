@@ -96,7 +96,7 @@ def test_planet_parameters_std():
     init_substellar_lon = 90 * u.deg
     planet = PlanetParameters.std(init_phase, init_substellar_lon)
     assert planet.name == 'Exoplanet'
-    assert planet.radius == 1.0 * u.M_earth
+    assert planet.radius == 1.0 * u.R_earth
     assert planet.gravity.mode == 'kg'
     assert planet.gravity._value == 1.0 * u.M_earth
     assert planet.semimajor_axis == 0.05 * u.AU

@@ -82,7 +82,7 @@ def test_spot_radius():
     # A = pi r**2
     # r = sqrt(A/pi)
     pred = np.sqrt(current_area/np.pi)
-    obs = spot.radius()
+    obs = spot.radius
     assert to_float(pred, u.km) == pytest.approx(to_float(obs, u.km), rel=1e-6)
 
 

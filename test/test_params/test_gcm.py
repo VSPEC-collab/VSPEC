@@ -125,10 +125,15 @@ def test_gcmParameters_content_waccm():
 def test_gcmParameters_from_dict_binary():
     # Create a dictionary representation of the gcmParameters instance with binaryGCM
     gcm_dict = {
-        'binary': {
-            'data': 'GCM data'
+        'star':None,
+        'planet':None,
+        'gcm':{
+            'binary':{
+                'data':'GCM data'
+            }
         }
     }
+    
     
     # Create a gcmParameters instance from the dictionary
     gcm_params = gcmParameters.from_dict(gcm_dict)
@@ -140,13 +145,18 @@ def test_gcmParameters_from_dict_binary():
 
 def test_gcmParameters_from_dict_waccm():
     # Create a dictionary representation of the gcmParameters instance with waccmGCM
+
     gcm_dict = {
-        'waccm': {
-            'path': '/path/to/waccm.nc',
-            'tstart': '100',
-            'molecules': 'O2, CO2',
-            'aerosols': 'Water, WaterIce',
-            'background': 'N2'
+        'star':None,
+        'planet':None,
+        'gcm':{
+            'waccm': {
+                'path': '/path/to/waccm.nc',
+                'tstart': '100',
+                'molecules': 'O2, CO2',
+                'aerosols': 'Water, WaterIce',
+                'background': 'N2'
+            }
         }
     }
     
