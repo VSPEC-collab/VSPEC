@@ -130,7 +130,7 @@ def test_text_parse():
         file_contents = file.read()
     text = call_api(None,psg_url,output_type='all',outfile=outfile,config_data=file_contents)
     result = parse_full_output(text)
-    assert 'cfg' in result.keys()
+    assert b'cfg' in result.keys()
     set_psg_state(previous_state)
 
 

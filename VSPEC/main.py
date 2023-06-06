@@ -454,11 +454,12 @@ class ObservationModel:
         output_data = parse_full_output(response)
         for key, path in path_dict.items():
             filename = get_filename(i, N_ZFILL, key)
-            with open(path/filename, 'wt', encoding='UTF-8') as file:
-                if not (key == 'lyr' and self.params.psg.use_molecular_signatures is False):
+            key = bytes(key,encoding='UTF-8')
+            with open(path/filename, 'wb') as file:
+                if not (key == b'lyr' and self.params.psg.use_molecular_signatures is False):
                     file.write(output_data[key])
-                if key == 'cfg':
-                    self.check_config(output_data[key])
+                if key == b'cfg':
+                    self.check_config(str(output_data[key],encoding='UTF-8'))
 
     def build_planet(self):
         """

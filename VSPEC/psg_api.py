@@ -73,20 +73,20 @@ def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov'
     url = f'{psg_url}/api.php'
     reply = requests.post(url, data=data, timeout=120)
     if outfile is not None:
-        with open(outfile, 'w', encoding='UTF-8') as file:
-            file.write(reply.text)
+        with open(outfile, 'wb') as file:
+            file.write(reply.content)
         return None
     else:
-        return reply.text
+        return reply.content
 
 
-def parse_full_output(output_text:str):
+def parse_full_output(output_text:bytes):
     """
     Parse PSG full output.
 
     Parameters
     ----------
-    output_text : str
+    output_text : bytes
         The output of a PSG 'all' call.
 
     Returns
@@ -94,7 +94,7 @@ def parse_full_output(output_text:str):
     dict
         The parsed, separated output files.
     """
-    pattern = r'results_([\w]+).txt'
+    pattern = rb'results_([\w]+).txt'
     split_text = re.split(pattern,output_text)
     names = split_text[1::2]
     content = split_text[2::2]
