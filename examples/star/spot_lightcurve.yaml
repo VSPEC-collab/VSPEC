@@ -95,6 +95,8 @@ psg:
   gcm_binning: 200
   phase_binning: 4
   use_molecular_signatures: True
+  nmax: 0
+  lmax: 0
   url: http://localhost:3000
 gcm:
   vspec:

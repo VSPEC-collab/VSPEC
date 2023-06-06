@@ -5,7 +5,6 @@ Plot the spectrum of a transiting planet
 This example runs VSPEC with a transiting planet scenario.
 """
 
-from astropy import units as u
 import numpy as np
 import matplotlib.pyplot as plt
 # from os import chdir
@@ -22,7 +21,7 @@ CFG_PATH = 'transit_spectrum.yaml'
 #
 # We read in the config file and run the model.
 
-model = ObservationModel(CFG_PATH)
+model = ObservationModel.from_yaml(CFG_PATH)
 model.bin_spectra()
 model.build_planet()
 model.build_spectra()

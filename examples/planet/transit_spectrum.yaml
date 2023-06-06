@@ -95,7 +95,24 @@ psg:
   gcm_binning: 200
   phase_binning: 1
   use_molecular_signatures: True
+  nmax: 0
+  lmax: 0
   url: http://localhost:3000
 gcm:
-  binary:
-    path: ../../test/test_gcms/modernearth.gcm
+  vspec:
+    vspec:
+    nlon: 40
+    nlat : 30
+    nlayer: 20
+    epsilon: 6
+    gamma: 1.4
+    albedo: 0.3
+    emissivity: 1.0
+    psurf: 1 bar
+    ptop: 1e-7 bar
+    wind:
+      U: 0 m/s
+      V: 0 m/s
+    molecules:
+      CO2: 1e-4
+      H2O: 1e-3

@@ -32,7 +32,7 @@ header = params.Header(
 )
 star = params.StarParameters(
     template='M',
-    teff=300*u.K,
+    teff=3000*u.K,
     mass = 0.1*u.M_sun,
     radius=0.15*u.R_sun,
     period = 10*u.day,
@@ -62,12 +62,14 @@ system = params.SystemParameters(
 )
 observation = params.ObservationParameters(
     observation_time=3*u.day,
-    integration_time=8*u.hr
+    integration_time=30*u.min
 )
 psg_params = params.psgParameters(
     gcm_binning=200,
     phase_binning=1,
     use_molecular_signatures=True,
+    nmax=0,
+    lmax=0,
     url='http://localhost:3000',
     api_key=params.APIkey.none()
 )
