@@ -4,19 +4,21 @@ Introduction
 designed to simulate observations of exoplanets orbiting variable stars.
 
 ``VSPEC`` uses a dynamic model of stellar spots, faculae, 
-flares, and granulation combined with simultations from the Planetary Spectrum Generator 
+flares, and granulation combined with simultations from the Planetary Spectrum Generator
 (PSG, `Villanueva et al., 2018 <https://ui.adsabs.harvard.edu/abs/2018JQSRT.217...86V/abstract>`_)
+:cite:empty:`2018JQSRT.217...86V`
 to simulate phase resolved observations of planetary spectra.
-This package was designed for the Mid-IR Exoplanet CLimate Explorer mission concept 
+
+Recent observations with JWST have shown stellar contamination can cause signals similar to exoplanet
+atmospheres :cite:p:`2023ApJ...948L..11M`. Similarly, the future Habitable Worlds Observatory gather
+reflected-light spectra of earth-like exoplanets over a very long baseline. To understand these challenges
+and develop data analysis that can mitigate them, we need a robust and flexible modeling suite.
+
+This package was initially designed to simulate data for the Mid-IR Exoplanet CLimate Explorer mission concept 
 (MIRECLE, `Mandell et al., 2022 <https://ui.adsabs.harvard.edu/abs/2022AJ....164..176M/abstract>`_),
-but was built to be used more generally.
-
-The primary goal of this software is to simulate combined planet-host spectra
-in order to develop techniques to remove the star using the Planetary Infrared Excess
-(PIE) technique. For more info on PIE, see `Stevenson (2020) <https://ui.adsabs.harvard.edu/abs/2020ApJ...898L..35S/abstract>`_
-and `Lustig-Yaeger et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021ApJ...921L...4L/abstract>`_.
-
-However, ``VSPEC`` also does transits, eclipses, and supports ``PSG``'s coronoagraph module.
+:cite:empty:`2022AJ....164..176M`
+but has since been refactored to be a general-use tool. It builds off of PSG and supports reflcted,
+thermal, and transmission spectroscopy as well as the use of a coronagraph for direct imaging spectroscopy.
 
 Installation
 ************
