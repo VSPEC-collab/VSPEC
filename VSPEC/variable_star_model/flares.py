@@ -11,7 +11,6 @@ from astropy import units as u, constants as const
 from astropy.units.quantity import Quantity
 
 from xoflares.xoflares import _flareintegralnp as flareintegral, get_light_curvenp
-from VSPEC.helpers import to_float
 
 
 class StellarFlare:
@@ -102,10 +101,12 @@ class StellarFlare:
         t_unit = u.day  # this is the unit of xoflares
         a_unit = u.km**2
         peak_area = self.calc_peak_area()
-        areas = get_light_curvenp(to_float(time, t_unit),
-                                  [to_float(self.tpeak, t_unit)],
-                                  [to_float(self.fwhm, t_unit)],
-                                  [to_float(peak_area, a_unit)])
+        areas = get_light_curvenp(
+            time.to_value(t_unit),
+            [self.tpeak.to_value(t_unit)],
+            [self.fwhm.to_value(t_unit)],
+            [peak_area.to_value(a_unit)]
+        )
         return areas * a_unit
 
     def get_timearea(self, time: Quantity[u.hr]):
@@ -261,7 +262,7 @@ class FlareGenerator:
         in the Es array until a non-positive number of flares is selected,
         or all energy values have been considered.
         """
-        Nexp = to_float(self.powerlaw(Es) * time, u.Unit(''))
+        Nexp = (self.powerlaw(Es) * time).to_value(u.dimensionless_unscaled)
         E_final = 0*u.erg
         for e, N in zip(Es, Nexp):
             if np.round(np.random.normal(loc=N, scale=np.sqrt(N))) > 0:
@@ -294,7 +295,7 @@ class FlareGenerator:
         if E == 0*u.erg:
             return flare_energies
         else:
-            flare_energies.append(to_float(E, unit))
+            flare_energies.append(E.to_value(unit))
             cont = np.random.random() < self.prob_following
             while cont:
                 while True:
@@ -302,7 +303,7 @@ class FlareGenerator:
                     if E == 0*u.erg:
                         pass
                     else:
-                        flare_energies.append(to_float(E, unit))
+                        flare_energies.append(E.to_value(unit))
                         cont = np.random.random() < self.prob_following
                         break
             return flare_energies*unit
@@ -404,8 +405,10 @@ class FlareGenerator:
             raise ValueError('Cannot have teff <= 0 K')
         # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
         while True:
-            teff = np.random.normal(loc=to_float(
-                self.mean_teff, u.K), scale=to_float(self.sigma_teff, u.K))
+            teff = np.random.normal(
+                loc=self.mean_teff.to_value(u.K),
+                scale=self.sigma_teff.to_value(u.K)
+            )
             teff = int(np.round(teff)) * u.K
             if teff > 0*u.K:
                 return teff
@@ -440,15 +443,14 @@ class FlareGenerator:
                 if len(flare_energies) > 0:
                     base_tpeak = np.random.random()*dtime + timeset[0]
                     peaks = [deepcopy(base_tpeak)]
-                    for j in range(len(flare_energies)):  # loop through flares
+                    for j, energy in enumerate(flare_energies):
                         if j > 0:
                             base_tpeak = base_tpeak + self.generate_flare_set_spacing()
                             peaks.append(deepcopy(base_tpeak))
-                        energy = flare_energies[j]
                         lat, lon = self.generate_coords()
                         fwhm = self.generate_fwhm()
                         teff = self.generate_teff()
-                        if np.log10(to_float(energy, u.erg)) >= self.log_E_erg_min:
+                        if np.log10(energy.to_value(u.erg)) >= self.log_E_erg_min:
                             flares.append(StellarFlare(
                                 fwhm, energy, lat, lon, teff, base_tpeak))
                     next_timesets.append([timeset[0], min(peaks)])
@@ -501,8 +503,8 @@ class FlareCollection:
         fwhm = []
         unit = u.hr
         for flare in self.flares:
-            tpeak.append(to_float(flare.tpeak, unit))
-            fwhm.append(to_float(flare.fwhm, unit))
+            tpeak.append(flare.tpeak.to_value(unit))
+            fwhm.append(flare.fwhm.to_value(unit))
         tpeak = np.array(tpeak)*unit
         fwhm = np.array(fwhm)*unit
         self.peaks = tpeak

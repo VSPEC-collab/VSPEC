@@ -2,12 +2,9 @@
 Stellar Parameters
 """
 from astropy import units as u
-import numpy as np
 
 
-from VSPEC.config import stellar_area_unit
-
-from VSPEC.helpers import MSH
+from VSPEC.config import MSH
 from VSPEC.params.base import BaseParameters
 
 
@@ -32,10 +29,11 @@ class LimbDarkeningParameters(BaseParameters):
 
     Notes
     -----
-    Quadratic Law (Kopal, 1950)
+    Quadratic Law (Kopal, 1950, cited in :cite:t:`2022AJ....163..228P`)
+
     .. math::
 
-        \frac{I(\mu)}{I(1)} = 1 - u_1 (1-\mu) - u_2 (1-\mu)^2
+        \\frac{I(\\mu)}{I(1)} = 1 - u_1 (1-\\mu) - u_2 (1-\\mu)^2
     
     """
 

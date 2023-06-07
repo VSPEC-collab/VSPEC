@@ -10,7 +10,6 @@ import numpy as np
 from matplotlib.figure import Figure
 import pkg_resources
 
-from VSPEC.helpers import to_float
 from VSPEC.geometry import SystemGeometry
 
 
@@ -19,7 +18,7 @@ def compare_angles(angle1, angle2, abs=None):
     Use pytest to compare two angles, return `True` if they are equal.
     """
     delta_angle = (np.abs(angle1-angle2)+180*u.deg) % (360*u.deg) - 180*u.deg
-    return to_float(delta_angle, u.deg) == pytest.approx(0, abs=to_float(abs, u.deg))
+    return delta_angle.to_value(u.deg) == pytest.approx(0, abs=abs.to_value(u.deg))
 
 
 def test_compare_angles():
@@ -102,26 +101,25 @@ def get_sub_obs_test(inclination: u.Quantity):
     geo = SystemGeometry(inclination=inclination)
     time = 0*u.s
     init_lon = geo.init_stellar_lon
-    assert geo.sub_obs(time)['lon'] == pytest.approx(init_lon, rel=1e-6)
-    assert to_float(geo.sub_obs(time)[
-                    'lat'], u.deg) == pytest.approx(-1*to_float(90*u.deg-inclination, u.deg), rel=1e-6)
+    assert geo.sub_obs(time)['lon'].to_value(u.deg) == pytest.approx(init_lon.to_value(u.deg), rel=1e-6)
+    assert geo.sub_obs(time)['lat'].to_value(u.deg) == pytest.approx(-1*(90*u.deg-inclination).to_value(u.deg), rel=1e-6)
     time = 0.1*geo.stellar_period
     coords = geo.sub_obs(time)
-    assert to_float(coords['lon'], u.deg) == pytest.approx(
+    assert coords['lon'].to_value(u.deg) == pytest.approx(
         ((init_lon-0.1*360*u.deg) % (360*u.deg)).value, rel=1e-6)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(-1 *
-                                                           to_float(90*u.deg-inclination, u.deg), rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(-1 *
+                                                           (90*u.deg-inclination).to_value(u.deg), rel=1e-6)
     time = 0.5*geo.stellar_period
     coords = geo.sub_obs(time)
-    assert to_float(coords['lon'], u.deg) == pytest.approx(
+    assert coords['lon'].to_value(u.deg) == pytest.approx(
         ((init_lon-0.5*360*u.deg) % (360*u.deg)).value, rel=1e-6)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(-1 *
-                                                           to_float(90*u.deg-inclination, u.deg), rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(-1 *
+                                                           (90*u.deg-inclination).to_value(u.deg), rel=1e-6)
     time = geo.stellar_period
     coords = geo.sub_obs(time)
-    assert to_float(coords['lon'], u.deg) == pytest.approx(init_lon, rel=1e-6)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(-1 *
-                                                           to_float(90*u.deg-inclination, u.deg), rel=1e-6)
+    assert coords['lon'].to_value(u.deg) == pytest.approx(init_lon, rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(-1 *
+                                                           (90*u.deg-inclination).to_value(u.deg), rel=1e-6)
 
 
 def test_sub_obs():
@@ -135,28 +133,28 @@ def test_sub_obs():
                          stellar_offset_phase=0*u.deg, inclination=90*u.deg)
     time = 0*u.s
     coords = geo.sub_obs(time)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(90, rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(90, rel=1e-6)
     time = 0.4*geo.stellar_period
     coords = geo.sub_obs(time)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(90, rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(90, rel=1e-6)
 
     geo = SystemGeometry(stellar_offset_amp=45*u.deg,
                          stellar_offset_phase=90*u.deg, inclination=90*u.deg)
     time = 0*u.s
     coords = geo.sub_obs(time)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(0, rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(0, rel=1e-6)
     time = 0.4*geo.stellar_period
     coords = geo.sub_obs(time)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(0, rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(0, rel=1e-6)
 
     geo = SystemGeometry(stellar_offset_amp=90*u.deg,
                          stellar_offset_phase=180*u.deg, inclination=90*u.deg)
     time = 0*u.s
     coords = geo.sub_obs(time)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(-90, rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(-90, rel=1e-6)
     time = 0.4*geo.stellar_period
     coords = geo.sub_obs(time)
-    assert to_float(coords['lat'], u.deg) == pytest.approx(-90, rel=1e-6)
+    assert coords['lat'].to_value(u.deg) == pytest.approx(-90, rel=1e-6)
 
 
 def test_mean_motion():
@@ -164,8 +162,8 @@ def test_mean_motion():
     Run tests for `SystemGeometry.mean_motion()`
     """
     geo = SystemGeometry()
-    assert to_float(geo.mean_motion(), u.deg/u.day) == pytest.approx(
-        to_float(360*u.deg/geo.orbital_period, u.deg/u.day), rel=1e-6)
+    assert geo.mean_motion().to_value(u.deg/u.day) == pytest.approx(
+        (360*u.deg/geo.orbital_period).to_value(u.deg/u.day), rel=1e-6)
 
 
 def test_mean_anomaly():
@@ -175,8 +173,7 @@ def test_mean_anomaly():
     geo = SystemGeometry(init_planet_phase=0*u.deg,
                          phase_of_periasteron=0*u.deg)
     for time in np.linspace(0, 2, 11):
-        assert to_float(geo.mean_anomaly(time*geo.orbital_period),
-                        u.deg) == pytest.approx(360 * (time % 1), rel=1e-6)
+        assert (geo.mean_anomaly(time*geo.orbital_period)).to_value(u.deg) == pytest.approx(360 * (time % 1), rel=1e-6)
 
 
 def test_eccentric_anomaly():
@@ -186,17 +183,17 @@ def test_eccentric_anomaly():
     geo = SystemGeometry(init_planet_phase=0*u.deg,
                          phase_of_periasteron=0*u.deg, eccentricity=0)
     for time in np.linspace(0, 2, 11):
-        assert to_float(geo.eccentric_anomaly(time*geo.orbital_period), u.deg) == pytest.approx(
-            to_float(geo.mean_anomaly(time*geo.orbital_period), u.deg), rel=1e-6)
+        assert geo.eccentric_anomaly(time*geo.orbital_period).to_value(u.deg) == pytest.approx(
+            geo.mean_anomaly(time*geo.orbital_period).to_value(u.deg), rel=1e-6)
     eccentricity = 0.5
     geo = SystemGeometry(init_planet_phase=0*u.deg,
                          phase_of_periasteron=0*u.deg, eccentricity=eccentricity)
     for time in np.linspace(0, 2, 11):
         mean_anom = geo.mean_anomaly(time*geo.orbital_period)
         eccentric_anom = geo.eccentric_anomaly(time*geo.orbital_period)
-        lhs = to_float(eccentric_anom, u.rad) - eccentricity * \
-            to_float(np.sin(eccentric_anom), u.dimensionless_unscaled)
-        rhs = to_float(mean_anom, u.rad)
+        lhs = eccentric_anom.to_value(u.rad) - eccentricity * \
+            np.sin(eccentric_anom).to_value(u.dimensionless_unscaled)
+        rhs = mean_anom.to_value(u.rad)
         assert lhs == pytest.approx(rhs, rel=1e-6)
 
 
@@ -209,18 +206,18 @@ def test_true_anomaly():
     for time in np.linspace(0, 2, 11):
         true_anomaly = geo.true_anomaly(time*geo.orbital_period)
         mean_anomaly = geo.mean_anomaly(time*geo.orbital_period)
-        assert to_float(true_anomaly, u.deg) == pytest.approx(
-            to_float(mean_anomaly, u.deg), rel=1e-6)
+        assert true_anomaly.to_value(u.deg) == pytest.approx(
+            mean_anomaly.to_value(u.deg), rel=1e-6)
     eccentricity = 0.5
     geo = SystemGeometry(init_planet_phase=0*u.deg,
                          phase_of_periasteron=0*u.deg, eccentricity=eccentricity)
     for time in np.linspace(0, 2, 11):
         true_anomaly = geo.true_anomaly(time*geo.orbital_period)
         eccentric_anomaly = geo.eccentric_anomaly(time*geo.orbital_period)
-        lhs = to_float(np.tan(eccentric_anomaly), u.dimensionless_unscaled)
+        lhs = np.tan(eccentric_anomaly).to_value(u.dimensionless_unscaled)
         numerator = np.sqrt(1-eccentricity**2) * np.sin(true_anomaly)
         denominator = eccentricity + np.cos(true_anomaly)
-        rhs = to_float(numerator/denominator, u.dimensionless_unscaled)
+        rhs = (numerator/denominator).to_value(u.dimensionless_unscaled)
         assert lhs == pytest.approx(rhs, rel=1e-6)
 
 
@@ -232,15 +229,15 @@ def test_phase():
                          phase_of_periasteron=0*u.deg, eccentricity=0)
     for time in np.linspace(0, 2, 11):
         phase = geo.phase(time*geo.orbital_period)
-        assert to_float(phase, u.deg) == pytest.approx(360*(time % 1), 1e-6)
+        assert phase.to_value(u.deg) == pytest.approx(360*(time % 1), 1e-6)
 
     geo = SystemGeometry(init_planet_phase=0*u.deg,
                          phase_of_periasteron=0*u.deg, eccentricity=0)
     for time in np.linspace(0, 2, 11):
         phase = geo.phase(time*geo.orbital_period)
         true_anomaly = geo.true_anomaly(time*geo.orbital_period)
-        assert to_float(phase, u.deg) == pytest.approx(
-            to_float(true_anomaly, u.deg))
+        assert phase.to_value(u.deg) == pytest.approx(
+            true_anomaly.to_value(u.deg))
     for init_planet_phase in np.linspace(0, 360, 4)*u.deg:
         for phase_of_periasteron in np.linspace(0, 360, 7)*u.deg:
             geo = SystemGeometry(init_planet_phase=init_planet_phase,
@@ -248,8 +245,8 @@ def test_phase():
             for time in np.linspace(0, 2, 11):
                 phase = geo.phase(time*geo.orbital_period)
                 true_anomaly = geo.true_anomaly(time*geo.orbital_period)
-                assert to_float(phase, u.deg) == pytest.approx(
-                    to_float(true_anomaly+phase_of_periasteron, u.deg) % 360, rel=1e-6)
+                assert phase.to_value(u.deg) == pytest.approx(
+                    (true_anomaly+phase_of_periasteron).to_value(u.deg) % 360, rel=1e-6)
 
 
 def test_sub_planet():
@@ -260,20 +257,20 @@ def test_sub_planet():
     time = 3*u.day
     coords1 = geo.sub_planet(time)
     coords2 = geo.sub_planet(time, phase=geo.phase(time))
-    assert to_float(coords1['lat'], u.deg) == pytest.approx(
-        to_float(coords2['lat'], u.deg), rel=1e-6)
-    assert to_float(coords1['lon'], u.deg) == pytest.approx(
-        to_float(coords2['lon'], u.deg), rel=1e-6)
+    assert coords1['lat'].to_value(u.deg) == pytest.approx(
+        coords2['lat'].to_value(u.deg), rel=1e-6)
+    assert coords1['lon'].to_value(u.deg) == pytest.approx(
+        coords2['lon'].to_value(u.deg), rel=1e-6)
 
     geo = SystemGeometry(phase_of_periasteron=180*u.deg,
                          init_planet_phase=180*u.deg,
                          init_stellar_lon=0*u.deg, inclination=90*u.deg)
     sub_obs = geo.sub_obs(0*u.s)
     sub_pl = geo.sub_planet(0*u.s)
-    assert to_float(sub_pl['lon'], u.deg) == pytest.approx(
-        to_float(sub_obs['lon'], u.deg), abs=1e-6)
-    assert to_float(sub_pl['lat'], u.deg) == pytest.approx(
-        to_float(sub_obs['lat'], u.deg), abs=1e-6)
+    assert sub_pl['lon'].to_value(u.deg) == pytest.approx(
+        sub_obs['lon'].to_value(u.deg), abs=1e-6)
+    assert sub_pl['lat'].to_value(u.deg) == pytest.approx(
+        sub_obs['lat'].to_value(u.deg), abs=1e-6)
 
     geo = SystemGeometry(phase_of_periasteron=180*u.deg,
                          init_planet_phase=180*u.deg,
@@ -281,10 +278,10 @@ def test_sub_planet():
                          stellar_offset_amp=45*u.deg, stellar_offset_phase=0*u.deg)
     sub_obs = geo.sub_obs(0*u.s)
     sub_pl = geo.sub_planet(0*u.s)
-    assert to_float(sub_pl['lon'], u.deg) == pytest.approx(
-        to_float(sub_obs['lon'], u.deg), abs=1e-6)
-    assert to_float(sub_pl['lat'], u.deg) == pytest.approx(
-        to_float(sub_obs['lat'], u.deg), abs=1e-6)
+    assert sub_pl['lon'].to_value(u.deg) == pytest.approx(
+        sub_obs['lon'].to_value(u.deg), abs=1e-6)
+    assert sub_pl['lat'].to_value(u.deg) == pytest.approx(
+        sub_obs['lat'].to_value(u.deg), abs=1e-6)
 
     geo = SystemGeometry(phase_of_periasteron=180*u.deg,
                          init_planet_phase=180*u.deg,
@@ -292,10 +289,10 @@ def test_sub_planet():
                          stellar_offset_amp=45*u.deg, stellar_offset_phase=90*u.deg)
     sub_obs = geo.sub_obs(0*u.s)
     sub_pl = geo.sub_planet(0*u.s)
-    assert to_float(sub_pl['lon'], u.deg) == pytest.approx(
-        to_float(sub_obs['lon'], u.deg), abs=1e-6)
-    assert to_float(sub_pl['lat'], u.deg) == pytest.approx(
-        to_float(sub_obs['lat'], u.deg), abs=1e-6)
+    assert sub_pl['lon'].to_value(u.deg) == pytest.approx(
+        sub_obs['lon'].to_value(u.deg), abs=1e-6)
+    assert sub_pl['lat'].to_value(u.deg) == pytest.approx(
+        sub_obs['lat'].to_value(u.deg), abs=1e-6)
 
 
 def test_get_time_since_periasteron():
@@ -304,17 +301,13 @@ def test_get_time_since_periasteron():
     """
     geo = SystemGeometry(phase_of_periasteron=0*u.deg,
                          init_planet_phase=0*u.deg)
-    assert to_float(geo.get_time_since_periasteron(
-        0*u.deg), u.s) == pytest.approx(0, abs=10)
-    assert to_float(geo.get_time_since_periasteron(
-        180*u.deg), u.s) == pytest.approx(to_float(0.5*geo.orbital_period, u.s), abs=10)
+    assert geo.get_time_since_periasteron(0*u.deg).to_value(u.s) == pytest.approx(0, abs=10)
+    assert geo.get_time_since_periasteron(180*u.deg).to_value(u.s) == pytest.approx((0.5*geo.orbital_period).to_value(u.s), abs=10)
 
     geo = SystemGeometry(phase_of_periasteron=90*u.deg,
                          init_planet_phase=90*u.deg)
-    assert to_float(geo.get_time_since_periasteron(
-        0*u.deg), u.s) == pytest.approx(to_float(0.75*geo.orbital_period, u.s), abs=10)
-    assert to_float(geo.get_time_since_periasteron(
-        180*u.deg), u.s) == pytest.approx(to_float(0.25*geo.orbital_period, u.s), abs=10)
+    assert geo.get_time_since_periasteron(0*u.deg).to_value(u.s) == pytest.approx((0.75*geo.orbital_period).to_value(u.s), abs=10)
+    assert geo.get_time_since_periasteron(180*u.deg).to_value(u.s) == pytest.approx((0.25*geo.orbital_period).to_value(u.s), abs=10)
 
 
 def test_get_substellar_lon_at_periasteron():
@@ -326,32 +319,28 @@ def test_get_substellar_lon_at_periasteron():
                          planetary_init_substellar_lon=0*u.deg,
                          orbital_period=10*u.day,
                          planetary_rot_period=10*u.day)
-    assert to_float(geo.get_substellar_lon_at_periasteron(),
-                    u.deg) == pytest.approx(0, abs=1e-6)
+    assert geo.get_substellar_lon_at_periasteron().to_value(u.deg) == pytest.approx(0, abs=1e-6)
 
     geo = SystemGeometry(phase_of_periasteron=90*u.deg,
                          init_planet_phase=270*u.deg,
                          planetary_init_substellar_lon=0*u.deg,
                          orbital_period=10*u.day,
                          planetary_rot_period=10*u.day)
-    assert to_float(geo.get_substellar_lon_at_periasteron(),
-                    u.deg) == pytest.approx(0, abs=1e-6)
+    assert geo.get_substellar_lon_at_periasteron().to_value(u.deg) == pytest.approx(0, abs=1e-6)
 
     geo = SystemGeometry(phase_of_periasteron=90*u.deg,
                          init_planet_phase=270*u.deg,
                          planetary_init_substellar_lon=0*u.deg,
                          orbital_period=10*u.day,
                          planetary_rot_period=5*u.day)
-    assert to_float(geo.get_substellar_lon_at_periasteron(),
-                    u.deg) == pytest.approx(180, abs=1e-6)
+    assert geo.get_substellar_lon_at_periasteron().to_value(u.deg) == pytest.approx(180, abs=1e-6)
 
     geo = SystemGeometry(phase_of_periasteron=0*u.deg,
                          init_planet_phase=50*u.deg,
                          planetary_init_substellar_lon=90*u.deg,
                          orbital_period=10*u.day,
                          planetary_rot_period=10*u.day)
-    assert to_float(geo.get_substellar_lon_at_periasteron(),
-                    u.deg) == pytest.approx(90, abs=1e-6)
+    assert geo.get_substellar_lon_at_periasteron().to_value(u.deg) == pytest.approx(90, abs=1e-6)
 
 
 def test_get_substellar_lon():

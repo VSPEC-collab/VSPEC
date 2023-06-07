@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from VSPEC.variable_star_model import Facula, FaculaCollection, FaculaGenerator
-from VSPEC.helpers import MSH, CoordinateGrid, to_float
+from VSPEC.helpers import CoordinateGrid
 
 
 def init_facula(**kwargs):
@@ -38,7 +38,7 @@ def test_facula_init():
     fac = init_facula()
     assert np.all(fac.r > 0*u.deg)
     assert np.all(fac.r < 180*u.deg)
-    assert np.max(to_float(fac.r, u.deg)) == pytest.approx(180, abs=1)
+    assert np.max(fac.r.to_value(u.deg)) == pytest.approx(180, abs=1)
 
 
 def test_facula_age():

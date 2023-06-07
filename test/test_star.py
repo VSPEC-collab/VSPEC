@@ -7,8 +7,8 @@ from cartopy import crs as ccrs
 
 from VSPEC.variable_star_model import Star, SpotCollection, FaculaCollection, FlareGenerator, SpotGenerator, FaculaGenerator
 from VSPEC.variable_star_model.granules import Granulation
-from VSPEC.variable_star_model import StarSpot,Facula
-from VSPEC.helpers import CoordinateGrid, MSH, get_angle_between, proj_ortho
+from VSPEC.helpers import CoordinateGrid
+from VSPEC.config import MSH
 
 @pytest.fixture
 def star():

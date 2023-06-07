@@ -19,14 +19,13 @@ from functools import partial
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.variable_star_model import granules
-from VSPEC.config import PSG_CFG_MAX_LINES
-from VSPEC.files import build_directories, N_ZFILL, get_filename
+from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
+from VSPEC.files import build_directories, get_filename
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
-from VSPEC.helpers import plan_to_df, get_planet_indicies
+from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs
+from VSPEC.helpers import plan_to_df, get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
-from VSPEC.analysis import read_lyr
 from VSPEC.params.read import Parameters
 
 
@@ -138,7 +137,7 @@ class ObservationModel:
                 This way I don't have to type the same arguments twice.
                 """
                 func(
-                    to_float(teff, u.K),
+                    teff.to_value(u.K),
                     file_name_writer=stellar_spectra.get_binned_filename,
                     binned_path=self.dirs['binned'],
                     resolving_power=self.params.inst.bandpass.resolving_power,
@@ -171,7 +170,7 @@ class ObservationModel:
         flux : astropy.units.Quantity [flambda]
             The binned flux of the spectrum.
         """
-        filename = stellar_spectra.get_binned_filename(to_float(teff, u.K))
+        filename = stellar_spectra.get_binned_filename(teff.to_value(u.K))
         path = self.dirs['binned']
         return stellar_spectra.read_binned_spectrum(filename, path=path)
 
@@ -766,8 +765,7 @@ class ObservationModel:
                     'The wavelength coordinates must be equivalent.')
             planet_reflection_only = get_reflected(
                 combined, thermal, self.params.planet.name)
-            planet_reflection_fraction = to_float(
-                planet_reflection_only / combined.data['Stellar'], u.dimensionless_unscaled)
+            planet_reflection_fraction = (planet_reflection_only / combined.data['Stellar']).to_value(u.dimensionless_unscaled)
 
             planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
             reflected.append(planet_reflection_adj)
@@ -1043,10 +1041,7 @@ class ObservationModel:
             N1, N2 = get_planet_indicies(planet_times, tindex)
             N1_frac = (planet_times[N2] - tindex)/planet_time_step
             N1_frac = N1_frac.to_value(u.dimensionless_unscaled)
-            # N1_frac = 1 - \
-            #     to_float(
-            #         (tindex - planet_times[N1])/planet_time_step, u.Unit(''))
-
+            
             sub_planet_lon = observation_info['sub_planet_lon'][index]
             sub_planet_lat = observation_info['sub_planet_lat'][index]
             
@@ -1088,7 +1083,7 @@ class ObservationModel:
 
             wave, noise_flux_adj = self.calculate_noise(N1, N2, N1_frac,
                                                         np.sqrt(
-                                                            to_float(planet_time_step/time_step, u.Unit(''))),
+                                                            (planet_time_step/time_step).to_value(u.dimensionless_unscaled)),
                                                         comp_wave, combined_flux)
             assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
 

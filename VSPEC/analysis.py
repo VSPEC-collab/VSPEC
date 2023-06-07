@@ -6,7 +6,6 @@ This module is designed to allow a user to easily handle
 
 import re
 from copy import deepcopy
-from io import StringIO
 from pathlib import Path
 import warnings
 import numpy as np
@@ -16,8 +15,7 @@ from astropy.io import fits
 from datetime import datetime
 import json
 
-from VSPEC.helpers import to_float
-from VSPEC.files import N_ZFILL, MOLEC_DATA_PATH
+from VSPEC.config import N_ZFILL, MOLEC_DATA_PATH
 
 
 class PhaseAnalyzer:
@@ -94,23 +92,23 @@ class PhaseAnalyzer:
             # star
             col = cols[cols.str.contains(r'star\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            star.append(to_float(spectra[col].values * unit, fluxunit))
+            star.append((spectra[col].values * unit).to_value(fluxunit))
             # reflected
             col = cols[cols.str.contains(r'reflected\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            reflected.append(to_float(spectra[col].values * unit, fluxunit))
+            reflected.append((spectra[col].values * unit).to_value(fluxunit))
             # reflected
             col = cols[cols.str.contains(r'planet_thermal\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            thermal.append(to_float(spectra[col].values * unit, fluxunit))
+            thermal.append((spectra[col].values * unit).to_value(fluxunit))
             # total
             col = cols[cols.str.contains(r'total\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            total.append(to_float(spectra[col].values * unit, fluxunit))
+            total.append((spectra[col].values * unit).to_value(fluxunit))
             # noise
             col = cols[cols.str.contains(r'noise\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            noise.append(to_float(spectra[col].values * unit, fluxunit))
+            noise.append((spectra[col].values * unit).to_value(fluxunit))
         self.star = np.asarray(star).T * fluxunit
         self.reflected = np.asarray(reflected).T * fluxunit
         self.thermal = np.asarray(thermal).T * fluxunit
@@ -254,10 +252,10 @@ class PhaseAnalyzer:
         if flux.ndim > 1:
             flux = flux.mean(axis=0)
         if isinstance(normalize, int):
-            flux = to_float(flux/flux[normalize], u.Unit(''))
+            flux = (flux/flux[normalize]).to_value(u.dimensionless_unscaled)
         elif isinstance(normalize, str):
             if normalize == 'max':
-                flux = to_float(flux/flux.max(), u.Unit(''))
+                flux = (flux/flux.max()).to_value(u.dimensionless_unscaled)
             elif normalize == 'none':
                 pass
             else:
@@ -422,47 +420,6 @@ class PhaseAnalyzer:
             for w,f,n in zip(wl,flux,noise):
                 file.write(f'{w:<10.4f}{f:<14.4e}{n:<14.4e}\n')
 
-
-def read_lyr(filename: str) -> pd.DataFrame:
-    """
-    Read layer file
-
-    Parse a PSG .lyr file and turn it into a
-    pandas DataFrame.
-
-    Parameters
-    ----------
-    filename : str
-        The name of the layer file.
-
-    Returns
-    -------
-    pandas.DataFrame
-        DataFrame containing the layer data.
-    """
-    lines = []
-    with open(filename, 'r', encoding='UTF-8') as file:
-        save = False
-        for line in file:
-            if 'Alt[km]' in line:
-                save = True
-            if save:
-                if '--' in line:
-                    if len(lines) > 2:
-                        save = False
-                    else:
-                        pass
-                else:
-                    lines.append(line[2:-1])
-    if len(lines) == 0:
-        raise ValueError('No data was captured. Perhaps the format is wrong.')
-    dat = StringIO('\n'.join(lines[1:]))
-    names = lines[0].split()
-    for i, name in enumerate(names):
-        # get previous parameter (e.g 'water' for 'water_size')
-        if 'size' in name:
-            names[i] = names[i-1] + '_' + name
-    return pd.read_csv(dat, delim_whitespace=True, names=names)
 
 
 def get_gcm_binary(filename):

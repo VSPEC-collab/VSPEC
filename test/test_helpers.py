@@ -14,34 +14,6 @@ from VSPEC import helpers
 from VSPEC.geometry import SystemGeometry
 
 
-def test_to_float():
-    """
-    Test `to_float()`
-
-    Run tests for `VSPEC.helpers.to_float()`
-    This function converts `astropy.Quantity` objects to `float`
-    given a target unit
-    """
-    quant = 1*u.um
-    unit = u.AA
-    # Angstrom = 1e-10 m
-    # micron = 1e-6 m
-    # 1e4 angstrom / micron
-    expected = 1e4
-    observed = helpers.to_float(quant, unit)
-    message = f'Units converted unsuccessfully. Expected: {expected}, Observed: {observed}'
-    assert observed == pytest.approx(
-        expected, rel=1e-9), 'test failed: ' + message
-
-    quant = 1*u.um
-    unit = u.Unit('')  # dimensionless
-    try:
-        helpers.to_float(quant, unit)
-        assert False, 'test failed: Bad unit conversion did not raise error'
-    except u.UnitConversionError:
-        pass
-
-
 def test_isclose():
     """
     Test `is_close()`
@@ -126,14 +98,13 @@ def test_get_transit_radius():
     transit_duration = 0.8788*u.hr
     orbital_period = 1.58040433*u.day
     true_radius = np.pi*u.rad * \
-        helpers.to_float(transit_duration/orbital_period,
-                         u.dimensionless_unscaled)
+        (transit_duration/orbital_period).to_value(u.dimensionless_unscaled)
     predicted_radius = helpers.get_transit_radius(system_distance,
                                                   stellar_radius,
                                                   semimajor_axis,
                                                   planet_radius)
-    true_radius = helpers.to_float(true_radius, u.deg)
-    predicted_radius = helpers.to_float(predicted_radius, u.deg)
+    true_radius = true_radius.to_value(u.deg)
+    predicted_radius = predicted_radius.to_value(u.deg)
     message = f'True: {true_radius:.2f}, Calculated: {predicted_radius:.2f}'
     assert predicted_radius == pytest.approx(
         true_radius, rel=0.1), 'test failed: ' + message

@@ -27,7 +27,7 @@ from astropy.units.quantity import Quantity
 from typing import Tuple
 
 from VSPEC.helpers import CoordinateGrid
-from VSPEC.helpers import MSH, get_angle_between, proj_ortho, calc_circ_fraction_inside_unit_circle
+from VSPEC.helpers import get_angle_between, proj_ortho, calc_circ_fraction_inside_unit_circle
 from VSPEC.variable_star_model.spots import SpotCollection, SpotGenerator
 from VSPEC.variable_star_model.faculae import FaculaCollection, FaculaGenerator, Facula
 from VSPEC.variable_star_model.flares import FlareCollection, FlareGenerator

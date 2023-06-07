@@ -6,8 +6,7 @@ from astropy import units as u
 import numpy as np
 import yaml
 
-from VSPEC.files import PRESET_PATH
-from VSPEC.config import flux_unit as default_flux_unit
+from VSPEC.config import flux_unit as default_flux_unit, PRESET_PATH
 from VSPEC.params.base import BaseParameters, PSGtable, parse_table
 
 

@@ -96,6 +96,8 @@ psg:
   phase_binning: 1
   use_molecular_signatures: True
   url: https://psg.gsfc.nasa.gov
+  nmax: 0
+  lmax: 0
   api_key:
     path: ~/psg_key.txt
 gcm:

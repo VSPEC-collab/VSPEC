@@ -5,50 +5,14 @@ throughout the rest of the package, especially
 pertainting to safe-casting of astropy.units
 objects.
 """
-import warnings
 from astropy import units as u
 from numpy import isclose as np_isclose
+from io import StringIO
 import numpy as np
 import pandas as pd
 import socket
 from os import system
 
-MSH = u.def_unit('msh', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
-"""Micro-solar hemisphere
-
-This is a standard unit in heliophysics that
-equals one millionth of one half the surface area of the Sun.
-"""
-
-
-def to_float(quant: u.Quantity, unit: u.Unit) -> float:
-    """
-    Cast to float
-
-    Cast an `astropy.Quantity` to a float given a unit.
-
-    Parameters
-    ----------
-    quant : astropy.units.Quantity
-        Quantity to be cast to float
-    unit : astropy.units.Unit
-        Unit to be used when casting `quant`
-
-    Returns
-    -------
-    float
-        `quant` cast to `unit`
-
-    Warns
-    -----
-    RuntimeWarning
-        If `quant` is of type `float` and is converted to a
-        dimensionless unit
-    """
-    if isinstance(quant, float) and unit == u.dimensionless_unscaled:
-        message = 'Value passed to `to_float() is already a float`'
-        warnings.warn(message, category=RuntimeWarning)
-    return (quant/unit).to(u.Unit('')).value
 
 
 def isclose(quant1: u.Quantity, quant2: u.Quantity, tol: u.Quantity) -> bool:
@@ -73,7 +37,7 @@ def isclose(quant1: u.Quantity, quant2: u.Quantity, tol: u.Quantity) -> bool:
         Whether `param1` and `param2` are within `tol`
     """
     unit = tol.unit
-    return np_isclose(to_float(quant1, unit), to_float(quant2, unit), atol=to_float(tol, unit))
+    return np_isclose(quant1.to_value(unit), quant2.to_value(unit), atol=tol.to_value(unit))
 
 
 def get_transit_radius(
@@ -107,13 +71,11 @@ def get_transit_radius(
         The maximum radius from mid-transit where
         there is stellar and planetary disk overlap
     """
-    radius_over_semimajor_axis = to_float(
-        stellar_radius/semimajor_axis, u.Unit(''))
-    radius_over_distance = to_float(stellar_radius/system_distance, u.Unit(''))
+    radius_over_semimajor_axis = (stellar_radius/semimajor_axis).to_value(u.dimensionless_unscaled)
+    radius_over_distance = (stellar_radius/system_distance).to_value(u.dimensionless_unscaled)
     angle_point_planet = np.arcsin(radius_over_semimajor_axis*np.cos(
         radius_over_distance)) - radius_over_distance  # float in radians
-    planet_radius_angle = to_float(
-        planet_radius/(2*np.pi*semimajor_axis), u.Unit(''))
+    planet_radius_angle = (planet_radius/(2*np.pi*semimajor_axis)).to_value(u.dimensionless_unscaled)
     return (angle_point_planet+planet_radius_angle)*u.rad
 
 
@@ -182,7 +144,7 @@ def arrange_teff(minteff: u.Quantity, maxteff: u.Quantity):
         high = maxteff
     else:
         high = maxteff - (maxteff % step) + step
-    number_of_steps = to_float((high-low)/step, u.dimensionless_unscaled)
+    number_of_steps = ((high-low)/step).to_value(u.dimensionless_unscaled)
     number_of_steps = int(round(number_of_steps))
     teffs = low + np.arange(number_of_steps+1)*step
     return teffs
@@ -265,9 +227,9 @@ class CoordinateGrid:
 
     Attributes
     ----------
-    Nlat : int, default=500
+    Nlat : int
         Number of latitude points.
-    Nlon : int, default=1000
+    Nlon : int
         Number of longitude points.
 
     """
@@ -361,7 +323,7 @@ def round_teff(teff):
 
     Parameters
     ----------
-    teff : astropy.units.Quantity 
+    teff : astropy.units.Quantity
         The temperature to round.
 
     Returns
@@ -408,7 +370,7 @@ def proj_ortho(
         The latitude of the other points.
     lons : astropy.units.quantity
         The longitude of the other points.
-    
+
     Returns
     -------
     x : np.ndarray
@@ -417,16 +379,19 @@ def proj_ortho(
     y : np.ndarray
         The y coordinates of the points in the
         orthographic projection
-    
+
     Notes
     -----
     Spherical law of cosines:
-    ..math:
-        cos(c) = cos(a) cos(b) + sin(a) sin(b) cos(C)
-    We want to find C.
-    b is the colatitude of the central point.
-    c is the colatitude of the other points.
-    a is the distance of each point from the center (i.e. cos(mu))
+
+    .. math::
+
+        \\cos{c} = \\cos{a} \\cos{b} + \\sin{a} \\sin{b} \\cos{C}
+    
+    We want to find :math:`C`.
+    :math:`b` is the colatitude of the central point.
+    :math:`c` is the colatitude of the other points.
+    :math:`a` is the distance of each point from the center (i.e. :math:`\\cos{\\mu}`)
     This can be difficult for special cases, but this code attempts
     to account for those.
     """
@@ -571,3 +536,43 @@ def get_planet_indicies(planet_times: u.Quantity, tindex: u.Quantity) -> tuple[i
         N1 = N2 - 1
     return N1, N2
 
+def read_lyr(filename: str) -> pd.DataFrame:
+    """
+    Read layer file
+
+    Parse a PSG .lyr file and turn it into a
+    pandas DataFrame.
+
+    Parameters
+    ----------
+    filename : str
+        The name of the layer file.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame containing the layer data.
+    """
+    lines = []
+    with open(filename, 'r', encoding='UTF-8') as file:
+        save = False
+        for line in file:
+            if 'Alt[km]' in line:
+                save = True
+            if save:
+                if '--' in line:
+                    if len(lines) > 2:
+                        save = False
+                    else:
+                        pass
+                else:
+                    lines.append(line[2:-1])
+    if len(lines) == 0:
+        raise ValueError('No data was captured. Perhaps the format is wrong.')
+    dat = StringIO('\n'.join(lines[1:]))
+    names = lines[0].split()
+    for i, name in enumerate(names):
+        # get previous parameter (e.g 'water' for 'water_size')
+        if 'size' in name:
+            names[i] = names[i-1] + '_' + name
+    return pd.read_csv(dat, delim_whitespace=True, names=names)

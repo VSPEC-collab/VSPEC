@@ -6,7 +6,6 @@ and the Planetary Spectrum Generator via the API.
 
 from io import StringIO
 import re
-from pathlib import Path
 import warnings
 from astropy import units as u
 import pandas as pd
@@ -14,7 +13,6 @@ import numpy as np
 import requests
 
 from VSPEC.params.read import Parameters
-from VSPEC.helpers import isclose
 
 warnings.simplefilter('ignore', category=u.UnitsWarning)
 
@@ -296,7 +294,12 @@ def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Qua
         If neither object has a `'Reflected'` data array and at least one
         of them is missing the `planet_name` data array.
     """
-    if not np.all(isclose(cmb_rad.data['Wave/freq'], therm_rad.data['Wave/freq'], 1e-3*u.um)):
+    axis_equal = np.isclose(
+        cmb_rad.data['Wave/freq'].to_value(u.um),
+        therm_rad.data['Wave/freq'].to_value(u.um),
+        atol=1e-3
+    )
+    if not axis_equal:
         raise ValueError('The spectral axes must be equivalent.')
 
     if 'Reflected' in cmb_rad.data.keys():

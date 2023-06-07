@@ -14,7 +14,8 @@ import numpy as np
 from astropy import units as u
 from astropy.units.quantity import Quantity
 
-from VSPEC.helpers import to_float, CoordinateGrid, MSH
+from VSPEC.helpers import CoordinateGrid
+from VSPEC.config import MSH
 
 
 class StarSpot:
@@ -239,7 +240,7 @@ class StarSpot:
         rad = a**2 - (c-c0)**2
         rad[rad < 0] = 0
         integrand = 2 * np.cos(c)*np.sqrt(rad)
-        return to_float(np.trapz(integrand, x=c)/(2*np.pi*u.steradian), u.Unit(''))
+        return (np.trapz(integrand, x=c)/(2*np.pi*u.steradian)).to_value(u.dimensionless_unscaled)
 
     def age(self, time: Quantity[u.s]) -> None:
         """

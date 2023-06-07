@@ -7,33 +7,6 @@ from typing import Dict
 from pathlib import Path
 import warnings
 
-N_ZFILL = 5
-"""int
-    `__width` argument for filename `str.zfill()` calls. When writing 
-    and reading files in the `VSPEC` output, this variable specifies
-    the number of leading zeros to use in the filename.
-"""
-
-RAW_PHOENIX_PATH = Path(__file__).parent / 'data' / 'NextGenModels' / 'RawData'
-"""str
-    The path to the raw PHOENIX stellar models.
-"""
-
-BINNED_PHOENIX_PATH = Path(__file__).parent / 'data' / 'NextGenModels' / 'binned'
-"""str
-    The path to the binned PHOENIX stellar models.
-"""
-
-EXAMPLE_GCM_PATH = Path(__file__).parent / 'data' / 'GCMs'
-"""str
-    The path to example GCMs.
-"""
-
-MOLEC_DATA_PATH = Path(__file__).parent / 'data' / 'molec.json'
-"""str
-    The path to the file containing molecular data for analysis.
-"""
-PRESET_PATH = Path(__file__).parent / 'presets'
 
 def check_and_build_dir(path: Path) -> None:
     """

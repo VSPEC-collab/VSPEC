@@ -6,7 +6,8 @@ import numpy as np
 import pytest
 
 from VSPEC.variable_star_model import StarSpot, SpotCollection, SpotGenerator
-from VSPEC.helpers import MSH, CoordinateGrid, to_float
+from VSPEC.helpers import CoordinateGrid
+from VSPEC.config import MSH
 
 rng = np.random.default_rng(20)
 
@@ -54,7 +55,7 @@ def test_spot_init():
     spot = init_test_spot()
     assert np.all(spot.r > 0*u.deg)
     assert np.all(spot.r < 180*u.deg)
-    assert np.max(to_float(spot.r, u.deg)) == pytest.approx(180, abs=1)
+    assert np.max(spot.r.to_value(u.deg)) == pytest.approx(180, abs=1)
 
     other = init_test_spot(
         gridmaker=CoordinateGrid(500+1, 1000),
@@ -83,7 +84,7 @@ def test_spot_radius():
     # r = sqrt(A/pi)
     pred = np.sqrt(current_area/np.pi)
     obs = spot.radius
-    assert to_float(pred, u.km) == pytest.approx(to_float(obs, u.km), rel=1e-6)
+    assert pred.to_value(u.km) == pytest.approx(obs.to_value(u.km), rel=1e-6)
 
 
 def test_spot_angular_radius():
@@ -93,14 +94,14 @@ def test_spot_angular_radius():
 
     pred = 180*u.deg
     obs = spot.angular_radius(stellar_rad)
-    assert to_float(obs, u.deg) == pytest.approx(
-        to_float(pred, u.deg), abs=0.01)
+    assert obs.to_value(u.deg) == pytest.approx(
+        pred.to_value(u.deg), abs=0.01)
 
     spot = init_test_spot(A0=0.5*star_surface_area)
     pred = 90*u.deg
     obs = spot.angular_radius(stellar_rad)
-    assert to_float(obs, u.deg) == pytest.approx(
-        to_float(pred, u.deg), abs=0.01)
+    assert obs.to_value(u.deg) == pytest.approx(
+        pred.to_value(u.deg), abs=0.01)
 
 
 def test_spot_map_pixels():
@@ -168,30 +169,30 @@ def test_spot_age():
     spot = init_test_spot(A0=10*MSH, Amax=100*MSH, growth_rate=1 /
                           u.day, decay_rate=10*MSH/u.day, growing=True)
     step = 1*u.day
-    assert to_float(spot.area_current, MSH) == pytest.approx(10, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(10, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current, MSH) == pytest.approx(20, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(20, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current, MSH) == pytest.approx(40, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(40, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current, MSH) == pytest.approx(80, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(80, rel=0.01)
     spot.age(step)
     assert not spot.is_growing
 
     spot = init_test_spot(A0=100*MSH, Amax=100*MSH, growth_rate=1 /
                           u.day, decay_rate=10*MSH/u.day, growing=False)
-    assert to_float(spot.area_current, MSH) == pytest.approx(100, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(100, rel=0.01)
     spot.age(step)
-    assert to_float(spot.area_current, MSH) == pytest.approx(90, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(90, rel=0.01)
     spot.age(9*step)
-    assert to_float(spot.area_current, MSH) == pytest.approx(0, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(0, rel=0.01)
 
     spot = init_test_spot(A0=10*MSH, Amax=100*MSH, growth_rate=1 /
                           u.day, decay_rate=10*MSH/u.day, growing=True)
     step = 1*u.day
-    assert to_float(spot.area_current, MSH) == pytest.approx(10, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(10, rel=0.01)
     spot.age(20*step)
-    assert to_float(spot.area_current, MSH) == pytest.approx(0, rel=0.01)
+    assert spot.area_current.to_value(MSH) == pytest.approx(0, rel=0.01)
 
 
 def test_init_spot_collection():

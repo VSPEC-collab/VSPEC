@@ -11,8 +11,7 @@ import pandas as pd
 import h5py
 from scipy.interpolate import interp1d, RegularGridInterpolator
 from astropy import units as u, constants as c
-from VSPEC.helpers import to_float, isclose
-from VSPEC.files import RAW_PHOENIX_PATH, BINNED_PHOENIX_PATH
+from VSPEC.config import RAW_PHOENIX_PATH, BINNED_PHOENIX_PATH
 
 PRE_BINNED = (1000,50)
 
@@ -101,10 +100,11 @@ def fast_bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
     fl = np.array(fl_data[:])
     fl = fl[region_to_bin]
     fl = np.power(10.,fl)* scale
-    binned_wavelengths = get_wavelengths(resolving_power,
-                                         to_float(
-                                             lam1, target_unit_wavelength),
-                                         to_float(lam2, target_unit_wavelength)) * target_unit_wavelength
+    binned_wavelengths = get_wavelengths(
+        resolving_power,
+        lam1.to_value(target_unit_wavelength),
+        lam2.to_value(target_unit_wavelength)
+    ) * target_unit_wavelength
     bin_number = np.digitize(wl[:-1],binned_wavelengths[:-1]) # bin ids
     dlam = np.diff(wl).to_value(target_unit_wavelength) #width of each hires channel um
     binned_dlam = np.diff(binned_wavelengths).to_value(target_unit_wavelength) #width of each low res channel um
@@ -177,10 +177,11 @@ def bin_from_cache(teff:int,
         lam1 = np.min(wl)
     if lam2 is None:
         lam2 = np.max(wl)
-    binned_wavelengths = get_wavelengths(resolving_power,
-                                         to_float(
-                                             lam1, target_unit_wavelength),
-                                         to_float(lam2, target_unit_wavelength)) * target_unit_wavelength
+    binned_wavelengths = get_wavelengths(
+        resolving_power,
+        lam1.to_value(target_unit_wavelength),
+        lam2.to_value(target_unit_wavelength)
+    ) * target_unit_wavelength
     if interp_only:
         binned_flux = interp1d(
             wl.to_value(target_unit_wavelength),
@@ -249,10 +250,11 @@ def bin_raw_data(path: Union[str, Path], resolving_power: int = 50,
         lam1 = np.min(wl)
     if lam2 is None:
         lam2 = np.max(wl)
-    binned_wavelengths = get_wavelengths(resolving_power,
-                                         to_float(
-                                             lam1, target_unit_wavelength),
-                                         to_float(lam2, target_unit_wavelength)) * target_unit_wavelength
+    binned_wavelengths = get_wavelengths(
+        resolving_power,
+        lam1.to_value(target_unit_wavelength),
+        lam2.to_value(target_unit_wavelength)
+    ) * target_unit_wavelength
     region_to_bin = (wl >= lam1) & (wl <= lam2)
     wl = wl[region_to_bin]
     fl = fl[region_to_bin]
@@ -548,15 +550,20 @@ def interpolate_spectra(target_teff: u.Quantity,
     ValueError
         If `wave1` is not close to `wave2`.
     """
-    if not np.all(isclose(wave1, wave2, tol=1e-6*wave1[0])):
+    share_axis = np.all(np.isclose(
+        wave1.to_value(u.um),
+        wave2.to_value(u.um),
+        atol=1e-6*wave1[0].to_value(u.um)
+    ))
+    if not share_axis:
         raise ValueError(
             'Cannot interpolate between spectra that do not share a wavelength axis.')
     flux_unit = flux1.unit
     interp = RegularGridInterpolator(
-        ([to_float(teff1, u.K), to_float(teff2, u.K)],wave1),
-        [to_float(flux1, flux_unit), to_float(flux2, flux_unit)]
+        ([teff1.to_value(u.K), teff2.to_value(u.K)],wave1),
+        [flux1.to_value(flux_unit),flux2.to_value(flux_unit)]
     )
-    return wave1, interp((to_float(target_teff, u.K),wave1),'linear') * flux_unit
+    return wave1, interp((target_teff.to_value(u.K),wave1),'linear') * flux_unit
 
 
 def blackbody(wavelength: u.Quantity, teff: u.Quantity, area: u.Quantity, distance: u.Quantity,

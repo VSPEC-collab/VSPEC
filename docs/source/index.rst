@@ -29,6 +29,7 @@ but the code is much more general.
    :caption: Contents:
 
    intro
+   getting_started
    components
    modules/params
    references

@@ -7,8 +7,7 @@ from netCDF4 import Dataset
 from typing import Union
 import yaml
 
-from VSPEC.config import psg_encoding
-from VSPEC.files import PRESET_PATH
+from VSPEC.config import psg_encoding, PRESET_PATH
 from VSPEC.params.base import BaseParameters
 from VSPEC.waccm.read_nc import get_time_index
 from VSPEC.waccm.write_psg import get_cfg_contents
