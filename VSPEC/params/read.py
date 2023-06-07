@@ -72,7 +72,7 @@ class Header(BaseParameters):
         )
 
 
-class Parameters(BaseParameters):
+class InternalParameters(BaseParameters):
     """
     Class to store parameters for a VSPEC simulation.
 

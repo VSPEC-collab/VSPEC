@@ -10,7 +10,6 @@ import pandas as pd
 from astropy import units as u
 from astropy.io import fits
 from VSPEC import PhaseAnalyzer
-from VSPEC.analysis import read_lyr
 from VSPEC.helpers import isclose
 
 DATA_DIR = Path(__file__).parent / 'data' / 'test_analysis'
@@ -145,20 +144,7 @@ def test_spectrum():
                       np.sqrt(epoch0**2+epoch1**2), tol))
 
 
-def test_read_lyr():
-    """
-    Test `VSPEC.analysis.read_lyr()`
-    """
-    file = DATA_DIR / 'layer00000.csv'
-    fake_file = EMPTY_DIR / 'layer00000.csv'
-    wrong_file = DATA_DIR / 'phase00000.csv'
 
-    with pytest.raises(FileNotFoundError):
-        read_lyr(fake_file)
-    with pytest.raises(ValueError):
-        read_lyr(wrong_file)
-    data = read_lyr(file)
-    assert isinstance(data, pd.DataFrame)
 
 
 if __name__ in '__main__':
@@ -167,4 +153,3 @@ if __name__ in '__main__':
     test_init_wrong_unit()
     test_lightcurve()
     test_spectrum()
-    test_read_lyr()

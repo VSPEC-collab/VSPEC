@@ -5,7 +5,7 @@ import pytest
 
 from VSPEC.params.stellar import SpotParameters
 from astropy import units as u
-from VSPEC.helpers import MSH
+from VSPEC.config import MSH
 
 def test_preset_solar():
     params_dict = {'preset': 'solar'}

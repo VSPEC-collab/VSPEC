@@ -95,6 +95,8 @@ def test_psgParameters_from_dict():
         'gcm_binning': '3',
         'phase_binning': '1',
         'use_molecular_signatures': 'True',
+        'nmax':'0',
+        'lmax':'0',
         'url': PSG_EXT_URL,
         'api_key': {
             'path': 'api_key.txt',
@@ -108,6 +110,8 @@ def test_psgParameters_from_dict():
     assert psg_params.gcm_binning == 3
     assert psg_params.phase_binning == 1
     assert psg_params.use_molecular_signatures is True
+    assert psg_params.nmax == 0
+    assert psg_params.lmax == 0
     assert psg_params.url == PSG_EXT_URL
     assert isinstance(psg_params.api_key, APIkey)
     assert psg_params.api_key.path == Path('api_key.txt')
@@ -119,6 +123,8 @@ def test_psgParameters_to_psg():
         gcm_binning=3,
         phase_binning=1,
         use_molecular_signatures=True,
+        nmax=0,
+        lmax=0,
         url=PSG_EXT_URL,
         api_key=APIkey(path='api_key.txt')
     )
@@ -129,4 +135,6 @@ def test_psgParameters_to_psg():
     # Perform assertions on the PSG input dictionary
     assert psg_input['GENERATOR-GCM-BINNING'] == '3'
     assert psg_input['GENERATOR-GAS-MODEL'] == 'Y'
+    assert psg_input['ATMOSPHERE-NMAX'] == '0'
+    assert psg_input['ATMOSPHERE-LMAX'] == '0'
 

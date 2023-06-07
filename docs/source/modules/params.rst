@@ -10,7 +10,7 @@ act as a container for all the parameters below.
 
 .. currentmodule:: VSPEC.params.read
 
-.. autosummary:: Parameters
+.. autosummary:: InternalParameters
 
 .. autosummary:: Header
 

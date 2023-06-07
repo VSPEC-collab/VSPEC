@@ -10,7 +10,7 @@ from astropy import units as u
 import numpy as np
 
 from VSPEC.main import ObservationModel
-from VSPEC.params.read import Parameters
+from VSPEC.params.read import InternalParameters
 
 cfg_path = Path(__file__).parent / 'test_params' / 'test.yaml'
 chdir(Path(__file__).parent / 'data')
@@ -25,7 +25,7 @@ def observation_model():
 def test_observation_model_initialization(observation_model:ObservationModel):
     # Verify that the ObservationModel instance is properly initialized
     assert observation_model.verbose == 1
-    assert isinstance(observation_model.params, Parameters)
+    assert isinstance(observation_model.params, InternalParameters)
     assert observation_model.star is None
 
 

@@ -5,7 +5,7 @@ This classes instruct the behavior of the rest
 of the ``VSPEC`` package.
 """
 from VSPEC.params.base import BaseParameters
-from VSPEC.params.read import Parameters
+from VSPEC.params.read import InternalParameters
 from VSPEC.params.read import Header
 from VSPEC.params.planet import PlanetParameters
 from VSPEC.params.planet import GravityParameters

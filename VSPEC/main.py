@@ -26,7 +26,7 @@ from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding
 from VSPEC.helpers import plan_to_df, get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
-from VSPEC.params.read import Parameters
+from VSPEC.params.read import InternalParameters
 
 
 class ObservationModel:
@@ -35,18 +35,18 @@ class ObservationModel:
 
     Parameters
     ----------
-    params : VSPEC.params.Parameters
-        The parameters describing the VSPEC simulation.
+    params : VSPEC.params.InternalParameters
+        The global parameters describing the VSPEC simulation.
 
     Attributes
     ----------
+    params : VSPEC.params.InternalParameters
+        The parameters for this simulation.
     verbose : int
         The verbosity level of the output.
-    params : `VSPEC.read_info.ParamModel`
-        The parameters for this simulation.
     dirs : dict
         The paths to model output directories.
-    star : `VSPEC.variable_star_model.Star`
+    star : VSPEC.variable_star_model.Star or None
         The variable host star.
     rng : numpy.random.Generator
         A psudo-random number generator to be used in
@@ -55,7 +55,7 @@ class ObservationModel:
 
     def __init__(
         self,
-        params:Parameters
+        params:InternalParameters
     ):
         self.params = params
         self.verbose = params.header.verbose
@@ -73,7 +73,7 @@ class ObservationModel:
         config_path : pathlib.path
             The path to the YAML file.
         """
-        params = Parameters.from_yaml(config_path)
+        params = InternalParameters.from_yaml(config_path)
         return cls(params)
 
     class __flags__:

@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import requests
 
-from VSPEC.params.read import Parameters
+from VSPEC.params.read import InternalParameters
 
 warnings.simplefilter('ignore', category=u.UnitsWarning)
 
@@ -131,7 +131,7 @@ def cfg_to_dict(config:str)->dict:
     return cfg
 
 def change_psg_parameters(
-    params:Parameters,
+    params:InternalParameters,
     phase:u.Quantity,
     orbit_radius_coeff:float,
     sub_stellar_lon:u.Quantity,

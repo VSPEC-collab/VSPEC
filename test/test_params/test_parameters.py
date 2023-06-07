@@ -2,18 +2,18 @@ import pytest
 from pathlib import Path
 from astropy import units as u
 
-from VSPEC.params.read import Parameters
+from VSPEC.params.read import InternalParameters
 
 test_file = Path(__file__).parent / 'test.yaml'
 
 
 @pytest.fixture
 def parameters():
-    # Load the test.yaml file and create a Parameters instance
-    return Parameters.from_yaml(test_file)
+    # Load the test.yaml file and create a InternalParameters instance
+    return InternalParameters.from_yaml(test_file)
 
 
-def test_star_parameters(parameters:Parameters):
+def test_star_parameters(parameters:InternalParameters):
     # Access and verify star parameters
     star_params = parameters.star
     assert star_params.template == 'M'
@@ -22,7 +22,7 @@ def test_star_parameters(parameters:Parameters):
     assert star_params.radius == 0.154*u.R_sun
 
 
-def test_planet_parameters(parameters:Parameters):
+def test_planet_parameters(parameters:InternalParameters):
     # Access and verify planet parameters
     planet_params = parameters.planet
     assert planet_params.name == 'Exoplanet'
