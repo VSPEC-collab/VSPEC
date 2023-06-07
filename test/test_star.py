@@ -309,4 +309,4 @@ def test_plot_surface():
 
 
 if __name__ in '__main__':
-    test_plot_surface()
+    test_get_pixelmap()

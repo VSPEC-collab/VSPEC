@@ -32,6 +32,7 @@ from VSPEC.variable_star_model.spots import SpotCollection, SpotGenerator
 from VSPEC.variable_star_model.faculae import FaculaCollection, FaculaGenerator, Facula
 from VSPEC.variable_star_model.flares import FlareCollection, FlareGenerator
 from VSPEC.variable_star_model.granules import Granulation
+from VSPEC.config import MSH
 
 
 class Star:
