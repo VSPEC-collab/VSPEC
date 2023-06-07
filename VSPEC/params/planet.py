@@ -14,7 +14,7 @@ class GravityParameters(BaseParameters):
     Parameters
     ----------
     mode : str
-        The mode of the gravity parameter. Valid options are 'gravity', 'density', and 'mass'.
+        The mode of the gravity parameter. Valid options are 'g', 'rho', and 'kg'.
     value : astropy.units.Quantity
         The value of the gravity parameter.
 
@@ -22,28 +22,23 @@ class GravityParameters(BaseParameters):
     ----------
     mode : str
         The mode of the gravity parameter.
-    _value : astropy.units.Quantity
-        The value of the gravity parameter.
-
-    Properties
-    ----------
-    value : float
-        The value of the gravity parameter converted to the appropriate unit based on the mode.
+    value
 
     Notes
     -----
     - The available modes and their corresponding units are:
-        - 'g': meters per second squared (m s^-2)
-        - 'rho': grams per cubic centimeter (g cm^-3)
+        - 'g': meters per second squared (:math:`{\\rm m~s}^{-2}`)
+        - 'rho': grams per cubic centimeter (:math:`{\\rm g~cm}^{-3}`)
         - 'kg': kilograms (kg)
 
     """
 
-    psg_units = {
+    _psg_units = {
         'g': u.Unit('m s-2'),
         'rho': u.Unit('g cm-3'),
         'kg': u.kg
     }
+
 
     def __init__(
         self,
@@ -64,7 +59,7 @@ class GravityParameters(BaseParameters):
             The value of the gravity parameter.
         """
 
-        return self._value.to_value(self.psg_units[self.mode])
+        return self._value.to_value(self._psg_units[self.mode])
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -72,6 +67,26 @@ class GravityParameters(BaseParameters):
             mode=str(d['mode']),
             value=u.Quantity(d['value'])
         )
+    @classmethod
+    def from_dict(cls, d: dict, *args):
+        """
+        Construct a `GravityParameters` object from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary to use to construct the class.
+        
+        Returns
+        -------
+        GravityParameters
+            The constructed class instance.
+        
+        Notes
+        -----
+        This constructor assumes ``d`` contains the keys ``'mode'`` and ``'value'``
+        """
+        return super().from_dict(d, *args)
 
     def to_psg(self) -> dict:
         """
