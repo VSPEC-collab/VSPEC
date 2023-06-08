@@ -10,7 +10,10 @@ act as a container for all the parameters below.
 
 .. currentmodule:: VSPEC.params.read
 
-.. autosummary:: InternalParameters
+
+.. autosummary::
+    
+    InternalParameters
 
 .. autosummary:: Header
 
@@ -21,6 +24,7 @@ Stellar Parameters
 The intrinsic properties of the star.
 
 .. currentmodule:: VSPEC.params.stellar
+
 
 .. autosummary:: StarParameters
 
@@ -42,10 +46,12 @@ system in relation to the observer.
 
 .. currentmodule:: VSPEC.params.planet
 
+
 .. autosummary::
 
     PlanetParameters
     GravityParameters
+
 
 .. autosummary::
 
@@ -59,7 +65,9 @@ Properties of the Global Circulation Model (GCM) that describe the planet.
 
 .. currentmodule:: VSPEC.params.gcm
 
+
 .. autosummary:: gcmParameters
+
 
 .. autosummary::
 
@@ -86,6 +94,7 @@ These properties control the length of the observation and the cadence of integr
 
 .. currentmodule:: VSPEC.params.observation
 
+
 .. autosummary:: ObservationParameters
 
 
@@ -96,12 +105,15 @@ A description of the instrument that controls the bandpass, resolving power, and
 
 .. currentmodule:: VSPEC.params.observation
 
+
 .. autosummary:: InstrumentParameters
 
 Telescope
 ^^^^^^^^^
 
+
 .. autosummary:: TelescopeParameters
+
 
 .. autosummary::
 
@@ -116,6 +128,7 @@ Bandpass
 
 Detector
 ^^^^^^^^
+
 
 .. autosummary:: DetectorParameters
 

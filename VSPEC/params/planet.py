@@ -20,9 +20,9 @@ class GravityParameters(BaseParameters):
 
     Attributes
     ----------
+    value
     mode : str
         The mode of the gravity parameter.
-    value
 
     Notes
     -----

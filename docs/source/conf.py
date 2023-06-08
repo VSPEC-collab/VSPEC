@@ -66,7 +66,16 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
+
+# html_theme_options = {
+#     "light_css_variables": {
+#         "color-brand-primary": "red",
+#         "color-brand-content": "#CC3333",
+#         "color-admonition-background": "orange",
+#     },
+# }
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -77,6 +86,7 @@ html_static_path = ['_static']
 # or fully qualified paths (eg. https://...)
 html_css_files = [
     'css/table_fix.css',
+    'css/custom.css'
 ]
 
 # Logo and favicon
