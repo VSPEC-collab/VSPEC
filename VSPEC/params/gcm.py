@@ -224,32 +224,17 @@ class gcmParameters(BaseParameters):
     """
     Class to store GCM parameters.
 
-    Parameters:
-    -----------
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
-
-    Attributes:
-    -----------
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
-    
-    Properties
+    Parameters
     ----------
-    is_static : bool
-        True if the GCM changes with time.
-    gcmtype : str
-        A string identifier for the GCM type
+    gcm : binaryGCM or waccmGCM
+        The GCM instance containing the GCM data.
 
-    Methods:
-    --------
-    content(**kwargs)
-        Get the content of the GCM for the specified observation parameters.
-
-    Class Methods:
-    --------------
-    _from_dict(d: dict)
-        Construct a gcmParameters instance from a dictionary representation.
+    Attributes
+    ----------
+    is_static
+    gcmtype
+    gcm : binaryGCM or waccmGCM
+        The GCM instance containing the GCM data.
 
     """
 
@@ -309,15 +294,11 @@ class APIkey(BaseParameters):
 
     Attributes
     ----------
+    value
     path : pathlib.Path or None
         The path to the file containing the API key.
     _value : str or None
         The API key value.
-
-    Properties
-    ----------
-    value : str
-        The API key value. If `path` is provided, the value is read from the file.
 
     """
 

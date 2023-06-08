@@ -181,15 +181,6 @@ class PlanetParameters(BaseParameters):
     init_substellar_lon : astropy.units.Quantity
         The initial substellar longitude of the planet.
 
-    Methods
-    -------
-    to_psg():
-        Write the parameters in the PSG config format.
-    proxcenb(init_phase, init_substellar_lon)
-        Initialize parameters for Proxima Centauri b.
-    std(init_phase, init_substellar_lon)
-        Initialize parameters for a standard exoplanet.
-
     Notes
     -----
     - The `proxcenb` class method initializes parameters specific to Proxima Centauri b.

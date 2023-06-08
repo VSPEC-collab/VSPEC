@@ -85,7 +85,7 @@ class SpotParameters(BaseParameters):
     Spot Parameters
 
     Parameters
-    -----------
+    ----------
     distribution : str
         The distribution function to be used for the spot positions. 'iso' or 'solar'.
     initial_coverage : float
@@ -113,8 +113,8 @@ class SpotParameters(BaseParameters):
     initial_area : astropy.units.Quantity
         The initial area of newly created spots.
 
-    Attrributes
-    -----------
+    Attributes
+    ----------
     distribution : str
         The distribution function to be used for the spot positions. 'iso' or 'solar'.
     initial_coverage : float

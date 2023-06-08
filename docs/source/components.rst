@@ -8,7 +8,6 @@ the ``main`` module, which manages the simulations and tracks the state of each 
    :maxdepth: 1
 
    modules/main
-   modules/read_info
    modules/geometry
    modules/variable_star_model
    modules/stellar_spectra

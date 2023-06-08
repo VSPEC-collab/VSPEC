@@ -215,18 +215,21 @@ class Star:
             The sub-observer latitude.
         lon0 : astropy.units.Quantity
             The sub-observer longitude
-        
+
         Returns
         -------
         mu : np.ndarray
             An array of cos(x) where x is
             the angle from disk center.
-        
+
         Notes
         -----
         Recall
-        ..math:
-            \mu = cos(x)
+        .. math::
+
+            \\mu = \\cos{x}
+        
+        Where :math:`x` is the angle from center of the disk.
         """
         latgrid, longrid = self.gridmaker.grid()
         mu = (np.sin(lat0) * np.sin(latgrid)
@@ -247,13 +250,13 @@ class Star:
         -------
         mask : np.ndarray
             The limb-darkened mask.
-        
+
         Notes
         -----
-        To account for apparent size effect of points on the 
+        To account for apparent size effect of points on the
         stellar surface, we add a factor of 1 to `u1`. This way,
         in the (Lambertian) case of no-limb darkening, the user
-        can set u1 = 0, u2 = 0
+        can set ``u1 = 0``, ``u2 = 0``
         """
         mask = 1 - (self.u1+1) * (1 - mu) - self.u2 * (1 - mu)**2
         behind_star = mu<0.

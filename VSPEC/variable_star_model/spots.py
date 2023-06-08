@@ -68,23 +68,25 @@ class StarSpot:
 
     Attributes
     ----------
+    radius
     coords : dict
         A dictionary containing the latitude and longitude of the spot's center.
-    area_max : astropy.units.Quantity 
+    area_max : astropy.units.Quantity
         The maximum area a spot reaches before it decays.
-    area_current : astropy.units.Quantity 
+    area_current : astropy.units.Quantity
         The current area of the spot.
-    Teff_umbra : astropy.units.Quantity 
+    Teff_umbra : astropy.units.Quantity
         The effective temperature of the spot umbra.
-    Teff_penumbra : astropy.units.Quantity 
+    Teff_penumbra : astropy.units.Quantity
         The effective temperature of the spot penumbra.
     decay_rate : astropy.units.Quantity
         The rate at which a spot linearly decays.
     total_area_over_umbra_area : float
-        The ratio of total spot area to umbra area. 5+/-1 according to :cite:t:`2003A&ARv..11..153S`.
+        The ratio of total spot area to umbra area. 5+/-1 according
+        to :cite:t:`2003A&ARv..11..153S`.
     is_growing : bool
         Whether or not the spot is growing.
-    growth_rate : astropy.units.Quantity 
+    growth_rate : astropy.units.Quantity
         Fractional growth of the spot for a given unit time.
     gridmaker : CoordinateGrid or None
         A `CoordinateGrid` object used to produce points on the stellar surface. If None,
@@ -92,8 +94,6 @@ class StarSpot:
     r : np.ndarray
         An array of points on the stellar surface with their pre-computed
         distance from the center of the spot.
-    radius
-
 
     References
     ----------
@@ -447,7 +447,7 @@ class SpotCollection:
         Get the fractional coverage of star spots.
 
         Parameters
-        ---------
+        ----------
         r_star : astropy.units.Quantity
             The radius of the star.
         

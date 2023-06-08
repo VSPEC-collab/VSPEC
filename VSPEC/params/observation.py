@@ -24,6 +24,7 @@ class ObservationParameters(BaseParameters):
 
     Attributes
     ----------
+    total_images
     observation_time : astropy.units.Quantity
         The total duration of the observation.
     integration_time : astropy.units.Quantity
@@ -33,11 +34,6 @@ class ObservationParameters(BaseParameters):
     ------
     ValueError
         If the integration time is longer than the total observation time.
-
-    Properties
-    ----------
-    total_images : int
-        The total number of images based on the observation time and integration time.
 
     """
 
@@ -80,8 +76,8 @@ class BandpassParameters(BaseParameters):
     """
     Class to store bandpass parameters for observations.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     wl_blue : astropy.units.Quantity
         The shorter wavelength limit of the bandpass.
     wl_red : astropy.units.Quantity
@@ -93,14 +89,8 @@ class BandpassParameters(BaseParameters):
     flux_unit : astropy.units.Unit
         The unit of flux used for the bandpass parameters.
 
-    Class Methods:
-    --------------
-    mirecle(cls)
-        Returns a BandpassParameters instance initialized with
-        the MIRECLE setup :cite:p:`2022AJ....164..176M`.
-
-    Attributes:
-    -----------
+    Attributes
+    ----------
     wl_blue : astropy.units.Quantity
         The shorter wavelength limit of the bandpass.
     wl_red : astropy.units.Quantity
@@ -161,13 +151,13 @@ class BandpassParameters(BaseParameters):
         MIRECLE setup [1].
         Returns a `BandpassParameters` instance initialized with the MIRECLE setup.
 
-        Returns:
-        --------
+        Returns
+        -------
         BandpassParameters:
             `BandpassParameters` instance with the MIRECLE setup.
 
-        References:
-        -----------
+        References
+        ----------
         [1] :cite:t:`2022AJ....164..176M`
         """
         return cls(
@@ -195,8 +185,8 @@ class ccdParameters(BaseParameters):
     """
     Class to store CCD parameters for observations.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     pixel_sampling : int
         The pixel sampling of the CCD.
     read_noise : astropy.units.Quantity
@@ -210,13 +200,9 @@ class ccdParameters(BaseParameters):
     temperature : astropy.units.Quantity
         The temperature of the CCD.
 
-    Class Methods:
-    --------------
-    mirecle(cls)
-        Returns a CCDParameters instance initialized with the MIRECLE setup.
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     pixel_sampling : int
         The pixel sampling of the CCD.
     read_noise : astropy.units.Quantity
@@ -282,13 +268,13 @@ class ccdParameters(BaseParameters):
         MIRECLE setup [1].
         Returns a CCDParameters instance initialized with the MIRECLE setup.
 
-        Returns:
-        --------
+        Returns
+        -------
         CCDParameters:
             CCDParameters instance for the MIRECLE setup.
 
-        References:
-        -----------
+        References
+        ----------
         [1] :cite:t:`2022AJ....164..176M`
         """
 
@@ -319,8 +305,8 @@ class DetectorParameters(BaseParameters):
     """
     Class to store detector parameters for observations.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     beam_width : astropy.units.Quantity
         The beam width of the detector.
     integration_time : astropy.units.Quantity
@@ -328,13 +314,8 @@ class DetectorParameters(BaseParameters):
     ccd : ccdParameters
         The CCD parameters for the detector.
 
-    Class Methods:
-    --------------
-    mirecle(cls)
-        Returns a DetectorParameters instance initialized with the MIRECLE setup.
-
-    Attributes:
-    -----------
+    Attributes
+    ----------
     beam_width : astropy.units.Quantity
         The beam width of the detector.
     integration_time : astropy.units.Quantity
@@ -394,13 +375,13 @@ class DetectorParameters(BaseParameters):
         MIRECLE setup [1].
         Returns a DetectorParameters instance initialized with the MIRECLE setup.
 
-        Returns:
-        --------
+        Returns
+        -------
         DetectorParameters:
             DetectorParameters instance for the MIRECLE setup.
 
-        References:
-        -----------
+        References
+        ----------
         [1] :cite:t:`2022AJ....164..176M`
         """
         return cls(
@@ -510,8 +491,8 @@ class SingleDishParameters(TelescopeParameters):
         SingleDishParameters
             The created SingleDishParameters instance with MIRECLE parameters.
         
-        References:
-        -----------
+        References
+        ----------
         [1] :cite:t:`2022AJ....164..176M`
         """
 
@@ -580,8 +561,8 @@ class InstrumentParameters(BaseParameters):
     """
     Class to store instrument parameters for observations.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     telescope : TelescopeParameters
         The telescope parameters for the instrument.
     bandpass : BandpassParameters
@@ -589,13 +570,8 @@ class InstrumentParameters(BaseParameters):
     detector : DetectorParameters
         The detector parameters for the instrument.
 
-    Class Methods:
-    --------------
-    mirecle(cls)
-        Returns an `InstrumentParameters` instance initialized with the 2m MIRECLE setup.
-
-    Attributes:
-    -----------
+    Attributes
+    ----------
     telescope : TelescopeParameters
         The telescope parameters for the instrument.
     bandpass : BandpassParameters
@@ -649,13 +625,13 @@ class InstrumentParameters(BaseParameters):
         2m MIRECLE setup [1].
         Returns an InstrumentParameters instance initialized with the 2m MIRECLE setup.
 
-        Returns:
-        --------
-        InstrumentParameters:
+        Returns
+        -------
+        InstrumentParameters
             `InstrumentParameters` instance for the 2m MIRECLE setup.
 
-        References:
-        -----------
+        References
+        ----------
         [1] :cite:t:`2022AJ....164..176M`
         """
         return cls(
