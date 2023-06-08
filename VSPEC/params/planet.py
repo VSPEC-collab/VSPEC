@@ -18,18 +18,38 @@ class GravityParameters(BaseParameters):
     value : astropy.units.Quantity
         The value of the gravity parameter.
 
-    Attributes
-    ----------
-    value
-    mode : str
-        The mode of the gravity parameter.
-
     Notes
     -----
     - The available modes and their corresponding units are:
         - 'g': meters per second squared (:math:`{\\rm m~s}^{-2}`)
         - 'rho': grams per cubic centimeter (:math:`{\\rm g~cm}^{-3}`)
         - 'kg': kilograms (kg)
+
+    Examples
+    --------
+    >>> GravityParameters('g',1000*u.cm/u.s).value
+    10.0
+
+    A ``GravityParameters`` object can also be created from a dictionary.
+    
+    >>> d = {'mode':'kg','value':1*u.M_earth}
+    >>> grav = GravityParameters.from_dict(d)
+    >>> grav.mode
+    'kg'
+    >>> grav.value
+    5.972e+24
+
+    It can also write a dictionary to be read by PSG.
+
+    >>> grav.to_psg()
+    {'OBJECT-GRAVITY': 5.9720e+24, 'OBJECT-GRAVITY-UNIT': 'kg'}
+
+    Attributes
+    ----------
+    value : float
+        The value of the gravity parameter to upload to PSG
+    mode : str
+        The mode of the gravity parameter.
 
     """
 
@@ -38,7 +58,6 @@ class GravityParameters(BaseParameters):
         'rho': u.Unit('g cm-3'),
         'kg': u.kg
     }
-
 
     def __init__(
         self,
@@ -67,6 +86,7 @@ class GravityParameters(BaseParameters):
             mode=str(d['mode']),
             value=u.Quantity(d['value'])
         )
+
     @classmethod
     def from_dict(cls, d: dict, *args):
         """
@@ -76,12 +96,12 @@ class GravityParameters(BaseParameters):
         ----------
         d : dict
             The dictionary to use to construct the class.
-        
+
         Returns
         -------
         GravityParameters
             The constructed class instance.
-        
+
         Notes
         -----
         This constructor assumes ``d`` contains the keys ``'mode'`` and ``'value'``
@@ -332,21 +352,23 @@ class SystemParameters(BaseParameters):
 
     def __init__(
         self,
-        distance:u.Quantity,
-        inclination:u.Quantity,
-        phase_of_periasteron:u.Quantity
+        distance: u.Quantity,
+        inclination: u.Quantity,
+        phase_of_periasteron: u.Quantity
     ):
         self.distance = distance
         self.inclination = inclination
         self.phase_of_periasteron = phase_of_periasteron
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            distance = u.Quantity(d['distance']),
-            inclination = u.Quantity(d['inclination']),
-            phase_of_periasteron = u.Quantity(d['phase_of_periasteron']),
+            distance=u.Quantity(d['distance']),
+            inclination=u.Quantity(d['inclination']),
+            phase_of_periasteron=u.Quantity(d['phase_of_periasteron']),
         )
-    def to_psg(self)->dict:
+
+    def to_psg(self) -> dict:
         """
         Convert the parameters to the PSG config format.
 

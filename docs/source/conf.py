@@ -40,9 +40,18 @@ extensions = [
     'nbsphinx_link',
     'sphinxcontrib.bibtex',
     'sphinx_gallery.gen_gallery',
+    # 'sphinx.ext.autosummary',
+    # 'sphinx.ext.autodoc'
 ]
 numpydoc_show_class_members = False
 bibtex_bibfiles = ['refs.bib']
+
+# autosummary_generate = True
+# autodoc_default_options = {
+#     'template': 'custom_template.rst',
+#     # other options...
+# }
+
 
 # Settings for sphinx gallery
 sphinx_gallery_conf = {

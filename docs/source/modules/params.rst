@@ -10,12 +10,17 @@ act as a container for all the parameters below.
 
 .. currentmodule:: VSPEC.params.read
 
-
 .. autosummary::
-    
+    :toctree: ../api
+    :template: custom_template.rst
+
     InternalParameters
 
-.. autosummary:: Header
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    Header
 
 
 Stellar Parameters
@@ -26,9 +31,15 @@ The intrinsic properties of the star.
 .. currentmodule:: VSPEC.params.stellar
 
 
-.. autosummary:: StarParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    StarParameters
 
 .. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
 
     SpotParameters
     FaculaParameters
@@ -48,12 +59,16 @@ system in relation to the observer.
 
 
 .. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
 
     PlanetParameters
     GravityParameters
 
 
 .. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
 
     SystemParameters
 
@@ -66,10 +81,16 @@ Properties of the Global Circulation Model (GCM) that describe the planet.
 .. currentmodule:: VSPEC.params.gcm
 
 
-.. autosummary:: gcmParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    gcmParameters
 
 
 .. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
 
     binaryGCM
     vspecGCM
@@ -82,9 +103,17 @@ Options that are specific to the opperation of PSG/GlobES
 
 .. currentmodule:: VSPEC.params.gcm
 
-.. autosummary:: psgParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
 
-.. autosummary:: APIkey
+    psgParameters
+
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    APIkey
 
 
 Observation Parameters
@@ -95,7 +124,11 @@ These properties control the length of the observation and the cadence of integr
 .. currentmodule:: VSPEC.params.observation
 
 
-.. autosummary:: ObservationParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    ObservationParameters
 
 
 Instrument Parameters
@@ -106,16 +139,26 @@ A description of the instrument that controls the bandpass, resolving power, and
 .. currentmodule:: VSPEC.params.observation
 
 
-.. autosummary:: InstrumentParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    InstrumentParameters
 
 Telescope
 ^^^^^^^^^
 
 
-.. autosummary:: TelescopeParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    TelescopeParameters
 
 
 .. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
 
     SingleDishParameters
     CoronagraphParameters
@@ -123,16 +166,28 @@ Telescope
 Bandpass
 ^^^^^^^^
 
-.. autosummary:: BandpassParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+    
+    BandpassParameters
 
 
 Detector
 ^^^^^^^^
 
 
-.. autosummary:: DetectorParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
 
-.. autosummary:: ccdParameters
+    DetectorParameters
+
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    ccdParameters
 
 
 The ``PSGtable`` Class
@@ -145,7 +200,11 @@ in the units that PSG is expecting.
 
 .. currentmodule:: VSPEC.params.base
 
-.. autosummary:: PSGtable
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+
+    PSGtable
 
 The Base Parameter Class
 ------------------------
@@ -154,5 +213,9 @@ This is the base class for input parameters.
 
 .. currentmodule:: VSPEC.params.base
 
-.. autosummary:: BaseParameters
+.. autosummary::
+    :toctree: ../api
+    :template: custom_template.rst
+    
+    BaseParameters
 

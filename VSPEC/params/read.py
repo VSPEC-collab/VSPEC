@@ -15,8 +15,8 @@ class Header(BaseParameters):
     """
     Header for VSPEC simulation
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     data_path : pathlib.Path
         The path to store run data.
     max_teff : astropy.units.Quantity
@@ -30,8 +30,8 @@ class Header(BaseParameters):
     desc : str, default=None
         A description of the run.
     
-    Attributes:
-    -----------
+    Attributes
+    ----------
     data_path : pathlib.Path
         The path to store run data.
     max_teff : astropy.units.Quantity
@@ -76,8 +76,8 @@ class InternalParameters(BaseParameters):
     """
     Class to store parameters for a VSPEC simulation.
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
     header : Header
         The VSPEC simulation header.
     star : StarParameters
@@ -95,8 +95,8 @@ class InternalParameters(BaseParameters):
     gcm : gcmParameters
         The GCM parameters.
 
-    Attributes:
-    -----------
+    Attributes
+    ----------
     header : Header
         The VSPEC simulation header.
     star : StarParameters
@@ -113,11 +113,6 @@ class InternalParameters(BaseParameters):
         The instrument parameters.
     gcm : gcmParameters
         The GCM parameters.
-    
-    Class Methods:
-    --------------
-    from_yaml(cls, path: Path)
-        Create a `Parameters` instance from a YAML file.
 
 
     """
@@ -154,25 +149,50 @@ class InternalParameters(BaseParameters):
             gcm = gcmParameters.from_dict(d)
         )
     @classmethod
-    def from_yaml(cls, path: Path) -> 'Parameters':
+    def from_dict(cls, d: dict) -> 'InternalParameters':
         """
-        Create a `Parameters` instance from a YAML file.
+        Create and `InternalParameters` instance from a dictionary.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
+        d : dict
+            The dictionary to construct the class from.
+        
+        Returns
+        -------
+        InternalParameters
+            An instance of `InternalParameters`.
+        """
+        return super().from_dict(d)
+    @classmethod
+    def from_yaml(cls, path: Path) -> 'InternalParameters':
+        """
+        Create an `InternalParameters` instance from a YAML file.
+
+        Parameters
+        ----------
         path : Path
             The path to the YAML file.
 
-        Returns:
-        --------
-        Parameters
-            An instance of the `Parameters` class.
+        Returns
+        -------
+        InternalParameters
+            An instance of the `InternalParameters` class.
 
         """
         with open(path, 'r',encoding='UTF-8') as file:
             data = yaml.safe_load(file)
         return cls.from_dict(data)
     def to_psg(self)->dict:
+        """
+        Write parameters to a dictionary that represents a PSG
+        configuration file.
+
+        Returns
+        -------
+        config : dict
+            A dictionary representing a PSG configuration file.
+        """
         config = {
             'GENERATOR-NOISEFRAMES': str(int(round(
                 (self.obs.integration_time/self.inst.detector.integration_time).to_value(u.dimensionless_unscaled)
@@ -187,19 +207,34 @@ class InternalParameters(BaseParameters):
     @property
     def flux_correction(self)->float:
         """
-        Correction for the solid angle of the star.
+        The flux correction for the stellar radius and distance.
+
+        Returns
+        -------
+        float
+            Correction for the solid angle of the star.
         """
         return (self.star.radius/self.system.distance).to_value(u.dimensionless_unscaled)**2
     @property
     def star_total_images(self)->int:
         """
-        The total number of epochs to simulate the star.
+        The number of epochs to simulate for the stellar model.
+
+        Returns
+        -------
+        int
+            The total number of epochs to simulate the star.
         """
         return self.obs.total_images
     @property
     def planet_total_images(self)->int:
         """
-        The total number of epochs to simulate the planet.
+        The number of epochs to simulate for the planet model.
+
+        Returns
+        -------
+        int
+            The total number of epochs to simulate the planet.
         """
         return self.obs.total_images // self.psg.phase_binning
     
