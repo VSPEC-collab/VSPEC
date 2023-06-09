@@ -6,6 +6,7 @@ Tests for `VSPEC.psg_api` module
 from pathlib import Path
 import pytest
 from astropy import units as u
+import matplotlib.pyplot as plt
 
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, parse_full_output
 from VSPEC.helpers import is_port_in_use,set_psg_state
@@ -14,6 +15,8 @@ API_KEY_PATH = Path.home() / 'psg_key.txt'
 PSG_CONFIG_PATH = Path(__file__).parent / 'data' / 'test_cfg.txt'
 VSPEC_CONFIG_PATH = Path(__file__).parent / 'default.yaml'
 PSG_PORT = 3000
+
+RAD_PATH = Path(__file__).parent / 'data' / 'transit_reflected'
 
 
 
@@ -134,11 +137,32 @@ def test_text_parse():
     set_psg_state(previous_state)
 
 
+def test_get_reflected_transit():
+    therm_file12 = RAD_PATH / 'phase00012_therm.rad'
+    therm12 = PSGrad.from_rad(therm_file12)
+    cmb_file12 = RAD_PATH / 'phase00012_cmb.rad'
+    cmb12 = PSGrad.from_rad(cmb_file12)
+    therm_tot12 = therm12.data['GJ486b']
+    cmb_tot12 = cmb12.data['GJ486b']
+    cmb_tr12 = cmb12.data['Transit']
+
+    therm_file13 = RAD_PATH / 'phase00013_therm.rad'
+    therm13 = PSGrad.from_rad(therm_file13)
+    cmb_file13 = RAD_PATH / 'phase00013_cmb.rad'
+    cmb13 = PSGrad.from_rad(cmb_file13)
+    therm_tot13 = therm13.data['GJ486b']
+    cmb_tot13 = cmb13.data['GJ486b']
+    0
+
+
+
+
 if __name__ in '__main__':
-    if API_KEY_PATH.exists():
-        test_call_api_nonlocal()
-    test_call_api_local()
-    test_call_api_nofile()
-    test_text_parse()
-    test_PSGrad()
+    # if API_KEY_PATH.exists():
+    #     test_call_api_nonlocal()
+    # test_call_api_local()
+    # test_call_api_nofile()
+    # test_text_parse()
+    # test_PSGrad()
+    test_get_reflected_transit()
     

@@ -181,6 +181,8 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
         y_final = np.atleast_1d(np.mean(result.y[:,-1]))
         
         result = solve_ivp(func,(-np.pi,np.pi),y0=y_final,t_eval=(lons))
+        if not result.success:
+            raise ValueError(result.message)
         return result.t,result.y.T
     elif mode == 'bvp':
         if epsilon < 1:

@@ -218,7 +218,7 @@ class SpotParameters(BaseParameters):
         Static Spots
         """
         return cls(
-            'iso', 0.2, 0., 0.,
+            'iso', 0.2, 0., 0.*u.s,
             500*MSH, 0.2,
             2500*u.K, 2700*u.K,
             0./u.day, 0*MSH/u.day,

@@ -563,7 +563,7 @@ class Star:
         lat = lat.to_value(u.deg)
         lon = lon.to_value(u.deg)
         im = ax.pcolormesh(lon,lat,map_with_faculae.T,transform=ccrs.PlateCarree())
-        plt.colorbar(im,ax=ax,label='$T_{eff}$ (L)')
+        plt.colorbar(im,ax=ax,label=r'$T_{\rmath eff}$ (K)')
         transit_mask = np.where(covered,1,np.nan)
         zorder = 100 if pl_frac == 1. else -100
         ax.contourf(lon,lat,transit_mask.T,colors='k',alpha=1,transform=ccrs.PlateCarree(),zorder=zorder)

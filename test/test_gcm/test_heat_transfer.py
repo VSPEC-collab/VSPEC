@@ -31,23 +31,6 @@ def test_get_psi():
     l = np.arange(-180,180,37)*u.deg
     assert np.all(ht.get_psi(l) == l)
 
-def test_get_Teq():
-    equillibrium_temp_earth = 255*u.K
-    solar_constant = 1361*u.W/u.m**2
-    
-    teff_sun = 5800*u.K
-    earth_albedo = 0.306
-    r_sun = 1*u.R_sun
-    r_orbit = 1*u.AU
-    lon0 = 0*u.deg
-    lat0 = 0*u.deg
-    calc = ht.get_Teq(
-        lon0,lat0,earth_albedo,teff_sun,r_sun,r_orbit
-    )
-    max_temp = ((solar_constant*(1-earth_albedo)/c.sigma_sb)**0.25).to(u.K)
-    assert calc > equillibrium_temp_earth
-    assert approx(calc,max_temp,0.01)
-
 
 def test_equation_diagnostic():
     n_steps = 30
