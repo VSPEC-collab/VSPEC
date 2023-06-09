@@ -35,19 +35,6 @@ class BaseParameters:
         If 'preset' key is not present, the dictionary is expected to contain the values
         needed by the constructor.
 
-        Examples
-        --------
-        >>> params_dict = {'preset': 'solar'}
-        >>> params = LimbDarkeningParameters.from_dict(params_dict)
-
-        In the example above, the 'solar' preset configuration is used to create an instance
-        of LimbDarkeningParameters.
-
-        >>> params_dict = {'u1': 0.3, 'u2': 0.1}
-        >>> params = LimbDarkeningParameters.from_dict(params_dict)
-
-        In the example above, custom values for 'u1' and 'u2' are provided to create an instance
-        of LimbDarkeningParameters.
         """
         if 'preset' in d.keys():
             return getattr(cls,d['preset'].replace('-','_'))()

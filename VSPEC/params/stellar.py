@@ -35,6 +35,20 @@ class LimbDarkeningParameters(BaseParameters):
 
         \\frac{I(\\mu)}{I(1)} = 1 - u_1 (1-\\mu) - u_2 (1-\\mu)^2
     
+    Examples
+    --------
+    >>> params_dict = {'preset': 'solar'}
+    >>> params = LimbDarkeningParameters.from_dict(params_dict)
+
+    In the example above, the 'solar' preset configuration is used to create an instance
+    of LimbDarkeningParameters.
+
+    >>> params_dict = {'u1': 0.3, 'u2': 0.1}
+    >>> params = LimbDarkeningParameters.from_dict(params_dict)
+
+    In the example above, custom values for 'u1' and 'u2' are provided to create an instance
+    of LimbDarkeningParameters.
+
     """
 
     def __init__(self, u1: float, u2: float):
