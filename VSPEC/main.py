@@ -831,6 +831,7 @@ class ObservationModel:
 
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
+        depth_bare_rock = (self.params.planet.radius/self.params.star.radius).to_value(u.dimensionless_unscaled)**2
         frac_absorbed = transit[0]*N1_frac + transit[1]*(1-N1_frac)
         pl_frac_covering = 1-self.star.get_pl_frac(
             phase+180*u.deg, orbit_radius,self.params.planet.radius,self.params.system.inclination
@@ -838,7 +839,7 @@ class ObservationModel:
         if pl_frac_covering == 0:
             normalized_frac_absorbed = pl_frac_covering*0
         else:
-            normalized_frac_absorbed = frac_absorbed/pl_frac_covering
+            normalized_frac_absorbed = frac_absorbed/pl_frac_covering/depth_bare_rock
         return wavelength[0], normalized_frac_absorbed
     
     def calculate_noise(self, N1: int, N2: int, N1_frac: float, time_scale_factor: float, cmb_wavelength, cmb_flux):

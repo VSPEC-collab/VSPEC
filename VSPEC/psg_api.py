@@ -294,11 +294,11 @@ def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Qua
         If neither object has a `'Reflected'` data array and at least one
         of them is missing the `planet_name` data array.
     """
-    axis_equal = np.isclose(
+    axis_equal = np.all(np.isclose(
         cmb_rad.data['Wave/freq'].to_value(u.um),
         therm_rad.data['Wave/freq'].to_value(u.um),
         atol=1e-3
-    )
+    ))
     if not axis_equal:
         raise ValueError('The spectral axes must be equivalent.')
 
@@ -307,9 +307,9 @@ def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Qua
     elif 'Reflected' in therm_rad.data.keys():
         return therm_rad.data['Reflected']
     elif (planet_name in cmb_rad.data.keys()) and (planet_name in therm_rad.data.keys()):
-        try:
-            return cmb_rad.data[planet_name] - therm_rad.data[planet_name] - cmb_rad.data['Transit']
-        except KeyError:
+        if 'Transit' in cmb_rad.data:
+            return cmb_rad.data[planet_name] * 0 # assume there is no refection during transit
+        else:
             return cmb_rad.data[planet_name] - therm_rad.data[planet_name]
     else:
         raise KeyError(f'Data array {planet_name} not found.')
