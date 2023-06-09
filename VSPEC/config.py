@@ -1,60 +1,101 @@
 """
 VSPEC configurations
+
+This module contains global configurations used in the VSPEC code.
 """
 from astropy import units as u
 import numpy as np
 from pathlib import Path
 
 MSH = u.def_unit('msh', 1e-6 * 0.5 * 4*np.pi*u.R_sun**2)
-"""Micro-solar hemisphere
+"""
+Micro-solar hemisphere
 
 This is a standard unit in heliophysics that
 equals one millionth of one half the surface area of the Sun.
+
+:type: astropy.units.Unit
 """
 
 stellar_area_unit = MSH
 """
 The standard stellar surface area unit.
+
+This unit is used to represent the surface area of stars in VSPEC.
+
+:type: astropy.units.Unit
 """
 flux_unit = u.Unit('W m-2 um-1')
 """
 The standard unit of flux.
+
+This unit is used to standardize the flux in VSPEC calculations.
+
+:type: astropy.units.Unit
 """
 
 planet_distance_unit = u.AU
 """
 The standard unit of planetary semimajor axis.
 
-Determined by PSG.
+This unit is determined by PSG and used to standardize
+the semimajor axis of planets in VSPEC.
+
+:type: astropy.units.Unit
 """
 
 planet_radius_unit = u.km
 """
 The standard unit of planet radius.
 
-Determined by PSG.
+This unit is determined by PSG and used to standardize
+the radius of planets in VSPEC.
+
+:type: astropy.units.Unit
 """
 
 period_unit = u.day
 """
 The standard unit of planet orbital period.
 
-Determined by PSG
+This unit is determined by PSG and used to standardize
+the orbital and rotational periods of planets in VSPEC.
+
+:type: astropy.units.Unit
 """
 
 psg_encoding = 'UTF-8'
 """
 Default encoding for files from PSG.
+
+:type: str
+
+.. depricated::
+    This may not be needed now that we recieve data from PSG as bytes.
+    I should check.
 """
 
 PSG_PORT = 3000
 """
 Default port to run PSG locally.
+
+This port number is used to access the PSG API locally.
+
+:type: int
 """
 
 PSG_EXT_URL = 'https://psg.gsfc.nasa.gov'
 """
-The URL of the external PSG version.
+The URL of the external PSG (Planetary Spectrum Generator) version.
+
+This URL is used to access the PSG web interface externally.
+
+.. warning::
+    The external PSG server only allows 100 anonymous API
+    calls per day. Please either use an API key or a local
+    PSG installation.
+
+:type: str
 """
 
 PSG_CFG_MAX_LINES = 1500
@@ -62,6 +103,8 @@ PSG_CFG_MAX_LINES = 1500
 The maximum number of lines to allow in
 the PSG config file. Do not set this over 2000,
 as PSG will stop updating.
+
+:type: int
 
 Notes
 -----
@@ -76,10 +119,20 @@ This command is sent after the ``.cfg`` returned by PSG reaches
 psg_pressure_unit = u.bar
 """
 PSG atmospheric pressure unit.
+
+This unit is determined by PSG and used to standardize
+the atmospheric pressure of planets in VSPEC.
+
+:type: astropy.units.Unit
 """
 psg_aerosol_size_unit = u.m
 """
 PSG aerosol size unit.
+
+This unit is determined by PSG and used to
+standardize aerosol size in VSPEC.
+
+:type: astropy.units.Unit
 """
 
 atmosphere_type_dict = {'H2':45,'He':0,'H2O':1,'CO2':2,'O3':3,'N2O':4,'CO':5,'CH4':6,'O2':7,
@@ -90,6 +143,8 @@ atmosphere_type_dict = {'H2':45,'He':0,'H2O':1,'CO2':2,'O3':3,'N2O':4,'CO':5,'CH
 A dictionary mapping molecular species to the default
 database to use to create opacities. These are all
 internal to PSG, but must be set by ``VSPEC``.
+
+:type: dict
 """
 
 aerosol_name_dict = {
@@ -105,6 +160,8 @@ aerosol_name_dict = {
 """
 A dictionary mapping aerosol species from their PSG name
 to their name in the WACCM NetCDF format.
+
+:type: dict
 """
 
 aerosol_type_dict = {
@@ -115,6 +172,8 @@ aerosol_type_dict = {
 A dictionary mapping aerosol species to the default
 database to use. These are all
 internal to PSG, but must be set by ``VSPEC``.
+
+:type: dict
 """
 ############################
 # Paths and file conventions
@@ -122,37 +181,43 @@ internal to PSG, but must be set by ``VSPEC``.
 
 N_ZFILL = 5
 """
-int
-    `__width` argument for filename `str.zfill()` calls. When writing 
-    and reading files in the `VSPEC` output, this variable specifies
-    the number of leading zeros to use in the filename.
+``__width`` argument for filename ``str.zfill()`` calls. When writing
+and reading files in the `VSPEC` output, this variable specifies
+the number of leading zeros to use in the filename.
+
+:type: int
 """
 
 RAW_PHOENIX_PATH = Path(__file__).parent / 'data' / 'NextGenModels' / 'RawData'
 """
-pathlib.Path
-    The path to the raw PHOENIX stellar models.
+The path to the raw PHOENIX stellar models.
+
+:type: pathlib.Path
 """
 
 BINNED_PHOENIX_PATH = Path(__file__).parent / 'data' / 'NextGenModels' / 'binned'
 """
-pathlib.Path
-    The path to the binned PHOENIX stellar models.
+The path to the binned PHOENIX stellar models.
+
+:type: pathlib.Path
 """
 
 EXAMPLE_GCM_PATH = Path(__file__).parent / 'data' / 'GCMs'
 """
-pathlib.Path
-    The path to example GCMs.
+The path to example GCMs.
+
+:type: pathlib.Path
 """
 
 MOLEC_DATA_PATH = Path(__file__).parent / 'data' / 'molec.json'
 """
-pathlib.Path
-    The path to the file containing molecular data for analysis.
+The path to the file containing molecular data for analysis.
+
+:type: pathlib.Path
 """
 PRESET_PATH = Path(__file__).parent / 'presets'
 """
-pathlib.Path
-    The path to parameter presets.
+The path to parameter presets.
+
+:type: pathlib.Path
 """
