@@ -67,6 +67,7 @@ gcm_binning=9,
     phase_binning=1,
     nmax=0,
     lmax=0,
+    continuum=['Rayleigh', 'Refraction'],
     url='http://localhost:3000',
     api_key=params.APIkey.none()
 )

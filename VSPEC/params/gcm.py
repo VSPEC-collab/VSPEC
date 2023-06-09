@@ -364,6 +364,9 @@ class psgParameters(BaseParameters):
         parameter indicates the number of scattering Legendre polynomials used
         for describing the phase function - Use 0 for extinction calculations
         only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
+    continuum : list of str
+        The continuum opacities to include in the radiative transfer calculation, such as
+        'Rayleigh', 'Refraction', 'CIA_all'.
     url : str
         URL of the Planetary Spectrum Generator.
     api_key : APIkey
@@ -401,6 +404,7 @@ class psgParameters(BaseParameters):
         use_molecular_signatures: bool,
         nmax: int,
         lmax: int,
+        continuum: list,
         url: str,
         api_key: APIkey
     ):
@@ -409,6 +413,7 @@ class psgParameters(BaseParameters):
         self.use_molecular_signatures = use_molecular_signatures
         self.nmax = nmax
         self.lmax=lmax
+        self.continuum = continuum
         self.url = url
         self.api_key = api_key
 
@@ -420,6 +425,7 @@ class psgParameters(BaseParameters):
             use_molecular_signatures=bool(d['use_molecular_signatures']),
             nmax=int(d['nmax']),
             lmax=int(d['lmax']),
+            continuum = list(d['continuum']),
             url=str(d['url']),
             api_key=APIkey.none() if d.get(
                 'api_key', None) is None else APIkey.from_dict(d['api_key'])
@@ -439,5 +445,6 @@ class psgParameters(BaseParameters):
             'GENERATOR-GCM-BINNING': f'{self.gcm_binning}',
             'GENERATOR-GAS-MODEL': 'Y' if self.use_molecular_signatures else 'N',
             'ATMOSPHERE-NMAX': f'{self.nmax}',
-            'ATMOSPHERE-LMAX': f'{self.lmax}'
+            'ATMOSPHERE-LMAX': f'{self.lmax}',
+            'ATMOSPHERE-CONTINUUM': ','.join(self.continuum)
         }
