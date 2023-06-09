@@ -1,5 +1,6 @@
 ``VSPEC.files``
 ===============
-.. automodapi:: VSPEC.files
-    :no-heading:
-    :no-inheritance-diagram:
+
+.. automodule:: VSPEC.files
+    :members: check_and_build_dir,build_directories,get_filename
+    

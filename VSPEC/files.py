@@ -31,17 +31,13 @@ def build_directories(data_path: Path) -> Dict[str,Path]:
     """
     Build VSPEC directory structure
 
-    Build the file system for a run if VSPEC.
-    By default it is run in `./<name_of_run>`
-    as specified by `ParamModel.star_name`
+    Build the file system for a run if VSPEC and
+    return a dictionary representing that structure.
 
     Parameters
     ----------
-    name_of_run : str
-        Name of top-level VSPEC model output directory
-    path : pathlib.Path, default=Path('.')
-        Path at which to create directory structure,
-        defaults to `.`
+    data_path : pathlib.Path
+        The path to write data for this VSPEC run.
 
     Returns
     -------
@@ -82,18 +78,16 @@ def build_directories(data_path: Path) -> Dict[str,Path]:
 def get_filename(N:int, n_zfill:int, ext:str):
     """
     Get the filename that a PSG output is written to.
-    This does not handle the full path, but just unifies
-    all of the filename handling to a single piece of code.
+    This function unifies all of the filename handling to a single piece of code.
 
     Parameters
     ----------
     N : int
-        The 'phase number' of the file. Basically, which iteration
-        of the simulation is this?
+        The 'phase number' of the file. Represents the iteration of the simulation.
     n_zfill : int
-        The `zfill()` convention to use.
+        The ``zfill()`` convention to use for zero-padding the phase number.
     ext : str
-        The file extension. E.g. `'.rad'` for rad files.
+        The file extension, such as ``'.rad'`` for rad files.
     
     Returns
     -------
@@ -103,7 +97,7 @@ def get_filename(N:int, n_zfill:int, ext:str):
     Warns
     -----
     RuntimeWarning
-        If `N` has more than `n_zfill` digits.
+        If `N` has more digits than `n_zfill` can accommodate.
     """
     if N > (10**(n_zfill)-1):
         warnings.warn(f'zfill of {n_zfill} not high enough for phase {N}',RuntimeWarning)
