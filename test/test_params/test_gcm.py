@@ -98,9 +98,10 @@ def test_waccmGCM_from_dict():
 def test_gcmParameters_content_binary():
     # Create a binaryGCM instance
     binary_gcm = binaryGCM(data = b'GCM data')
+    mmw = 28.
     
     # Create a gcmParameters instance with binaryGCM
-    gcm_params = gcmParameters(gcm=binary_gcm)
+    gcm_params = gcmParameters(gcm=binary_gcm,mean_molec_weight=mmw)
     
     # Test the content method
     content = gcm_params.content()
@@ -108,18 +109,23 @@ def test_gcmParameters_content_binary():
     # Assert that the content is not empty
     assert content == b'GCM data'
 
+    assert gcm_params.to_psg()['ATMOSPHERE-WEIGHT'] == f'{mmw:.1f}'
+
 
 def test_gcmParameters_content_waccm():
     # Create a waccmGCM instance
     waccm_gcm = waccmGCM(path=Path('/path/to/waccm.nc'), tstart=100 * u.day,
                          molecules=['O2', 'CO2'], aerosols=['Water', 'WaterIce'],
                          background='N2')
+    mmw = 28.
     
     # Create a gcmParameters instance with waccmGCM
-    gcm_params = gcmParameters(gcm=waccm_gcm)
+    gcm_params = gcmParameters(gcm=waccm_gcm,mean_molec_weight=mmw)
     
     # Assert that the content is not empty
     assert gcm_params.gcm.path == Path('/path/to/waccm.nc')
+
+    assert gcm_params.to_psg()['ATMOSPHERE-WEIGHT'] == f'{mmw:.1f}'
 
 
 def test_gcmParameters_from_dict_binary():
@@ -130,7 +136,8 @@ def test_gcmParameters_from_dict_binary():
         'gcm':{
             'binary':{
                 'data':'GCM data'
-            }
+            },
+            'mean_molec_weight': '28'
         }
     }
     
@@ -141,6 +148,8 @@ def test_gcmParameters_from_dict_binary():
     # Assert that the gcm attribute is an instance of binaryGCM
     assert isinstance(gcm_params.gcm, binaryGCM)
     assert gcm_params.content() == b'GCM data'
+
+    assert gcm_params.to_psg()['ATMOSPHERE-WEIGHT'] == '28.0'
 
 
 def test_gcmParameters_from_dict_waccm():
@@ -156,7 +165,8 @@ def test_gcmParameters_from_dict_waccm():
                 'molecules': 'O2, CO2',
                 'aerosols': 'Water, WaterIce',
                 'background': 'N2'
-            }
+            },
+            'mean_molec_weight': '28'
         }
     }
     
@@ -166,14 +176,23 @@ def test_gcmParameters_from_dict_waccm():
     # Assert that the gcm attribute is an instance of waccmGCM
     assert isinstance(gcm_params.gcm, waccmGCM)
 
+    assert gcm_params.to_psg()['ATMOSPHERE-WEIGHT'] == '28.0'
+
 
 def test_gcmParameters_from_dict_invalid():
     # Create an invalid dictionary representation without 'binary' or 'waccm' keys
     gcm_dict = {
-        'invalid': {
-            'path': '/path/to/data',
-            'tstart': '100',
-            'molecules': 'O2, N2'
+        'star':None,
+        'planet':None,
+        'gcm':{
+            'invalid': {
+                'path': '/path/to/waccm.nc',
+                'tstart': '100',
+                'molecules': 'O2, CO2',
+                'aerosols': 'Water, WaterIce',
+                'background': 'N2'
+            },
+            'mean_molec_weight': '28'
         }
     }
     

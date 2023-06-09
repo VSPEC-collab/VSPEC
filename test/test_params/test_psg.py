@@ -97,6 +97,7 @@ def test_psgParameters_from_dict():
         'use_molecular_signatures': 'True',
         'nmax':'0',
         'lmax':'0',
+        'continuum':[],
         'url': PSG_EXT_URL,
         'api_key': {
             'path': 'api_key.txt',
@@ -112,6 +113,7 @@ def test_psgParameters_from_dict():
     assert psg_params.use_molecular_signatures is True
     assert psg_params.nmax == 0
     assert psg_params.lmax == 0
+    assert isinstance(psg_params.continuum,list)
     assert psg_params.url == PSG_EXT_URL
     assert isinstance(psg_params.api_key, APIkey)
     assert psg_params.api_key.path == Path('api_key.txt')
@@ -125,6 +127,7 @@ def test_psgParameters_to_psg():
         use_molecular_signatures=True,
         nmax=0,
         lmax=0,
+        continuum=['Rayleigh', 'Refraction'],
         url=PSG_EXT_URL,
         api_key=APIkey(path='api_key.txt')
     )
@@ -137,4 +140,5 @@ def test_psgParameters_to_psg():
     assert psg_input['GENERATOR-GAS-MODEL'] == 'Y'
     assert psg_input['ATMOSPHERE-NMAX'] == '0'
     assert psg_input['ATMOSPHERE-LMAX'] == '0'
+    assert psg_input['ATMOSPHERE-CONTINUUM'] == 'Rayleigh,Refraction'
 

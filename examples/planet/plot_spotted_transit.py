@@ -142,7 +142,7 @@ h2o_atm = {'molecules':{'H2O':0.99}}
 gcm_h2o = params.gcmParameters.from_dict({
     'star':star_dict,
     'planet':planet_dict,
-    'gcm':{'vspec':dict(gcm_dict,**h2o_atm)}
+    'gcm':{'vspec':dict(gcm_dict,**h2o_atm),'mean_molec_weight':18}
 })
 star_kwargs = dict(
     template='M',

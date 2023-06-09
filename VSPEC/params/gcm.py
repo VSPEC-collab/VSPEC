@@ -228,6 +228,9 @@ class gcmParameters(BaseParameters):
     ----------
     gcm : binaryGCM or waccmGCM
         The GCM instance containing the GCM data.
+    mean_molec_weight : float
+        The mean molecular weight of the atmosphere
+        in g/mol.
 
     Attributes
     ----------
@@ -235,14 +238,19 @@ class gcmParameters(BaseParameters):
     gcmtype
     gcm : binaryGCM or waccmGCM
         The GCM instance containing the GCM data.
+    mean_molec_weight : float
+        The mean molecular weight of the atmosphere
+        in g/mol.
 
     """
 
     def __init__(
         self,
-        gcm:Union[binaryGCM,Union[vspecGCM,waccmGCM]]
+        gcm:Union[binaryGCM,Union[vspecGCM,waccmGCM]],
+        mean_molec_weight: float
     ):
         self.gcm = gcm
+        self.mean_molec_weight = mean_molec_weight
 
     def content(self,**kwargs):
         return self.gcm.content(**kwargs)
@@ -264,20 +272,36 @@ class gcmParameters(BaseParameters):
         gcm_dict = d['gcm']
         star_dict = d['star']
         planet_dict = d['planet']
+        mean_molec_weight = float(gcm_dict['mean_molec_weight'])
         if 'binary' in gcm_dict:
             return cls(
-                gcm=binaryGCM.from_dict(gcm_dict['binary'])
+                gcm=binaryGCM.from_dict(gcm_dict['binary']),
+                mean_molec_weight=mean_molec_weight
             )
         elif 'waccm' in gcm_dict:
             return cls(
-                gcm=waccmGCM.from_dict(gcm_dict['waccm'])
+                gcm=waccmGCM.from_dict(gcm_dict['waccm']),
+                mean_molec_weight=mean_molec_weight
             )
         elif 'vspec' in gcm_dict:
             return cls(
-                gcm=vspecGCM.from_dict(gcm_dict['vspec'],star_dict,planet_dict)
+                gcm=vspecGCM.from_dict(gcm_dict['vspec'],star_dict,planet_dict),
+                mean_molec_weight=mean_molec_weight
             )
         else:
             raise KeyError(f'`binary`, `waccm`, or `vspec` not in {list(d.keys())}')
+    def to_psg(self)->dict:
+        """
+        Write parameters to the PSG format.
+
+        Returns
+        -------
+        dict
+            The PSG parameters in a dictionary
+        """
+        return {
+            'ATMOSPHERE-WEIGHT': f'{self.mean_molec_weight:.1f}'
+        }
 
 
 class APIkey(BaseParameters):
