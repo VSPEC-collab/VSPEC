@@ -422,18 +422,37 @@ class PhaseAnalyzer:
 
 
 
-def get_gcm_binary(filename):
+def get_gcm_binary(config:str or Path or bytes):
+    """
+    Separate a GCM into it's text and binary components.
+
+    Parameters
+    ----------
+    config : str, pathlib.Path, bytes
+        The filename to read or the bytes to parse
+    
+    Returns
+    -------
+    head : str
+        The value of the 'ATMOSPHERE-GCM-PARAMETERS' option.
+    dat : np.ndarray
+        The data between '<BINARY></BINARY>' tags.
+
+    """
     key = '<ATMOSPHERE-GCM-PARAMETERS>'
     start = b'<BINARY>'
     end = b'</BINARY>'
-    with open(filename,'rb') as file:
-        fdat = file.read()
+    if isinstance(config,(str,Path)):
+        with open(config,'rb') as file:
+            fdat = file.read()
+    else:
+        fdat = config
     header, dat = fdat.split(start)
     dat = dat.replace(end,b'')
     dat = np.frombuffer(dat,dtype='float32')
     for line in str(header).split(r'\n'):
         if key in line:
-            return line.replace(key,''),np.array(dat)
+            return line.replace(key,''), np.array(dat)
 def sep_header(header):
     fields = header.split(',')
     coords = fields[:7]
@@ -448,8 +467,16 @@ class GCMdecoder:
         self.header=header
         self.dat=dat
     @classmethod
-    def from_psg(cls,filename):
-        head,dat = get_gcm_binary(filename)
+    def from_psg(cls,config:str or Path or bytes):
+        """
+        Construct a ``GCMdecoder`` from PSG.
+
+        Parameters
+        ----------
+        config : str, pathlib.Path, bytes
+            The filename to read or the bytes to parse
+        """
+        head,dat = get_gcm_binary(config)
         return cls(head,dat)
     def rename_var(self,oldname,newname):
         coords,vars = sep_header(self.header)

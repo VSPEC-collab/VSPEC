@@ -254,7 +254,7 @@ class PSGrad:
                     re.findall(r'\[([\w\d/]+)\]', item)[0])
             elif 'Radiance unit' in item:
                 header['radiance_unit'] = u.Unit(
-                    re.findall(r'\[([\w\d/]+)\]', item)[0])
+                    re.findall(r'\[([\w\d/]+)\]', item)[0].replace('W/m2/um','W m-2 um-1')) # avoid UnitWarning
         columns = raw_header[-1][1:].strip().split()
         dat = StringIO('\n'.join(raw_data))
         df = pd.read_csv(dat, names=columns, delim_whitespace=True)

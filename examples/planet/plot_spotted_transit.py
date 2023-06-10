@@ -63,7 +63,7 @@ observation = params.ObservationParameters(
 # PSG
 
 psg_kwargs = dict(
-gcm_binning=9,
+    gcm_binning=5,
     phase_binning=1,
     nmax=0,
     lmax=0,
@@ -127,13 +127,14 @@ gcm_dict = {
     'nlayer': 30,
     'nlon': 30,
     'nlat': 15,
-    'epsilon': 0.01,
+    'epsilon': 100,
     'albedo': 0.3,
     'emissivity': 1.0,
     'gamma': 1.4,
     'psurf': 1*u.bar,
     'ptop': 1e-8*u.bar,
-    'wind': {'U': '0 m/s','V':'0 m/s'}
+    'wind': {'U': '0 m/s','V':'0 m/s'},
+    'molecules':{'H2O':0.99}
 }
 
 # Create two sets of GCM Parameters
@@ -164,8 +165,8 @@ quiet_star = params.StarParameters(
 )
 spotted_star = params.StarParameters(
     spots=params.SpotParameters(
-            'iso', 0.02, 0., 0.*u.s,
-            500*MSH, 0.1,
+            'iso', 0.025, 0., 0.*u.s,
+            300*MSH, 0.1,
             2700*u.K, 2700*u.K,
             0./u.day, 0*MSH/u.day,
             10*MSH),
@@ -185,7 +186,7 @@ internal_params_kwargs = dict(
     inst=inst
 )
 
-# Make the four cases
+# Make the three cases
 
 params_rock_quiet = params.InternalParameters(
     header=params.Header(data_path=Path('rock_quiet'),**header_kwargs),
