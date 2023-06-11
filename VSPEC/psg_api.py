@@ -168,7 +168,7 @@ def change_psg_parameters(
         The PSG config in dictionary form.
     """
     config = {}
-    config['OBJECT-STAR-TYPE'] = params.star.template if include_star else '-'
+    config['OBJECT-STAR-TYPE'] = params.star.psg_star_template if include_star else '-'
     config['OBJECT-SEASON'] = f'{phase.to_value(u.deg):.4f}'
     config['OBJECT-STAR-DISTANCE'] = f'{(orbit_radius_coeff*params.planet.semimajor_axis).to_value(u.AU):.4f}'
     config['OBJECT-SOLAR-LONGITUDE'] = f'{sub_stellar_lon.to_value(u.deg)}'

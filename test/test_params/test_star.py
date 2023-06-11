@@ -7,27 +7,27 @@ import pytest
 
 def test_preset_static_proxima():
     params = StarParameters.static_proxima()
-    assert params.template == 'M'
+    assert params.psg_star_template == 'M'
     assert params.mass == 0.12 * u.M_sun
 
 def test_preset_spotted_proxima():
     params = StarParameters.spotted_proxima()
-    assert params.template == 'M'
+    assert params.psg_star_template == 'M'
     assert params.spots.distribution == 'iso'
 
 def test_preset_flaring_proxima():
     params = StarParameters.flaring_proxima()
-    assert params.template == 'M'
+    assert params.psg_star_template == 'M'
     assert params.flares.E_steps == 100
 
 def test_preset_proxima():
     params = StarParameters.proxima()
-    assert params.template == 'M'
+    assert params.psg_star_template == 'M'
     assert params.granulation.mean == 0.2
 
 def test_custom_values():
     params = StarParameters(
-        template='K',
+        psg_star_template='K',
         teff=4000 * u.K,
         mass=0.8 * u.M_sun,
         radius=0.6 * u.R_sun,
@@ -42,13 +42,13 @@ def test_custom_values():
         Nlat=200,
         Nlon=500
     )
-    assert params.template == 'K'
+    assert params.psg_star_template == 'K'
     assert params.mass == 0.8 * u.M_sun
 
 def test_accessing_attributes():
     params = StarParameters.spotted_proxima()
     assert params.spots.distribution == 'iso'
-    assert params.template == 'M'
+    assert params.psg_star_template == 'M'
 
 def test_custom_from_dict():
     params_dict = {
@@ -68,7 +68,7 @@ def test_custom_from_dict():
         'Nlon': 700
     }
     params = StarParameters.from_dict(params_dict)
-    assert params.template == 'G'
+    assert params.psg_star_template == 'G'
     assert params.mass == 1.2 * u.M_sun
 
 def test_preset_from_dict():
@@ -76,5 +76,5 @@ def test_preset_from_dict():
         'preset': 'proxima'
     }
     params = StarParameters.from_dict(params_dict)
-    assert params.template == 'M'
+    assert params.psg_star_template == 'M'
     assert params.flares.E_steps == 100

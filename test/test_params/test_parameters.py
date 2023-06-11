@@ -16,7 +16,7 @@ def parameters():
 def test_star_parameters(parameters:InternalParameters):
     # Access and verify star parameters
     star_params = parameters.star
-    assert star_params.template == 'M'
+    assert star_params.psg_star_template == 'M'
     assert star_params.teff == 3300*u.K
     assert star_params.mass == 0.12*u.M_sun
     assert star_params.radius == 0.154*u.R_sun

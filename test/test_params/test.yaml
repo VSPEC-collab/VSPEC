@@ -4,7 +4,7 @@ header:
   teff_max: 3700 K
   desc: This is a VSPEC test run.
 star:
-  template: M
+  psg_star_template: M
   teff: 3300 K
   mass: 0.12 M_sun
   radius: 0.154 R_sun

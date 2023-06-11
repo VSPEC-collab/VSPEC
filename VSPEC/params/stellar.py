@@ -521,7 +521,7 @@ class StarParameters(BaseParameters):
 
     Parameters
     ----------
-    template : str
+    psg_star_template : str
         The template used for the stellar model.
     teff : astropy.units.quantity.Quantity
         The effective temperature of the star.
@@ -552,7 +552,7 @@ class StarParameters(BaseParameters):
     
     Attributes
     ----------
-    template : str
+    psg_star_template : str
         The template used for the stellar model.
     teff : astropy.units.quantity.Quantity
         The effective temperature of the star.
@@ -584,7 +584,7 @@ class StarParameters(BaseParameters):
 
     def __init__(
         self,
-        template: str,
+        psg_star_template: str,
         teff: u.Quantity,
         mass: u.Quantity,
         radius: u.Quantity,
@@ -599,7 +599,7 @@ class StarParameters(BaseParameters):
         Nlat: int,
         Nlon: int
     ):
-        self.template = template
+        self.psg_star_template = psg_star_template
         self.teff = teff
         self.mass = mass
         self.radius = radius
@@ -617,7 +617,7 @@ class StarParameters(BaseParameters):
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            template=str(d['template']),
+            psg_star_template=str(d['template']),
             teff=u.Quantity(d['teff']),
             mass=u.Quantity(d['mass']),
             radius=u.Quantity(d['radius']),
@@ -634,7 +634,7 @@ class StarParameters(BaseParameters):
         )
     def to_psg(self)->dict:
         return {
-            'OBJECT-STAR-TYPE': self.template,
+            'OBJECT-STAR-TYPE': self.psg_star_template,
             'OBJECT-STAR-TEMPERATURE': f'{self.teff.to_value(u.K):.1f}',
             'OBJECT-STAR-RADIUS': f'{self.radius.to_value(u.R_sun):.4f}',
             'GENERATOR-CONT-STELLAR': 'Y'
@@ -643,7 +643,7 @@ class StarParameters(BaseParameters):
     @classmethod
     def static_proxima(cls):
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
@@ -661,7 +661,7 @@ class StarParameters(BaseParameters):
     @classmethod
     def spotted_proxima(cls):
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
@@ -679,7 +679,7 @@ class StarParameters(BaseParameters):
     @classmethod
     def flaring_proxima(cls):
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
@@ -697,7 +697,7 @@ class StarParameters(BaseParameters):
     @classmethod
     def proxima(cls):
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,

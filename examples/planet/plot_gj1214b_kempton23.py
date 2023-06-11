@@ -111,7 +111,7 @@ gcm = params.gcmParameters.from_dict({
 })
 
 star_kwargs = dict(
-    template='M',
+    psg_star_template='M',
     teff=star_teff,
     mass=star_mass,
     radius=star_rad,

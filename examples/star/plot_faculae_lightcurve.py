@@ -31,7 +31,7 @@ header = params.Header(
     seed=SEED,verbose=1
 )
 star = params.StarParameters(
-    template='M',
+    psg_star_template='M',
     teff=3000*u.K,
     mass = 0.1*u.M_sun,
     radius=0.15*u.R_sun,
