@@ -2,9 +2,10 @@
 Stellar Parameters
 """
 from astropy import units as u
+import yaml
 
 
-from VSPEC.config import MSH
+from VSPEC.config import MSH, PRESET_PATH
 from VSPEC.params.base import BaseParameters
 
 
@@ -96,22 +97,16 @@ class LimbDarkeningParameters(BaseParameters):
 
 class SpotParameters(BaseParameters):
     """
-    Spot Parameters
+    Parameters controling variability from star spots.
 
     Parameters
     ----------
     distribution : str
-        The distribution function to be used for the spot positions. 'iso' or 'solar'.
+        The distribution function to be used for the spot positions.
+        Either ``iso`` for an isotropic distribution or ``solar`` for two bands at :math:`\\pm 15^\\circ` latitude.
     initial_coverage : float
-        The coverage for a 'hot start'.
-    equillibrium_coverage : float
-        The fractional coverage of the star's surface by spots. This is the value
-        at growth-decay equillibrium, and different from the 'hot start' value given
-        by `initial_coverage`.
-    warmup : astropy.units.Quantity
-        The duration of the warmup period, during which the spot coverage approaches
-        equillibrium.
-    area_mean : astropy.units.quantity
+        The spot coverage created initially by generating spots at random stages of life.
+    area_mean : astropy.units.Quantity
         The mean area of a spot on the star's surface is MSH.
     area_logsigma : float
         The standard deviation of the spot areas. This is a lognormal
@@ -120,6 +115,12 @@ class SpotParameters(BaseParameters):
         The effective temperature of the spot umbrae.
     teff_penumbra : astropy.units.Quantity
         The effective temperature of the spot penumbrae.
+    equillibrium_coverage : float
+        The fractional coverage of the star's surface by spots. This is the value
+        at growth-decay equillibrium.
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the spot coverage approaches
+        equillibrium.
     growth_rate : astropy.units.Quantity
         The rate at which new spots grow.
     decay_rate : astropy.units.Quantity
@@ -133,13 +134,6 @@ class SpotParameters(BaseParameters):
         The distribution function to be used for the spot positions. 'iso' or 'solar'.
     initial_coverage : float
         The coverage for a 'hot start'.
-    equillibrium_coverage : float
-        The fractional coverage of the star's surface by spots. This is the value
-        at growth-decay equillibrium, and different from the 'hot start' value given
-        by `initial_coverage`.
-    warmup : astropy.units.Quantity
-        The duration of the warmup period, during which the spot coverage approaches
-        equillibrium.
     area_logmean : float
         The mean area of a spot on the star's surface is MSH.
     area_logsigma : float
@@ -149,42 +143,53 @@ class SpotParameters(BaseParameters):
         The effective temperature of the spot umbrae.
     teff_penumbra : astropy.units.Quantity
         The effective temperature of the spot penumbrae.
+    equillibrium_coverage : float
+        The fractional coverage of the star's surface by spots. This is the value
+        at growth-decay equillibrium, and different from the 'hot start' value given
+        by `initial_coverage`.
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the spot coverage approaches
+        equillibrium.
     growth_rate : astropy.units.Quantity
         The rate at which new spots grow.
     decay_rate : astropy.units.Quantity
         The rate at which existing spots decay.
     initial_area : astropy.units.Quantity
         The initial area of newly created spots.
+    
     """
-
+    _PRESET_PATH = PRESET_PATH / 'spots.yaml'
+    """
+    The path to the preset file.
+    """
     def __init__(
         self,
         distribution: str,
         initial_coverage: float,
-        equillibrium_coverage: float,
-        warmup: u.Quantity,
         area_mean: u.Quantity,
         area_logsigma: float,
         teff_umbra: u.Quantity,
         teff_penumbra: u.Quantity,
+        equillibrium_coverage: float,
+        burn_in: u.Quantity,
         growth_rate: u.Quantity,
         decay_rate: u.Quantity,
         initial_area: u.Quantity
     ):
         self.distribution = distribution
         self.initial_coverage = initial_coverage
-        self.equillibrium_coverage = equillibrium_coverage
-        self.warmup = warmup
         self.area_mean = area_mean
         self.area_logsigma = area_logsigma
         self.teff_umbra = teff_umbra
         self.teff_penumbra = teff_penumbra
+        self.equillibrium_coverage = equillibrium_coverage
+        self.burn_in = burn_in
         self.growth_rate = growth_rate
         self.decay_rate = decay_rate
         self.initial_area = initial_area
-        self.validate()
+        self._validate()
 
-    def validate(self):
+    def _validate(self):
         """
         Validate class instance
         """
@@ -202,55 +207,55 @@ class SpotParameters(BaseParameters):
         return cls(
             distribution=str(d['distribution']),
             initial_coverage=float(d['initial_coverage']),
-            equillibrium_coverage=float(d['equillibrium_coverage']),
-            warmup=u.Quantity(d['warmup']),
             area_mean=u.Quantity(d['area_mean']),
             area_logsigma=float(d['area_logsigma']),
             teff_umbra=u.Quantity(d['teff_umbra']),
             teff_penumbra=u.Quantity(d['teff_penumbra']),
+            equillibrium_coverage=float(d['equillibrium_coverage']),
+            burn_in=u.Quantity(d['burn_in']),
             growth_rate=u.Quantity(d['growth_rate']),
             decay_rate=u.Quantity(d['decay_rate']),
             initial_area=u.Quantity(d['initial_area'])
         )
+    @classmethod
+    def from_preset(cls,name):
+        """
+        Load a ``SpotParameters`` instance from a preset file.
+
+        Parameters
+        ----------
+        name : str
+            The name of the preset to load.
+        
+        Returns
+        -------
+        SpotParameters
+            The class instance loaded from a preset.
+        """
+        with open(cls._PRESET_PATH, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data[name])
 
     @classmethod
     def none(cls):
         """
         No spots
         """
-        return cls(
-            'iso', 0., 0., 0.*u.s,
-            500*MSH, 0.2,
-            100*u.K, 100*u.K,
-            0./u.day, 0*MSH/u.day,
-            10*MSH
-        )
+        return cls.from_preset('none')
 
     @classmethod
     def mdwarf(cls):
         """
         Static Spots
         """
-        return cls(
-            'iso', 0.2, 0., 0.*u.s,
-            500*MSH, 0.2,
-            2500*u.K, 2700*u.K,
-            0./u.day, 0*MSH/u.day,
-            10*MSH
-        )
+        return cls.from_preset('mdwarf')
 
     @classmethod
     def solar(cls):
         """
         Solar-style spots
         """
-        return cls(
-            'solar', 0.1, 0.1, 30*u.day,
-            500*MSH, 0.2,
-            2500*u.K, 2700*u.K,
-            0.52/u.day, 10.8*MSH/u.day,
-            10*MSH
-        )
+        return cls.from_preset('solar')
 
 
 class FaculaParameters(BaseParameters):
@@ -263,8 +268,9 @@ class FaculaParameters(BaseParameters):
         The distribution used to generate the faculae on the star. Currently only 'iso' is supported.
     equillibrium_coverage : float
         The fraction of the star's surface covered by the faculae at growth-decay equilibrium.
-    warmup : astropy.units.Quantity
-        The warmup time for the faculae on the star to reach equilibrium.
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the facula coverage approaches
+        equillibrium.
     mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
     hwhm_radius : astropy.units.Quantity
@@ -282,8 +288,9 @@ class FaculaParameters(BaseParameters):
         The distribution used to generate the faculae on the star.
     equillibrium_coverage : float
         The fraction of the star's surface covered by the faculae at growth-decay equilibrium.
-    warmup : astropy.units.Quantity
-        The warmup time for the faculae on the star to reach equilibrium.
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the facula coverage approaches
+        equillibrium.
     mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
     hwhm_radius : astropy.units.Quantity
@@ -298,7 +305,7 @@ class FaculaParameters(BaseParameters):
         self,
         distribution: str,
         equillibrium_coverage: float,
-        warmup: u.Quantity,
+        burn_in: u.Quantity,
         mean_radius: u.Quantity,
         hwhm_radius: u.Quantity,
         mean_timescale: u.Quantity,
@@ -306,7 +313,7 @@ class FaculaParameters(BaseParameters):
     ):
         self.distribution = distribution
         self.equillibrium_coverage = equillibrium_coverage
-        self.warmup = warmup
+        self.burn_in = burn_in
         self.mean_radius = mean_radius
         self.hwhm_radius = hwhm_radius
         self.mean_timescale = mean_timescale
@@ -328,7 +335,7 @@ class FaculaParameters(BaseParameters):
         return cls(
             distribution=str(d['distribution']),
             equillibrium_coverage=float(d['equillibrium_coverage']),
-            warmup=u.Quantity(d['warmup']),
+            burn_in=u.Quantity(d['burn_in']),
             mean_radius=u.Quantity(d['mean_radius']),
             hwhm_radius=u.Quantity(d['hwhm_radius']),
             mean_timescale=u.Quantity(d['mean_timescale']),

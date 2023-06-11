@@ -28,7 +28,7 @@ header = params.Header(
     data_path=Path('faclae_lightcurve'),
     teff_min=2300*u.K,
     teff_max=3900*u.K,
-    seed=SEED,verbose=1
+    seed=SEED,verbose=0
 )
 star = params.StarParameters(
     psg_star_template='M',
@@ -42,7 +42,7 @@ star = params.StarParameters(
     faculae=params.FaculaParameters(
         distribution='iso',
         equillibrium_coverage=0.01,
-        warmup=2*u.day,
+        burn_in=2*u.day,
         mean_radius=0.01*u.R_sun,
         hwhm_radius=0.005*u.R_sun,
         mean_timescale=8*u.hr,
@@ -70,17 +70,19 @@ psg_params = params.psgParameters(
     use_molecular_signatures=True,
     nmax=0,
     lmax=0,
+    continuum=['Rayleigh', 'Refraction', 'CIA_all'],
     url='http://localhost:3000',
     api_key=params.APIkey.none()
 )
 instrument = params.InstrumentParameters.niriss_soss()
 
 gcm = params.gcmParameters(
-    gcm=params.vspecGCM.earth(molecules={'CO2':1e-4})
+    gcm=params.vspecGCM.earth(molecules={'CO2':1e-4}),
+    mean_molec_weight=28
 )
 
 
-parameters = params.Parameters(
+parameters = params.InternalParameters(
     header = header,
     star = star,
     planet = planet,
@@ -128,4 +130,4 @@ for i in wl_pixels:
     plt.plot(time,lc,label=f'{wl:.1f}')
 plt.legend()
 plt.xlabel(f'time ({time.unit})')
-plt.ylabel(f'Flux (normalized)')
+_=plt.ylabel('Flux (normalized)')

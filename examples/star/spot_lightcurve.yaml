@@ -18,7 +18,7 @@ star:
     distribution: iso
     initial_coverage: 0.2
     equillibrium_coverage: 0.0
-    warmup: 0 day
+    burn_in: 0 day
     area_mean: 30000 msh
     area_logsigma: 0.2
     teff_umbra: 2500 K
@@ -29,7 +29,7 @@ star:
   faculae:
     distribution: iso
     equillibrium_coverage: 0.000
-    warmup: 0 hr
+    burn_in: 0 hr
     mean_radius: 500 km
     hwhm_radius: 200 km
     mean_timescale: 10 hr
@@ -97,8 +97,10 @@ psg:
   use_molecular_signatures: True
   nmax: 0
   lmax: 0
+  continuum: [Rayleigh, Refraction, CIA_all]
   url: http://localhost:3000
 gcm:
+  mean_molec_weight: 28
   vspec:
     nlon: 40
     nlat : 30

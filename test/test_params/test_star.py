@@ -52,13 +52,13 @@ def test_accessing_attributes():
 
 def test_custom_from_dict():
     params_dict = {
-        'template': 'G',
+        'psg_star_template': 'G',
         'teff': 5500 * u.K,
         'mass': 1.2 * u.M_sun,
         'radius': 1.1 * u.R_sun,
         'period': 30 * u.day,
-        'offset_magnitude': 5 * u.deg,
-        'offset_direction': 45 * u.deg,
+        'misalignment': 5 * u.deg,
+        'misalignment_dir': 45 * u.deg,
         'ld': {'preset':'lambertian'},
         'spots': {'preset':'none'},
         'faculae': {'preset':'none'},

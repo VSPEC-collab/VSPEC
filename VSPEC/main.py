@@ -57,6 +57,9 @@ class ObservationModel:
         self,
         params:InternalParameters
     ):
+        if isinstance(params,(Path,str)):
+            msg = 'Please use the `from_yaml` classmethod'
+            raise TypeError(msg)
         self.params = params
         self.verbose = params.header.verbose
         self.build_directories()
@@ -1010,8 +1013,8 @@ class ObservationModel:
         """
         if self.star is None:  # user can define a custom star before calling this function, e.g. for a specific spot pattern
             self.build_star()
-            self.warm_up_star(spot_warmup_time=self.params.star.spots.warmup,
-                              facula_warmup_time=self.params.star.faculae.warmup)
+            self.warm_up_star(spot_warmup_time=self.params.star.spots.burn_in,
+                              facula_warmup_time=self.params.star.faculae.burn_in)
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(
             observation_parameters, planet=False)

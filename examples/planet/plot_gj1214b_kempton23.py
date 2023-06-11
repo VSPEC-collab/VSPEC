@@ -107,7 +107,7 @@ gcm_dict = {
 gcm = params.gcmParameters.from_dict({
     'star':star_dict,
     'planet':planet_dict,
-    'gcm':{'vspec':gcm_dict,'mean_molec_weight':18}
+    'gcm':{'vspec':gcm_dict,'mean_molec_weight':44}
 })
 
 star_kwargs = dict(

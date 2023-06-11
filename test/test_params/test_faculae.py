@@ -17,7 +17,7 @@ def test_custom_values():
     params = FaculaParameters(
         distribution='iso',
         equillibrium_coverage=0.2,
-        warmup=30 * u.hour,
+        burn_in=30 * u.hour,
         mean_radius=500 * u.km,
         hwhm_radius=200 * u.km,
         mean_timescale=10 * u.hour,
@@ -30,7 +30,7 @@ def test_invalid_distribution():
         _ = FaculaParameters(
             distribution='invalid',
             equillibrium_coverage=0.2,
-            warmup=30 * u.hour,
+            burn_in=30 * u.hour,
             mean_radius=500 * u.km,
             hwhm_radius=200 * u.km,
             mean_timescale=10 * u.hour,
@@ -42,7 +42,7 @@ def test_invalid_equilibrium_coverage():
         _ = FaculaParameters(
             distribution='iso',
             equillibrium_coverage=1.2,
-            warmup=30 * u.hour,
+            burn_in=30 * u.hour,
             mean_radius=500 * u.km,
             hwhm_radius=200 * u.km,
             mean_timescale=10 * u.hour,
@@ -58,7 +58,7 @@ def test_custom_from_dict():
     params_dict = {
         'distribution': 'iso',
         'equillibrium_coverage': 0.2,
-        'warmup': 30 * u.hour,
+        'burn_in': 30 * u.hour,
         'mean_radius': 500 * u.km,
         'hwhm_radius': 200 * u.km,
         'mean_timescale': 10 * u.hour,

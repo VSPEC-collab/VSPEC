@@ -18,7 +18,7 @@ star:
     distribution: iso
     initial_coverage: 0.2
     equillibrium_coverage: 0.0
-    warmup: 0.0 day
+    burn_in: 0.0 day
     area_mean: 500 msh
     area_logsigma: 0.2
     teff_umbra: 2500 K
@@ -29,7 +29,7 @@ star:
   faculae:
     distribution: iso
     equillibrium_coverage: 0.001
-    warmup: 30 hr
+    burn_in: 30 hr
     mean_radius: 500 km
     hwhm_radius: 200 km
     mean_timescale: 10 hr

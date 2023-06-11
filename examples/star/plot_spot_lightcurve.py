@@ -51,4 +51,4 @@ for i in wl_pixels:
     plt.plot(time,lc,label=f'{wl:.1f}')
 plt.legend()
 plt.xlabel(f'time ({time.unit})')
-plt.ylabel(f'Flux (normalized)')
+_=plt.ylabel('Flux (normalized)')
