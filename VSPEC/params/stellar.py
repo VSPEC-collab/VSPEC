@@ -263,16 +263,16 @@ class FaculaParameters(BaseParameters):
         The distribution used to generate the faculae on the star. Currently only 'iso' is supported.
     equillibrium_coverage : float
         The fraction of the star's surface covered by the faculae at growth-decay equilibrium.
-    warmup : astropy.units.Quantity [time]
+    warmup : astropy.units.Quantity
         The warmup time for the faculae on the star to reach equilibrium.
-    mean_radius : astropy.units.quantity.Quantity [distance]
+    mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
-    hwhm_radius : astropy.units.quantity.Quantity [distance]
+    hwhm_radius : astropy.units.Quantity
         The half-width at half-maximum radius of the faculae. It is the difference between the peak of the radius
         distribution and the half maximum in the positive direction.
-    mean_timescale : astropy.units.quantity.Quantity [time]
+    mean_timescale : astropy.units.Quantity
         The mean faculae lifetime.
-    hwhm_timescale : astropy.units.quantity.Quantity [time]
+    hwhm_timescale : astropy.units.Quantity
         The facula timescale distribution half-width-half-maximum in hours. It is the difference between the peak of
         the timescale distribution and the half maximum in the positive direction.
 
@@ -284,13 +284,13 @@ class FaculaParameters(BaseParameters):
         The fraction of the star's surface covered by the faculae at growth-decay equilibrium.
     warmup : astropy.units.Quantity
         The warmup time for the faculae on the star to reach equilibrium.
-    mean_radius : astropy.units.quantity.Quantity
+    mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
-    hwhm_radius : astropy.units.quantity.Quantity
+    hwhm_radius : astropy.units.Quantity
         The half-width at half-maximum radius of the faculae.
-    mean_timescale : astropy.units.quantity.Quantity
+    mean_timescale : astropy.units.Quantity
         The mean faculae lifetime.
-    hwhm_timescale : astropy.units.quantity.Quantity
+    hwhm_timescale : astropy.units.Quantity
         The facula timescale distribution half-width-half-maximum in hours.
     """
 
@@ -360,9 +360,9 @@ class FlareParameters(BaseParameters):
     ----------
     group_probability : float
         The probability that a given flare will be closely followed by another flare.
-    teff_mean : astropy.units.quantity.Quantity [temperature]
+    teff_mean : astropy.units.Quantity
         The mean temperature of the flare blackbody.
-    teff_sigma : astropy.units.quantity.Quantity [temperature]
+    teff_sigma : astropy.units.Quantity
         The standard deviation of the generated flare temperature.
     fwhm_mean : astropy.units.Quantity
         The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
@@ -379,9 +379,9 @@ class FlareParameters(BaseParameters):
     ----------
     group_probability : float
         The probability that a given flare will be closely followed by another flare.
-    teff_mean : astropy.units.quantity.Quantity [temperature]
+    teff_mean : astropy.units.Quantity
         The mean temperature of the flare blackbody.
-    teff_sigma : astropy.units.quantity.Quantity [temperature]
+    teff_sigma : astropy.units.Quantity
         The standard deviation of the generated flare temperature.
     fwhm_mean : astropy.units.Quantity
         The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
@@ -517,24 +517,24 @@ class GranulationParameters(BaseParameters):
 
 class StarParameters(BaseParameters):
     """
-    Class to store stellar model parameters.
+    Parameters describing the ``VSPEC`` stellar model.
 
     Parameters
     ----------
     psg_star_template : str
         The template used for the stellar model.
-    teff : astropy.units.quantity.Quantity
+    teff : astropy.units.Quantity
         The effective temperature of the star.
-    mass : astropy.units.quantity.Quantity
+    mass : astropy.units.Quantity
         The mass of the star.
-    radius : astropy.units.quantity.Quantity
+    radius : astropy.units.Quantity
         The radius of the star.
-    period : astropy.units.quantity.Quantity
+    period : astropy.units.Quantity
         The rotational period of the star.
-    offset_magnitude : astropy.units.quantity.Quantity
-        The magnitude of the stellar rotation axis offset.
-    offset_direction : astropy.units.quantity.Quantity
-        The direction offset of the stellar rotation axis offset.
+    misalignment : astropy.units.Quantity
+        The misalignment between the stellar rotation axis and the orbital axis.
+    misalignment_dir : astropy.units.Quantity
+        The direction of stellar rotation axis misalignment.
     ld : LimbDarkeningParameters
         The limb darkening parameters of the star.
     spots : SpotParameters
@@ -554,18 +554,18 @@ class StarParameters(BaseParameters):
     ----------
     psg_star_template : str
         The template used for the stellar model.
-    teff : astropy.units.quantity.Quantity
+    teff : astropy.units.Quantity
         The effective temperature of the star.
-    mass : astropy.units.quantity.Quantity
+    mass : astropy.units.Quantity
         The mass of the star.
-    radius : astropy.units.quantity.Quantity
+    radius : astropy.units.Quantity
         The radius of the star.
-    period : astropy.units.quantity.Quantity
+    period : astropy.units.Quantity
         The rotational period of the star.
-    offset_magnitude : astropy.units.quantity.Quantity
-        The magnitude of the stellar rotation axis offset.
-    offset_direction : astropy.units.quantity.Quantity
-        The direction offset of the stellar rotation axis offset.
+    misalignment : astropy.units.Quantity
+        The misalignment between the stellar rotation axis and the orbital axis.
+    misalignment_dir : astropy.units.Quantity
+        The direction of stellar rotation axis misalignment.
     ld : LimbDarkeningParameters
         The limb darkening parameters of the star.
     spots : SpotParameters
@@ -589,8 +589,8 @@ class StarParameters(BaseParameters):
         mass: u.Quantity,
         radius: u.Quantity,
         period: u.Quantity,
-        offset_magnitude: u.Quantity,
-        offset_direction: u.Quantity,
+        misalignment: u.Quantity,
+        misalignment_dir: u.Quantity,
         ld: LimbDarkeningParameters,
         spots: SpotParameters,
         faculae: FaculaParameters,
@@ -604,8 +604,8 @@ class StarParameters(BaseParameters):
         self.mass = mass
         self.radius = radius
         self.period = period
-        self.offset_magnitude = offset_magnitude
-        self.offset_direction = offset_direction
+        self.misalignment = misalignment
+        self.misalignment_dir = misalignment_dir
         self.ld = ld
         self.spots = spots
         self.faculae = faculae
@@ -613,17 +613,31 @@ class StarParameters(BaseParameters):
         self.granulation = granulation
         self.Nlat = Nlat
         self.Nlon = Nlon
+    @classmethod
+    def from_dict(cls, d: dict):
+        """
+        Construct a ``StarParameters`` object from a dictionary.
 
+        Parameters
+        ----------
+        d : dict
+            The dictionary representing the ``StarParameters`` object.
+        
+        Notes
+        -----
+        Available presets include ``static_proxima``, ``spotted_proxima``, ``flaring_proxima``, and ``proxima``.
+        """
+        return super().from_dict(d)
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            psg_star_template=str(d['template']),
+            psg_star_template=str(d['psg_star_template']),
             teff=u.Quantity(d['teff']),
             mass=u.Quantity(d['mass']),
             radius=u.Quantity(d['radius']),
             period=u.Quantity(d['period']),
-            offset_magnitude=u.Quantity(d['offset_magnitude']),
-            offset_direction=u.Quantity(d['offset_direction']),
+            misalignment=u.Quantity(d['misalignment']),
+            misalignment_dir=u.Quantity(d['misalignment_dir']),
             ld=LimbDarkeningParameters.from_dict(d['ld']),
             spots=SpotParameters.from_dict(d['spots']),
             faculae=FaculaParameters.from_dict(d['faculae']),
@@ -633,6 +647,14 @@ class StarParameters(BaseParameters):
             Nlon=int(d['Nlon'])
         )
     def to_psg(self)->dict:
+        """
+        Write a dictionary containing PSG config options.
+
+        Returns
+        -------
+        dict
+            Configurations to send to PSG.
+        """
         return {
             'OBJECT-STAR-TYPE': self.psg_star_template,
             'OBJECT-STAR-TEMPERATURE': f'{self.teff.to_value(u.K):.1f}',
@@ -642,14 +664,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def static_proxima(cls):
+        """
+        A Proxima Centauri-like star that has no variability.
+        """
         return cls(
             psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.none(),
             faculae=FaculaParameters.none(),
@@ -660,14 +685,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def spotted_proxima(cls):
+        """
+        A Proxima Centauri-like star that has spots.
+        """
         return cls(
             psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.mdwarf(),
             faculae=FaculaParameters.none(),
@@ -678,14 +706,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def flaring_proxima(cls):
+        """
+        A Proxima Centauri-like star that flares.
+        """
         return cls(
             psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.none(),
             faculae=FaculaParameters.none(),
@@ -696,14 +727,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def proxima(cls):
+        """
+        A Proxima Centauri-like star that has spots and flares.
+        """
         return cls(
             psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.mdwarf(),
             faculae=FaculaParameters.none(),

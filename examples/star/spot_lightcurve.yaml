@@ -4,13 +4,13 @@ header:
   teff_max: 3900 K
   desc: This is a VSPEC example.
 star:
-  template: M
+  psg_star_template: M
   teff: 3300 K
   mass: 0.12 M_sun
   radius: 0.154 R_sun
   period: 20 day
-  offset_magnitude: 0 deg
-  offset_direction: 0 deg
+  misalignment: 0 deg
+  misalignment_dir: 0 deg
   ld:
     u1: 0.
     u2: 0.
