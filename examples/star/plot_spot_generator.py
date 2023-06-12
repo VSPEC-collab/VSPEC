@@ -10,7 +10,7 @@ from cartopy import crs as ccrs
 import matplotlib.pyplot as plt
 
 from VSPEC import variable_star_model as vsm
-from VSPEC.helpers import MSH
+from VSPEC.config import MSH
 
 SEED = 10
 rng = np.random.default_rng(SEED)
@@ -22,13 +22,13 @@ rng = np.random.default_rng(SEED)
 # We will use the `SpotGenerator` class
 mean_spot_area = 500*MSH
 mstar_gen = vsm.SpotGenerator(
-    average_area=mean_spot_area,
-    area_spread=0.2,
+    dist_area_mean=mean_spot_area,
+    dist_area_logsigma=0.2,
     umbra_teff=2600*u.K,
     penumbra_teff=2900*u.K,
     growth_rate=0/u.day,
     decay_rate=0*MSH/u.day,
-    starting_size=10*MSH,
+    init_area=10*MSH,
     distribution='iso',
     coverage=0.2,
     Nlat=500,Nlon=1000,rng=rng
@@ -96,13 +96,13 @@ fig.text(0.1,0.2,s)
 mean_spot_area = 100*MSH
 target_coverage = 0.1
 solar_gen = vsm.SpotGenerator(
-    average_area=mean_spot_area,
-    area_spread=0.2,
+    dist_area_mean=mean_spot_area,
+    dist_area_logsigma=0.2,
     umbra_teff=2600*u.K,
     penumbra_teff=2900*u.K,
     growth_rate=0.5/u.day,
     decay_rate=10*MSH/u.day,
-    starting_size=10*MSH,
+    init_area=10*MSH,
     distribution='solar',
     coverage=target_coverage,
     Nlat=500,Nlon=1000,rng=rng

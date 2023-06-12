@@ -25,6 +25,20 @@ This unit is used to represent the surface area of stars in VSPEC.
 
 :type: astropy.units.Unit
 """
+
+starspot_initial_area = 10*MSH
+"""
+Initial ``StarSpot`` area.
+
+Because spots grow exponentially, they can't start at 0 area.
+When they are born they are given this small area.
+
+:type: astropy.units.Quantity
+
+.. todo::
+    This should optionaly be set by the user.
+"""
+
 flux_unit = u.Unit('W m-2 um-1')
 """
 The standard unit of flux.
@@ -32,6 +46,20 @@ The standard unit of flux.
 This unit is used to standardize the flux in VSPEC calculations.
 
 :type: astropy.units.Unit
+"""
+
+nlat = 500
+"""
+The default latitude resolution for the stellar model.
+
+:type: int
+"""
+
+nlon = 1000
+"""
+The default longitude resolution for the stellar model.
+
+:type: int
 """
 
 planet_distance_unit = u.AU

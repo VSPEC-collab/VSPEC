@@ -161,7 +161,7 @@ def test_add_fac_to_map():
     Teff = 3000 * u.K
     radius = 0.15 * u.Rsun
     period = 10 * u.day
-    sgen = SpotGenerator(5000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,starting_size=500*MSH)
+    sgen = SpotGenerator(5000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,init_area=500*MSH)
     spots = SpotCollection(*sgen.birth_spots(10*u.day,radius))
     fgen = FaculaGenerator(R_peak = 0.1*u.R_sun,coverage=0.4)
     # facula = Facula(0*u.deg,40*u.deg,0.1*u.R_sun,0.02*u.R_sun,2700*u.K,3700*u.K,1*u.hr,True,Zw=10000*u.km)
@@ -207,7 +207,7 @@ def test_transit_mask():
     Teff = 3000 * u.K
     radius = 0.15 * u.R_sun
     period = 10 * u.day
-    sgen = SpotGenerator(1000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,starting_size=500*MSH,distribution='iso')
+    sgen = SpotGenerator(1000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,init_area=500*MSH,distribution='iso')
     spots = SpotCollection(*sgen.birth_spots(100*u.day,radius))
     fgen = FaculaGenerator(R_peak = 0.1*u.R_sun,coverage=0.4)
     # facula = Facula(0*u.deg,40*u.deg,0.1*u.R_sun,0.02*u.R_sun,2700*u.K,3700*u.K,1*u.hr,True,Zw=10000*u.km)
@@ -258,7 +258,7 @@ def test_calc_coverage():
     Teff = 3000 * u.K
     radius = 0.15 * u.R_sun
     period = 10 * u.day
-    sgen = SpotGenerator(1000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,starting_size=500*MSH,distribution='iso')
+    sgen = SpotGenerator(1000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,init_area=500*MSH,distribution='iso')
     spots = SpotCollection(*sgen.birth_spots(100*u.day,radius))
     fgen = FaculaGenerator(R_peak = 0.1*u.R_sun,coverage=0.4)
     # facula = Facula(0*u.deg,40*u.deg,0.1*u.R_sun,0.02*u.R_sun,2700*u.K,3700*u.K,1*u.hr,True,Zw=10000*u.km)
@@ -280,7 +280,7 @@ def test_plot_surface():
     Teff = 3000 * u.K
     radius = 0.15 * u.R_sun
     period = 10 * u.day
-    sgen = SpotGenerator(1000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,starting_size=500*MSH,distribution='iso')
+    sgen = SpotGenerator(1000*MSH,0.2,2900*u.K,2800*u.K,coverage=0.4,init_area=500*MSH,distribution='iso')
     spots = SpotCollection(*sgen.birth_spots(100*u.day,radius))
     fgen = FaculaGenerator(R_peak = 0.2*u.R_sun,coverage=0.4)
     # facula = Facula(0*u.deg,40*u.deg,0.1*u.R_sun,0.02*u.R_sun,2700*u.K,3700*u.K,1*u.hr,True,Zw=10000*u.km)

@@ -41,7 +41,8 @@ extensions = [
     'sphinxcontrib.bibtex',
     'sphinx_gallery.gen_gallery',
     # 'sphinx.ext.autosummary',
-    # 'sphinx.ext.autodoc'
+    # 'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
 ]
 numpydoc_show_class_members = False
 bibtex_bibfiles = ['refs.bib']
@@ -52,7 +53,7 @@ bibtex_bibfiles = ['refs.bib']
 #     # other options...
 # }
 
-
+todo_include_todos = True
 # Settings for sphinx gallery
 sphinx_gallery_conf = {
      'examples_dirs': '../../examples',   # path to your example scripts

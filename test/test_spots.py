@@ -288,13 +288,13 @@ def init_spot_generator(**kwargs):
     Initialize a `SpotGenerator` for testing
     """
     return SpotGenerator(
-        average_area=kwargs.get('average_area', 100*MSH),
-        area_spread=kwargs.get('area_spread', 0.1),
+        dist_area_mean=kwargs.get('average_area', 100*MSH),
+        dist_area_logsigma=kwargs.get('area_spread', 0.1),
         umbra_teff=kwargs.get('umbra_teff', 2500*u.K),
         penumbra_teff=kwargs.get('penumbra_teff', 2700*u.K),
         growth_rate=kwargs.get('growth_rate', 0/u.day),
         decay_rate=kwargs.get('decay_rate', 0*MSH/u.day),
-        starting_size=kwargs.get('starting_size', 10*MSH),
+        init_area=kwargs.get('starting_size', 10*MSH),
         distribution=kwargs.get('distribution', 'iso'),
         coverage=kwargs.get('coverage', 0.0),
         Nlat=kwargs.get('Nlat', 300),
@@ -378,13 +378,13 @@ def test_spot_generator_generate_mature_spots():
     starting_size = 10*MSH
     mean_spot_area = 500*MSH
     gen = SpotGenerator(
-        average_area=mean_spot_area,
-        area_spread=0.2,
+        dist_area_mean=mean_spot_area,
+        dist_area_logsigma=0.2,
         umbra_teff=2600*u.K,
         penumbra_teff=2900*u.K,
         growth_rate=0/u.day,
         decay_rate=0*MSH/u.day,
-        starting_size=starting_size,
+        init_area=starting_size,
         distribution='iso',
         coverage=0.2,
         Nlat=500,Nlon=1000,rng=rng

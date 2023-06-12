@@ -563,14 +563,11 @@ class ObservationModel:
                 self.params.star.flares.E_min.to_value(u.erg)),
             log_E_erg_Nsteps=self.params.star.flares.E_steps
         )
-
-        spot_generator = vsm.SpotGenerator(
-            self.params.star.spots.area_mean, self.params.star.spots.area_logsigma,
-            self.params.star.spots.teff_umbra, self.params.star.spots.teff_penumbra,
-            self.params.star.spots.growth_rate, self.params.star.spots.decay_rate,
-            self.params.star.spots.initial_area, self.params.star.spots.distribution,
-            self.params.star.spots.equillibrium_coverage,
-            Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon,
+        spot_generator = vsm.SpotGenerator.from_params(
+            spotparams=self.params.star.spots,
+            nlat=self.params.star.Nlat,
+            nlon=self.params.star.Nlon,
+            gridmaker=None,
             rng=self.rng
         )
         fac_generator = vsm.FaculaGenerator(
