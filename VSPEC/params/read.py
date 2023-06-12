@@ -196,7 +196,8 @@ class InternalParameters(BaseParameters):
         config = {
             'GENERATOR-NOISEFRAMES': str(int(round(
                 (self.obs.integration_time/self.inst.detector.integration_time).to_value(u.dimensionless_unscaled)
-            )))
+            ))),
+            'GENERATOR-NOISETIME': f'{self.inst.detector.integration_time.to_value(u.s):.1f}'
         }
         config.update(self.star.to_psg())
         config.update(self.planet.to_psg())
