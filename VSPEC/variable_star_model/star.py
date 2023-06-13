@@ -139,7 +139,7 @@ class Star:
 
         if fac_generator is None:
             self.fac_generator = FaculaGenerator(
-                R_peak=300*u.km, R_HWHM=100*u.km, Nlon=Nlon, Nlat=Nlat)
+                dist_r_peak=300*u.km, dist_r_hwhm=100*u.km, nlon=Nlon, nlat=Nlat)
         else:
             self.fac_generator = fac_generator
         self.granulation = granulation

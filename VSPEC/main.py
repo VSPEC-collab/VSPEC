@@ -550,8 +550,8 @@ class ObservationModel:
         """
         empty_spot_collection = vsm.SpotCollection(Nlat=self.params.star.Nlat,
                                                    Nlon=self.params.star.Nlon)
-        empty_fac_collection = vsm.FaculaCollection(Nlat=self.params.star.Nlat,
-                                                    Nlon=self.params.star.Nlon)
+        empty_fac_collection = vsm.FaculaCollection(nlat=self.params.star.Nlat,
+                                                    nlon=self.params.star.Nlon)
         flare_generator = vsm.FlareGenerator(
             self.params.star.teff, self.params.star.period, self.params.star.flares.group_probability,
             self.params.star.flares.teff_mean, self.params.star.flares.teff_sigma,
@@ -571,10 +571,10 @@ class ObservationModel:
             rng=self.rng
         )
         fac_generator = vsm.FaculaGenerator(
-            R_peak=self.params.star.faculae.mean_radius, R_HWHM=self.params.star.faculae.hwhm_radius,
-            T_peak=self.params.star.faculae.mean_timescale, T_HWHM=self.params.star.faculae.hwhm_timescale,
+            dist_r_peak=self.params.star.faculae.mean_radius, dist_r_hwhm=self.params.star.faculae.hwhm_radius,
+            dist_life_peak=self.params.star.faculae.mean_timescale, dist_life_hwhm=self.params.star.faculae.hwhm_timescale,
             coverage=self.params.star.faculae.equillibrium_coverage, dist=self.params.star.faculae.distribution,
-            Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon
+            nlat=self.params.star.Nlat, nlon=self.params.star.Nlon
         )
         granulation = granules.Granulation(
             self.params.star.granulation.mean,

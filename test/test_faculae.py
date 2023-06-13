@@ -17,16 +17,16 @@ def init_facula(**kwargs):
     return Facula(
         lat=kwargs.get('lat', 0*u.deg),
         lon=kwargs.get('lon', 0*u.deg),
-        Rmax=kwargs.get('Rmax', 300*u.km),
-        R0=kwargs.get('R0', 100*u.km),
-        Teff_floor=kwargs.get('Teff_floor', 2900*u.K),
-        Teff_wall=kwargs.get('Teff_wall', 3500*u.K),
+        r_max=kwargs.get('Rmax', 300*u.km),
+        r_init=kwargs.get('R0', 100*u.km),
+        teff_floor=kwargs.get('Teff_floor', 2900*u.K),
+        teff_wall=kwargs.get('Teff_wall', 3500*u.K),
         lifetime=kwargs.get('lifetime', 10*u.hr),
         growing=kwargs.get('growing', True),
         floor_threshold=kwargs.get('floor_threshold', 20*u.km),
-        Zw=kwargs.get('Zw', 100*u.km),
-        Nlat=kwargs.get('Nlat', 300),
-        Nlon=kwargs.get('Nlon', 600),
+        depth=kwargs.get('Zw', 100*u.km),
+        nlat=kwargs.get('Nlat', 300),
+        nlon=kwargs.get('Nlon', 600),
         gridmaker=kwargs.get('gridmaker', None)
     )
 
@@ -49,10 +49,10 @@ def test_facula_age():
     fac = init_facula(Rmax=100*u.km, R0=100/np.e*u.km,
                       lifetime=lifetime, growing=True)
     fac.age(lifetime*0.5)
-    assert fac.current_R == 100*u.km
+    assert fac.radius == 100*u.km
     assert not fac.is_growing
     fac.age(lifetime*0.5)
-    assert fac.current_R == 100/np.e*u.km
+    assert fac.radius == 100/np.e*u.km
 
 
 def test_facula_effective_area():
@@ -178,7 +178,7 @@ def test_fac_collection_init():
     """
     N = 4
     collec = FaculaCollection(*[init_facula(Nlat=400, Nlon=600)
-                              for i in range(N)], Nlat=300, Nlon=600)
+                              for i in range(N)], nlat=300, nlon=600)
     expected_grid = CoordinateGrid(300, 600)
     for facula in collec.faculae:
         assert isinstance(facula, Facula)
@@ -193,7 +193,7 @@ def test_fac_collection_add_facula():
     """
     N = 4
     collec = FaculaCollection(*[init_facula(Nlat=400, Nlon=600)
-                              for i in range(N)], Nlat=300, Nlon=600)
+                              for i in range(N)], nlat=300, nlon=600)
     assert len(collec.faculae) == N
     collec.add_faculae(init_facula(Nlat=400, Nlon=600))
     assert len(collec.faculae) == N+1
@@ -256,7 +256,7 @@ def test_fac_collection_map_pixels():
     lats = [-20, 0, 20]
     collec = FaculaCollection(
         *[init_facula(lat=lat*u.deg, R0=1000*u.km) for lat in lats],
-        Nlat=400, Nlon=800
+        nlat=400, nlon=800
     )
     r_star = 0.15*u.R_sun
     teff = 3000*u.K
@@ -273,11 +273,11 @@ def test_fac_gen_init():
     """
     Test for `FaculaGenerator.__init__()`
     """
-    gen = FaculaGenerator(Nlat=300, Nlon=600)
-    assert isinstance(gen.R0, float)
-    assert isinstance(gen.sig_R, float)
-    assert isinstance(gen.T0, float)
-    assert isinstance(gen.sig_T, float)
+    gen = FaculaGenerator(nlat=300, nlon=600)
+    assert isinstance(gen.dist_logr_peak, float)
+    assert isinstance(gen.dist_logr_sigma, float)
+    assert isinstance(gen.dist_loglife_peak, float)
+    assert isinstance(gen.dist_loglife_sigma, float)
     assert gen.gridmaker == CoordinateGrid(300, 600)
 
 
@@ -323,7 +323,7 @@ def test_fac_gen_get_n_expected():
     T_peak = 10*u.hr
     coverage = 0.01
     r_star = 0.1*u.R_sun
-    gen = FaculaGenerator(R_peak=R_peak, T_peak=T_peak, coverage=coverage)
+    gen = FaculaGenerator(dist_r_peak=R_peak, dist_life_peak=T_peak, coverage=coverage)
     exp_area = 4*np.pi*r_star**2 * coverage
     exp_number = (exp_area / (np.pi*R_peak**2)
                   ).to_value(u.dimensionless_unscaled)

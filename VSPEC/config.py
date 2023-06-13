@@ -62,6 +62,13 @@ The default longitude resolution for the stellar model.
 :type: int
 """
 
+grid_teff_bounds = (2500*u.K, 3900*u.K)
+"""
+The limits on the effective temperature allowed by the grid.
+
+:type: tuple of astropy.units.Quantity
+"""
+
 planet_distance_unit = u.AU
 """
 The standard unit of planetary semimajor axis.

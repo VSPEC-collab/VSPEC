@@ -49,14 +49,14 @@ faculae = vsm.FaculaCollection(
         vsm.Facula(
             lat=(rng.random() - 0.5)*120*u.deg,
             lon = rng.random()*360*u.deg,
-            Rmax = facula_radius,
-            R0 = facula_radius,
-            Teff_floor=2500*u.K,
-            Teff_wall=3700*u.K,
+            r_max = facula_radius,
+            r_init = facula_radius,
+            teff_floor=2500*u.K,
+            teff_wall=3700*u.K,
             lifetime=5*u.hr,
             growing=False,
             floor_threshold=200*u.km,
-            Zw=facula_depth
+            depth=facula_depth
         ) for _ in range(n_faculae)
     ]
 )
