@@ -8,7 +8,7 @@ from astropy import units as u
 import numpy as np
 
 from VSPEC import variable_star_model as vsm
-from VSPEC.helpers import MSH
+from VSPEC.config import MSH
 
 SEED = 10
 rng = np.random.default_rng(SEED)
@@ -51,12 +51,14 @@ faculae = vsm.FaculaCollection(
             lon = rng.random()*360*u.deg,
             r_max = facula_radius,
             r_init = facula_radius,
-            teff_floor=2500*u.K,
-            teff_wall=3700*u.K,
+            depth=facula_radius,
             lifetime=5*u.hr,
+            floor_teff_slope=0*u.K/u.km,
+            floor_teff_min_rad = 0.1*facula_radius,
+            floor_teff_base_dteff = -500*u.K,
+            wall_teff_slope = 0*u.K/u.km,
+            wall_teff_intercept = 300*u.K,
             growing=False,
-            floor_threshold=200*u.km,
-            depth=facula_depth
         ) for _ in range(n_faculae)
     ]
 )

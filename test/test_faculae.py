@@ -19,11 +19,11 @@ def init_facula(**kwargs):
         lon=kwargs.get('lon', 0*u.deg),
         r_max=kwargs.get('Rmax', 300*u.km),
         r_init=kwargs.get('R0', 100*u.km),
-        teff_floor=kwargs.get('Teff_floor', 2900*u.K),
-        teff_wall=kwargs.get('Teff_wall', 3500*u.K),
+        floor_teff_slope=kwargs.get('Teff_floor', 2900*u.K),
+        wall_teff_slope=kwargs.get('Teff_wall', 3500*u.K),
         lifetime=kwargs.get('lifetime', 10*u.hr),
         growing=kwargs.get('growing', True),
-        floor_threshold=kwargs.get('floor_threshold', 20*u.km),
+        floor_teff_intercept=kwargs.get('floor_threshold', 20*u.km),
         depth=kwargs.get('Zw', 100*u.km),
         nlat=kwargs.get('Nlat', 300),
         nlon=kwargs.get('Nlon', 600),
@@ -276,7 +276,7 @@ def test_fac_gen_init():
     gen = FaculaGenerator(nlat=300, nlon=600)
     assert isinstance(gen.dist_logr_peak, float)
     assert isinstance(gen.dist_logr_sigma, float)
-    assert isinstance(gen.dist_loglife_peak, float)
+    assert isinstance(gen.dist_life_peak, float)
     assert isinstance(gen.dist_loglife_sigma, float)
     assert gen.gridmaker == CoordinateGrid(300, 600)
 

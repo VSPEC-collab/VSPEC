@@ -2,6 +2,10 @@
 Base parameter class
 """
 import numpy as np
+import yaml
+from pathlib import Path
+
+from VSPEC.config import PRESET_PATH
 
 class BaseParameters:
     """
@@ -40,6 +44,28 @@ class BaseParameters:
             return getattr(cls,d['preset'].replace('-','_'))()
         else:
             return cls._from_dict(d,*args)
+    @classmethod
+    def from_preset(cls,name):
+        """
+        Load a ``BaseParameters`` instance from a preset file.
+
+        Parameters
+        ----------
+        name : str
+            The name of the preset to load.
+        
+        Returns
+        -------
+        BaseParameters
+            The class instance loaded from a preset.
+        """
+        if hasattr(cls,'_PRESET_PATH'):
+            with open(cls._PRESET_PATH, 'r',encoding='UTF-8') as file:
+                data = yaml.safe_load(file)
+                return cls.from_dict(data[name])
+        else:
+            raise NotImplementedError('This class does not have a ``_PRESET_PATH`` attribute.')
+
 
 class PSGtable(BaseParameters):
     """

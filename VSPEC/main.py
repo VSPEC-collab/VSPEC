@@ -570,11 +570,12 @@ class ObservationModel:
             gridmaker=None,
             rng=self.rng
         )
-        fac_generator = vsm.FaculaGenerator(
-            dist_r_peak=self.params.star.faculae.mean_radius, dist_r_hwhm=self.params.star.faculae.hwhm_radius,
-            dist_life_peak=self.params.star.faculae.mean_timescale, dist_life_hwhm=self.params.star.faculae.hwhm_timescale,
-            coverage=self.params.star.faculae.equillibrium_coverage, dist=self.params.star.faculae.distribution,
-            nlat=self.params.star.Nlat, nlon=self.params.star.Nlon
+        fac_generator = vsm.FaculaGenerator.from_params(
+            facparams=self.params.star.faculae,
+            nlat=self.params.star.Nlat,
+            nlon=self.params.star.Nlon,
+            gridmaker=None,
+            rng=self.rng
         )
         granulation = granules.Granulation(
             self.params.star.granulation.mean,

@@ -26,13 +26,14 @@ from astropy import units as u
 from astropy.units.quantity import Quantity
 from typing import Tuple
 
-from VSPEC.helpers import CoordinateGrid
+from VSPEC.helpers import CoordinateGrid, clip_teff
 from VSPEC.helpers import get_angle_between, proj_ortho, calc_circ_fraction_inside_unit_circle
 from VSPEC.variable_star_model.spots import SpotCollection, SpotGenerator
 from VSPEC.variable_star_model.faculae import FaculaCollection, FaculaGenerator, Facula
 from VSPEC.variable_star_model.flares import FlareCollection, FlareGenerator
 from VSPEC.variable_star_model.granules import Granulation
 from VSPEC.config import MSH
+from VSPEC.params import FaculaParameters, SpotParameters
 
 
 class Star:
@@ -111,7 +112,8 @@ class Star:
                  fac_generator: FaculaGenerator = None,
                  granulation: Granulation = None,
                  u1: float = 0,
-                 u2: float = 0
+                 u2: float = 0,
+                 rng:np.random.Generator = np.random.default_rng()
     ):
         self.Teff = Teff
         self.radius = radius
@@ -119,6 +121,7 @@ class Star:
         self.period = period
         self.spots = spots
         self.faculae = faculae
+        self.rng = rng
         if not gridmaker:
             self.gridmaker = CoordinateGrid(Nlat, Nlon)
         else:
@@ -132,14 +135,24 @@ class Star:
             self.flare_generator = flare_generator
 
         if spot_generator is None:
-            self.spot_generator = SpotGenerator(500*MSH, 200*MSH, umbra_teff=self.Teff*0.75,
-                                                penumbra_teff=self.Teff*0.85, Nlon=Nlon, Nlat=Nlat, gridmaker=self.gridmaker)
+            self.spot_generator = SpotGenerator.from_params(
+                spotparams=SpotParameters.none(),
+                nlat=Nlat,
+                nlon=Nlon,
+                gridmaker=self.gridmaker,
+                rng=self.rng
+            )
         else:
             self.spot_generator = spot_generator
 
         if fac_generator is None:
-            self.fac_generator = FaculaGenerator(
-                dist_r_peak=300*u.km, dist_r_hwhm=100*u.km, nlon=Nlon, nlat=Nlat)
+            self.fac_generator = FaculaGenerator.from_params(
+                facparams=FaculaParameters.none(),
+                nlat=Nlat,
+                nlon=Nlon,
+                gridmaker=self.gridmaker,
+                rng=self.rng
+            )
         else:
             self.fac_generator = fac_generator
         self.granulation = granulation
@@ -149,11 +162,17 @@ class Star:
         self.set_fac_grid()
 
     def set_spot_grid(self):
+        """
+        Set the gridmaker for each spot to be the same.
+        """
         for spot in self.spots.spots:
-            spot.set_gridmaker(self.gridmaker)
+            spot.gridmaker = self.gridmaker
     def set_fac_grid(self):
+        """
+        Set the gridmaker for each facula to be the same.
+        """
         for fac in self.faculae.faculae:
-            fac.set_gridmaker(self.gridmaker)
+            fac.gridmaker = self.gridmaker
 
     @property
     def map(self):
@@ -314,15 +333,20 @@ class Star:
         for facula in faculae:
             angle = get_angle_between(lat0,lon0,facula.lat,facula.lon)
             inside_fac = facula.map_pixels(self.radius)
-            fracs = facula.fractional_effective_area(angle)
-            teff_wall, teff_floor = fracs.keys()
-            frac = fracs[teff_wall].value
-            mu_of_fac_pix = mu[inside_fac]
-            border_mu = np.percentile(mu_of_fac_pix,100*frac)
-            wall_pix = inside_fac & (mu <= border_mu)
-            floor_pix = inside_fac & (mu > border_mu)
-            map_from_spots[wall_pix] = teff_wall
-            map_from_spots[floor_pix] = teff_floor
+            if not np.any(inside_fac): # the facula is too small
+                pass
+            else:
+                fracs = facula.fractional_effective_area(angle)
+                dteff_wall, dteff_floor = fracs.keys()
+                frac = fracs[dteff_wall].value
+                mu_of_fac_pix = mu[inside_fac]
+                border_mu = np.percentile(mu_of_fac_pix,100*frac)
+                wall_pix = inside_fac & (mu <= border_mu)
+                floor_pix = inside_fac & (mu > border_mu)
+                teff_wall = clip_teff(dteff_wall + self.Teff)
+                teff_floor = clip_teff(dteff_floor + self.Teff)
+                map_from_spots[wall_pix] = teff_wall
+                map_from_spots[floor_pix] = teff_floor
         return map_from_spots
 
 
@@ -499,7 +523,7 @@ class Star:
 
         """
         self.faculae.add_faculae(
-            self.fac_generator.birth_faculae(time, self.radius, self.Teff))
+            self.fac_generator.birth_faculae(time, self.radius))
 
     def average_teff(self, sub_obs_coords):
         """
@@ -563,7 +587,7 @@ class Star:
         lat = lat.to_value(u.deg)
         lon = lon.to_value(u.deg)
         im = ax.pcolormesh(lon,lat,map_with_faculae.T,transform=ccrs.PlateCarree())
-        plt.colorbar(im,ax=ax,label=r'$T_{\rmath eff}$ (K)')
+        plt.colorbar(im,ax=ax,label=r'$T_{\rm eff}$ (K)')
         transit_mask = np.where(covered,1,np.nan)
         zorder = 100 if pl_frac == 1. else -100
         ax.contourf(lon,lat,transit_mask.T,colors='k',alpha=1,transform=ccrs.PlateCarree(),zorder=zorder)

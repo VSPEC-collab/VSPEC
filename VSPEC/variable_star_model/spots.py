@@ -578,7 +578,7 @@ class SpotGenerator:
         spotparams:SpotParameters,
         nlat:int = config.nlat,
         nlon:int = config.nlon,
-        gridmaker:int = None,
+        gridmaker:CoordinateGrid = None,
         rng:np.random.Generator = np.random.default_rng()
     ):
         """

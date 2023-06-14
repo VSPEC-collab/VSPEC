@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from VSPEC import variable_star_model as vsm
-from VSPEC.helpers import MSH
+from VSPEC.config import MSH
 
 SEED = 10
 rng = np.random.default_rng(SEED)

@@ -265,7 +265,8 @@ class FaculaParameters(BaseParameters):
     Parameters
     ----------
     distribution : str
-        The distribution used to generate the faculae on the star. Currently only 'iso' is supported.
+        The distribution used to generate the faculae on the star.
+        Currently only 'iso' is supported.
     equillibrium_coverage : float
         The fraction of the star's surface covered by the faculae at growth-decay equilibrium.
     burn_in : astropy.units.Quantity
@@ -273,14 +274,25 @@ class FaculaParameters(BaseParameters):
         equillibrium.
     mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
-    hwhm_radius : astropy.units.Quantity
-        The half-width at half-maximum radius of the faculae. It is the difference between the peak of the radius
-        distribution and the half maximum in the positive direction.
+    logsigma_radius : float
+        The standard deviation of :math:`\\log{r_{0}}.
+    depth : astropy.units.Quantity
+        The depth of the facula depression.
     mean_timescale : astropy.units.Quantity
         The mean faculae lifetime.
-    hwhm_timescale : astropy.units.Quantity
-        The facula timescale distribution half-width-half-maximum in hours. It is the difference between the peak of
-        the timescale distribution and the half maximum in the positive direction.
+    logsigma_timescale : float
+        The standard deviation of :math:`\\log{\\tau}`
+    floor_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    floor_teff_min_rad : astropy.units.Quantity
+        The minimum radius at which the floor is visible. Otherwise the facula
+        is a bright point -- even near disk center.
+    floor_teff_base_dteff : astropy.units.Quantity
+        The Teff of the floor at the minimum radius.
+    wall_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    wall_teff_intercept : astropy.units.Quantity
+        The Teff of the wall when :math:`R = 0`.
 
     Attributes
     ----------
@@ -293,34 +305,59 @@ class FaculaParameters(BaseParameters):
         equillibrium.
     mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
-    hwhm_radius : astropy.units.Quantity
-        The half-width at half-maximum radius of the faculae.
+    logsigma_radius : float
+        The standard deviation of :math:`\\log{r_{0}}.
+    depth : astropy.units.Quantity
+        The depth of the facula depression.
     mean_timescale : astropy.units.Quantity
         The mean faculae lifetime.
-    hwhm_timescale : astropy.units.Quantity
-        The facula timescale distribution half-width-half-maximum in hours.
+    logsigma_timescale : float
+        The standard deviation of :math:`\\log{\\tau}`
+    floor_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    floor_teff_min_rad : astropy.units.Quantity
+        The minimum radius at which the floor is visible. Otherwise the facula
+        is a bright point -- even near disk center.
+    floor_teff_base_dteff : astropy.units.Quantity
+        The Teff of the floor at the minimum radius.
+    wall_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    wall_teff_intercept : astropy.units.Quantity
+        The Teff of the wall when :math:`R = 0`.
     """
-
+    _PRESET_PATH = PRESET_PATH / 'faculae.yaml'
     def __init__(
         self,
         distribution: str,
         equillibrium_coverage: float,
         burn_in: u.Quantity,
         mean_radius: u.Quantity,
-        hwhm_radius: u.Quantity,
+        logsigma_radius: float,
+        depth: u.Quantity,
         mean_timescale: u.Quantity,
-        hwhm_timescale: u.Quantity
+        logsigma_timescale:float,
+        floor_teff_slope: u.Quantity,
+        floor_teff_min_rad: u.Quantity,
+        floor_teff_base_dteff: u.Quantity,
+        wall_teff_slope: u.Quantity,
+        wall_teff_intercept: u.Quantity,
     ):
         self.distribution = distribution
         self.equillibrium_coverage = equillibrium_coverage
         self.burn_in = burn_in
         self.mean_radius = mean_radius
-        self.hwhm_radius = hwhm_radius
+        self.logsigma_radius = logsigma_radius
+        self.depth = depth
         self.mean_timescale = mean_timescale
-        self.hwhm_timescale = hwhm_timescale
-        self.validate()
+        self.logsigma_timescale = logsigma_timescale
+        self.floor_teff_slope = floor_teff_slope
+        self.floor_teff_min_rad = floor_teff_min_rad
+        self.floor_teff_base_dteff = floor_teff_base_dteff
+        self.wall_teff_slope = wall_teff_slope
+        self.wall_teff_intercept = wall_teff_intercept
+        self._validate()
 
-    def validate(self):
+    def _validate(self):
         """
         Validate class instance
         """
@@ -337,26 +374,46 @@ class FaculaParameters(BaseParameters):
             equillibrium_coverage=float(d['equillibrium_coverage']),
             burn_in=u.Quantity(d['burn_in']),
             mean_radius=u.Quantity(d['mean_radius']),
-            hwhm_radius=u.Quantity(d['hwhm_radius']),
+            logsigma_radius=float(d['logsigma_radius']),
             mean_timescale=u.Quantity(d['mean_timescale']),
-            hwhm_timescale=u.Quantity(d['hwhm_timescale']),
+            logsigma_timescale=float(d['logsigma_timescale']),
+            depth=u.Quantity(d['depth']),
+            floor_teff_slope=u.Quantity(d['floor_teff_slope']),
+            floor_teff_min_rad=u.Quantity(d['floor_teff_min_rad']),
+            floor_teff_base_dteff=u.Quantity(d['floor_teff_base_dteff']),
+            wall_teff_slope=u.Quantity(d['wall_teff_slope']),
+            wall_teff_intercept=u.Quantity(d['wall_teff_intercept'])
         )
+    @classmethod
+    def from_preset(cls, name):
+        """
+        Load a ``FaculaParameters`` instance from a preset file.
 
+        Parameters
+        ----------
+        name : str
+            The name of the preset to load.
+        
+        Returns
+        -------
+        FaculaParameters
+            The class instance loaded from a preset.
+        """
+        return super().from_preset(name)
     @classmethod
     def none(cls):
-        return cls(
-            'iso', 0.000, 0*u.s,
-            500*u.km, 200*u.km,
-            10*u.hr, 4*u.hr,
-        )
+        """
+        Load a parameter set without faculae.
+        """
+        return cls.from_preset('none')
 
     @classmethod
     def std(cls):
-        return cls(
-            'iso', 0.001, 30*u.hr,
-            500*u.km, 200*u.km,
-            10*u.hr, 4*u.hr
-        )
+        """
+        Load a parameter preset with simple standard faculae
+        for testing.
+        """
+        return cls.from_preset('std')
 
 
 class FlareParameters(BaseParameters):

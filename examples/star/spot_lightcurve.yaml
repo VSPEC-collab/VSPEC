@@ -27,13 +27,7 @@ star:
     decay_rate: 0.0 msh/day
     initial_area: 10 msh
   faculae:
-    distribution: iso
-    equillibrium_coverage: 0.000
-    burn_in: 0 hr
-    mean_radius: 500 km
-    hwhm_radius: 200 km
-    mean_timescale: 10 hr
-    hwhm_timescale: 4 hr
+    preset: none
   flares:
     group_probability: 0.5
     teff_mean: 9000 K

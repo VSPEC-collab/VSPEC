@@ -12,8 +12,10 @@ import numpy as np
 import pandas as pd
 import socket
 from os import system
+import warnings
 
 from VSPEC.config import PSG_PORT
+from VSPEC import config
 
 
 def isclose(quant1: u.Quantity, quant2: u.Quantity, tol: u.Quantity) -> bool:
@@ -783,3 +785,15 @@ def read_lyr(filename: str) -> pd.DataFrame:
         if 'size' in name:
             names[i] = names[i-1] + '_' + name
     return pd.read_csv(dat, delim_whitespace=True, names=names)
+
+
+def clip_teff(teff:u.Quantity):
+    low, high = config.grid_teff_bounds
+    if teff > high:
+        warnings.warn(f'Teff of {teff:.1f} too high, clipped to {high:.1f}',RuntimeWarning)
+        return high
+    elif teff < low:
+        warnings.warn(f'Teff of {teff:.1f} too low, clipped to {low:.1f}',RuntimeWarning)
+        return high
+    else:
+        return teff
