@@ -17,13 +17,13 @@ SEED = 10
 # Generate the flares
 # -------------------
 
-dt = 10*u.day # a long time.
+dt = 10000*u.day # a long time.
 gen = FlareGenerator(
     dist_teff_mean=9000*u.K,
     dist_teff_sigma=1000*u.K,
     dist_fwhm_mean=3*u.hr,
     dist_fwhm_logsigma=0.3,
-    min_energy=1e31*u.erg,
+    min_energy=1e33*u.erg,
     cluster_size=4,
     rng=np.random.default_rng(seed=SEED)
 )
@@ -63,10 +63,11 @@ axes[0].set_xlabel('Energy (erg)')
 axes[0].set_ylabel('Frequency (1/day)')
 axes[0].set_xscale('log')
 axes[0].set_yscale('log')
+axes[0].legend()
 
 axes[1].errorbar(Es,ratio,yerr=ratio_err,c='k',fmt='o',markersize=5)
 axes[1].set_xlabel('Energy (erg)')
-axes[1].set_ylabel('residual (1/day)')
+axes[1].set_ylabel('Observed/Expected')
 axes[1].set_xscale('log')
 axes[1].axhline(1,c='k',ls='--')
 axes[1].set_xlim(axes[0].get_xlim())
@@ -82,6 +83,6 @@ tpeaks = np.array(
 )
 tpeaks = np.sort(tpeaks)
 tdiffs = np.diff(tpeaks)
-plt.hist(tdiffs,bins=np.logspace(-4,0,30))
+plt.hist(tdiffs,bins=np.logspace(-3,3,30))
 plt.xscale('log')
 0

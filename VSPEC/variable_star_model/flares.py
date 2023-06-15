@@ -2,7 +2,6 @@
 
 This code governs the behavior of flares.
 """
-from copy import deepcopy
 from typing import List
 import typing as Typing
 
@@ -154,19 +153,6 @@ class FlareGenerator:
         The typical size of flare clusters.
     rng : numpy.random.Generator, default=numpy.random.default_rng()
         The random number generator instance to use.
-    
-    Notes
-    -----
-    Relationship between flare frequency is defined as 
-    
-    .. math::
-        \\log{f(E \\ge E_0)~\\text{[erg]}} = \\beta + \\alpha \\log{E_0/\\text{[erg]}}
-    
-    by :cite:t:`2022AJ....164..213G`. Their study of TESS flare rates fits :math:`\\alpha = -0.829`
-    and :math:`\\beta = 26.87`, which we use as the default values. This relationship is valid for
-    :math:`E > 10^{33}` erg, which we use as the default minimum considered energy.
-
-    To disable flares, set ``min_energy`` to infinity so that the expected number of flares is 0.
 
     Attributes
     ----------
@@ -191,6 +177,20 @@ class FlareGenerator:
         The typical size of flare clusters.
     rng : numpy.random.Generator
         The random number generator instance to use.
+    
+    Notes
+    -----
+    Relationship between flare frequency is defined as
+    
+    .. math::
+        \\log{(f(E \\ge E_0)~\\text{[day]})} = \\beta + \\alpha \\log{(E_0/\\text{[erg]})}
+    
+    by :cite:t:`2022AJ....164..213G`. Their study of TESS flare rates fits :math:`\\alpha = -0.829`
+    and :math:`\\beta = 26.87`, which we use as the default values. This relationship is valid for
+    :math:`E > 10^{33}` erg, which we use as the default minimum considered energy.
+
+    To disable flares, set ``min_energy`` to infinity so that the expected number of flares is 0.
+
     """
     energy_unit = u.erg
     """
@@ -265,8 +265,8 @@ class FlareGenerator:
         energy : astropy.units.Quantity
             The energy to compute the frequency of.
         
-        Return
-        ------
+        Returns
+        -------
         astropy.units.Quantity
             The frequency of flares with energy greater than `energy`.
         """
@@ -284,8 +284,8 @@ class FlareGenerator:
         time : astropy.units.Quantity
             The time duration.
         
-        Return
-        ------
+        Returns
+        -------
         float
             The number of flares with energy greater than `energy`.
         """
@@ -300,8 +300,8 @@ class FlareGenerator:
         time : astropy.units.Quantity
             The time duration.
         
-        Return
-        ------
+        Returns
+        -------
         float
             The number of flares.
         """
@@ -317,6 +317,7 @@ class FlareGenerator:
             The energies at which to sample the pdf.
 
         Returns
+        -------
         pdf : float or np.ndarray
             The probability density of energy
         """
@@ -332,6 +333,7 @@ class FlareGenerator:
             The energies at which to sample the cdf.
 
         Returns
+        -------
         cdf : float or np.ndarray
             The cumulative density of energy
         """
@@ -483,6 +485,8 @@ class FlareGenerator:
         """
         nexp = self.get_ntotal(time)
         n_flares = self.rng.poisson(nexp)
+        if n_flares == 0:
+            return []
 
         energies = self.quantile_func(self.rng.random(n_flares))
         tpeaks = self.get_peaks(n_flares)*time

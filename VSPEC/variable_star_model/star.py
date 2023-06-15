@@ -33,7 +33,7 @@ from VSPEC.variable_star_model.faculae import FaculaCollection, FaculaGenerator,
 from VSPEC.variable_star_model.flares import FlareCollection, FlareGenerator
 from VSPEC.variable_star_model.granules import Granulation
 from VSPEC.config import MSH
-from VSPEC.params import FaculaParameters, SpotParameters
+from VSPEC.params import FaculaParameters, SpotParameters, FlareParameters
 
 
 class Star:
@@ -130,7 +130,10 @@ class Star:
         self.spots.gridmaker = self.gridmaker
 
         if flare_generator is None:
-            self.flare_generator = FlareGenerator(self.Teff, self.period)
+            self.flare_generator = FlareGenerator.from_params(
+                flareparams=FlareParameters.none(),
+                rng=self.rng
+            )
         else:
             self.flare_generator = flare_generator
 
@@ -613,9 +616,7 @@ class Star:
         specified observation period using these energies. The resulting collection of
         flares is stored in the `Star`'s `flares` attribute.
         """
-        energy_dist = self.flare_generator.generage_E_dist()
-        flares = self.flare_generator.generate_flare_series(
-            energy_dist, time_duration)
+        flares = self.flare_generator.generate_flare_series(time_duration)
         self.flares = FlareCollection(flares)
 
     def get_flare_int_over_timeperiod(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr], sub_obs_coords):
