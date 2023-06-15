@@ -7,8 +7,9 @@ from os import system
 
 from astropy import units as u
 import numpy as np
+import pandas as pd
 import pytest
-from time import sleep,time
+from time import time
 from pathlib import Path
 
 from VSPEC import helpers
