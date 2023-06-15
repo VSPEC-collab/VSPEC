@@ -95,7 +95,7 @@ class Facula:
         Whether or not the facula is still growing.
     gridmaker : `CoordinateGrid` object
         A `CoordinateGrid` object to create the stellar sufrace grid.
-    
+
     Notes
     -----
     The "Hot wall" model of solar facule describes them as a depression on the
@@ -116,9 +116,9 @@ class Facula:
         r_init: Quantity,
         depth: Quantity,
         lifetime: Quantity,
-        floor_teff_slope:Quantity,
-        floor_teff_min_rad:Quantity,
-        floor_teff_base_dteff:Quantity,
+        floor_teff_slope: Quantity,
+        floor_teff_min_rad: Quantity,
+        floor_teff_base_dteff: Quantity,
         wall_teff_slope: Quantity,
         wall_teff_intercept: Quantity,
         growing: bool = True,
@@ -143,17 +143,20 @@ class Facula:
             self.set_gridmaker(CoordinateGrid(nlat, nlon))
         else:
             self.set_gridmaker(gridmaker)
+
     @property
-    def floor_dteff(self)->u.Quantity:
+    def floor_dteff(self) -> u.Quantity:
         """
         The effective temperature difference between the photosphere and cool floor.
 
         :type: astropy.units.Quantity
         """
-        dteff = (self.radius - self.floor_teff_min_rad)*self.floor_teff_slope + self.floor_teff_base_dteff
+        dteff = (self.radius - self.floor_teff_min_rad) * \
+            self.floor_teff_slope + self.floor_teff_base_dteff
         return dteff.to(u.K)
+
     @property
-    def wall_dteff(self)->u.Quantity:
+    def wall_dteff(self) -> u.Quantity:
         """
         The effective temperature difference between the photosphere and hot wall
 
@@ -161,6 +164,7 @@ class Facula:
         """
         dteff = self.wall_teff_slope*self.radius + self.wall_teff_intercept
         return dteff.to(u.K)
+
     @property
     def _r(self):
         """
@@ -172,7 +176,7 @@ class Facula:
         lat0 = self.lat
         lon0 = self.lon
         return 2 * np.arcsin(np.sqrt(np.sin(0.5*(lat0-latgrid))**2
-                                       + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
+                                     + np.cos(latgrid)*np.cos(lat0)*np.sin(0.5*(lon0 - longrid))**2))
 
     def set_gridmaker(self, gridmaker: CoordinateGrid):
         """
@@ -189,8 +193,7 @@ class Facula:
         """
         self.gridmaker = gridmaker
         msg = 'The `set_gridmaker` method of Facula is no longer necessary.'
-        warnings.warn(msg,DeprecationWarning)
-        
+        warnings.warn(msg, DeprecationWarning)
 
     def age(self, time: Quantity[u.day]):
         """
@@ -236,7 +239,7 @@ class Facula:
         dict
             Effective area of the wall and floor. The keys are the Teff, the
             values are the area. Both are `astropy.units.Quantity` objects.
-        
+
         Notes
         -----
         The effective area is computed by numerical integration. The visible area of the
@@ -244,12 +247,12 @@ class Facula:
 
         .. math::
             \\int _{-R}^{R} Z_{\\rm eff} dr
-        
+
         and the visible area of the cool floor is:
 
         .. math::
             \\int _{-R}^{R} Z_{\\rm eff} dr
-        
+
         Where
 
         .. math::
@@ -259,9 +262,9 @@ class Facula:
                     2\\sqrt{R^2 - r^2}\\cos{\\alpha}, & \\text{if } \\alpha > \\alpha_{\\rm crit}
                 \\end{array}
                 \\right\\}
-        
+
         and
-        
+
         .. math::
             R_{\\rm eff} = \\left\\{
                 \\begin{array}{lr}
@@ -269,14 +272,15 @@ class Facula:
                     0, & \\text{if } \\alpha > \\alpha_{\\rm crit}
                 \\end{array}
                 \\right\\}
-        
+
         for facula radius :math:`R`, depth :math:`Z_w`, and angle from disk-center :math:`\\alpha`. :math:`r` in
         this numerical scheme is defined as the distance from the center of the facula along the radial line
         connecting the facula center to the disk center. :math:`\\alpha_{\\rm crit}` is the value of alpha at
         which the floor is no longer visible and is defined to be :math:`\\arctan{\\frac{2\\sqrt{R^2-r^2}}{Z_w}}`. 
         """
         if self.floor_dteff == self.wall_dteff:
-            raise ValueError('Wall and Floor teff are equal. This is not allowed.')
+            raise ValueError(
+                'Wall and Floor teff are equal. This is not allowed.')
         if self.radius < self.floor_teff_min_rad:
             return {
                 round_teff(self.wall_dteff): np.pi*self.radius**2 * np.cos(angle),
@@ -391,18 +395,18 @@ class FaculaCollection:
                  nlat: int = config.nlat,
                  nlon: int = config.nlon,
                  gridmaker: CoordinateGrid = None):
-        self.faculae:Tuple[Facula] = tuple(faculae)
+        self.faculae: Tuple[Facula] = tuple(faculae)
 
         if not gridmaker:
             self.gridmaker = CoordinateGrid(nlat, nlon)
         else:
             self.gridmaker = gridmaker
         for facula in faculae:
-            facula:Facula
+            facula: Facula
             if not facula.gridmaker == self.gridmaker:
                 facula.gridmaker = gridmaker
 
-    def add_faculae(self, facula:Tuple[Facula] or Facula)->None:
+    def add_faculae(self, facula: Tuple[Facula] or Facula) -> None:
         """
         Add a facula or faculae
 
@@ -414,7 +418,7 @@ class FaculaCollection:
         if isinstance(facula, Facula):
             facula = (facula,)
         for fac in facula:
-            fac:Facula
+            fac: Facula
             if not fac.gridmaker == self.gridmaker:
                 fac.gridmaker = self.gridmaker
         self.faculae += tuple(facula)
@@ -425,7 +429,7 @@ class FaculaCollection:
         """
         faculae_to_keep = []
         for facula in self.faculae:
-            facula:Facula
+            facula: Facula
             if (facula.radius <= facula.r_max/np.e**2) and (not facula.is_growing):
                 pass
             else:
@@ -568,9 +572,9 @@ class FaculaGenerator:
         depth: Quantity,
         dist_life_peak: Quantity,
         dist_life_logsigma: float,
-        floor_teff_slope:Quantity,
-        floor_teff_min_rad:Quantity,
-        floor_teff_base_dteff:Quantity,
+        floor_teff_slope: Quantity,
+        floor_teff_min_rad: Quantity,
+        floor_teff_base_dteff: Quantity,
         wall_teff_slope: Quantity,
         wall_teff_intercept: Quantity,
         coverage: float,
@@ -591,11 +595,12 @@ class FaculaGenerator:
         self.floor_teff_base_dteff = floor_teff_base_dteff
         self.wall_teff_slope = wall_teff_slope
         self.wall_teff_intercept = wall_teff_intercept
-        if not isinstance(coverage,(float,int)):
+        if not isinstance(coverage, (float, int)):
             raise TypeError('coverage must be float or int.')
         self.coverage = coverage
         if dist == 'solar':
-            raise NotImplementedError('`solar` distribution only allowed for spots.')
+            raise NotImplementedError(
+                '`solar` distribution only allowed for spots.')
         elif dist != 'iso':
             raise ValueError(f'Unknown distribution `{dist}`.')
         self.dist = dist
@@ -605,15 +610,16 @@ class FaculaGenerator:
             self.gridmaker = gridmaker
         self.nlon = nlon
         self.nlat = nlat
-        self.rng=rng
+        self.rng = rng
+
     @classmethod
     def from_params(
         cls,
-        facparams:FaculaParameters,
-        nlat:int = config.nlat,
-        nlon:int = config.nlon,
-        gridmaker:CoordinateGrid = None,
-        rng:np.random.Generator = np.random.default_rng()
+        facparams: FaculaParameters,
+        nlat: int = config.nlat,
+        nlon: int = config.nlon,
+        gridmaker: CoordinateGrid = None,
+        rng: np.random.Generator = np.random.default_rng()
     ):
         """
         Construct an instance from a ``FaculaParameters`` object.
@@ -632,23 +638,24 @@ class FaculaGenerator:
             The random number generator to use.
         """
         return cls(
-            dist_r_peak = facparams.mean_radius,
-            dist_r_logsigma = facparams.logsigma_radius,
-            depth = facparams.depth,
-            dist_life_peak = facparams.mean_timescale,
-            dist_life_logsigma = facparams.logsigma_timescale,
-            floor_teff_slope = facparams.floor_teff_slope,
-            floor_teff_min_rad = facparams.floor_teff_min_rad,
-            floor_teff_base_dteff = facparams.floor_teff_base_dteff,
-            wall_teff_slope = facparams.wall_teff_slope,
-            wall_teff_intercept = facparams.wall_teff_intercept,
-            coverage = facparams.equillibrium_coverage,
-            dist = facparams.distribution,
-            nlat = nlat,
-            nlon = nlon,
-            gridmaker = gridmaker,
-            rng = rng
+            dist_r_peak=facparams.mean_radius,
+            dist_r_logsigma=facparams.logsigma_radius,
+            depth=facparams.depth,
+            dist_life_peak=facparams.mean_timescale,
+            dist_life_logsigma=facparams.logsigma_timescale,
+            floor_teff_slope=facparams.floor_teff_slope,
+            floor_teff_min_rad=facparams.floor_teff_min_rad,
+            floor_teff_base_dteff=facparams.floor_teff_base_dteff,
+            wall_teff_slope=facparams.wall_teff_slope,
+            wall_teff_intercept=facparams.wall_teff_intercept,
+            coverage=facparams.equillibrium_coverage,
+            dist=facparams.distribution,
+            nlat=nlat,
+            nlon=nlon,
+            gridmaker=gridmaker,
+            rng=rng
         )
+
     @property
     def mean_area(self):
         """
@@ -660,6 +667,7 @@ class FaculaGenerator:
         :type: astropy.units.Quantity
         """
         return 0.5 * np.pi * (1-np.e**-2) * self.dist_r_peak**2
+
     def get_n_faculae_expected(self, time: u.Quantity, rad_star: u.Quantity) -> float:
         """
         Over a given time duration, compute the number of new faculae to create.
@@ -675,16 +683,17 @@ class FaculaGenerator:
         -------
         n_exp : float
             The expected number of faculae to be birthed in the given time.
-        
+
         Notes
         -----
         .. math::
             N_{exp} = \\frac{X 4 \\pi R_* ^2 t}{2\\tau \\bar{A}}
-        
+
         For coverage fraction :math:`X`, stellar radius :math:`R_*`, time :math:`t`,
         lifetime :math:`\\tau`, and time-averaged area :math:`\\bar{A}`.
         """
-        n_exp = self.coverage * 4*np.pi*rad_star**2 / self.mean_area * time / (2*self.dist_life_peak)
+        n_exp = self.coverage * 4*np.pi*rad_star**2 / \
+            self.mean_area * time / (2*self.dist_life_peak)
         return n_exp.to_value(u.dimensionless_unscaled)
 
     def get_coords(self, N: int):

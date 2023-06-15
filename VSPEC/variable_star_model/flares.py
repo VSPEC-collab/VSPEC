@@ -20,32 +20,32 @@ class StellarFlare:
 
     Parameters
     ----------
-    fwhm : astropy.units.Quantity 
+    fwhm : astropy.units.Quantity
         Full-width-half-maximum of the flare
-    energy : astropy.units.Quantity 
+    energy : astropy.units.Quantity
         Time-integrated bolometric energy
-    lat : astropy.units.Quantity 
+    lat : astropy.units.Quantity
         Latitude of flare on star
-    lon : astropy.units.Quantity 
+    lon : astropy.units.Quantity
         Longitude of flare on star
-    Teff : astropy.units.Quantity 
+    Teff : astropy.units.Quantity
         Blackbody temperature
-    tpeak : astropy.units.Quantity 
+    tpeak : astropy.units.Quantity
         Time of the flare peak
 
     Attributes
     ----------
-    fwhm : astropy.units.Quantity 
+    fwhm : astropy.units.Quantity
         Full-width-half-maximum of the flare
-    energy : astropy.units.Quantity 
+    energy : astropy.units.Quantity
         Time-integrated bolometric energy
-    lat : astropy.units.Quantity 
+    lat : astropy.units.Quantity
         Latitude of flare on star
-    lon : astropy.units.Quantity 
+    lon : astropy.units.Quantity
         Longitude of flare on star
-    Teff : astropy.units.Quantity 
+    Teff : astropy.units.Quantity
         Blackbody temperature
-    tpeak : astropy.units.Quantity 
+    tpeak : astropy.units.Quantity
         Time of the flare peak
 
     Notes
@@ -75,7 +75,7 @@ class StellarFlare:
 
         Returns
         -------
-        astropy.units.Quantity 
+        astropy.units.Quantity
             Peak flare area
         """
         time_area = self.energy/const.sigma_sb/(self.Teff**4)
@@ -116,7 +116,7 @@ class StellarFlare:
 
         Parameters
         ----------
-        time : astropy.units.Quantity  
+        time : astropy.units.Quantity
             the times at which to sample the area.
 
         Returns
@@ -177,14 +177,14 @@ class FlareGenerator:
         The typical size of flare clusters.
     rng : numpy.random.Generator
         The random number generator instance to use.
-    
+
     Notes
     -----
     Relationship between flare frequency is defined as
-    
+
     .. math::
         \\log{(f(E \\ge E_0)~\\text{[day]})} = \\beta + \\alpha \\log{(E_0/\\text{[erg]})}
-    
+
     by :cite:t:`2022AJ....164..213G`. Their study of TESS flare rates fits :math:`\\alpha = -0.829`
     and :math:`\\beta = 26.87`, which we use as the default values. This relationship is valid for
     :math:`E > 10^{33}` erg, which we use as the default minimum considered energy.
@@ -210,17 +210,18 @@ class FlareGenerator:
 
     :type: astropy.units.Quantity
     """
+
     def __init__(
         self,
-        dist_teff_mean:u.Quantity,
-        dist_teff_sigma:u.Quantity,
-        dist_fwhm_mean:u.Quantity,
-        dist_fwhm_logsigma:float,
-        alpha:float = -0.829,
-        beta:float = 26.87,
-        min_energy:u.Quantity=1e33*u.erg,
+        dist_teff_mean: u.Quantity,
+        dist_teff_sigma: u.Quantity,
+        dist_fwhm_mean: u.Quantity,
+        dist_fwhm_logsigma: float,
+        alpha: float = -0.829,
+        beta: float = 26.87,
+        min_energy: u.Quantity = 1e33*u.erg,
         cluster_size: int = 2,
-        rng:np.random.Generator = np.random.default_rng()
+        rng: np.random.Generator = np.random.default_rng()
     ):
         self.dist_teff_mean = dist_teff_mean
         self.dist_teff_sigma = dist_teff_sigma
@@ -231,9 +232,9 @@ class FlareGenerator:
         self.alpha = alpha
         self.beta = beta
         self.rng = rng
-    
+
     @classmethod
-    def from_params(cls,flareparams:FlareParameters,rng:np.random.Generator):
+    def from_params(cls, flareparams: FlareParameters, rng: np.random.Generator):
         """
         Load a ``FlareGenerator`` from a ``FlareParameters`` instance.
 
@@ -256,7 +257,7 @@ class FlareGenerator:
             rng=rng
         )
 
-    def frequency_greater_than(self,energy:u.Quantity):
+    def frequency_greater_than(self, energy: u.Quantity):
         """
         The frequency of flares greater than an energy.
 
@@ -264,15 +265,15 @@ class FlareGenerator:
         ----------
         energy : astropy.units.Quantity
             The energy to compute the frequency of.
-        
+
         Returns
         -------
         astropy.units.Quantity
             The frequency of flares with energy greater than `energy`.
         """
         return 10**self.beta * (energy.to_value(self.energy_unit))**self.alpha / self.time_unit
-    
-    def get_nexp_greater_than(self,energy:u.Quantity,time:u.Quantity)->float:
+
+    def get_nexp_greater_than(self, energy: u.Quantity, time: u.Quantity) -> float:
         """
         Get the expected number of flares with energy greater than `energy` in a
         time period `time`
@@ -283,15 +284,15 @@ class FlareGenerator:
             The energy to compute the frequency of.
         time : astropy.units.Quantity
             The time duration.
-        
+
         Returns
         -------
         float
             The number of flares with energy greater than `energy`.
         """
         return (self.frequency_greater_than(energy)*time).to_value(u.dimensionless_unscaled)
-    
-    def get_ntotal(self,time)->float:
+
+    def get_ntotal(self, time) -> float:
         """
         Get the total number of flares in a time period.
 
@@ -299,15 +300,15 @@ class FlareGenerator:
         ----------
         time : astropy.units.Quantity
             The time duration.
-        
+
         Returns
         -------
         float
             The number of flares.
         """
-        return self.get_nexp_greater_than(self.min_energy,time)
-    
-    def pdf(self,energy:u.Quantity):
+        return self.get_nexp_greater_than(self.min_energy, time)
+
+    def pdf(self, energy: u.Quantity):
         """
         The probability density function of flare energies.
 
@@ -322,8 +323,8 @@ class FlareGenerator:
             The probability density of energy
         """
         return (-self.alpha * energy**(self.alpha-1)/self.min_energy**self.alpha).to_value(u.dimensionless_unscaled)
-    
-    def cdf(self,energy:u.Quantity):
+
+    def cdf(self, energy: u.Quantity):
         """
         Get the cumulative density function.
 
@@ -338,8 +339,8 @@ class FlareGenerator:
             The cumulative density of energy
         """
         return 1 - (energy/self.min_energy).to_value(u.dimensionless_unscaled)**self.alpha
-    
-    def quantile_func(self,X:np.ndarray):
+
+    def quantile_func(self, X: np.ndarray):
         """
         The quantile function of this flare energy distribution.
 
@@ -350,18 +351,18 @@ class FlareGenerator:
         ----------
         X : numpy.ndarray
             A random variable with domain [0,1)
-        
+
         Returns
         -------
         energy : astropy.Units.Quantity
             The energies represented by ``X``.
         """
         X = np.atleast_1d(X)
-        if not (np.all(X>=0.) and np.all(X<1.)):
+        if not (np.all(X >= 0.) and np.all(X < 1.)):
             raise ValueError('`X` must be in [0,1)')
         return self.min_energy * (1-X)**(1/self.alpha)
 
-    def get_peaks(self,n_flares):
+    def get_peaks(self, n_flares):
         """
         Generate the times at which each flare reaches its peak.
 
@@ -369,21 +370,20 @@ class FlareGenerator:
         ----------
         n_flares : int
             The number of peak times to generate.
-        
+
         Returns
         -------
         tpeaks : astropy.units.Quantity
             The times that the flares reach their peak.
         """
-        cluster_sizes = self.rng.poisson(lam=self.cluster_size,size=n_flares)
-        cluster_sizes = cluster_sizes[np.cumsum(cluster_sizes)<n_flares]
+        cluster_sizes = self.rng.poisson(lam=self.cluster_size, size=n_flares)
+        cluster_sizes = cluster_sizes[np.cumsum(cluster_sizes) < n_flares]
         n_leftover = n_flares - np.sum(cluster_sizes)
-        cluster_sizes = np.append(cluster_sizes,[1]*n_leftover)
+        cluster_sizes = np.append(cluster_sizes, [1]*n_leftover)
 
         n_clusters = len(cluster_sizes)
 
         cluster_timescale = 1/n_clusters
-        
 
         dtimes = []
         for size in cluster_sizes:
@@ -394,8 +394,8 @@ class FlareGenerator:
         dtimes = np.array(dtimes)
         tpeaks = np.cumsum(dtimes)
         return tpeaks
-    
-    def gen_fwhm(self,n_flares:int):
+
+    def gen_fwhm(self, n_flares: int):
         """
         Generate a FWHM set in a lognormal distribution.
 
@@ -403,13 +403,14 @@ class FlareGenerator:
         ----------
         n_flares : int
             The number of random FWHM lengths to generate.
-        
+
         Returns
         -------
         fwhm : astropy.units.Quantity
             The FWHMs of the flares
         """
-        dist_logmean_fwhm = np.log10(self.dist_fwhm_mean.to_value(self.time_unit))
+        dist_logmean_fwhm = np.log10(
+            self.dist_fwhm_mean.to_value(self.time_unit))
         log_fwhm = self.rng.normal(
             loc=dist_logmean_fwhm,
             scale=self.dist_fwhm_logsigma,
@@ -417,7 +418,8 @@ class FlareGenerator:
         )
         fwhm = 10**log_fwhm * self.time_unit
         return fwhm
-    def gen_teffs(self,n_flares):
+
+    def gen_teffs(self, n_flares):
         """
         Generate a random set of flare temperatures.
 
@@ -425,21 +427,21 @@ class FlareGenerator:
         ----------
         n_flares : int
             The number of random temperatures to generate.
-        
+
         Returns
         -------
         teffs : astropy.units.Quantity
             The temperatures of the flares
         """
-        
+
         teffs = self.rng.normal(
             loc=self.dist_teff_mean.to_value(self.temperature_unit),
             scale=self.dist_teff_sigma.to_value(self.temperature_unit),
             size=n_flares
         )*self.temperature_unit
         return teffs
-    
-    def gen_coords(self,n_flares):
+
+    def gen_coords(self, n_flares):
         """
         Generate a set of random coordinates.
 
@@ -447,26 +449,27 @@ class FlareGenerator:
         ----------
         n_flares : int
             The number of random temperatures to generate.
-        
+
         Returns
         -------
         lats : astropy.units.Quantity
             The stellar latitudes of the flares.
         lons : astropy.units.Quantity
             The stellar longitudes of the flares.
-        
+
         Notes
         -----
         ``lats`` is generated using a quantile function for latitude.
 
         .. math::
             \\text{lat} = \\arcsin(2X - 1)
-        
+
         For a random variable :math:`X` on [0,1).
         """
         lons = self.rng.random(size=n_flares)*360*u.deg
-        lats = np.arcsin(2*self.rng.random(size=n_flares) - 1)/np.pi * 180*u.deg
-        return lats,lons
+        lats = np.arcsin(2*self.rng.random(size=n_flares) - 1) / \
+            np.pi * 180*u.deg
+        return lats, lons
 
     def generate_flare_series(self, time: u.Quantity):
         """
@@ -477,7 +480,7 @@ class FlareGenerator:
         ----------
         time : astropy.units.Quantity
             The time over which the flares are observed.
-        
+
         Returns
         -------
         flares : list of StellarFlare
@@ -492,7 +495,7 @@ class FlareGenerator:
         tpeaks = self.get_peaks(n_flares)*time
         fwhms = self.gen_fwhm(n_flares)
         teffs = self.gen_teffs(n_flares)
-        lats,lons = self.gen_coords(n_flares)
+        lats, lons = self.gen_coords(n_flares)
 
         flares = [
             StellarFlare(
@@ -502,7 +505,7 @@ class FlareGenerator:
                 lon=lon,
                 Teff=teff,
                 tpeak=t
-            ) for f,e,lat,lon,teff,t in zip(fwhms,energies,lats,lons,teffs,tpeaks)
+            ) for f, e, lat, lon, teff, t in zip(fwhms, energies, lats, lons, teffs, tpeaks)
         ]
         return flares
 

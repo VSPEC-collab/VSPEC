@@ -20,7 +20,7 @@ class GranulationKernel(kernels.Kernel):
         A scalar coefficient for the kernel function.
     period : float
         The period of the kernel in hours.
-    
+
     Notes
     -----
     This kernel is based on [1]_.
@@ -43,7 +43,7 @@ class GranulationKernel(kernels.Kernel):
             * jnp.cos((self.freq*tau/jnp.sqrt(2))-(jnp.pi/4)))
 
 
-def build_gp(params:dict, X:np.ndarray)->GaussianProcess:
+def build_gp(params: dict, X: np.ndarray) -> GaussianProcess:
     """
     Build Gaussian Process
 
@@ -92,7 +92,7 @@ class Granulation:
         The period of low-Teff coverage oscillations.
     dteff : astropy.units.Quantity
         The temperature difference between the nominal photosphere and the low-Teff region.
-    
+
     Attributes
     ----------
     params : dict
