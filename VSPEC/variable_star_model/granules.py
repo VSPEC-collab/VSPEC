@@ -7,6 +7,8 @@ from tinygp import kernels, GaussianProcess
 from astropy import units as u
 import numpy as np
 
+from VSPEC.params import GranulationParameters
+
 time_unit = u.hr
 
 
@@ -106,7 +108,8 @@ class Granulation:
             mean_coverage: float,
             amplitude: float,
             period: u.Quantity,
-            dteff: u.Quantity
+            dteff: u.Quantity,
+            seed:int = np.random.randint(1, None)
     ):
         self.params = dict(
             mean=mean_coverage,
@@ -114,7 +117,24 @@ class Granulation:
             period=period.to_value(time_unit)
         )
         self.dteff = dteff
+        self.seed = seed
+    @classmethod
+    def from_params(cls,granulation_params:GranulationParameters,seed:int):
+        """
+        Create an instance of ``Granulation`` from ``GranulationParameters``.
 
+        Parameters
+        ----------
+        granulation_params : GranulationParameters
+            The parameters to construct from.
+        """
+        return cls(
+            mean_coverage=granulation_params.mean,
+            amplitude=granulation_params.amp,
+            period=granulation_params.period,
+            dteff=granulation_params.dteff,
+            seed=seed
+        )
     def _build_gp(self, X: np.ndarray) -> GaussianProcess:
         return build_gp(self.params, X)
 
@@ -130,10 +150,9 @@ class Granulation:
         Returns
         -------
         np.ndarray
-            The coverage corresponding to each point in `time`.    
+            The coverage corresponding to each point in `time`.
         """
-        key = jax.random.PRNGKey(np.random.randint(
-            1, None))  # generate a random key. There must be a better way to do this.
+        key = jax.random.PRNGKey(seed=self.seed)
         gp = self._build_gp(time.to_value(time_unit))
         coverage = gp.sample(key)
         return save_cast_coverage(np.array(coverage))

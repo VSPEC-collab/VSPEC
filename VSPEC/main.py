@@ -548,40 +548,11 @@ class ObservationModel:
         """
         Build a variable star model based on user-specified parameters.
         """
-        empty_spot_collection = vsm.SpotCollection(Nlat=self.params.star.Nlat,
-                                                   Nlon=self.params.star.Nlon)
-        empty_fac_collection = vsm.FaculaCollection(nlat=self.params.star.Nlat,
-                                                    nlon=self.params.star.Nlon)
-        flare_generator = vsm.FlareGenerator.from_params(
-            flareparams=self.params.star.flares,
-            rng=self.rng
+        self.star = vsm.Star.from_params(
+            starparams=self.params.star,
+            rng=self.rng,
+            seed=self.params.header.seed
         )
-        spot_generator = vsm.SpotGenerator.from_params(
-            spotparams=self.params.star.spots,
-            nlat=self.params.star.Nlat,
-            nlon=self.params.star.Nlon,
-            gridmaker=None,
-            rng=self.rng
-        )
-        fac_generator = vsm.FaculaGenerator.from_params(
-            facparams=self.params.star.faculae,
-            nlat=self.params.star.Nlat,
-            nlon=self.params.star.Nlon,
-            gridmaker=None,
-            rng=self.rng
-        )
-        granulation = granules.Granulation(
-            self.params.star.granulation.mean,
-            self.params.star.granulation.amp,
-            self.params.star.granulation.period,
-            self.params.star.granulation.dteff
-        )
-        self.star = vsm.Star(self.params.star.teff, self.params.star.radius,
-                             self.params.star.period, empty_spot_collection, empty_fac_collection,
-                             distance=self.params.system.distance,
-                             Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon, flare_generator=flare_generator,
-                             spot_generator=spot_generator, fac_generator=fac_generator,
-                             granulation=granulation, u1=self.params.star.ld.u1, u2=self.params.star.ld.u2)
 
     def warm_up_star(self, spot_warmup_time: u.Quantity[u.day] = 0*u.day, facula_warmup_time: u.Quantity[u.day] = 0*u.day):
         """

@@ -33,7 +33,7 @@ from VSPEC.variable_star_model.faculae import FaculaCollection, FaculaGenerator,
 from VSPEC.variable_star_model.flares import FlareCollection, FlareGenerator
 from VSPEC.variable_star_model.granules import Granulation
 from VSPEC.config import MSH
-from VSPEC.params import FaculaParameters, SpotParameters, FlareParameters
+from VSPEC.params import FaculaParameters, SpotParameters, FlareParameters, StarParameters
 
 
 class Star:
@@ -104,7 +104,6 @@ class Star:
                  period: u.Quantity,
                  spots: SpotCollection,
                  faculae: FaculaCollection,
-                 distance: u.Quantity = 1*u.pc,
                  Nlat: int = 500,
                  Nlon: int = 1000,
                  gridmaker: CoordinateGrid = None,
@@ -118,7 +117,6 @@ class Star:
                  ):
         self.Teff = Teff
         self.radius = radius
-        self.distance = distance
         self.period = period
         self.spots = spots
         self.faculae = faculae
@@ -164,6 +162,38 @@ class Star:
         self.u2 = u2
         self.set_spot_grid()
         self.set_fac_grid()
+    
+    @classmethod
+    def from_params(cls,starparams:StarParameters,rng:np.random.Generator,seed:int):
+        return cls(
+            radius=starparams.radius,
+            period=starparams.period,
+            Teff=starparams.teff,
+            spots=SpotCollection(Nlat=starparams.Nlat,Nlon=starparams.Nlon),
+            faculae=FaculaCollection(nlat=starparams.Nlat,nlon=starparams.Nlon),
+            Nlat=starparams.Nlat,
+            Nlon=starparams.Nlon,
+            gridmaker=None,
+            flare_generator=FlareGenerator.from_params(starparams.flares,rng=rng),
+            spot_generator=SpotGenerator.from_params(
+                spotparams=starparams.spots,
+                nlat=starparams.Nlat,
+                nlon=starparams.Nlon,
+                gridmaker=None,
+                rng=rng
+            ),
+            fac_generator=FaculaGenerator.from_params(
+                facparams=starparams.faculae,
+                nlat=starparams.Nlat,
+                nlon=starparams.Nlon,
+                gridmaker=None,
+                rng=rng
+            ),
+            granulation=Granulation.from_params(granulation_params=starparams.granulation,seed=seed),
+            u1=starparams.ld.u1,
+            u2=starparams.ld.u2,
+            rng=rng
+        )
 
     def set_spot_grid(self):
         """
