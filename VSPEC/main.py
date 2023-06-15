@@ -552,16 +552,9 @@ class ObservationModel:
                                                    Nlon=self.params.star.Nlon)
         empty_fac_collection = vsm.FaculaCollection(nlat=self.params.star.Nlat,
                                                     nlon=self.params.star.Nlon)
-        flare_generator = vsm.FlareGenerator(
-            self.params.star.teff, self.params.star.period, self.params.star.flares.group_probability,
-            self.params.star.flares.teff_mean, self.params.star.flares.teff_sigma,
-            np.log10(self.params.star.flares.fwhm_mean /
-                     u.day), self.params.star.flares.fwhm_sigma,
-            log_E_erg_max=np.log10(
-                self.params.star.flares.E_max.to_value(u.erg)),
-            log_E_erg_min=np.log10(
-                self.params.star.flares.E_min.to_value(u.erg)),
-            log_E_erg_Nsteps=self.params.star.flares.E_steps
+        flare_generator = vsm.FlareGenerator.from_params(
+            flareparams=self.params.star.flares,
+            rng=self.rng
         )
         spot_generator = vsm.SpotGenerator.from_params(
             spotparams=self.params.star.spots,

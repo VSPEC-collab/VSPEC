@@ -15,8 +15,8 @@ def test_preset_std():
 def test_custom_values():
     params = FlareParameters(
         group_probability=0.2,
-        teff_mean=8000 * u.K,
-        teff_sigma=300 * u.K,
+        dist_teff_mean=8000 * u.K,
+        dist_teff_sigma=300 * u.K,
         fwhm_mean=0.1 * u.day,
         fwhm_sigma=0.2,
         E_min=10 ** 33 * u.erg,

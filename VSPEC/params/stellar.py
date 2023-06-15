@@ -422,93 +422,104 @@ class FlareParameters(BaseParameters):
 
     Parameters
     ----------
-    group_probability : float
-        The probability that a given flare will be closely followed by another flare.
-    teff_mean : astropy.units.Quantity
-        The mean temperature of the flare blackbody.
-    teff_sigma : astropy.units.Quantity
-        The standard deviation of the generated flare temperature.
-    fwhm_mean : astropy.units.Quantity
-        The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
-    fwhm_sigma : float
-        The standard deviation of the logarithm of the FWHM of the flare in days.
-    E_min : astropy.units.Quantity
-        Log of the minimum energy flares to be considered in ergs.
-    E_max : astropy.units.Quantity
-        Log of the maximum energy flares to be considered in ergs.
-    E_steps : int
-        The number of flare energy steps to consider.
-
+    dist_teff_mean : astropy.units.Quantity
+        The mean of the temperature distribution.
+    dist_teff_sigma : astropy.units.Quantity
+        The standard deviation of the temperature distribution.
+    dist_fwhm_mean : astropy.units.Quantity
+        The mean of the FWHM distribution.
+    dist_fwhm_logsigma : float
+        The standard deviation of the logorithm of the FWHM distribution in dex.
+    alpha : float
+        The slope of the log frequency - log energy relationship.
+    beta : float
+        The y-intercept of the log frequency - log energy relationship.
+    min_energy : astropy.units.Quantity
+        The minimum energy to consider. Set to ``np.inf*u.erg`` to disable flares.
+    cluster_size : int
+        The typical size of flare clusters.
+    
     Attributes
     ----------
-    group_probability : float
-        The probability that a given flare will be closely followed by another flare.
-    teff_mean : astropy.units.Quantity
-        The mean temperature of the flare blackbody.
-    teff_sigma : astropy.units.Quantity
-        The standard deviation of the generated flare temperature.
-    fwhm_mean : astropy.units.Quantity
-        The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
-    fwhm_sigma : float
-        The standard deviation of the logarithm of the FWHM of the flare in days.
-    E_min : astropy.units.Quantity
-        Log of the minimum energy flares to be considered in ergs.
-    E_max : astropy.units.Quantity
-        Log of the maximum energy flares to be considered in ergs.
-    E_steps : int
-        The number of flare energy steps to consider.
+    dist_teff_mean : astropy.units.Quantity
+        The mean of the temperature distribution.
+    dist_teff_sigma : astropy.units.Quantity
+        The standard deviation of the temperature distribution.
+    dist_fwhm_mean : astropy.units.Quantity
+        The mean of the FWHM distribution.
+    dist_fwhm_logsigma : float
+        The standard deviation of the logorithm of the FWHM distribution in dex.
+    alpha : float
+        The slope of the log frequency - log energy relationship.
+    beta : float
+        The y-intercept of the log frequency - log energy relationship.
+    min_energy : astropy.units.Quantity
+        The minimum energy to consider. Set to ``np.inf*u.erg`` to disable flares.
+    cluster_size : int
+        The typical size of flare clusters.
     """
-
+    _PRESET_PATH = PRESET_PATH / 'flares.yaml'
     def __init__(
         self,
-        group_probability: float,
-        teff_mean: u.Quantity,
-        teff_sigma: u.Quantity,
-        fwhm_mean: u.Quantity,
-        fwhm_sigma: float,
-        E_min: u.Quantity,
-        E_max: u.Quantity,
-        E_steps: int
+        dist_teff_mean: u.Quantity,
+        dist_teff_sigma: u.Quantity,
+        dist_fwhm_mean: u.Quantity,
+        dist_fwhm_logsigma: float,
+        alpha: float,
+        beta: float,
+        min_energy: u.Quantity,
+        cluster_size: int
     ):
-        self.group_probability = group_probability
-        self.teff_mean = teff_mean
-        self.teff_sigma = teff_sigma
-        self.fwhm_mean = fwhm_mean
-        self.fwhm_sigma = fwhm_sigma
-        self.E_min = E_min
-        self.E_max = E_max
-        self.E_steps = E_steps
+        self.dist_teff_mean = dist_teff_mean
+        self.dist_teff_sigma = dist_teff_sigma
+        self.dist_fwhm_mean = dist_fwhm_mean
+        self.dist_fwhm_logsigma = dist_fwhm_logsigma
+        self.alpha = alpha
+        self.beta = beta
+        self.min_energy = min_energy
+        self.cluster_size = cluster_size
+    @classmethod
+    def from_preset(cls, name):
+        """
+        Load a ``FlareParameters`` configuration from a preset.
 
+        Parameters
+        ----------
+        name : str
+            The name of the preset to load.
+        
+        Returns
+        -------
+        FlareParameters
+            The class instance loaded from a preset.
+        """
+        return super().from_preset(name)
     @classmethod
     def _from_dict(cls, d):
         return cls(
-            group_probability=float(d['group_probability']),
-            teff_mean=u.Quantity(d['teff_mean']),
-            teff_sigma=u.Quantity(d['teff_sigma']),
-            fwhm_mean=u.Quantity(d['fwhm_mean']),
-            fwhm_sigma=float(d['fwhm_sigma']),
-            E_min=u.Quantity(d['E_min']),
-            E_max=u.Quantity(d['E_max']),
-            E_steps=int(d['E_steps'])
+            dist_teff_mean=u.Quantity(d['dist_teff_mean']),
+            dist_teff_sigma=u.Quantity(d['dist_teff_sigma']),
+            dist_fwhm_mean=u.Quantity(d['dist_fwhm_mean']),
+            dist_fwhm_logsigma=float(d['dist_fwhm_logsigma']),
+            alpha=float(d['alpha']),
+            beta=float(d['beta']),
+            min_energy=u.Quantity(d['min_energy']),
+            cluster_size=int(d['cluster_size'])
         )
 
     @classmethod
     def none(cls):
-        return cls(
-            0.5, 9000*u.K, 500*u.K,
-            u.Quantity(0.14*u.day), 0.3,
-            u.Quantity(10**32.5*u.erg), u.Quantity(10**34.5*u.erg),
-            0
-        )
+        """
+        A configuration with no flares.
+        """
+        return cls.from_preset('none')
 
     @classmethod
     def std(cls):
-        return cls(
-            0.5, 9000*u.K, 500*u.K,
-            u.Quantity(0.14*u.day), 0.3,
-            u.Quantity(10**32.5*u.erg), u.Quantity(10**34.5*u.erg),
-            100
-        )
+        """
+        A standard flare configuration for testing.
+        """
+        return cls.from_preset('std')
 
 
 class GranulationParameters(BaseParameters):

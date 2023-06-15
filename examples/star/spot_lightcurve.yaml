@@ -29,14 +29,7 @@ star:
   faculae:
     preset: none
   flares:
-    group_probability: 0.5
-    teff_mean: 9000 K
-    teff_sigma: 500 K
-    fwhm_mean: 0.14 day
-    fwhm_sigma: 0.3
-    E_min: 1e32 erg
-    E_max: 1e35 erg
-    E_steps: 0
+    preset: none
   granulation:
     mean: 0.0
     amp: 0.00
