@@ -53,6 +53,25 @@ spectral irrandience unit in PSG.
 :type: astropy.units.Unit
 """
 
+teff_unit = u.K
+"""
+The standard unit of temperature.
+
+This selection standardizes units across the package.
+
+:type: astropy.units.Unit
+"""
+
+wl_unit = u.um
+"""
+The standard unit of wavelength.
+
+The output wavelength can still be changed by the user, but internally
+we want units to be consistent.
+
+:type: astropy.units.Unit
+"""
+
 nlat = 500
 """
 The default latitude resolution for the stellar model. This should

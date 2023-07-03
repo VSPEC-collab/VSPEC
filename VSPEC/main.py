@@ -16,16 +16,17 @@ from tqdm.auto import tqdm
 import warnings
 from functools import partial
 
-from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
+from VSPEC import config
 from VSPEC.geometry import SystemGeometry, plan_to_df
 from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs
 from VSPEC.helpers import check_and_build_dir, get_filename
 from VSPEC.helpers import get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
-from VSPEC.params.read import InternalParameters
+from VSPEC.params.read import InternalParameters 
+from VSPEC.spectra import GridSpectra, get_wavelengths, ForwardSpectra
 
 
 class ObservationModel:
@@ -64,6 +65,8 @@ class ObservationModel:
         self.build_directories()
         self.star = None
         self.rng = np.random.default_rng(self.params.header.seed)
+        self.spec = self.load_spectra()
+        self.bb = ForwardSpectra.blackbody()
 
     @classmethod
     def from_yaml(cls, config_path: Path):
@@ -148,98 +151,62 @@ class ObservationModel:
         for _,path in self.directories.items():
             check_and_build_dir(path)
 
-    def bin_spectra(self):
+    def load_spectra(self):
         """
-        Bins high-resolution spectra to required resolution.
+        Load a GridSpec instance.
 
-        This method loads high-resolution spectra and bins them to the required resolution. The binned spectra are then
-        written to a local file (`self.directories['binned']/...`).
+        Returns
+        -------
+        VSPEC.spectra.GridSpec
+            The spectal grid object to draw stellar spectra from.
         """
         teffs = arrange_teff(
             self.params.header.teff_min,
             self.params.header.teff_max
         )
-        for teff in self.wrap_iterator(teffs, desc='Binning Spectra', total=len(teffs)):
-            def bin_spectrum(func):
-                """
-                func is a binning function.
-                This way I don't have to type the same arguments twice.
-                """
-                func(
-                    teff.to_value(u.K),
-                    file_name_writer=stellar_spectra.get_binned_filename,
-                    binned_path=self.directories['binned'],
-                    resolving_power=self.params.inst.bandpass.resolving_power,
-                    lam1=self.params.inst.bandpass.wl_blue,
-                    lam2=self.params.inst.bandpass.wl_red,
-                    model_unit_wavelength=u.AA,
-                    model_unit_flux=u.Unit(
-                        'erg s-1 cm-2 cm-1'),
-                    target_unit_wavelength=self.params.inst.bandpass.wavelength_unit,
-                    target_unit_flux=self.params.inst.bandpass.flux_unit
-                )
-            try:
-                bin_spectrum(stellar_spectra.bin_cached_model)
-            except ValueError:
-                bin_spectrum(stellar_spectra.bin_phoenix_model)
-
-    def read_spectrum(self, teff: u.Quantity) -> typing.Tuple[u.Quantity, u.Quantity]:
+        spec = GridSpectra.from_vspec(
+            w1 = self.params.inst.bandpass.wl_blue,
+            w2 = self.params.inst.bandpass.wl_red,
+            R = self.params.inst.bandpass.resolving_power,
+            teffs = teffs
+        )
+        return spec
+    @property
+    def wl(self):
         """
-        Read a binned spectrum from file.
-
-        Parameters
-        ----------
-        teff : astropy.units.Quantity [temperature]
-            The effective temperature of the spectrum to read.
+        The wavelength axis of the observation.
 
         Returns
         -------
-        wavelengths : astropy.units.Quantity [wavelength]
-            The binned wavelengths of the spectrum.
-        flux : astropy.units.Quantity [flambda]
-            The binned flux of the spectrum.
+        wl : astropy.units.Quantity
+            The wavelength axis.
         """
-        filename = stellar_spectra.get_binned_filename(teff.to_value(u.K))
-        path = self.directories['binned']
-        return stellar_spectra.read_binned_spectrum(filename, path=path)
-
-    def get_model_spectrum(self, Teff):
+        return get_wavelengths(
+            resolving_power=self.params.inst.bandpass.resolving_power,
+            lam1=self.params.inst.bandpass.wl_blue.to_value(config.wl_unit),
+            lam2=self.params.inst.bandpass.wl_red.to_value(config.wl_unit)
+        )*config.wl_unit
+    
+    def get_model_spectrum(self,teff:u.Quantity):
         """
-        Interpolate between binned spectra to produce a model spectrum with a given Teff.
+        Get the interpolated spectrum given an effective temperature.
 
         Parameters
         ----------
-        Teff : astropy.units.Quantity [temperature]
-            The desired effective temperature of the spectrum
+        teff : astropy.units.Quantity
+            The effective temperature
 
         Returns
         -------
-        wavelengths : astropy.units.Quantity [wavelength]
-            The wavelength coordinates of the spectrum.
-        flux : astropy.units.Quantity [flambda]
-            The flux of the spectrum, corrected for system distance.
+        astropy.units.Quantity
+            The flux of the spectrum.
+        
+        Notes
+        -----
+        This function applies the solid angle correction.
         """
-        if Teff == 0*u.K:  # for testing
-            star_teff = self.params.star.teff
-            wave1, flux1 = self.read_spectrum(
-                star_teff - (star_teff % (100*u.K)))
-            return wave1, flux1*0
-        elif (Teff % (100*u.K) == 0*u.K):
-            wave1, flux1 = self.read_spectrum(Teff)
-            return wave1, flux1*self.params.flux_correction
-        else:
-
-            model_teffs = get_surrounding_teffs(Teff)
-            if Teff in model_teffs:
-                wave1, flux1 = self.read_spectrum(Teff)
-                wave2, flux2 = wave1, flux1
-            else:
-                wave1, flux1 = self.read_spectrum(model_teffs[0])
-                wave2, flux2 = self.read_spectrum(model_teffs[1])
-            wavelength, flux = stellar_spectra.interpolate_spectra(Teff,
-                                                                   model_teffs[0], wave1, flux1,
-                                                                   model_teffs[1], wave2, flux2)
-            return wavelength, flux*self.params.flux_correction
+        return self.spec.evaluate(self.wl,teff.to_value(config.teff_unit))*self.params.flux_correction
+    
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
