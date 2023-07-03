@@ -10,7 +10,7 @@ import numpy as np
 from matplotlib.figure import Figure
 import pkg_resources
 
-from VSPEC.geometry import SystemGeometry
+from VSPEC.geometry import SystemGeometry, plan_to_df
 
 
 def compare_angles(angle1, angle2, abs=None):
@@ -483,6 +483,17 @@ def test_plot():
     geo=SystemGeometry()
     plot = geo.plot(0*u.deg)
     assert isinstance(plot,Figure)
+
+
+def test_plan_to_df():
+    """
+    Test `VSPEC.helpers.plan_to_df`
+    """
+    geo = SystemGeometry()
+    plan = geo.get_observation_plan(0*u.deg,10*u.day,N_obs=10)
+    df = plan_to_df(plan)
+    for key in plan.keys():
+        assert np.any(df.columns.str.contains(key))
 
 
 

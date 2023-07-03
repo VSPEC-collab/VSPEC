@@ -5,10 +5,42 @@ to simulate a `VSPEC` observation.
 """
 import numpy as np
 from astropy import units as u
+import pandas as pd
 from scipy.optimize import newton
 
 import matplotlib.pyplot as plt
 
+
+def plan_to_df(observation_plan: dict) -> pd.DataFrame:
+    """
+    Turn an observation plan dictionary into a pandas DataFrame.
+
+    Parameters
+    ----------
+    observation_plan : dict
+        A dictionary that contains arrays of geometric values at each epoch.
+        The keys are:\n
+        ``{'time', 'phase', 'sub_obs_lat', 'sub_obs_lon',
+        'sub_planet_lat', 'sub_planet_lon', 'sub_stellar_lon',
+        'sub_stellar_lat', 'planet_sub_obs_lon', 'planet_sub_obs_lat',
+        'orbit_radius'}``
+
+    Returns
+    -------
+    pandas.DataFrame
+        A dataframe containing the dictionary data.
+    """
+    obs_df = pd.DataFrame()
+    for key in observation_plan.keys():
+        try:
+            unit = observation_plan[key].unit
+            name = f'{key}[{str(unit)}]'
+            obs_df[name] = observation_plan[key].value
+        except AttributeError:
+            unit = ''
+            name = f'{key}[{str(unit)}]'
+            obs_df[name] = observation_plan[key]
+    return obs_df
 
 class SystemGeometry:
     """System Geometry

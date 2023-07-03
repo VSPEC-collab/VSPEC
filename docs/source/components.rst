@@ -13,7 +13,6 @@ the ``main`` module, which manages the simulations and tracks the state of each 
    modules/stellar_spectra
    modules/psg_api
    modules/analysis
-   modules/files
    modules/helpers
    modules/waccm
    modules/gcm

@@ -19,10 +19,10 @@ from functools import partial
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
-from VSPEC.geometry import SystemGeometry
+from VSPEC.geometry import SystemGeometry, plan_to_df
 from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs
 from VSPEC.helpers import check_and_build_dir, get_filename
-from VSPEC.helpers import plan_to_df, get_planet_indicies, read_lyr
+from VSPEC.helpers import get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
 from VSPEC.params.read import InternalParameters

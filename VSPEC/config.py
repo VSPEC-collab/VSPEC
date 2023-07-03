@@ -71,7 +71,7 @@ and computation time.
 :type: int
 """
 
-grid_teff_bounds = (2500*u.K, 3900*u.K)
+grid_teff_bounds = (2300*u.K, 3900*u.K)
 """
 The limits on the effective temperature allowed by the grid.
 
