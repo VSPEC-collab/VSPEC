@@ -19,9 +19,8 @@ from functools import partial
 from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
-from VSPEC.files import build_directories, get_filename
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs
+from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs, check_and_build_dir, get_filename
 from VSPEC.helpers import plan_to_df, get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
@@ -92,6 +91,32 @@ class ObservationModel:
             upload the GCM.
         """
         psg_needs_set = True
+    _directories = {
+        'parent': '',
+        'data': 'Data',
+        'binned': 'binned_data',
+        'all_model': 'AllModelSpectraValues',
+        'psg_combined': 'PSGCombinedSpectra',
+        'psg_thermal': 'PSGThermalSpectra',
+        'psg_noise': 'PSGNoise',
+        'psg_layers': 'PSGLayers',
+        'psg_configs': 'PSGConfig'
+    }
+    @property
+    def directories(self)->dict:
+        """
+        The directory structure for the VSPEC run.
+
+        Returns
+        -------
+        dict
+            Keys represent the identifiers of directories, and the values are
+            `pathlib.Path` objects.
+        
+        """
+        parent_dir = self.params.header.data_path
+        dir_dict = {key:parent_dir/value for key,value in self._directories.items()}
+        return dir_dict
 
     def wrap_iterator(self, iterator, **kwargs):
         """
@@ -119,7 +144,8 @@ class ObservationModel:
         """
         Build the file system for this run.
         """
-        self.dirs = build_directories(self.params.header.data_path)
+        for _,path in self.directories.items():
+            check_and_build_dir(path)
 
     def bin_spectra(self):
         """
