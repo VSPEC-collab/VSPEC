@@ -20,7 +20,8 @@ from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs, check_and_build_dir, get_filename
+from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs
+from VSPEC.helpers import check_and_build_dir, get_filename
 from VSPEC.helpers import plan_to_df, get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
@@ -42,7 +43,7 @@ class ObservationModel:
         The parameters for this simulation.
     verbose : int
         The verbosity level of the output.
-    dirs : dict
+    directories : dict
         The paths to model output directories.
     star : VSPEC.variable_star_model.Star or None
         The variable host star.
@@ -152,7 +153,7 @@ class ObservationModel:
         Bins high-resolution spectra to required resolution.
 
         This method loads high-resolution spectra and bins them to the required resolution. The binned spectra are then
-        written to a local file (`self.dirs['binned']/...`).
+        written to a local file (`self.directories['binned']/...`).
         """
         teffs = arrange_teff(
             self.params.header.teff_min,
@@ -167,7 +168,7 @@ class ObservationModel:
                 func(
                     teff.to_value(u.K),
                     file_name_writer=stellar_spectra.get_binned_filename,
-                    binned_path=self.dirs['binned'],
+                    binned_path=self.directories['binned'],
                     resolving_power=self.params.inst.bandpass.resolving_power,
                     lam1=self.params.inst.bandpass.wl_blue,
                     lam2=self.params.inst.bandpass.wl_red,
@@ -199,7 +200,7 @@ class ObservationModel:
             The binned flux of the spectrum.
         """
         filename = stellar_spectra.get_binned_filename(teff.to_value(u.K))
-        path = self.dirs['binned']
+        path = self.directories['binned']
         return stellar_spectra.read_binned_spectrum(filename, path=path)
 
     def get_model_spectrum(self, Teff):
@@ -515,7 +516,7 @@ class ObservationModel:
         obs_plan = self.get_observation_plan(
             observation_parameters, planet=True)
 
-        obs_info_filename = Path(self.dirs['data']) / 'observation_info.csv'
+        obs_info_filename = Path(self.directories['data']) / 'observation_info.csv'
         plan_to_df(obs_plan).to_csv(obs_info_filename, sep=',', index=False)
 
         if self.verbose > 0:
@@ -556,16 +557,16 @@ class ObservationModel:
             )
             update_config(include_star=True)
             path_dict = {
-                'rad': Path(self.dirs['psg_combined']),
-                'noi': Path(self.dirs['psg_noise']),
-                'cfg': Path(self.dirs['psg_configs'])
+                'rad': Path(self.directories['psg_combined']),
+                'noi': Path(self.directories['psg_noise']),
+                'cfg': Path(self.directories['psg_configs'])
             }
             self.run_psg(path_dict, i)
             # write updates to config file to remove star flux
             update_config(include_star=False)
             path_dict = {
-                'rad': Path(self.dirs['psg_thermal']),
-                'lyr': Path(self.dirs['psg_layers'])
+                'rad': Path(self.directories['psg_thermal']),
+                'lyr': Path(self.directories['psg_layers'])
             }
             self.run_psg(path_dict, i)
 
@@ -733,13 +734,13 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_combined_path1 = Path(
-            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
         psg_thermal_path1 = Path(
-            self.dirs['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
         psg_combined_path2 = Path(
-            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
         psg_thermal_path2 = Path(
-            self.dirs['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
 
         reflected = []
 
@@ -800,9 +801,9 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_cmb_path1 = Path(
-            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
         psg_cmb_path2 = Path(
-            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
 
         wavelength = []
         transit = []
@@ -870,13 +871,13 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_combined_path1 = Path(
-            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
         psg_noise_path1 = Path(
-            self.dirs['psg_noise']) / get_filename(N1, N_ZFILL, 'noi')
+            self.directories['psg_noise']) / get_filename(N1, N_ZFILL, 'noi')
         psg_combined_path2 = Path(
-            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
         psg_noise_path2 = Path(
-            self.dirs['psg_noise']) / get_filename(N2, N_ZFILL, 'noi')
+            self.directories['psg_noise']) / get_filename(N2, N_ZFILL, 'noi')
 
         psg_noise_source = []
         psg_source = []
@@ -936,9 +937,9 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_thermal_path1 = Path(
-            self.dirs['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
         psg_thermal_path2 = Path(
-            self.dirs['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
 
         wavelength = []
         thermal = []
@@ -981,9 +982,9 @@ class ObservationModel:
             If the layer file columns of layer numbers do not match.
         """
         psg_layers_path1 = Path(
-            self.dirs['psg_layers']) / get_filename(N1, N_ZFILL, 'lyr')
+            self.directories['psg_layers']) / get_filename(N1, N_ZFILL, 'lyr')
         psg_layers_path2 = Path(
-            self.dirs['psg_layers']) / get_filename(N2, N_ZFILL, 'lyr')
+            self.directories['psg_layers']) / get_filename(N2, N_ZFILL, 'lyr')
         layers1 = read_lyr(psg_layers_path1)
         layers2 = read_lyr(psg_layers_path2)
         if not np.all(layers1.columns == layers2.columns) & (len(layers1) == len(layers2)):
@@ -1009,7 +1010,7 @@ class ObservationModel:
             observation_parameters, planet=False)
         # write observation info to file
         obs_info_filename = Path(
-            self.dirs['all_model']) / 'observation_info.csv'
+            self.directories['all_model']) / 'observation_info.csv'
         obs_df = plan_to_df(observation_info)
         obs_df.to_csv(obs_info_filename, sep=',', index=False)
 
@@ -1091,14 +1092,14 @@ class ObservationModel:
                 f'total[{str(combined_flux.unit)}]': combined_flux.value,
                 f'noise[{str(noise_flux_adj.unit)}]': noise_flux_adj.value
             })
-            outfile = Path(self.dirs['all_model']) / \
+            outfile = self.directories['all_model'] / \
                 get_filename(index, N_ZFILL, 'csv')
             df.to_csv(outfile, index=False, sep=',')
 
             # layers
             if self.params.psg.use_molecular_signatures:
                 layerdat = self.get_layer_data(N1, N2, N1_frac)
-                outfile = Path(self.dirs['all_model']) / \
+                outfile = self.directories['all_model'] / \
                     f'layer{str(index).zfill(N_ZFILL)}.csv'
                 layerdat.to_csv(outfile, index=False, sep=',')
 
