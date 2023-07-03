@@ -22,6 +22,8 @@ stellar_area_unit = MSH
 The standard stellar surface area unit.
 
 This unit is used to represent the surface area of stars in VSPEC.
+The micro-solar hemisphere is chosen because most Sun Spot literature uses
+this unit.
 
 :type: astropy.units.Unit
 """
@@ -36,7 +38,8 @@ When they are born they are given this small area.
 :type: astropy.units.Quantity
 
 .. todo::
-    This should optionaly be set by the user.
+    This should optionaly be set by the user. So that smaller
+    star spot area regimes are accessible.
 """
 
 flux_unit = u.Unit('W m-2 um-1')
@@ -44,20 +47,26 @@ flux_unit = u.Unit('W m-2 um-1')
 The standard unit of flux.
 
 This unit is used to standardize the flux in VSPEC calculations.
+:math:`W m^{-2} \\mu m^{-1}` is chosen because it is the standard
+spectral irrandience unit in PSG.
 
 :type: astropy.units.Unit
 """
 
 nlat = 500
 """
-The default latitude resolution for the stellar model.
+The default latitude resolution for the stellar model. This should
+be set by finding a balance between noticing small changes in spots/faculae
+and computation time.
 
 :type: int
 """
 
 nlon = 1000
 """
-The default longitude resolution for the stellar model.
+The default longitude resolution for the stellar model. This should
+be set by finding a balance between noticing small changes in spots/faculae
+and computation time.
 
 :type: int
 """
@@ -178,6 +187,9 @@ atmosphere_type_dict = {'H2':45,'He':0,'H2O':1,'CO2':2,'O3':3,'N2O':4,'CO':5,'CH
 A dictionary mapping molecular species to the default
 database to use to create opacities. These are all
 internal to PSG, but must be set by ``VSPEC``.
+
+Integers mean that we want to use data from the HITRAN database, which for a number ``N``
+is represented in PSG by ``HIT[N]``. Strings are sent straight to PSG as is.
 
 :type: dict
 """
