@@ -11,19 +11,60 @@ from astropy import units as u
 import pandas as pd
 import numpy as np
 import requests
+from typing import Union
 
 from VSPEC.params.read import InternalParameters
 
 warnings.simplefilter('ignore', category=u.UnitsWarning)
 
 
-def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov',
-             api_key: str = None, output_type: str = None, app: str = None,
-             outfile: str = None, config_data: str = None) -> None:
+def call_api(
+    psg_url: str = 'https://psg.gsfc.nasa.gov',
+    api_key: str = None,
+    output_type: str = None,
+    app: str = None,
+    config_data: str = None
+)->bytes:
     """
-    Call the PSG api
+    Call the PSG API.
 
-    Build and execute an API query to communicate with PSG.
+    Parameters
+    ----------
+    psg_url : str, default='https://psg.gsfc.nasa.gov'
+        The URL of the `PSG` API. Use 'http://localhost:3000' if running locally.
+    api_key : str, default=None
+        The key for the public API. Needed only if not runnning `PSG` locally.
+    output_type : str, default=None
+        The type of output to retrieve from `PSG`. Options include 'cfg', 'rad',
+        'noi', 'lyr', 'all'.
+    app : str, default=None
+        The PSG app to call. For example: 'globes'
+    config_data : str, default=None
+        The data contained by a config file. Essentially removes the need
+        to write a config to file.
+
+    Returns
+    -------
+    bytes
+        The content of the response from PSG.
+    """
+    data = {}
+    data['file'] = config_data
+    if api_key is not None:
+        data['key'] = api_key
+    if app is not None:
+        data['app'] = app
+    if output_type is not None:
+        data['type'] = output_type
+    url = f'{psg_url}/api.php'
+    reply = requests.post(url, data=data, timeout=120)
+    return reply.content
+
+
+def call_api_from_file(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov',
+             api_key: str = None, output_type: str = None, app: str = None) -> Union[None,bytes]:
+    """
+    Call the PSG api by first reading data from a file.
 
     Parameters
     ----------
@@ -38,44 +79,24 @@ def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov'
         'noi', 'lyr', 'all'.
     app : str, default=None
         The PSG app to call. For example: 'globes'
-    outfile : str, default=None
-        The path to write the PSG output.
-    config_data : str, default=None
-        The data contained by a config file. Essentially removes the need
-        to write a config to file.
 
-    Raises
-    ------
-    ValueError
-        If `config_path` and `config_data` are both `None`
+    
+    Returns
+    -------
+    bytes
+       The content of the response.
     """
-    data = {}
-    if config_path is not None:
-        with open(config_path, 'rb') as file:
-            dat = file.read()
-        data['file'] = dat
-    else:
-        if config_data is None:
-            raise ValueError(
-                'A config file or the files contents must be specified '
-                'using the `config_path` or `config_data` parameters'
-            )
-        else:
-            data['file'] = config_data
-    if api_key is not None:
-        data['key'] = api_key
-    if app is not None:
-        data['app'] = app
-    if output_type is not None:
-        data['type'] = output_type
-    url = f'{psg_url}/api.php'
-    reply = requests.post(url, data=data, timeout=120)
-    if outfile is not None:
-        with open(outfile, 'wb') as file:
-            file.write(reply.content)
-        return None
-    else:
-        return reply.content
+    with open(config_path, 'rb') as file:
+        dat = file.read()
+    
+    content = call_api(
+        psg_url=psg_url,
+        api_key=api_key,
+        output_type=output_type,
+        app=app,
+        config_data=dat
+    )
+    return content
 
 
 def parse_full_output(output_text:bytes):

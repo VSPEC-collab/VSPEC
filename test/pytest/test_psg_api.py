@@ -8,7 +8,7 @@ import pytest
 from astropy import units as u
 import matplotlib.pyplot as plt
 
-from VSPEC.psg_api import call_api, PSGrad, get_reflected, parse_full_output
+from VSPEC.psg_api import call_api,call_api_from_file, PSGrad, get_reflected, parse_full_output
 from VSPEC.helpers import is_port_in_use,set_psg_state
 
 API_KEY_PATH = Path.home() / 'psg_key.txt'
@@ -32,15 +32,12 @@ def test_call_api_nonlocal():
     psg_url = 'https://psg.gsfc.nasa.gov'
     with open(API_KEY_PATH,'r',encoding='UTF-8') as file:
         api_key = file.read()
-    outfile = Path('test.rad')
-    call_api(PSG_CONFIG_PATH,psg_url,api_key,output_type='rad',outfile=outfile)
-    try:
-        assert outfile.exists()
-    except Exception as exc:
-        outfile.unlink()
-        raise exc
-    outfile.unlink()
-# @pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+    data = '<OBJECT>Exoplanet\n<OBJECT-NAME>ProxCenb'
+    content = call_api(psg_url=psg_url,api_key=api_key,output_type='cfg',config_data=data)
+    assert b'<OBJECT>Exoplanet' in content
+    
+    
+@pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
 def test_call_api_local():
     """
     Run tests for `VSPEC.psg_api.call_api()`
@@ -48,35 +45,22 @@ def test_call_api_local():
     previous_state = is_port_in_use(PSG_PORT)
     set_psg_state(True)
     psg_url = 'http://localhost:3000'
-    outfile = Path('test.rad')
-    call_api(PSG_CONFIG_PATH,psg_url,output_type='rad',outfile=outfile)
-    try:
-        assert outfile.exists()
-    except Exception as exc:
-        outfile.unlink()
-        raise exc
-    outfile.unlink()
+    data = '<OBJECT>Exoplanet\n<OBJECT-NAME>ProxCenb'
+    content = call_api(psg_url=psg_url,output_type='cfg',config_data=data)
+    assert b'<OBJECT>Exoplanet' in content
     set_psg_state(previous_state)
-# @pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
-def test_call_api_nofile():
+
+@pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+def test_call_api_from_file():
     """
     Run tests for `VSPEC.psg_api.call_api()` while giving the file contents rather than the path.
     """
     previous_state = is_port_in_use(PSG_PORT)
     set_psg_state(True)
     psg_url = 'http://localhost:3000'
-    outfile = Path(__file__).parent / 'data' / 'test.rad'
-    with open(PSG_CONFIG_PATH,'r',encoding='UTF-8') as file:
-        file_contents = file.read()
-    call_api(None,psg_url,output_type='rad',outfile=outfile,config_data=file_contents)
-    try:
-        assert outfile.exists()
-    except Exception as exc:
-        outfile.unlink()
-        raise exc
-    outfile.unlink()
-    with pytest.raises(ValueError):
-        call_api(None,psg_url,output_type='rad',outfile=outfile,config_data=None)
+    content = call_api_from_file(config_path=PSG_CONFIG_PATH,psg_url=psg_url,output_type='cfg',app='globes')
+    assert b'<OBJECT>Exoplanet' in content
+    
     set_psg_state(previous_state)
 
 
@@ -123,46 +107,15 @@ def test_get_reflected():
     with pytest.raises(ValueError):
         get_reflected(hires,atm_therm,planet_name)
 
-# @pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
+@pytest.mark.skipif(not is_port_in_use(3000),reason='PSG must be running locally to run this test')
 def test_text_parse():
     previous_state = is_port_in_use(PSG_PORT)
     set_psg_state(True)
     psg_url = 'http://localhost:3000'
-    outfile = None
     with open(PSG_CONFIG_PATH,'r',encoding='UTF-8') as file:
         file_contents = file.read()
-    text = call_api(None,psg_url,output_type='all',outfile=outfile,config_data=file_contents)
+    content = call_api(psg_url=psg_url,output_type='all',config_data=file_contents)
+    text = str(content,encoding='UTF-8')
     result = parse_full_output(text)
     assert b'cfg' in result.keys()
     set_psg_state(previous_state)
-
-
-def test_get_reflected_transit():
-    therm_file12 = RAD_PATH / 'phase00012_therm.rad'
-    therm12 = PSGrad.from_rad(therm_file12)
-    cmb_file12 = RAD_PATH / 'phase00012_cmb.rad'
-    cmb12 = PSGrad.from_rad(cmb_file12)
-    therm_tot12 = therm12.data['GJ486b']
-    cmb_tot12 = cmb12.data['GJ486b']
-    cmb_tr12 = cmb12.data['Transit']
-
-    therm_file13 = RAD_PATH / 'phase00013_therm.rad'
-    therm13 = PSGrad.from_rad(therm_file13)
-    cmb_file13 = RAD_PATH / 'phase00013_cmb.rad'
-    cmb13 = PSGrad.from_rad(cmb_file13)
-    therm_tot13 = therm13.data['GJ486b']
-    cmb_tot13 = cmb13.data['GJ486b']
-    0
-
-
-
-
-if __name__ in '__main__':
-    # if API_KEY_PATH.exists():
-    #     test_call_api_nonlocal()
-    # test_call_api_local()
-    # test_call_api_nofile()
-    # test_text_parse()
-    # test_PSGrad()
-    test_get_reflected_transit()
-    
