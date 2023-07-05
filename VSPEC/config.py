@@ -287,3 +287,5 @@ The path to parameter presets.
 
 :type: pathlib.Path
 """
+
+VSPEC_PARENT_PATH = Path('.vspec')

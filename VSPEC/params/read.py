@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 from astropy import units as u
 
+from VSPEC import config
 from VSPEC.params.base import BaseParameters
 from VSPEC.params.stellar import StarParameters
 from VSPEC.params.planet import PlanetParameters,SystemParameters
@@ -64,7 +65,7 @@ class Header(BaseParameters):
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            data_path = Path(d['data_path']),
+            data_path = config.VSPEC_PARENT_PATH / d['data_path'],
             teff_min = u.Quantity(d['teff_min']),
             teff_max = u.Quantity(d['teff_max']),
             seed = None if d.get('seed',None) is None else int(d.get('seed',None)),

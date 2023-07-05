@@ -140,9 +140,9 @@ class Facula:
         self.is_growing = growing
 
         if gridmaker is None:
-            self.set_gridmaker(CoordinateGrid(nlat, nlon))
+            self.gridmaker = CoordinateGrid(nlat, nlon)
         else:
-            self.set_gridmaker(gridmaker)
+            self.gridmaker = gridmaker
 
     @property
     def floor_dteff(self) -> u.Quantity:
@@ -291,7 +291,7 @@ class Facula:
             x = np.linspace(-1, 1, N) * self.radius
             # effective radius of the 1D facula approximation
             h = np.sqrt(self.radius**2 - x**2)
-            critical_angles = np.arctan(2*h/self.depth)
+            critical_angles = np.ones_like(h.value)*90*u.deg if self.depth==0*u.km else np.arctan(2*h/self.depth)
             Zeffs = np.sin(angle)*np.ones(N) * self.depth
             Reffs = np.cos(angle)*h*2 - self.depth * np.sin(angle)
             no_floor = critical_angles < angle
@@ -397,14 +397,14 @@ class FaculaCollection:
                  gridmaker: CoordinateGrid = None):
         self.faculae: Tuple[Facula] = tuple(faculae)
 
-        if not gridmaker:
+        if gridmaker is None:
             self.gridmaker = CoordinateGrid(nlat, nlon)
         else:
             self.gridmaker = gridmaker
         for facula in faculae:
             facula: Facula
             if not facula.gridmaker == self.gridmaker:
-                facula.gridmaker = gridmaker
+                facula.gridmaker = self.gridmaker
 
     def add_faculae(self, facula: Tuple[Facula] or Facula) -> None:
         """
@@ -474,7 +474,7 @@ class FaculaCollection:
         map_dict : dict
             Dictionary mapping index in self.faculae to the integer grid of facula locations.
         """
-        warnings.warn('Use `Star.add_faculae_to_map` method instead.')
+        warnings.warn('Use `Star.add_faculae_to_map` method instead.',DeprecationWarning)
         int_map = self.gridmaker.zeros(dtype='int16')
         map_dict = {}
         for i, facula in enumerate(self.faculae):
