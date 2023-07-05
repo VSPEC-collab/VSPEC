@@ -196,7 +196,7 @@ def read_phoenix(
             values=flux.to_value(config.flux_unit)
         )
         fl_new = interp(wl_new.to_value(config.wl_unit))*config.flux_unit
-    return wl_new[:-1], fl_new
+    return wl_new, fl_new
 
 
 def write_binned_spectrum(

@@ -21,7 +21,7 @@ def check_and_build_dir(path: Path) -> None:
     if path.exists():
         pass
     else:
-        path.mkdir()
+        path.mkdir(parents=True)
 
 
 def get_filename(N: int, n_zfill: int, ext: str):
