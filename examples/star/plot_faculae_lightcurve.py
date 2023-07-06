@@ -10,7 +10,7 @@ from astropy import units as u
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from VSPEC import ObservationModel,PhaseAnalyzer
+from VSPEC import ObservationModel, PhaseAnalyzer
 from VSPEC import params
 
 SEED = 24
@@ -25,20 +25,20 @@ SEED = 24
 # be done using a YAML file.
 
 header = params.Header(
-    data_path=Path('faclae_lightcurve'),
+    data_path=Path('.vspec/faclae_lightcurve'),
     teff_min=2300*u.K,
     teff_max=3900*u.K,
-    seed=SEED,verbose=0
+    seed=SEED, verbose=0
 )
 star = params.StarParameters(
     psg_star_template='M',
     teff=3000*u.K,
-    mass = 0.1*u.M_sun,
+    mass=0.1*u.M_sun,
     radius=0.15*u.R_sun,
-    period = 10*u.day,
+    period=10*u.day,
     misalignment_dir=0*u.deg,
     misalignment=0*u.deg,
-    ld = params.LimbDarkeningParameters.solar(),
+    ld=params.LimbDarkeningParameters.solar(),
     faculae=params.FaculaParameters(
         distribution='iso',
         equillibrium_coverage=0.01,
@@ -57,10 +57,11 @@ star = params.StarParameters(
     spots=params.SpotParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    Nlat=500,Nlon=1000
+    Nlat=500, Nlon=1000
 )
 
-planet = params.PlanetParameters.std(init_phase=180*u.deg,init_substellar_lon=0*u.deg)
+planet = params.PlanetParameters.std(
+    init_phase=180*u.deg, init_substellar_lon=0*u.deg)
 system = params.SystemParameters(
     distance=1.3*u.pc,
     inclination=30*u.deg,
@@ -83,29 +84,28 @@ psg_params = params.psgParameters(
 instrument = params.InstrumentParameters.niriss_soss()
 
 gcm = params.gcmParameters(
-    gcm=params.vspecGCM.earth(molecules={'CO2':1e-4}),
+    gcm=params.vspecGCM.earth(molecules={'CO2': 1e-4}),
     mean_molec_weight=28
 )
 
 
 parameters = params.InternalParameters(
-    header = header,
-    star = star,
-    planet = planet,
-    system = system,
+    header=header,
+    star=star,
+    planet=planet,
+    system=system,
     obs=observation,
-    psg = psg_params,
+    psg=psg_params,
     inst=instrument,
-    gcm = gcm
+    gcm=gcm
 )
 
-#%%
+# %%
 # Run the simulation
 # ------------------
 #
 
 model = ObservationModel(params=parameters)
-model.bin_spectra()
 model.build_planet()
 model.build_spectra()
 
@@ -116,7 +116,7 @@ model.build_spectra()
 # We can use VSPEC to read in the synthetic
 # data we just created.
 
-data = PhaseAnalyzer(model.dirs['all_model'])
+data = PhaseAnalyzer(model.directories['all_model'])
 
 # %%
 # Get the lightcurve
@@ -124,7 +124,7 @@ data = PhaseAnalyzer(model.dirs['all_model'])
 #
 # We will look in a few different wavelengths.
 
-wl_pixels = [0,300,500,700]
+wl_pixels = [0, 300, 500, 700]
 time = data.time.to(u.day)
 for i in wl_pixels:
     wl = data.wavelength[i]
@@ -133,7 +133,7 @@ for i in wl_pixels:
         pixel=i,
         normalize=0
     )
-    plt.plot(time,lc,label=f'{wl:.1f}')
+    plt.plot(time, lc, label=f'{wl:.1f}')
 plt.legend()
 plt.xlabel(f'time ({time.unit})')
-_=plt.ylabel('Flux (normalized)')
+_ = plt.ylabel('Flux (normalized)')

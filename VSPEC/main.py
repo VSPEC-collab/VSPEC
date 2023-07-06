@@ -97,7 +97,6 @@ class ObservationModel:
         psg_needs_set = True
     _directories = {
         'parent': '',
-        'binned': 'binned_data',
         'all_model': 'AllModelSpectraValues',
         'psg_combined': 'PSGCombinedSpectra',
         'psg_thermal': 'PSGThermalSpectra',

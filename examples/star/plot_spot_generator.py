@@ -31,7 +31,7 @@ mstar_gen = vsm.SpotGenerator(
     init_area=10*MSH,
     distribution='iso',
     coverage=0.2,
-    Nlat=500,Nlon=1000,rng=rng
+    Nlat=500, Nlon=1000, rng=rng
 )
 
 # %%
@@ -47,11 +47,13 @@ spots = mstar_gen.generate_mature_spots(
     coverage=target_coverage,
     R_star=r_star
 )
-spots = vsm.SpotCollection(*spots,gridmaker=mstar_gen.gridmaker)
+spots = vsm.SpotCollection(*spots, gridmaker=mstar_gen.gridmaker)
 star_surface_area = 4*np.pi*r_star**2
-expected_n_spots = 2*(star_surface_area * target_coverage / mean_spot_area).to_value(u.dimensionless_unscaled)
-print(f'We have generated {len(spots.spots)} mature spots on the stellar surface. We expected {expected_n_spots:.1f}')
-fig, ax = plt.subplots(1,1)
+expected_n_spots = 2*(star_surface_area * target_coverage /
+                      mean_spot_area).to_value(u.dimensionless_unscaled)
+print(
+    f'We have generated {len(spots.spots)} mature spots on the stellar surface. We expected {expected_n_spots:.1f}')
+fig, ax = plt.subplots(1, 1)
 spot_areas = [spot.area_current.to_value(MSH) for spot in spots.spots]
 ax.hist(spot_areas)
 ax.set_xlabel('Area (msh)')
@@ -69,8 +71,8 @@ fig = plt.figure()
 proj = ccrs.Mollweide(central_longitude=0)
 ax = fig.add_subplot(projection=proj)
 
-tmap = spots.map_pixels(star_rad=r_star,star_teff=teff_star)
-lats,lons = spots.gridmaker.oned()
+tmap = spots.map_pixels(star_rad=r_star, star_teff=teff_star)
+lats, lons = spots.gridmaker.oned()
 
 spotted_fraction = spots.get_coverage(r_star)
 
@@ -81,9 +83,9 @@ im = ax.pcolormesh(
     cmap='viridis',
     transform=ccrs.PlateCarree()
 )
-fig.colorbar(im,ax=ax,label='$T_{eff}$ (K)')
+fig.colorbar(im, ax=ax, label='$T_{eff}$ (K)')
 s = f'{spotted_fraction*100:.0f}% of surface covered by spots. Target was {target_coverage*100:.0f}%'
-fig.text(0.1,0.2,s)
+fig.text(0.1, 0.2, s)
 
 # %%
 # The solar case
@@ -105,11 +107,11 @@ solar_gen = vsm.SpotGenerator(
     init_area=10*MSH,
     distribution='solar',
     coverage=target_coverage,
-    Nlat=500,Nlon=1000,rng=rng
+    Nlat=500, Nlon=1000, rng=rng
 )
 r_star = 0.15*u.R_sun
 teff_star = 3000*u.K
-spots = vsm.SpotCollection(gridmaker = solar_gen.gridmaker)
+spots = vsm.SpotCollection(gridmaker=solar_gen.gridmaker)
 
 # %%
 # Spot creation rate
@@ -123,7 +125,7 @@ spots = vsm.SpotCollection(gridmaker = solar_gen.gridmaker)
 
 dtime = 1*u.day
 print(f'In {dtime:.1f} we expect {solar_gen.get_N_spots_to_birth(dtime,r_star):.1f} new spots.')
-new_spots = solar_gen.birth_spots(dtime,r_star)
+new_spots = solar_gen.birth_spots(dtime, r_star)
 spots.add_spot(new_spots)
 
 # %%
@@ -133,16 +135,15 @@ spots.add_spot(new_spots)
 # Iterating through time allows us to aproach equillibrium.
 
 
-
 n_steps = 50
 coverage = [spots.get_coverage(r_star)]
 for _ in range(n_steps):
     spots.age(dtime)
-    new_spots = solar_gen.birth_spots(dtime,r_star)
+    new_spots = solar_gen.birth_spots(dtime, r_star)
     spots.add_spot(new_spots)
     coverage.append(spots.get_coverage(r_star))
 time = np.arange(n_steps+1)*dtime
-plt.plot(time,coverage)
+plt.plot(time, coverage)
 plt.xlabel(f'time ({time.unit})')
 plt.ylabel('Spot coverage fraction')
 
@@ -157,8 +158,8 @@ fig = plt.figure()
 proj = ccrs.Mollweide(central_longitude=0)
 ax = fig.add_subplot(projection=proj)
 
-tmap = spots.map_pixels(star_rad=r_star,star_teff=teff_star)
-lats,lons = spots.gridmaker.oned()
+tmap = spots.map_pixels(star_rad=r_star, star_teff=teff_star)
+lats, lons = spots.gridmaker.oned()
 
 spotted_fraction = spots.get_coverage(r_star)
 
@@ -169,6 +170,6 @@ im = ax.pcolormesh(
     cmap='viridis',
     transform=ccrs.PlateCarree()
 )
-fig.colorbar(im,ax=ax,label='$T_{eff}$ (K)')
+fig.colorbar(im, ax=ax, label='$T_{eff}$ (K)')
 s = f'{spotted_fraction*100:.0f}% of surface covered by spots. Target was {target_coverage*100:.0f}%'
-fig.text(0.1,0.2,s)
+fig.text(0.1, 0.2, s)

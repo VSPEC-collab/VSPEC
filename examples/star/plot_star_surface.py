@@ -18,7 +18,7 @@ rng = np.random.default_rng(SEED)
 # -------------------
 #
 # First, let's initialize a ``Star`` object.
-# 
+#
 # It needs to be populated by spots and faculae.
 
 n_spots = 10
@@ -31,13 +31,13 @@ spots = vsm.SpotCollection(
     *[
         vsm.StarSpot(
             lat=(rng.random() - 0.5)*120*u.deg,
-            lon = rng.random()*360*u.deg,
-            Amax = spot_area,
-            A0 = spot_area,
+            lon=rng.random()*360*u.deg,
+            Amax=spot_area,
+            A0=spot_area,
             Teff_umbra=2700*u.K,
             Teff_penumbra=2900*u.K,
-            r_A = 5.,
-            growing = False,
+            r_A=5.,
+            growing=False,
             growth_rate=0./u.day,
             decay_rate=0*MSH/u.day
         ) for _ in range(n_spots)
@@ -48,16 +48,16 @@ faculae = vsm.FaculaCollection(
     *[
         vsm.Facula(
             lat=(rng.random() - 0.5)*120*u.deg,
-            lon = rng.random()*360*u.deg,
-            r_max = facula_radius,
-            r_init = facula_radius,
+            lon=rng.random()*360*u.deg,
+            r_max=facula_radius,
+            r_init=facula_radius,
             depth=facula_radius,
             lifetime=5*u.hr,
             floor_teff_slope=0*u.K/u.km,
-            floor_teff_min_rad = 0.1*facula_radius,
-            floor_teff_base_dteff = -500*u.K,
-            wall_teff_slope = 0*u.K/u.km,
-            wall_teff_intercept = 300*u.K,
+            floor_teff_min_rad=0.1*facula_radius,
+            floor_teff_base_dteff=-500*u.K,
+            wall_teff_slope=0*u.K/u.km,
+            wall_teff_intercept=300*u.K,
             growing=False,
         ) for _ in range(n_faculae)
     ]
@@ -68,12 +68,12 @@ star_radius = 0.15*u.R_sun
 star_period = 40*u.day
 Nlat = 500
 Nlon = 1000
-ld_params = dict(u1=0.3,u2=0.1)
+ld_params = dict(u1=0.3, u2=0.1)
 
 star = vsm.Star(
     Teff=star_teff,
     radius=star_radius,
-    period = star_period,
+    period=star_period,
     spots=spots,
     faculae=faculae,
     Nlat=Nlat,
@@ -89,7 +89,7 @@ star = vsm.Star(
 lon0 = 0*u.deg
 lat0 = 0*u.deg
 
-star.plot_surface(lat0,lon0)
+star.plot_surface(lat0, lon0)
 
 # %%
 # Add a transit
@@ -102,4 +102,4 @@ pl_orbit = 0.05*u.AU
 inclination = 89.8*u.deg
 phase = 180.4*u.deg
 
-star.plot_surface(lat0,lon0,None,pl_orbit,pl_radius,phase,inclination)
+star.plot_surface(lat0, lon0, None, pl_orbit, pl_radius, phase, inclination)

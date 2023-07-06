@@ -21,18 +21,18 @@ rng = np.random.default_rng(SEED)
 # -------------------
 #
 # First, let's initialize a ``StarSpot`` object.
-# 
+#
 # We then add it to a ``SpotCollection`` object
 # because it will automatically delete the spot
 # when it decays.
 #
-# Note: The most common unit of spot area is the 
+# Note: The most common unit of spot area is the
 # micro solar hemisphere (MSH).
 
 spot = vsm.StarSpot(
     lat=0*u.deg,
     lon=0*u.deg,
-    Amax = 200*MSH,
+    Amax=200*MSH,
     A0=10*MSH,
     Teff_umbra=2700*u.K,
     Teff_penumbra=2900*u.K,
@@ -45,7 +45,8 @@ spot = vsm.StarSpot(
 )
 spotlist = vsm.SpotCollection(spot)
 
-print(f'The spot starts with an area of {spot.area_current}, and will grow to {spot.area_max}.')
+print(
+    f'The spot starts with an area of {spot.area_current}, and will grow to {spot.area_max}.')
 
 # %%
 # Step through time
@@ -62,10 +63,10 @@ area_unit = MSH
 for _ in range(n_steps):
     try:
         current_area = spotlist.spots[0].area_current.to_value(area_unit)
-    except IndexError: # the spot has decayed, so `spotlist.spots` is empty
+    except IndexError:  # the spot has decayed, so `spotlist.spots` is empty
         current_area = 0
     area.append(current_area)
     spotlist.age(dt)
-plt.plot(time,area)
+plt.plot(time, area)
 plt.xlabel(f'time ({time.unit})')
 plt.ylabel(f'Spot area {area_unit}')

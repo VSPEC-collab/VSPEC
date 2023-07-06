@@ -24,7 +24,7 @@ SEED = 23
 # be done using a YAML file.
 
 header = params.Header(
-    data_path=Path('flare_lightcurve'),
+    data_path=Path('.vspec/flare_lightcurve'),
     teff_min=3200*u.K,
     teff_max=3400*u.K,
     seed=SEED,verbose=0
@@ -99,7 +99,6 @@ parameters = params.InternalParameters(
 #
 
 model = ObservationModel(params=parameters)
-model.bin_spectra()
 model.build_planet()
 model.build_spectra()
 
@@ -110,7 +109,7 @@ model.build_spectra()
 # We can use VSPEC to read in the synthetic
 # data we just created.
 
-data = PhaseAnalyzer(model.dirs['all_model'])
+data = PhaseAnalyzer(model.directories['all_model'])
 
 wl_pixels = [0,300,500,700]
 time = data.time.to(u.day)

@@ -157,3 +157,4 @@ docs/source/api
 docs/source/auto_examples
 docs/readme/default
 examples/*/*/Data
+.vspec
