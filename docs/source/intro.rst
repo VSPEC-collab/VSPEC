@@ -95,3 +95,12 @@ though local port ``3000``.
 - LINES
 - EXO
 - CORRKLOWMAIN
+
+.. note::
+    Users who wish to run simulations with resolving powers higher than ``R=500`` must
+    install the CORRKMEDMAIN package (up to ``R=5000``).
+
+.. warning::
+    Recent updates to the Docker engine required the PSG binaries to be split into hardware-dependent
+    versions. ``VSPEC`` has been tested almost completely using an Apple M1/M2 chip, but it is expected to
+    work on Windows/Linux machines using AMD.

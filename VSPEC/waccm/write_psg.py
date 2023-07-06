@@ -1,5 +1,5 @@
 """
-write extracted netCDF data in the PSG format
+Write extracted netCDF data in the PSG format.
 """
 from netCDF4 import Dataset
 from io import BytesIO

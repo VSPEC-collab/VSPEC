@@ -1,15 +1,17 @@
 Getting Started
 ===============
 
+.. role:: python(code)
+   :language: python
+
 Most use cases for VSPEC involve this simple workflow:
 
 #. Write a configuration file. For example: ``my_config.yaml``
 #. Run the model:
-    * ``import VSPEC``
-    * ``model = VSPEC.ObservationModel.from_yaml('my_config.yaml')``
-    * ``model.bin_spectra()``
-    * ``model.build_planet()``
-    * ``model.build_spectra()``
+    * :python:`>>> import VSPEC`
+    * :python:`>>> model = VSPEC.ObservationModel.from_yaml('my_config.yaml')`
+    * :python:`>>> model.build_planet()`
+    * :python:`>>> model.build_spectra()`
 #. Read the data and analyze.
 
 Configuration Files
@@ -65,11 +67,12 @@ As shown above, running a configured model is very easy.
     path = Path('my_config.yaml')
     model = ObservationModel.from_yaml(path)
     # run the model
-    model.bin_spectra()
     model.build_planet()
     model.build_spectra()
 
-The simulated observation will now be saved to a local directory specified in the header.
+The simulated observation will now be saved to a local directory specified in the header. Except in cases where
+the ``Header`` is custom writen by the user (i.e. not constructed from a YAML file), all simulation output is
+stored in a directory called ``.vspec``.
 
 Reading the Data
 ----------------
@@ -81,6 +84,6 @@ data products, which already live in the directory ``model.dirs['all_model']``.
 .. code-block:: python
     
     from VSPEC import PhaseAnalyzer
-    data = PhaseAnalyzer(model.dirs['all_model'])
+    data = PhaseAnalyzer(model.directories['all_model'])
 
 See the :doc:`auto_examples/index` page for real use cases.

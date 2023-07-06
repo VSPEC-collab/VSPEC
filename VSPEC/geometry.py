@@ -163,8 +163,6 @@ class SystemGeometry:
 
     def sub_obs(self, time):
         """
-        Sub-Observer coordinates
-
         Calculate the point on the stellar surface that is facing the observer.
 
         Parameters
@@ -183,8 +181,6 @@ class SystemGeometry:
 
     def mean_motion(self):
         """
-        Mean Motion
-
         Get the mean motion of the planet's orbit.
 
         Returns
@@ -196,9 +192,7 @@ class SystemGeometry:
 
     def mean_anomaly(self, time):
         """
-        Mean Anomaly
-
-        Get the mean anomaly of the orbit at a given time
+        Get the mean anomaly of the orbit at a given time.
 
         Parameters
         ----------
@@ -214,8 +208,6 @@ class SystemGeometry:
 
     def eccentric_anomaly(self, time):
         """
-        Eccentric Anomaly
-
         Calculate the eccentric anomaly of the system
         at a given time
 
@@ -224,7 +216,7 @@ class SystemGeometry:
         time : astropy.units.Quantity [time]
             The time elapsed since periasteron.
 
-         Returns
+        Returns
         -------
         astropy.units.Quantity [angle]
             The eccentric anomaly.
@@ -238,8 +230,6 @@ class SystemGeometry:
 
     def true_anomaly(self, time):
         """
-        True Anomaly
-
         Calculate the true anomaly.
 
         Parameters
@@ -271,9 +261,8 @@ class SystemGeometry:
 
     def phase(self, time):
         """
-        Get Phase
-
         Calculate the phase at a given time.
+        
         Phase is defined using the PSG convention.
         Transit occurs at phase=180 degrees.
 
@@ -291,8 +280,6 @@ class SystemGeometry:
 
     def sub_planet(self, time, phase=None):
         """
-        Sub-planet coordinate
-
         Get the coordinates of the sub-planet point on the star.
 
         Parameters
@@ -318,9 +305,8 @@ class SystemGeometry:
 
     def get_time_since_periasteron(self, phase):
         """
-        Get time since periasteron
-
         Calculate the time since the last periasteron for a given phase.
+        
         This calculation is costly, so it is prefered that the user avoid
         calling this function more than necessary. The output is stored as
         `self.time_since_periasteron` upon initialization, so it can be
@@ -349,8 +335,6 @@ class SystemGeometry:
 
     def get_substellar_lon_at_periasteron(self) -> u.Quantity[u.deg]:
         """
-        Get sub-stellar longitude at periasteron
-
         Compute the sub-stellar longitude at the previous periasteron
         given the rotation period, orbital period, and initial
         substellar longitude
@@ -367,8 +351,6 @@ class SystemGeometry:
 
     def get_substellar_lon(self, time_since_periasteron) -> u.quantity.Quantity:
         """
-        Get sub-stellar longitude.
-
         Calculate the sub-stellar longitude at a particular time since periasteron.
 
         Parameters
@@ -402,8 +384,6 @@ class SystemGeometry:
 
     def get_substellar_lat(self, phase: u.Quantity[u.deg]) -> u.Quantity[u.deg]:
         """
-        Get sub-stellar latitude
-
         Calculate the sub-stellar latitude of the planet at a particular phase.
 
         Parameters
@@ -431,8 +411,6 @@ class SystemGeometry:
 
     def get_pl_sub_obs_lon(self, time_since_periasteron: u.quantity.Quantity, phase: u.quantity.Quantity) -> u.quantity.Quantity:
         """
-        Get planetary sub-observer longitude
-
         Compute the sub-observer longitude of the planet.
 
         Parameters
@@ -452,8 +430,6 @@ class SystemGeometry:
 
     def get_pl_sub_obs_lat(self, phase: u.Quantity[u.deg]) -> u.Quantity[u.deg]:
         """
-        Get planetary sub-observer latitude
-
         Compute the sub-observer latitude of the planet.
 
         Parameters
@@ -482,8 +458,6 @@ class SystemGeometry:
 
     def get_radius_coeff(self, phase: u.quantity.Quantity) -> float:
         """
-        Get radius coefficient.
-
         Compute the orbital radius coefficient that depends on eccentricity and phase.
 
         Parameters
@@ -506,8 +480,6 @@ class SystemGeometry:
                              time_step: u.quantity.Quantity = None,
                              N_obs: int = 10) -> dict:
         """
-        Get observation plan.
-
         Calculate information describing the state of the system
         for a series of observations.
 
@@ -581,6 +553,21 @@ class SystemGeometry:
 
 
     def get_system_visual(self,phase:u.Quantity,ax=None) -> plt.Axes:
+        """
+        Create a graphical representation of the host+planet geometry.
+
+        Parameters
+        ----------
+        phase : astropy.units.Quantity
+            The current phase of the planet.
+        ax : matplotlib.axes.Axes, optional
+            The axis to draw the figure to, by default None.
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            The axis with the graphics drawn.
+        """
         if ax is None:
             ax = plt.gca()
         ax.set_aspect('equal', adjustable='box')
@@ -622,6 +609,22 @@ class SystemGeometry:
         return ax
 
     def get_planet_visual(self,phase:u.Quantity,ax=None):
+        """
+        Draw a visualization of the planet's geometry from the view
+        of the observer.
+
+        Parameters
+        ----------
+        phase : astropy.units.Quantity
+            The current phase.
+        ax : matplotlib.axes.Axes, optional
+            The Axes to draw on, by default None
+
+        Returns
+        -------
+        matplotlib.axes.Axes
+            The drawn figure.
+        """
         import cartopy.crs as ccrs
         from cartopy.geodesic import Geodesic
         if ax is None:
@@ -689,8 +692,6 @@ class SystemGeometry:
 
     def plot(self, phase: u.Quantity):
         """
-        Plot
-
         Create a plot of the geometry at a particular phase.
 
         Parameters

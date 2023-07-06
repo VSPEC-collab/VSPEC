@@ -3,6 +3,7 @@ header:
   teff_min: 2300 K
   teff_max: 3900 K
   desc: This is a VSPEC example.
+  verbose: 0
   seed: 32
 star:
   psg_star_template: M

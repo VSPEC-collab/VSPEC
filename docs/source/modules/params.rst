@@ -206,6 +206,12 @@ in the units that PSG is expecting.
 
     PSGtable
 
+.. autosummary::
+    :toctree: ../api
+    :template: custom_func.rst
+
+    parse_table
+
 The Base Parameter Class
 ------------------------
 

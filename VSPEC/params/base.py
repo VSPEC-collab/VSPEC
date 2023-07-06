@@ -85,10 +85,57 @@ class PSGtable(BaseParameters):
             x = d['x'],
             y = d['y']
         )
+    @classmethod
+    def from_dict(cls, d: dict, *args):
+        """
+        Construct a ``PSGtable`` object from a dictionary.
+        
+        Parameters
+        ----------
+        d : dict
+            The dictionary to use to construct the class.
+
+        Returns
+        -------
+        PSGtable
+            The constructed class instance.
+
+        """
+        return super().from_dict(d, *args)
     def to_psg(self):
+        """
+        Create a PSG-readable representation of the class.
+
+        Returns
+        -------
+        str
+            The data in the table.
+        
+        Notes
+        -----
+        PSG expects the format ``y1@x1,y2@x2,...``.
+        """
         return self.__str__()
 
 def parse_table(val,cls):
+    """
+    Parse some input that could potentially construct a ``PSGtable`` object.
+    
+    If ``val`` is a dictionary, use it to construct a table. Otherwise, construct
+    an object of type ``cls`` from ``val`` (which is probably a string).
+
+    Parameters
+    ----------
+    val : any
+        The input to parse.
+    cls : type
+        The class to cast ``val`` to if it is not a dictionary.
+
+    Returns
+    -------
+    any
+        The parsed input.
+    """
     if isinstance(val,dict):
         return PSGtable.from_dict(val['table'])
     else:

@@ -1,4 +1,4 @@
-``VSPEC.helpers``
+``VSPEC.spectra``
 =================
 .. automodapi:: VSPEC.spectra
     :no-heading:

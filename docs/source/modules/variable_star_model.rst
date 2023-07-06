@@ -13,6 +13,7 @@
     :skip: Quantity
     :skip: SpotCollection,SpotGenerator,StarSpot
     :skip: SpotParameters,FlareParameters,FaculaParameters
+    :skip: StarParameters
     :no-inheritance-diagram:
 
 

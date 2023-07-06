@@ -88,7 +88,7 @@ def colat(lat:u.Quantity):
     ----------
     lat : astropy.units.Quantity
         The latitude.
-    
+
     Returns
     -------
     colat : astropy.units.Quantity

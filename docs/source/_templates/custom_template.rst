@@ -1,7 +1,7 @@
 {{ name }}
 {{ underline }}
 
-.. autoclass :: {{ fullname }}
+.. autoclass:: {{ fullname }}
     :show-inheritance:
     :members:
 
