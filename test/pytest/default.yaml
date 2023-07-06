@@ -31,18 +31,24 @@ star:
     equillibrium_coverage: 0.00
     burn_in: 0 hr
     mean_radius: 500 km
-    hwhm_radius: 200 km
+    logsigma_radius: 0.2
     mean_timescale: 10 hr
-    hwhm_timescale: 4 hr
+    logsigma_timescale: 0.2
+    depth: 100 km
+    floor_teff_slope: 0 K km-1
+    floor_teff_min_rad: 20 km
+    floor_teff_base_dteff: -100 K
+    wall_teff_slope: 0 K km-1
+    wall_teff_intercept: 100 K
   flares:
-    group_probability: 0.5
-    teff_mean: 9000 K
-    teff_sigma: 500 K
-    fwhm_mean: 0.14 day
-    fwhm_sigma: 0.3
-    E_min: 1e32 erg
-    E_max: 1e35 erg
-    E_steps: 100
+    dist_teff_mean: 9000 K
+    dist_teff_sigma: 500 K
+    dist_fwhm_mean: 0.3 day
+    dist_fwhm_logsigma: 0.2
+    alpha: -0.8
+    beta: 27.0
+    min_energy: 1e33 erg
+    cluster_size: 2
   granulation:
     mean: 0.2
     amp: 0.01
@@ -92,11 +98,15 @@ inst:
       emissivity: 0.1
       temperature: 35 K
 psg:
-  gcm_binning: 200
+  ggcm_binning: 9
   phase_binning: 1
+  nmax: 0
+  lmax: 0
+  continuum: [Rayleigh, Refraction, CIA_all]
   use_molecular_signatures: True
   url: http://localhost:3000
 gcm:
+  mean_molec_weight: 28
   vspec:
     nlon: 40
     nlat : 30

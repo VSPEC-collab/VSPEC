@@ -11,6 +11,27 @@ from VSPEC.gcm import structure as st
 from VSPEC.config import atmosphere_type_dict as mtype, aerosol_type_dict as atype, aerosol_name_dict
 
 class Winds:
+    """
+    Represent wind speed in a GCM.
+    
+    Wind in PSG is represented by a 2 component vector :math:1(U,V)` where
+    :math:`U` is West-to-East and :math:`V` is South-to-North.
+    
+    Parameters
+    ----------
+    wind_u : VSPEC.gcm.structure.Wind
+        The West-to-East wind.
+    wind_v : VSPEC.gcm.structure.Wind
+        The South-to-North wind.
+    
+    Attributes
+    ----------
+    wind_u : VSPEC.gcm.structure.Wind
+        The West-to-East wind.
+    wind_v : VSPEC.gcm.structure.Wind
+        The South-to-North wind.
+    
+    """
     def __init__(
         self,
         wind_u:Wind,
@@ -20,19 +41,59 @@ class Winds:
         self.wind_v = wind_v
     @property
     def flat(self):
+        """
+        Get a flat version of this variable to write to a binary file.
+
+        Returns
+        -------
+        np.ndarray
+            The flattened array.
+        """
         return np.concatenate([self.wind_u.flat,self.wind_v.flat],dtype='float32')
 
 class Molecules:
+    """
+    GCM Molecules container.
+    
+    Parameters
+    ----------
+    molecules : VSPEC.gcm.structure.Molecule
+        The molecules that exist in the atmosphere.
+    
+    Attributes
+    ----------
+    molecules : VSPEC.gcm.structure.Molecule
+        The molecules that exist in the atmosphere.
+    """
     def __init__(
         self,
         molecules:Tuple[Molecule]
     ):
         self.molecules = molecules
     @property
-    def flat(self):
+    def flat(self)->np.ndarray:
+        """
+        1D representation of the data.
+
+        Returns
+        -------
+        np.ndarray
+            The flattened data.
+        """
         return np.concatenate([mol.flat for mol in self.molecules],dtype='float32')
     @classmethod
     def _from_dict(cls,d:dict,shape:tuple):
+        """
+        Create a `Molecules` object from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary describing the molecules.
+        shape : tuple
+            The shape of the GCM array.
+
+        """
         molecules = []
         for key, val in d.items():
             name = key
@@ -43,9 +104,30 @@ class Molecules:
         return cls(tuple(molecules))
     @classmethod
     def from_dict(cls,d:dict,shape:tuple):
+        """
+        Create a `Molecules` object from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary describing the molecules.
+        shape : tuple
+            The shape of the GCM array.
+
+        """
         return cls._from_dict(d,shape)
 
 class Aerosols:
+    """
+    GCM Aerosols container.
+    
+    Parameters
+    ----------
+    aerosols : tuple of VSPEC.gcm.structure.Aerosol
+        The aerosol abundances in the atmosphere.
+    sizes : tuple of VSPEC.gcm.structure.AerosolSize
+        The aerosol sizes in the atmosphere.
+    """
     def __init__(
         self,
         aerosols:Tuple[Aerosol],
@@ -54,10 +136,28 @@ class Aerosols:
         self.aerosols = aerosols
         self.sizes = sizes
     @property
-    def flat(self):
+    def flat(self)->np.ndarray:
+        """
+        A flat representation of the array.
+
+        Returns
+        -------
+        np.ndarray
+            The flattened array.
+        """
         return np.concatenate([aero.flat for aero in self.aerosols]+[size.flat for size in self.sizes],dtype='float32')
     @classmethod
     def _from_dict(cls,d:dict,shape:tuple):
+        """
+        Load an `Aerosols` object from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary describing the aerosols.
+        shape : tuple
+            The shape of the GCM array.
+        """
         aersols = []
         sizes = []
         for key,value in d.items():
@@ -68,9 +168,73 @@ class Aerosols:
             sizes.append(st.AerosolSize.constant(f'{name}_size',size,shape))
     @classmethod
     def from_dict(cls,d:dict,shape:tuple):
+        """
+        Load an `Aerosols` object from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary describing the aerosols.
+        shape : tuple
+            The shape of the GCM array.
+        """
         return cls._from_dict(d,shape)
 
 class Planet:
+    """
+    A simple planet GCM.
+
+    Parameters
+    ----------
+    wind : Winds
+        The wind speeds in the GCM represented by a 2-component vector (U, V),
+        where U is the West-to-East wind and V is the South-to-North wind.
+    tsurf : st.SurfaceTemperature
+        The surface temperature of the planet.
+    psurf : st.SurfacePressure
+        The surface pressure of the planet.
+    albedo : st.Albedo
+        The albedo of the planet's surface.
+    emissivity : st.Emissivity
+        The emissivity of the planet's surface.
+    temperature : st.Temperature
+        The temperature profile of the planet's atmosphere.
+    pressure : st.Pressure
+        The pressure profile of the planet's atmosphere.
+    molecules : Molecules
+        The molecules present in the planet's atmosphere.
+    aerosols : Aerosols
+        The aerosols present in the planet's atmosphere.
+
+    Attributes
+    ----------
+    wind : Winds
+        The wind speeds in the GCM.
+    tsurf : st.SurfaceTemperature
+        The surface temperature of the planet.
+    psurf : st.SurfacePressure
+        The surface pressure of the planet.
+    albedo : st.Albedo
+        The albedo of the planet's surface.
+    emissivity : st.Emissivity
+        The emissivity of the planet's surface.
+    temperature : st.Temperature
+        The temperature profile of the planet's atmosphere.
+    pressure : st.Pressure
+        The pressure profile of the planet's atmosphere.
+    molecules : Molecules
+        The molecules present in the planet's atmosphere.
+    aerosols : Aerosols
+        The aerosols present in the planet's atmosphere.
+
+    Raises
+    ------
+    TypeError
+        If the pressure attribute is not provided or is None.
+    AssertionError
+        If the shapes of the attributes are inconsistent.
+
+    """
     def __init__(
         self,
         wind:Winds,
@@ -95,6 +259,17 @@ class Planet:
         self.validate()
     
     def validate(self):
+        """
+        Validates the consistency of the planet's attributes.
+
+        Raises
+        ------
+        TypeError
+            If the pressure attribute is not provided or is None.
+        AssertionError
+            If the shapes of the attributes are inconsistent.
+        """
+
         if self.pressure is None:
             raise TypeError('pressure must be provided!')
         shape3d = self.pressure.shape
@@ -120,27 +295,81 @@ class Planet:
             for size in self.aerosols.sizes:
                 assert size.shape == shape3d
     @property
-    def shape(self):
+    def shape(self)->Tuple[int,int,int]:
+        """
+        Returns the shape of the planet's arrays (nlayers, nlon, lat).
+
+        Returns
+        -------
+        shape : Tuple[int, int, int]
+            The shape of the planet's arrays.
+        """
+
         nlayers,nlon,lat = self.pressure.shape
         return nlayers,nlon,lat
     @property
     def lons(self)->u.Quantity:
+        """
+        Returns the longitudes of the planet's grid.
+
+        Returns
+        -------
+        lons : u.Quantity
+            The longitudes of the planet's grid.
+        """
+
         _,nlon,_ = self.shape
         return np.linspace(-180,180,nlon,endpoint=False)*u.deg
     @property
     def dlon(self)->u.Quantity:
+        """
+        Returns the longitudinal grid spacing.
+
+        Returns
+        -------
+        dlon : u.Quantity
+            The longitudinal grid spacing.
+        """
+
         _,nlon,_ = self.shape
         return 360*u.deg / nlon
     @property
     def dlat(self)->u.Quantity:
+        """
+        Returns the latitudinal grid spacing.
+
+        Returns
+        -------
+        dlat : u.Quantity
+            The latitudinal grid spacing.
+        """
+
         _,_,nlat = self.shape
         return 180*u.deg / nlat
     @property
     def lats(self)->u.Quantity:
+        """
+        Returns the latitudes of the planet's grid.
+
+        Returns
+        -------
+        lats : u.Quantity
+            The latitudes of the planet's grid.
+        """
+
         _,_,nlat = self.shape
         return np.linspace(-90,90,nlat,endpoint=True)*u.deg
     @property
     def gcm_properties(self)->str:
+        """
+        Constructs the string value of the PSG ``<ATMOSPHERE-GCM-PROPERTIES>`` parameter.
+
+        Returns
+        -------
+        gcm_properties : str
+            The value of the ``<ATMOSPHERE-GCM-PROPERTIES>`` parameter.
+        """
+
         nlayer,nlon,nlat = self.shape
         coords = f'{nlon},{nlat},{nlayer},-180.0,-90.0,{self.dlon.to_value(u.deg):.2f},{self.dlat.to_value(u.deg):.2f}'
         vars = []
@@ -167,6 +396,14 @@ class Planet:
         return f'{coords},{",".join(vars)}'
     @property
     def flat(self)->np.ndarray:
+        """
+        Returns a flattened representation of the planet's data.
+
+        Returns
+        -------
+        flat_data : np.ndarray
+            A flattened representation of the planet's data.
+        """
         return np.concatenate([
             [] if self.wind is None else self.wind.flat,
             [] if self.tsurf is None else self.tsurf.flat,
@@ -180,7 +417,16 @@ class Planet:
         ],dtype='float32')
     
     @property
-    def psg_params(self):
+    def psg_params(self)->dict:
+        """
+        Returns a dictionary of PSG parameters representing the planet.
+
+        Returns
+        -------
+        params : dict
+            A dictionary of PSG parameters representing the planet.
+        """
+
         nlayers,_,_ = self.shape
         gases = [molec.name for molec in self.molecules.molecules]
         if self.aerosols is not None:
@@ -214,12 +460,35 @@ class Planet:
         return params
     @property
     def content(self)->bytes:
+        """
+        Returns the content of the planet as a PSG-compatible bytes object.
+
+        Returns
+        -------
+        content : bytes
+            The content of the planet as a PSG-compatible bytes object.
+        """
+
         config = '\n'.join([f'<{param}>{value}' for param,value in self.psg_params.items()])
         content = bytes(config,encoding='UTF-8')
         dat = self.flat.tobytes('C')
         return content + b'\n<BINARY>' + dat + b'</BINARY>'
     @classmethod
     def from_dict(cls,d:dict):
+        """
+        Creates a `Planet` instance from a dictionary representation.
+
+        Parameters
+        ----------
+        d : dict
+            The dictionary representing the planet.
+
+        Returns
+        -------
+        planet : Planet
+            The `Planet` instance created from the dictionary.
+        """
+
         nlayer = int(d['shape']['nlayer'])
         nlon = int(d['shape']['nlon'])
         nlat = int(d['shape']['nlat'])

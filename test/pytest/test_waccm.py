@@ -121,7 +121,7 @@ def test_get_cfg_contents():
     with nc.Dataset(DATA_PATH,'r',format='NETCDF4') as data:
         contents = wp.get_cfg_contents(data,0,['CO2','H2O'],['Water','WaterIce'],'N2')
         # call_api(output_type='set',app='globes',config_data=contents)
-    with open('test_gcms/waccmt0.gcm','wb') as file:
+    with open('../test_gcms/waccmt0.gcm','wb') as file:
         file.write(contents)
         0
 

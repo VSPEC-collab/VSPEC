@@ -10,7 +10,7 @@ the ``main`` module, which manages the simulations and tracks the state of each 
    modules/main
    modules/geometry
    modules/variable_star_model
-   modules/stellar_spectra
+   modules/spectra
    modules/psg_api
    modules/analysis
    modules/helpers

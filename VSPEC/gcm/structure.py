@@ -1,5 +1,5 @@
 """
-
+VSPEC GCM structure
 """
 from astropy import units as u
 

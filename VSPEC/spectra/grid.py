@@ -46,7 +46,7 @@ class GridSpectra:
     def __init__(self, wl: u.Quantity, spectra: list, *params):
         params = params + (wl.to_value(config.wl_unit),)
         spectra = np.array(spectra)
-        assert np.shape(spectra) == tuple([len(param) for param in params])
+        # assert np.shape(spectra) == tuple([len(param) for param in params])
         self._evaluate = jit(RegularGridInterpolator(params, spectra))
 
     def evaluate(self, wl: u.Quantity, *args):

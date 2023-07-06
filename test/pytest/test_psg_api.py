@@ -115,7 +115,6 @@ def test_text_parse():
     with open(PSG_CONFIG_PATH,'r',encoding='UTF-8') as file:
         file_contents = file.read()
     content = call_api(psg_url=psg_url,output_type='all',config_data=file_contents)
-    text = str(content,encoding='UTF-8')
-    result = parse_full_output(text)
+    result = parse_full_output(content)
     assert b'cfg' in result.keys()
     set_psg_state(previous_state)

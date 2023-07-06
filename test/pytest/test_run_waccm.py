@@ -17,20 +17,18 @@ def run_static_waccm():
     model.params.gcm_path = T0_GCM
     model.params.planet_init_substellar_lon = 180*u.deg
     model.params.gcm_binning = 200
-    model.bin_spectra()
     model.build_planet()
     model.build_spectra()
-    data = VSPEC.PhaseAnalyzer(model.dirs['all_model'])
+    data = VSPEC.PhaseAnalyzer(model.directories['all_model'])
     plt.pcolormesh(data.time.value,data.wavelength.value,data.thermal.value)
     plt.colorbar()
     0
 
 def run_nc_test():
     model = VSPEC.ObservationModel(WACCM_CFG)
-    model.bin_spectra()
     model.build_planet()
     model.build_spectra()
-    data = VSPEC.PhaseAnalyzer(model.dirs['all_model'])
+    data = VSPEC.PhaseAnalyzer(model.directories['all_model'])
     plt.pcolormesh(data.time.value,data.wavelength.value,data.thermal.value)
     plt.colorbar()
     0

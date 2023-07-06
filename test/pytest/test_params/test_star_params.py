@@ -3,7 +3,6 @@ StarParameters tests
 """
 from VSPEC.params.stellar import StarParameters, LimbDarkeningParameters, SpotParameters, FaculaParameters, FlareParameters, GranulationParameters
 from astropy import units as u
-import pytest
 
 def test_preset_static_proxima():
     params = StarParameters.static_proxima()
@@ -18,7 +17,6 @@ def test_preset_spotted_proxima():
 def test_preset_flaring_proxima():
     params = StarParameters.flaring_proxima()
     assert params.psg_star_template == 'M'
-    assert params.flares.E_steps == 100
 
 def test_preset_proxima():
     params = StarParameters.proxima()
@@ -77,4 +75,3 @@ def test_preset_from_dict():
     }
     params = StarParameters.from_dict(params_dict)
     assert params.psg_star_template == 'M'
-    assert params.flares.E_steps == 100

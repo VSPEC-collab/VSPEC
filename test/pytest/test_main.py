@@ -29,64 +29,7 @@ def test_observation_model_initialization(observation_model:ObservationModel):
     assert observation_model.star is None
 
 
-def test_build_directories(observation_model:ObservationModel):
-    # Verify that the build_directories function creates the correct directory structure
-    observation_model.build_directories()
-    assert isinstance(observation_model.dirs, dict)
-    assert 'parent' in observation_model.dirs
-    assert 'data' in observation_model.dirs
-    assert 'binned' in observation_model.dirs
-    assert 'all_model' in observation_model.dirs
-    assert 'psg_combined' in observation_model.dirs
-    assert 'psg_thermal' in observation_model.dirs
-    assert 'psg_noise' in observation_model.dirs
-    assert 'psg_layers' in observation_model.dirs
-    assert 'psg_configs' in observation_model.dirs
-    for dir in observation_model.dirs.values():
-        assert dir.exists()
-    shutil.rmtree(observation_model.dirs['parent'])
 
-def test_bin_spectra(observation_model:ObservationModel):
-    observation_model.build_directories()
-    observation_model.bin_spectra()
-    assert any(observation_model.dirs['binned'].iterdir())
-    shutil.rmtree(observation_model.dirs['parent'])
-
-def test_read_binned_spectra(observation_model:ObservationModel):
-    observation_model.build_directories()
-    observation_model.bin_spectra()
-    wl,flux = observation_model.read_spectrum(3000*u.K)
-    # Check shape of arrays
-    assert wl.shape == flux.shape
-    # Check units
-    assert wl.unit == observation_model.params.inst.bandpass.wavelength_unit
-    assert flux.unit == observation_model.params.inst.bandpass.flux_unit
-    shutil.rmtree(observation_model.dirs['parent'])
-
-def test_get_model_spectrum(observation_model:ObservationModel):
-    observation_model.build_directories()
-    observation_model.bin_spectra()
-    teff1 = 3000*u.K
-    teff2 = 3100*u.K
-    c1,c2 = 0.5,0.5
-    teff3 = teff1*c1 + c2*teff2
-    # check recall for uninterpolated spectrum
-    wl1,flux1 = observation_model.read_spectrum(teff1)
-    wl2,flux2 = observation_model.get_model_spectrum(teff1)
-    assert np.all(wl1 == wl2)
-    assert np.all(flux1*observation_model.params.flux_correction == flux2)
-    # check that different teffs do not give the same results
-    _,flux1 = observation_model.get_model_spectrum(teff1)
-    _,flux2 = observation_model.get_model_spectrum(teff2)
-    assert not np.all(flux1==flux2)
-    # check that teff3 is an interpolation of teff1, teff2
-    _,flux1 = observation_model.get_model_spectrum(teff1)
-    _,flux2 = observation_model.get_model_spectrum(teff2)
-    _,flux3 = observation_model.get_model_spectrum(teff3)
-    pred = c1*flux1 + c2*flux2
-    assert np.all(np.abs((flux3/pred).to_value(u.dimensionless_unscaled) - 1) < 1e-6)
-
-    shutil.rmtree(observation_model.dirs['parent'])
 
 def test_get_observation_parameters(observation_model:ObservationModel):
     # Call the get_observation_parameters method
