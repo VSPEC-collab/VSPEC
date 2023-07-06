@@ -52,11 +52,10 @@ def make_fig(data:VSPEC.PhaseAnalyzer):
 
 def test_run():
     model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
-    model.bin_spectra()
     model.build_planet()
     model.build_spectra()
 
-    data = VSPEC.PhaseAnalyzer(model.dirs['all_model'])
+    data = VSPEC.PhaseAnalyzer(model.directories['all_model'])
     make_fig(data)
 
 if __name__ in '__main__':
