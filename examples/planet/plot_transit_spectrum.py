@@ -22,7 +22,6 @@ CFG_PATH = 'transit_spectrum.yaml'
 # We read in the config file and run the model.
 
 model = ObservationModel.from_yaml(CFG_PATH)
-model.bin_spectra()
 model.build_planet()
 model.build_spectra()
 
@@ -33,7 +32,7 @@ model.build_spectra()
 # We can use VSPEC to read in the synthetic
 # data we just created.
 
-data = PhaseAnalyzer(model.dirs['all_model'])
+data = PhaseAnalyzer(model.directories['all_model'])
 
 # %%
 # Calculate the transit depth

@@ -14,7 +14,7 @@ import os
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC.geometry import SystemGeometry
-from VSPEC.analysis import GCMdecoder
+from VSPEC.gcm import GCMdecoder
 from cartopy import crs as ccrs
 
 CONFIG_PATH = Path('phase_gif.yaml')
@@ -27,9 +27,8 @@ CONFIG_PATH = Path('phase_gif.yaml')
 # It is stored in a YAML file.
 
 model = ObservationModel.from_yaml(CONFIG_PATH)
-# model.bin_spectra()
-# model.build_planet()
-# model.build_spectra()
+model.build_planet()
+model.build_spectra()
 
 #%%
 # Write a figure making function
@@ -107,7 +106,7 @@ def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:GCMdecoder,s:tuple):
 # Make the gif
 # ------------
 
-data = PhaseAnalyzer(model.dirs['all_model'])
+data = PhaseAnalyzer(model.directories['all_model'])
 geometry = model.get_observation_parameters()
 gcm = GCMdecoder.from_psg(model.params.gcm.content())
 

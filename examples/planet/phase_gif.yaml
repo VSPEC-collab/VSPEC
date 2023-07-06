@@ -3,6 +3,7 @@ header:
   teff_min: 3200 K
   teff_max: 3400 K
   desc: This is a VSPEC example.
+  seed: 20
 star:
   psg_star_template: M
   teff: 3300 K
@@ -27,22 +28,9 @@ star:
     decay_rate: 0.0 msh/day
     initial_area: 10 msh
   faculae:
-    distribution: iso
-    equillibrium_coverage: 0.00
-    burn_in: 0 hr
-    mean_radius: 500 km
-    hwhm_radius: 200 km
-    mean_timescale: 10 hr
-    hwhm_timescale: 4 hr
+    preset: none
   flares:
-    group_probability: 0.5
-    teff_mean: 9000 K
-    teff_sigma: 500 K
-    fwhm_mean: 0.14 day
-    fwhm_sigma: 0.3
-    E_min: 1e32 erg
-    E_max: 1e35 erg
-    E_steps: 100
+    preset: std
   granulation:
     mean: 0.0
     amp: 0.00

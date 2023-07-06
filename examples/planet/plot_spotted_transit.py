@@ -165,11 +165,18 @@ quiet_star = params.StarParameters(
 )
 spotted_star = params.StarParameters(
     spots=params.SpotParameters(
-            'iso', 0.025, 0., 0.*u.s,
-            300*MSH, 0.1,
-            2700*u.K, 2700*u.K,
-            0./u.day, 0*MSH/u.day,
-            10*MSH),
+        distribution='iso',
+        initial_coverage=0.025,
+        area_mean=300*MSH,
+        area_logsigma=0.2,
+        teff_umbra=2700*u.K,
+        teff_penumbra=2700*u.K,
+        equillibrium_coverage=0.0,
+        burn_in=0*u.s,
+        growth_rate=0.0/u.day,
+        decay_rate=0*MSH/u.day,
+        initial_area=10*MSH
+    ),
     **star_kwargs
 )
 
@@ -189,20 +196,20 @@ internal_params_kwargs = dict(
 # Make the three cases
 
 params_rock_quiet = params.InternalParameters(
-    header=params.Header(data_path=Path('rock_quiet'),**header_kwargs),
+    header=params.Header(data_path=Path('.vspec/rock_quiet'),**header_kwargs),
     star = quiet_star,
     psg=psg_no_atm,
     **internal_params_kwargs
 )
 params_h2o_quiet = params.InternalParameters(
-    header=params.Header(data_path=Path('h2o_quiet'),**header_kwargs),
+    header=params.Header(data_path=Path('.vspec/h2o_quiet'),**header_kwargs),
     star = quiet_star,
     psg=psg_params,
     **internal_params_kwargs
 )
 
 params_rock_spotted = params.InternalParameters(
-    header=params.Header(data_path=Path('rock_spotted'),**header_kwargs),
+    header=params.Header(data_path=Path('.vspec/rock_spotted'),**header_kwargs),
     star = spotted_star,
     psg=psg_no_atm,
     **internal_params_kwargs
@@ -215,7 +222,6 @@ params_rock_spotted = params.InternalParameters(
 # We read in the config file and run the model.
 
 model_rock_quiet = ObservationModel(params_rock_quiet)
-model_rock_quiet.bin_spectra()
 model_rock_quiet.build_planet()
 model_rock_quiet.build_spectra()
 
@@ -226,7 +232,7 @@ model_rock_quiet.build_spectra()
 # We can use VSPEC to read in the synthetic
 # data we just created.
 
-data_rock_quiet = PhaseAnalyzer(model_rock_quiet.dirs['all_model'])
+data_rock_quiet = PhaseAnalyzer(model_rock_quiet.directories['all_model'])
 
 # %%
 # Plot the transit
@@ -280,11 +286,10 @@ plot_transit(data_rock_quiet,'Spotless Star and Bare Rock','xkcd:lavender').show
 # +++++++++++++++++++++++++
 
 model_h2o_quiet = ObservationModel(params_h2o_quiet)
-model_h2o_quiet.bin_spectra()
 model_h2o_quiet.build_planet()
 model_h2o_quiet.build_spectra()
 
-data_h2o_quiet = PhaseAnalyzer(model_h2o_quiet.dirs['all_model'])
+data_h2o_quiet = PhaseAnalyzer(model_h2o_quiet.directories['all_model'])
 
 plot_transit(data_h2o_quiet,'Spotless Star and 1 bar H2O Atmosphere','xkcd:azure').show()
 
@@ -293,11 +298,10 @@ plot_transit(data_h2o_quiet,'Spotless Star and 1 bar H2O Atmosphere','xkcd:azure
 # ++++++++++++++++++++++++
 
 model_rock_spotted = ObservationModel(params_rock_spotted)
-model_rock_spotted.bin_spectra()
 model_rock_spotted.build_planet()
 model_rock_spotted.build_spectra()
 
-data_rock_spotted = PhaseAnalyzer(model_rock_spotted.dirs['all_model'])
+data_rock_spotted = PhaseAnalyzer(model_rock_spotted.directories['all_model'])
 
 plot_transit(data_rock_spotted,'Spotted Star and Bare Rock','xkcd:golden yellow').show()
 

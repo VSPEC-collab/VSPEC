@@ -17,7 +17,7 @@ from pathlib import Path
 from cartopy import crs as ccrs
 
 from VSPEC import ObservationModel,PhaseAnalyzer
-from VSPEC.analysis import GCMdecoder
+from VSPEC.gcm import GCMdecoder
 from VSPEC import params
 from VSPEC.config import MSH
 
@@ -131,11 +131,18 @@ quiet_star = params.StarParameters(
 )
 spotted_star = params.StarParameters(
     spots=params.SpotParameters(
-            'iso', 0.2, 0., 0.*u.s,
-            300*MSH, 0.1,
-            2700*u.K, 2700*u.K,
-            0.01/u.day, 1*MSH/u.day,
-            10*MSH),
+        distribution='iso',
+        initial_coverage=0.2,
+        area_mean=300*MSH,
+        area_logsigma=0.2,
+        teff_umbra=2700*u.K,
+        teff_penumbra=2700*u.K,
+        equillibrium_coverage=0.2,
+        burn_in=0*u.s,
+        growth_rate=0.01/u.day,
+        decay_rate=1*MSH/u.day,
+        initial_area=10*MSH
+    ),
     **star_kwargs
 )
 
@@ -155,13 +162,13 @@ internal_params_kwargs = dict(
 )
 
 params_quiet = params.InternalParameters(
-    header=params.Header(data_path=Path('gj1214_quiet'),**header_kwargs),
+    header=params.Header(data_path=Path('.vspec/gj1214_quiet'),**header_kwargs),
     star = quiet_star,
     **internal_params_kwargs
 )
 
 params_spotted = params.InternalParameters(
-    header=params.Header(data_path=Path('gj1214_spotted'),**header_kwargs),
+    header=params.Header(data_path=Path('.vspec/gj1214_spotted'),**header_kwargs),
     star = spotted_star,
     **internal_params_kwargs
 )
@@ -200,15 +207,14 @@ _=fig.colorbar(im,ax=ax,label='Surface Temperature (K)')
 #
 
 model_quiet = ObservationModel(params=params_quiet)
-# model_quiet.bin_spectra()
-# model_quiet.build_planet()
-# model_quiet.build_spectra()
+model_quiet.build_planet()
+model_quiet.build_spectra()
 
 # %%
 # Plot the lightcurve
 # -------------------
 
-data_quiet = PhaseAnalyzer(model_quiet.dirs['all_model'])
+data_quiet = PhaseAnalyzer(model_quiet.directories['all_model'])
 flux_unit = u.Unit('W m-2 um-1')
 def get_star(data:PhaseAnalyzer):
     i_eclipse1 = np.argmin(data.lightcurve('total',(0,-1))[:data.N_images//4])
@@ -313,11 +319,10 @@ plot_phasecurve(data_quiet).show()
 # are overwriting our old data.
 
 model_spotted = ObservationModel(params_spotted)
-# model_spotted.bin_spectra()
-# model_spotted.build_planet()
-# model_spotted.build_spectra()
+model_spotted.build_planet()
+model_spotted.build_spectra()
 
-data_spotted = PhaseAnalyzer(model_spotted.dirs['all_model'])
+data_spotted = PhaseAnalyzer(model_spotted.directories['all_model'])
 
 # %%
 # Plot the lightcurve, again
