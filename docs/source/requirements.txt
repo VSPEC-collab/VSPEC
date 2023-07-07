@@ -5,3 +5,4 @@ nbsphinx
 nbsphinx-link
 sphinxcontrib-bibtex
 sphinx-gallery
+furo
