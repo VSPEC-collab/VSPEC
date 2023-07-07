@@ -1,6 +1,7 @@
 .. image:: https://vspec.readthedocs.io/en/latest/_images/vspec_logo.png
     :width: 400
     :alt: VSPEC Logo
+    :align: center
 
 |Documentation Status| |MIT license|
 
