@@ -16,7 +16,7 @@ build:
     # golang: "1.19"
   jobs:
     pre_install:
-      - sudo apt -y install libgeos-dev
+      - apt -y install libgeos-dev
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
