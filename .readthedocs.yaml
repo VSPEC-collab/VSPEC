@@ -2,6 +2,17 @@
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
+##########
+# Because VSPEC requires PSG installed via docker, the examples use cartopy, among other things,
+# it is much easier to build the docs locally, then upload them to readthedocs. This file does
+# just that for the docs that are saved in docs/_pre_built_html/X/ where X is the verison below.
+#
+# The docs must be placed there manually from docs/build/html/
+# Please only do this for new releases. VSPEC already takes up so much storage.
+#
+# -- Ted Johnson, July 7 2023
+##########
+
 # Required
 version: 2
 
@@ -10,32 +21,6 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.9"
-    # You can also specify other tool versions:
-    # nodejs: "19"
-    # rust: "1.64"
-    # golang: "1.19"
   commands:
     - mkdir --parents _readthedocs/html/
     - cp --recursive docs/_pre_built_html/0.2/* _readthedocs/html/
-
-
-# # Build documentation in the docs/ directory with Sphinx
-# sphinx:
-#    builder: html
-#    configuration: docs/source/conf.py
-
-# # If using Sphinx, optionally build your docs in additional formats such as PDF
-# # formats:
-# #    - pdf
-
-# # Optionally declare the Python requirements required to build your docs
-# # python:
-# #    install:
-# #    - requirements: docs/source/requirements.txt
-# #    - requirements: requirements.txt
-# #    - method: pip
-# #      path: .
-    
-
-# conda:
-#   environment: environment.yaml
