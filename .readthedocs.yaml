@@ -31,3 +31,7 @@ python:
    - requirements: requirements.txt
    - method: pip
      path: .
+    install:
+    - requirements: docs/source/requirements_conda.txt
+    - method: conda
+      path: .
