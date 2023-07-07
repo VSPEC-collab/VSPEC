@@ -7,4 +7,7 @@ pathlib
 tqdm
 h5py
 tinygp
+jax
+netCDF4
+requests
 git+https://github.com/tedjohnson12/xoflares.git@numpy-only
