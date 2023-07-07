@@ -1,7 +1,9 @@
 ﻿Molecule
 ============================
 
-.. autoclass:: VSPEC.gcm.structure.Molecule
+.. currentmodule:: VSPEC.gcm.structure
+
+.. autoclass:: Molecule
     :show-inheritance:
     :members:
 

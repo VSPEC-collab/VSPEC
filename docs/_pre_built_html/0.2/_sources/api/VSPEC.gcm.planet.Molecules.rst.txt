@@ -1,7 +1,9 @@
 ﻿Molecules
 ==========================
 
-.. autoclass:: VSPEC.gcm.planet.Molecules
+.. currentmodule:: VSPEC.gcm.planet
+
+.. autoclass:: Molecules
     :show-inheritance:
     :members:
 

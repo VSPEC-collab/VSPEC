@@ -1,7 +1,9 @@
 ﻿PSGtable
 ==========================
 
-.. autoclass:: VSPEC.params.base.PSGtable
+.. currentmodule:: VSPEC.params.base
+
+.. autoclass:: PSGtable
     :show-inheritance:
     :members:
 

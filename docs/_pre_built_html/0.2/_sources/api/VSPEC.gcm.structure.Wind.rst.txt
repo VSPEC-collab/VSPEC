@@ -1,7 +1,9 @@
 ﻿Wind
 ========================
 
-.. autoclass:: VSPEC.gcm.structure.Wind
+.. currentmodule:: VSPEC.gcm.structure
+
+.. autoclass:: Wind
     :show-inheritance:
     :members:
 

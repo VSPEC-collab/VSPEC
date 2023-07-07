@@ -1,7 +1,9 @@
 ﻿TemperatureMap
 ======================================
 
-.. autoclass:: VSPEC.gcm.heat_transfer.TemperatureMap
+.. currentmodule:: VSPEC.gcm.heat_transfer
+
+.. autoclass:: TemperatureMap
     :show-inheritance:
     :members:
 

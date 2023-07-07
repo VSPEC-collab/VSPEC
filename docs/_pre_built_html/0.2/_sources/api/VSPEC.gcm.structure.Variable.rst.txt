@@ -1,7 +1,9 @@
 ﻿Variable
 ============================
 
-.. autoclass:: VSPEC.gcm.structure.Variable
+.. currentmodule:: VSPEC.gcm.structure
+
+.. autoclass:: Variable
     :show-inheritance:
     :members:
 

@@ -1,7 +1,9 @@
 ﻿vspecGCM
 =========================
 
-.. autoclass:: VSPEC.params.gcm.vspecGCM
+.. currentmodule:: VSPEC.params.gcm
+
+.. autoclass:: vspecGCM
     :show-inheritance:
     :members:
 

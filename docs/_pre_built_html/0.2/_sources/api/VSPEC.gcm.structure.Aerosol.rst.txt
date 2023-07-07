@@ -1,7 +1,9 @@
 ﻿Aerosol
 ===========================
 
-.. autoclass:: VSPEC.gcm.structure.Aerosol
+.. currentmodule:: VSPEC.gcm.structure
+
+.. autoclass:: Aerosol
     :show-inheritance:
     :members:
 

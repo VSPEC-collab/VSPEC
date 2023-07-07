@@ -1,7 +1,9 @@
 ﻿ccdParameters
 ======================================
 
-.. autoclass:: VSPEC.params.observation.ccdParameters
+.. currentmodule:: VSPEC.params.observation
+
+.. autoclass:: ccdParameters
     :show-inheritance:
     :members:
 

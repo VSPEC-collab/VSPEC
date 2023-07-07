@@ -1,7 +1,9 @@
 ﻿Facula
 ========================================
 
-.. autoclass:: VSPEC.variable_star_model.faculae.Facula
+.. currentmodule:: VSPEC.variable_star_model.faculae
+
+.. autoclass:: Facula
     :show-inheritance:
     :members:
 

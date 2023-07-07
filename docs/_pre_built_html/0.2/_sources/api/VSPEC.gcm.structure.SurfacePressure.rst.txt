@@ -1,7 +1,9 @@
 ﻿SurfacePressure
 ===================================
 
-.. autoclass:: VSPEC.gcm.structure.SurfacePressure
+.. currentmodule:: VSPEC.gcm.structure
+
+.. autoclass:: SurfacePressure
     :show-inheritance:
     :members:
 

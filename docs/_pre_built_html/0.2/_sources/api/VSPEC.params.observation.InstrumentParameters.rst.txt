@@ -1,7 +1,9 @@
 ﻿InstrumentParameters
 =============================================
 
-.. autoclass:: VSPEC.params.observation.InstrumentParameters
+.. currentmodule:: VSPEC.params.observation
+
+.. autoclass:: InstrumentParameters
     :show-inheritance:
     :members:
 

@@ -1,7 +1,9 @@
 ﻿ObservationParameters
 ==============================================
 
-.. autoclass:: VSPEC.params.observation.ObservationParameters
+.. currentmodule:: VSPEC.params.observation
+
+.. autoclass:: ObservationParameters
     :show-inheritance:
     :members:
 
