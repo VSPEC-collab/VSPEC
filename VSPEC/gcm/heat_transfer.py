@@ -59,7 +59,7 @@ def get_psi(lon:u.Quantity):
     """
     unit = u.deg
     alon = np.atleast_1d(lon.to_value(unit))
-    return np.where(alon<=180,alon,alon-360)*unit
+    return (np.where(alon<=180,alon,alon-360)*unit).to_value(u.rad)
 
 def pcos(x:u.Quantity):
     """
@@ -276,6 +276,8 @@ class TemperatureMap:
         astropy.units.Quantity
             The surface temperature at the desired points.
         """
+        if isinstance(lon,u.Quantity):
+            lon = get_psi(lon)
         tmap = self.equator(lon)*np.cos(lat)**0.25 * self.t0
         tmap = np.where(tmap > self.min_temp,tmap,self.min_temp)
         return tmap

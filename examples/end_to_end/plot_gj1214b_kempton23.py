@@ -55,7 +55,7 @@ planet_rad = 2.742*u.R_earth
 orbit_rad = 0.01490*u.AU
 orbit_period = 1.58040433*u.day
 planet_rot_period = orbit_period
-star_rot_period = 124.7 * u.day
+star_rot_period = 50 * u.day
 planet_mass = 8.17*u.M_earth
 star_mass = 0.178*u.M_sun
 inclination = 88.7*u.deg
@@ -139,8 +139,8 @@ spotted_star = params.StarParameters(
         teff_penumbra=2700*u.K,
         equillibrium_coverage=0.2,
         burn_in=0*u.s,
-        growth_rate=0.01/u.day,
-        decay_rate=1*MSH/u.day,
+        growth_rate=0.0/u.day,
+        decay_rate=0*MSH/u.day,
         initial_area=10*MSH
     ),
     **star_kwargs

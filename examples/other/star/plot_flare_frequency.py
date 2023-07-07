@@ -73,8 +73,7 @@ axes[1].set_xlabel('Energy (erg)')
 axes[1].set_ylabel('Observed/Expected')
 axes[1].set_xscale('log')
 axes[1].axhline(1, c='k', ls='--')
-axes[1].set_xlim(axes[0].get_xlim())
-0
+_=axes[1].set_xlim(axes[0].get_xlim())
 # %%
 # Look for clustering
 # -------------------
@@ -87,5 +86,4 @@ tpeaks = np.array(
 tpeaks = np.sort(tpeaks)
 tdiffs = np.diff(tpeaks)
 plt.hist(tdiffs, bins=np.logspace(-3, 3, 30))
-plt.xscale('log')
-0
+_=plt.xscale('log')

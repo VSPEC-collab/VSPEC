@@ -2,7 +2,7 @@
 Plot the effect of facula depth on it's lightcurve
 ==================================================
 
-This example create toy lightcurves for a set of faculae.
+This example creates toy lightcurves for a set of faculae.
 """
 
 from astropy import units as u

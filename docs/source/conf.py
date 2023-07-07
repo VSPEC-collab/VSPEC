@@ -56,9 +56,10 @@ bibtex_bibfiles = ['refs.bib']
 todo_include_todos = True
 # Settings for sphinx gallery
 sphinx_gallery_conf = {
-     'examples_dirs': '../../examples',   # path to your example scripts
-     'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
+     'examples_dirs': ['../../examples/other','../../examples/end_to_end'],   # path to your example scripts
+     'gallery_dirs': ['auto_examples/other','auto_examples/end_to_end'],  # path to where to save gallery generated output
      'matplotlib_animations': True,
+    #  'run_stale_examples': True,
 }
 
 
