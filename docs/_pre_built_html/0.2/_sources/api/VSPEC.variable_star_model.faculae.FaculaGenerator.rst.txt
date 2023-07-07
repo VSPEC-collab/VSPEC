@@ -1,0 +1,7 @@
+﻿FaculaGenerator
+=================================================
+
+.. autoclass:: VSPEC.variable_star_model.faculae.FaculaGenerator
+    :show-inheritance:
+    :members:
+

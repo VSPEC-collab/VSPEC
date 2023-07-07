@@ -1,0 +1,7 @@
+﻿StellarFlare
+=============================================
+
+.. autoclass:: VSPEC.variable_star_model.flares.StellarFlare
+    :show-inheritance:
+    :members:
+

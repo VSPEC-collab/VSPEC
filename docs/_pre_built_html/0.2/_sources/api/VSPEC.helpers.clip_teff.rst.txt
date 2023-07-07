@@ -1,0 +1,6 @@
+clip_teff
+=========
+
+.. currentmodule:: VSPEC.helpers
+
+.. autofunction:: clip_teff

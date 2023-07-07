@@ -1,0 +1,7 @@
+﻿GravityParameters
+=====================================
+
+.. autoclass:: VSPEC.params.planet.GravityParameters
+    :show-inheritance:
+    :members:
+

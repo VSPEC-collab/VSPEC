@@ -1,0 +1,7 @@
+﻿GCMdecoder
+====================
+
+.. autoclass:: VSPEC.gcm.GCMdecoder
+    :show-inheritance:
+    :members:
+

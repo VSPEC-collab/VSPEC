@@ -1,0 +1,7 @@
+﻿binaryGCM
+==========================
+
+.. autoclass:: VSPEC.params.gcm.binaryGCM
+    :show-inheritance:
+    :members:
+

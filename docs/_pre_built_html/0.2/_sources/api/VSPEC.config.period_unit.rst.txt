@@ -1,0 +1,6 @@
+period_unit
+===========
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: period_unit

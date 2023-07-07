@@ -1,0 +1,7 @@
+﻿ObservationParameters
+==============================================
+
+.. autoclass:: VSPEC.params.observation.ObservationParameters
+    :show-inheritance:
+    :members:
+

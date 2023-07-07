@@ -1,0 +1,7 @@
+﻿Molecule
+============================
+
+.. autoclass:: VSPEC.gcm.structure.Molecule
+    :show-inheritance:
+    :members:
+

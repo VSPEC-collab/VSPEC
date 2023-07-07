@@ -1,0 +1,7 @@
+﻿FlareParameters
+====================================
+
+.. autoclass:: VSPEC.params.stellar.FlareParameters
+    :show-inheritance:
+    :members:
+

@@ -1,0 +1,7 @@
+﻿Aerosols
+=========================
+
+.. autoclass:: VSPEC.gcm.planet.Aerosols
+    :show-inheritance:
+    :members:
+

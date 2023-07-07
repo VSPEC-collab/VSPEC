@@ -1,0 +1,6 @@
+psg_encoding
+============
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: psg_encoding

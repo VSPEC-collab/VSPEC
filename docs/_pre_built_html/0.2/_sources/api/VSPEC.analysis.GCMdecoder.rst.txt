@@ -1,0 +1,57 @@
+GCMdecoder
+==========
+
+.. currentmodule:: VSPEC.analysis
+
+.. autoclass:: GCMdecoder
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~GCMdecoder.DOUBLE
+      ~GCMdecoder.FLAT
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~GCMdecoder.copy_config
+      ~GCMdecoder.from_psg
+      ~GCMdecoder.get_2d_size
+      ~GCMdecoder.get_3d_size
+      ~GCMdecoder.get_aerosols
+      ~GCMdecoder.get_alt
+      ~GCMdecoder.get_column_clouds
+      ~GCMdecoder.get_column_density
+      ~GCMdecoder.get_lats
+      ~GCMdecoder.get_lons
+      ~GCMdecoder.get_mean_molec_mass
+      ~GCMdecoder.get_molecules
+      ~GCMdecoder.get_shape
+      ~GCMdecoder.remove
+      ~GCMdecoder.rename_var
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: DOUBLE
+   .. autoattribute:: FLAT
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: copy_config
+   .. automethod:: from_psg
+   .. automethod:: get_2d_size
+   .. automethod:: get_3d_size
+   .. automethod:: get_aerosols
+   .. automethod:: get_alt
+   .. automethod:: get_column_clouds
+   .. automethod:: get_column_density
+   .. automethod:: get_lats
+   .. automethod:: get_lons
+   .. automethod:: get_mean_molec_mass
+   .. automethod:: get_molecules
+   .. automethod:: get_shape
+   .. automethod:: remove
+   .. automethod:: rename_var

@@ -1,0 +1,7 @@
+﻿APIkey
+=======================
+
+.. autoclass:: VSPEC.params.gcm.APIkey
+    :show-inheritance:
+    :members:
+

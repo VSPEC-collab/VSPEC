@@ -1,0 +1,7 @@
+﻿ObservationModel
+===========================
+
+.. autoclass :: VSPEC.main.ObservationModel
+    :show-inheritance:
+    :members:
+

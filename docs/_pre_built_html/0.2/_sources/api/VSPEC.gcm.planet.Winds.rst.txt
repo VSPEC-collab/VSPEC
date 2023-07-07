@@ -1,0 +1,7 @@
+﻿Winds
+======================
+
+.. autoclass:: VSPEC.gcm.planet.Winds
+    :show-inheritance:
+    :members:
+

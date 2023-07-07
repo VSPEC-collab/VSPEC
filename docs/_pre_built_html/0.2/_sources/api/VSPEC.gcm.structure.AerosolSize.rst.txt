@@ -1,0 +1,7 @@
+﻿AerosolSize
+===============================
+
+.. autoclass:: VSPEC.gcm.structure.AerosolSize
+    :show-inheritance:
+    :members:
+

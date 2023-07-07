@@ -1,0 +1,7 @@
+﻿FaculaCollection
+==================================================
+
+.. autoclass:: VSPEC.variable_star_model.faculae.FaculaCollection
+    :show-inheritance:
+    :members:
+

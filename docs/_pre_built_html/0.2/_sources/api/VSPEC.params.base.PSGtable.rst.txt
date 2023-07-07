@@ -1,0 +1,7 @@
+﻿PSGtable
+==========================
+
+.. autoclass:: VSPEC.params.base.PSGtable
+    :show-inheritance:
+    :members:
+

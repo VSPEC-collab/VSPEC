@@ -1,0 +1,6 @@
+MSH
+===
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: MSH

@@ -1,0 +1,7 @@
+﻿Emissivity
+==============================
+
+.. autoclass:: VSPEC.gcm.structure.Emissivity
+    :show-inheritance:
+    :members:
+

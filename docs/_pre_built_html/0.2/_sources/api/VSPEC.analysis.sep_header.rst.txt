@@ -1,0 +1,6 @@
+sep_header
+==========
+
+.. currentmodule:: VSPEC.analysis
+
+.. autofunction:: sep_header

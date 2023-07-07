@@ -1,0 +1,7 @@
+﻿Albedo
+==========================
+
+.. autoclass:: VSPEC.gcm.structure.Albedo
+    :show-inheritance:
+    :members:
+

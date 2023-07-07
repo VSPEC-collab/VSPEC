@@ -1,0 +1,7 @@
+﻿GranulationParameters
+==========================================
+
+.. autoclass:: VSPEC.params.stellar.GranulationParameters
+    :show-inheritance:
+    :members:
+

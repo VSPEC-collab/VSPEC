@@ -1,0 +1,7 @@
+﻿SpotParameters
+===================================
+
+.. autoclass:: VSPEC.params.stellar.SpotParameters
+    :show-inheritance:
+    :members:
+

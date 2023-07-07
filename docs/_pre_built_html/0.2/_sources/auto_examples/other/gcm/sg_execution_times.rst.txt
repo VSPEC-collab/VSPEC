@@ -1,0 +1,13 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_other_gcm_sg_execution_times:
+
+
+Computation times
+=================
+**00:10.916** total execution time for **auto_examples_other_gcm** files:
+
++-----------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_other_gcm_plot_cowan2011.py` (``plot_cowan2011.py``) | 00:10.916 | 0.0 MB |
++-----------------------------------------------------------------------------------+-----------+--------+

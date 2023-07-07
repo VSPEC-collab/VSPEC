@@ -1,0 +1,7 @@
+﻿CoronagraphParameters
+==============================================
+
+.. autoclass:: VSPEC.params.observation.CoronagraphParameters
+    :show-inheritance:
+    :members:
+

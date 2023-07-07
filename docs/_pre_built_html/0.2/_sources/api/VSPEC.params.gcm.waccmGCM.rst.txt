@@ -1,0 +1,7 @@
+﻿waccmGCM
+=========================
+
+.. autoclass:: VSPEC.params.gcm.waccmGCM
+    :show-inheritance:
+    :members:
+

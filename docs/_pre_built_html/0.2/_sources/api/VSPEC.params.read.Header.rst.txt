@@ -1,0 +1,7 @@
+﻿Header
+========================
+
+.. autoclass:: VSPEC.params.read.Header
+    :show-inheritance:
+    :members:
+

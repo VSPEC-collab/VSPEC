@@ -1,0 +1,7 @@
+﻿VSPEC.params.gcmParameters
+==========================
+
+.. autoclass :: VSPEC.params.gcmParameters
+    :show-inheritance:
+    :members:
+

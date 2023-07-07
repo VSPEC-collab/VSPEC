@@ -1,0 +1,7 @@
+﻿StarParameters
+===================================
+
+.. autoclass:: VSPEC.params.stellar.StarParameters
+    :show-inheritance:
+    :members:
+

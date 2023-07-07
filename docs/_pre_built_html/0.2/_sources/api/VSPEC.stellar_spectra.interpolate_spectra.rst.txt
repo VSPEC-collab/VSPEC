@@ -1,0 +1,6 @@
+interpolate_spectra
+===================
+
+.. currentmodule:: VSPEC.stellar_spectra
+
+.. autofunction:: interpolate_spectra

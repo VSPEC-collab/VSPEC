@@ -1,0 +1,6 @@
+get_coords
+==========
+
+.. currentmodule:: VSPEC.waccm.read_nc
+
+.. autofunction:: get_coords

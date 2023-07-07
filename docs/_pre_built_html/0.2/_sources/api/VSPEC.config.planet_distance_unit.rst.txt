@@ -1,0 +1,6 @@
+planet_distance_unit
+====================
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: planet_distance_unit

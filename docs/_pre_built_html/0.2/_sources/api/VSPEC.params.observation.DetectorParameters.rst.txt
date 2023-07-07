@@ -1,0 +1,7 @@
+﻿DetectorParameters
+===========================================
+
+.. autoclass:: VSPEC.params.observation.DetectorParameters
+    :show-inheritance:
+    :members:
+

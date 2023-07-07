@@ -1,0 +1,6 @@
+N_ZFILL
+=======
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: N_ZFILL

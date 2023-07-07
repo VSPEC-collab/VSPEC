@@ -1,0 +1,7 @@
+﻿VSPEC.params.ccdParameters
+==========================
+
+.. autoclass :: VSPEC.params.ccdParameters
+    :show-inheritance:
+    :members:
+

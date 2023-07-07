@@ -1,0 +1,6 @@
+get_binary_array
+================
+
+.. currentmodule:: VSPEC.waccm.write_psg
+
+.. autofunction:: get_binary_array

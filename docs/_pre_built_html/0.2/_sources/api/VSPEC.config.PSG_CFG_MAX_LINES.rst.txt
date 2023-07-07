@@ -1,0 +1,6 @@
+PSG_CFG_MAX_LINES
+=================
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: PSG_CFG_MAX_LINES

@@ -1,0 +1,6 @@
+isclose
+=======
+
+.. currentmodule:: VSPEC.helpers
+
+.. autofunction:: isclose

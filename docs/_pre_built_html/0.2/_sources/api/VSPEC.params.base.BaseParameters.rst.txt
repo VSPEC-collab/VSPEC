@@ -1,0 +1,7 @@
+﻿BaseParameters
+================================
+
+.. autoclass:: VSPEC.params.base.BaseParameters
+    :show-inheritance:
+    :members:
+

@@ -1,0 +1,6 @@
+RAW_PHOENIX_PATH
+================
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: RAW_PHOENIX_PATH

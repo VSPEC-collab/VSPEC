@@ -1,0 +1,7 @@
+﻿VSPEC.params.InternalParameters
+===============================
+
+.. autoclass :: VSPEC.params.InternalParameters
+    :show-inheritance:
+    :members:
+

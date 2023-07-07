@@ -1,0 +1,7 @@
+﻿PlanetParameters
+====================================
+
+.. autoclass:: VSPEC.params.planet.PlanetParameters
+    :show-inheritance:
+    :members:
+

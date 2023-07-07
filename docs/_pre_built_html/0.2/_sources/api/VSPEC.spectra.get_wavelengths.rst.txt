@@ -1,0 +1,6 @@
+get_wavelengths
+===============
+
+.. currentmodule:: VSPEC.spectra
+
+.. autofunction:: get_wavelengths

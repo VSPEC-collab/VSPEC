@@ -1,0 +1,6 @@
+get_cached_file_dir
+===================
+
+.. currentmodule:: VSPEC.stellar_spectra
+
+.. autofunction:: get_cached_file_dir

@@ -1,0 +1,7 @@
+﻿SurfaceTemperature
+======================================
+
+.. autoclass:: VSPEC.gcm.structure.SurfaceTemperature
+    :show-inheritance:
+    :members:
+

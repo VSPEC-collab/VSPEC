@@ -1,0 +1,7 @@
+﻿SpotCollection
+==============================================
+
+.. autoclass:: VSPEC.variable_star_model.spots.SpotCollection
+    :show-inheritance:
+    :members:
+

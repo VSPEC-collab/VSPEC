@@ -1,0 +1,6 @@
+bin_spectra
+===========
+
+.. currentmodule:: VSPEC.spectra
+
+.. autofunction:: bin_spectra

@@ -1,0 +1,7 @@
+﻿Planet
+================
+
+.. autoclass:: VSPEC.gcm.Planet
+    :show-inheritance:
+    :members:
+

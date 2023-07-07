@@ -1,0 +1,6 @@
+psg_aerosol_size_unit
+=====================
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: psg_aerosol_size_unit
