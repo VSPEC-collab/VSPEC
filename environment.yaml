@@ -22,6 +22,7 @@ dependencies:
     - jax
     - netCDF4
     - requests
+    - json
     - git+https://github.com/tedjohnson12/xoflares.git@numpy-only
     - sphinxcontrib-napoleon
     - sphinx-automodapi
