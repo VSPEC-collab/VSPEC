@@ -2,12 +2,10 @@
     :width: 400
     :alt: VSPEC Logo
 
-|Documentation Status|
+|Documentation Status| |MIT license|
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/vspec/badge/?version=latest
    :target: http://vspec.readthedocs.io/?badge=latest
-
-|MIT license|
 
 .. |MIT license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://lbesson.mit-license.org/
