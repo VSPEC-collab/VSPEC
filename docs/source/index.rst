@@ -29,6 +29,7 @@ but the code is much more general.
    :caption: Contents:
 
    intro
+   getting_started
    components
    modules/params
    references
@@ -36,9 +37,10 @@ but the code is much more general.
 Examples
 ========
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 0
 
-   auto_examples/index   
+   auto_examples/end_to_end/index
+   auto_examples/other/index
 
 
 

@@ -1,0 +1,36 @@
+none:
+  distribution: iso
+  initial_coverage: 0.0
+  area_mean: 500 msh
+  area_logsigma: 0.2
+  teff_umbra: 2500 K
+  teff_penumbra: 2700 K
+  equillibrium_coverage: 0.0
+  burn_in: 0 day
+  growth_rate: 0.0 1/day
+  decay_rate: 0.0 msh/day
+  initial_area: 10 msh
+mdwarf:
+  distribution: iso
+  initial_coverage: 0.2
+  area_mean: 500 msh
+  area_logsigma: 0.2
+  teff_umbra: 2500 K
+  teff_penumbra: 2700 K
+  equillibrium_coverage: 0.0
+  burn_in: 0 day
+  growth_rate: 0.0 1/day
+  decay_rate: 0.0 msh/day
+  initial_area: 10 msh
+solar:
+  distribution: solar
+  initial_coverage: 0.1
+  area_mean: 500 msh
+  area_logsigma: 0.2
+  teff_umbra: 2500 K
+  teff_penumbra: 2700 K
+  equillibrium_coverage: 0.1
+  burn_in: 30 day
+  growth_rate: 0.52 1/day
+  decay_rate: 10.8 msh/day
+  initial_area: 10 msh

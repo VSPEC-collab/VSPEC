@@ -2,7 +2,6 @@
 
 This code governs the behavior of flares.
 """
-from copy import deepcopy
 from typing import List
 import typing as Typing
 
@@ -10,8 +9,9 @@ import numpy as np
 from astropy import units as u, constants as const
 from astropy.units.quantity import Quantity
 
+from VSPEC.params import FlareParameters
+
 from xoflares.xoflares import _flareintegralnp as flareintegral, get_light_curvenp
-from VSPEC.helpers import to_float
 
 
 class StellarFlare:
@@ -20,32 +20,32 @@ class StellarFlare:
 
     Parameters
     ----------
-    fwhm : astropy.units.Quantity 
+    fwhm : astropy.units.Quantity
         Full-width-half-maximum of the flare
-    energy : astropy.units.Quantity 
+    energy : astropy.units.Quantity
         Time-integrated bolometric energy
-    lat : astropy.units.Quantity 
+    lat : astropy.units.Quantity
         Latitude of flare on star
-    lon : astropy.units.Quantity 
+    lon : astropy.units.Quantity
         Longitude of flare on star
-    Teff : astropy.units.Quantity 
+    Teff : astropy.units.Quantity
         Blackbody temperature
-    tpeak : astropy.units.Quantity 
+    tpeak : astropy.units.Quantity
         Time of the flare peak
 
     Attributes
     ----------
-    fwhm : astropy.units.Quantity 
+    fwhm : astropy.units.Quantity
         Full-width-half-maximum of the flare
-    energy : astropy.units.Quantity 
+    energy : astropy.units.Quantity
         Time-integrated bolometric energy
-    lat : astropy.units.Quantity 
+    lat : astropy.units.Quantity
         Latitude of flare on star
-    lon : astropy.units.Quantity 
+    lon : astropy.units.Quantity
         Longitude of flare on star
-    Teff : astropy.units.Quantity 
+    Teff : astropy.units.Quantity
         Blackbody temperature
-    tpeak : astropy.units.Quantity 
+    tpeak : astropy.units.Quantity
         Time of the flare peak
 
     Notes
@@ -75,7 +75,7 @@ class StellarFlare:
 
         Returns
         -------
-        astropy.units.Quantity 
+        astropy.units.Quantity
             Peak flare area
         """
         time_area = self.energy/const.sigma_sb/(self.Teff**4)
@@ -102,10 +102,12 @@ class StellarFlare:
         t_unit = u.day  # this is the unit of xoflares
         a_unit = u.km**2
         peak_area = self.calc_peak_area()
-        areas = get_light_curvenp(to_float(time, t_unit),
-                                  [to_float(self.tpeak, t_unit)],
-                                  [to_float(self.fwhm, t_unit)],
-                                  [to_float(peak_area, a_unit)])
+        areas = get_light_curvenp(
+            time.to_value(t_unit),
+            [self.tpeak.to_value(t_unit)],
+            [self.fwhm.to_value(t_unit)],
+            [peak_area.to_value(a_unit)]
+        )
         return areas * a_unit
 
     def get_timearea(self, time: Quantity[u.hr]):
@@ -114,7 +116,7 @@ class StellarFlare:
 
         Parameters
         ----------
-        time : astropy.units.Quantity  
+        time : astropy.units.Quantity
             the times at which to sample the area.
 
         Returns
@@ -129,336 +131,383 @@ class StellarFlare:
 
 class FlareGenerator:
     """
-    Class to generate flare events and their characteristics.
+    Generator for flare events and their characteristics.
 
     Parameters
     ----------
-    stellar_teff : astropy.units.Quantity 
-        Temperature of the star.
-    stellar_rot_period : astropy.units.Quantity 
-        Rotation period of the star.
-    prob_following : float, default=0.25
-        Probability of a flare being closely followed by another flare.
-    mean_teff : astropy.units.Quantity , default=9000*u.K
-        Mean temperature of the set of flares.
-    sigma_teff : astropy.units.Quantity , default=500*u.K
-        Standard deviation of the flare temperatures.
-    mean_log_fwhm_days : float, default=-1.00
-        Mean of the log(fwhm/day) distribution.
-    sigma_log_fwhm_days : float, default=0.42
-        Standard deviation of the log(fwhm/day) distribution.
-    log_E_erg_max : float, default=36.0
-        Maximum log(E/erg) to draw from.
-    log_E_erg_min : float, default=33.0
-        Minimum log(E/erg) to draw from.
-    log_E_erg_Nsteps : int, default=100
-        Number of samples in the log(E/erg) array. 0 disables flares.
+    dist_teff_mean : astropy.units.Quantity
+        The mean of the temperature distribution.
+    dist_teff_sigma : astropy.units.Quantity
+        The standard deviation of the temperature distribution.
+    dist_fwhm_mean : astropy.units.Quantity
+        The mean of the FWHM distribution.
+    dist_fwhm_logsigma : float
+        The standard deviation of the logorithm of the FWHM distribution in dex.
+    alpha : float, default=-0.829
+        The slope of the log frequency - log energy relationship.
+    beta : float, default=26.87
+        The y-intercept of the log frequency - log energy relationship.
+    min_energy : astropy.units.Quantity, default=1e33 erg
+        The minimum energy to consider. Set to ``np.inf*u.erg`` to disable flares.
+    cluster_size : int, default=2
+        The typical size of flare clusters.
+    rng : numpy.random.Generator, default=numpy.random.default_rng()
+        The random number generator instance to use.
 
     Attributes
     ----------
-    stellar_teff : astropy.units.Quantity 
-        Temperature of the star.
-    stellar_rot_period : astropy.units.Quantity 
-        Rotation period of the star.
-    prob_following : float
-        Probability of a flare being closely followed by another flare.
-    mean_teff : astropy.units.Quantity 
-        Mean temperature of the set of flares.
-    sigma_teff : astropy.units.Quantity 
-        Standard deviation of the flare temperatures.
-    mean_log_fwhm_days : float
-        Mean of the log(fwhm/day) distribution.
-    sigma_log_fwhm_days : float
-        Standard deviation of the log(fwhm/day) distribution.
-    log_E_erg_max : float
-        Maximum log(E/erg) to draw from.
-    log_E_erg_min : float
-        Minimum log(E/erg) to draw from.
-    log_E_erg_Nsteps : int
-        Number of samples in the log(E/erg) array. 0 disables flares.
+    energy_unit
+    time_unit
+    temperature_unit
+    dist_teff_mean : astropy.units.Quantity
+        The mean of the temperature distribution.
+    dist_teff_sigma : astropy.units.Quantity
+        The standard deviation of the temperature distribution.
+    dist_fwhm_mean : astropy.units.Quantity
+        The mean of the FWHM distribution.
+    dist_fwhm_logsigma : float
+        The standard deviation of the logorithm of the FWHM distribution in dex.
+    alpha : float
+        The slope of the log frequency - log energy relationship.
+    beta : float
+        The y-intercept of the log frequency - log energy relationship.
+    min_energy : astropy.units.Quantity
+        The minimum energy to consider. Set to ``np.inf*u.erg`` to disable flares.
+    cluster_size : int
+        The typical size of flare clusters.
+    rng : numpy.random.Generator
+        The random number generator instance to use.
 
     Notes
     -----
-    FWHM data is taken from a study of TESS flare events (see Table 2, [1]_).
+    Relationship between flare frequency is defined as
 
-    References
-    ----------
-    .. [1] G\u00FCnther, M. N., Zhan, Z., Seager, S., et al. 2020, AJ, 159, 60
+    .. math::
+        \\log{(f(E \\ge E_0)~\\text{[day]})} = \\beta + \\alpha \\log{(E_0/\\text{[erg]})}
+
+    by :cite:t:`2022AJ....164..213G`. Their study of TESS flare rates fits :math:`\\alpha = -0.829`
+    and :math:`\\beta = 26.87`, which we use as the default values. This relationship is valid for
+    :math:`E > 10^{33}` erg, which we use as the default minimum considered energy.
+
+    To disable flares, set ``min_energy`` to infinity so that the expected number of flares is 0.
 
     """
+    energy_unit = u.erg
+    """
+    The energy unit to standardize coversions to floats and logs.
 
-    def __init__(self, stellar_teff: Quantity, stellar_rot_period: Quantity, prob_following=0.25,
-                 mean_teff=9000*u.K, sigma_teff=500*u.K, mean_log_fwhm_days=-1.00, sigma_log_fwhm_days=0.42,
-                 log_E_erg_max=36, log_E_erg_min=33, log_E_erg_Nsteps=100):
-        self.stellar_teff = stellar_teff
-        self.stellar_rot_period = stellar_rot_period
-        self.prob_following = prob_following
-        self.mean_teff = mean_teff
-        self.sigma_teff = sigma_teff
-        self.mean_log_fwhm_days = mean_log_fwhm_days
-        self.sigma_log_fwhm_days = sigma_log_fwhm_days
-        self.log_E_erg_max = log_E_erg_max
-        self.log_E_erg_min = log_E_erg_min
-        self.log_E_erg_Nsteps = log_E_erg_Nsteps
+    :type: astropy.units.Quantity
+    """
+    time_unit = u.day
+    """
+    The time unit to standardize coversions to floats and logs.
 
-    def powerlaw(self, E: Quantity):
+    :type: astropy.units.Quantity
+    """
+    temperature_unit = u.K
+    """
+    The temperature unit to standardize coversions to floats and logs.
+
+    :type: astropy.units.Quantity
+    """
+
+    def __init__(
+        self,
+        dist_teff_mean: u.Quantity,
+        dist_teff_sigma: u.Quantity,
+        dist_fwhm_mean: u.Quantity,
+        dist_fwhm_logsigma: float,
+        alpha: float = -0.829,
+        beta: float = 26.87,
+        min_energy: u.Quantity = 1e33*u.erg,
+        cluster_size: int = 2,
+        rng: np.random.Generator = np.random.default_rng()
+    ):
+        self.dist_teff_mean = dist_teff_mean
+        self.dist_teff_sigma = dist_teff_sigma
+        self.dist_fwhm_mean = dist_fwhm_mean
+        self.dist_fwhm_logsigma = dist_fwhm_logsigma
+        self.min_energy = min_energy
+        self.cluster_size = cluster_size
+        self.alpha = alpha
+        self.beta = beta
+        self.rng = rng
+
+    @classmethod
+    def from_params(cls, flareparams: FlareParameters, rng: np.random.Generator):
         """
-        Generate a flare frequency distribution.
-        Based on Gao+2022 TESS corrected data
+        Load a ``FlareGenerator`` from a ``FlareParameters`` instance.
 
         Parameters
         ----------
-        E : astropy.units.Quantity , shape=(M,)
-            Energy coordinates at which to calculate frequencies.
+        flareparams : FlareParameters
+            The object to load from.
+        rng : numpy.random.Generator
+            The random number generator to use.
+        """
+        return cls(
+            dist_teff_mean=flareparams.dist_teff_mean,
+            dist_teff_sigma=flareparams.dist_teff_sigma,
+            dist_fwhm_mean=flareparams.dist_fwhm_mean,
+            dist_fwhm_logsigma=flareparams.dist_fwhm_logsigma,
+            alpha=flareparams.alpha,
+            beta=flareparams.beta,
+            min_energy=flareparams.min_energy,
+            cluster_size=flareparams.cluster_size,
+            rng=rng
+        )
+
+    def frequency_greater_than(self, energy: u.Quantity):
+        """
+        The frequency of flares greater than an energy.
+
+        Parameters
+        ----------
+        energy : astropy.units.Quantity
+            The energy to compute the frequency of.
 
         Returns
         -------
-        freq : astropy.units.Quantity , shape=(M,)
-            The frequency of observing a flare with energy > E.
-
-        Notes
-        -----
-        Frequencies from a study of TESS flares [1]_.
-
-        References
-        ----------
-        .. [1] Gao, D.-Y., Liu, H.-G., Yang, M., & Zhou, J.-L. 2022, AJ, 164, 213
+        astropy.units.Quantity
+            The frequency of flares with energy greater than `energy`.
         """
-        alpha = -0.829
-        beta = 26.87
-        logfreq = beta + alpha*np.log10(E/u.erg)
-        freq = 10**logfreq / u.day
-        return freq
+        return 10**self.beta * (energy.to_value(self.energy_unit))**self.alpha / self.time_unit
 
-    def get_flare(self, Es: Quantity, time: Quantity):
+    def get_nexp_greater_than(self, energy: u.Quantity, time: u.Quantity) -> float:
         """
-        Generate a flare in some time duration, assigning
-        it an energy based on the freqency distribution.
+        Get the expected number of flares with energy greater than `energy` in a
+        time period `time`
 
         Parameters
         ----------
-        Es : astropy.units.Quantity , shape=(M,)
-            An array of energy values to choose from.
-        time : astropy.units.Quantity 
-            The time duration over which the flare is generated.
-
-        Returns
-        -------
-        E_final astropy.units.Quantity 
-            The energy of the created flare.
-
-        Notes
-        -----
-        This function generates a flare by selecting an energy
-        value from an array of energy values (`Es`) based on a
-        frequency distribution. The function first calculates the
-        expected number of flares that would occur for each energy
-        value based on a power law distribution. It then generates
-        a flare by selecting an energy value based on a random process
-        where the probability of selecting an energy value
-        is proportional to the expected number of flares for that energy
-        value. The selection process is performed for each energy value
-        in the Es array until a non-positive number of flares is selected,
-        or all energy values have been considered.
-        """
-        Nexp = to_float(self.powerlaw(Es) * time, u.Unit(''))
-        E_final = 0*u.erg
-        for e, N in zip(Es, Nexp):
-            if np.round(np.random.normal(loc=N, scale=np.sqrt(N))) > 0:
-                E_final = e
-            else:
-                break
-        return E_final
-
-    def generate_flares(self, Es: Quantity, time: Quantity):
-        """ 
-        Generate a group of flare(s).
-        This algorithm is valid if flare
-        length is much less than time
-
-        Parameters
-        ----------
-        Es : astropy.units.Quantity , shape=(M,)
-            The energies to draw from.
-        time : astropy.units.Quantity 
+        energy : astropy.units.Quantity
+            The energy to compute the frequency of.
+        time : astropy.units.Quantity
             The time duration.
 
         Returns
         -------
-        astropy.units.Quantity 
-            Energies of generated flares.
+        float
+            The number of flares with energy greater than `energy`.
         """
-        unit = u.erg
-        flare_energies = []
-        E = self.get_flare(Es, time)
-        if E == 0*u.erg:
-            return flare_energies
-        else:
-            flare_energies.append(to_float(E, unit))
-            cont = np.random.random() < self.prob_following
-            while cont:
-                while True:
-                    E = self.get_flare(Es, time)
-                    if E == 0*u.erg:
-                        pass
-                    else:
-                        flare_energies.append(to_float(E, unit))
-                        cont = np.random.random() < self.prob_following
-                        break
-            return flare_energies*unit
+        return (self.frequency_greater_than(energy)*time).to_value(u.dimensionless_unscaled)
 
-    def generate_coords(self):
+    def get_ntotal(self, time) -> float:
         """
-        Generate random coordinates for the flare.
-
-        Returns
-        -------
-        astropy.units.Quantity 
-            Latitude of the flare.
-        astropy.units.Quantity 
-            Longitude of the flare.
-        """
-        lon = np.random.random()*360*u.deg
-        lats = np.arange(90)
-        w = np.cos(lats*u.deg)
-        lat = (np.random.choice(lats, p=w/w.sum()) +
-               np.random.random())*u.deg * np.random.choice([1, -1])
-        return lat, lon
-
-    def generate_fwhm(self):
-        """
-        Generate the flare full-width at half-maximum (FWHM) value from a distribution.
-
-
-        Returns
-        -------
-        astropy.units.Quantity 
-            Full-width at half-maximum of the flare.
-
-        """
-        log_fwhm_days = np.random.normal(
-            loc=self.mean_log_fwhm_days, scale=self.sigma_log_fwhm_days)
-        fwhm = 10**log_fwhm_days * u.day
-        return fwhm
-
-    def generate_flare_set_spacing(self):
-        """
-        Generate the time interval between sets of flares based on a normal distribution.
-
-        Returns
-        -------
-        astropy.units.Quantity 
-            The time interval between sets of flares, drawn from a normal distribution.
-
-        Notes
-        -----
-        Isolated flares are random events, but if you see one flare,
-        it is likely you will see another soon after [1]_. How soon? 
-        This distribution will tell you (The actual numbers here are
-        mostly from guessing.The hope is that as we learn more this will
-        be set by the user.).
-
-        References
-        ----------
-        .. [1] G\u00FCnther, M. N., Zhan, Z., Seager, S., et al. 2020, AJ, 159, 60
-        """
-        while True:  # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
-            spacing = np.random.normal(loc=4, scale=2)*u.hr
-            if spacing > 0*u.hr:
-                return spacing
-
-    def generage_E_dist(self):
-        """
-        Generate a logarithmically-spaced series of flare energies
-        based on input parameters.
-
-        Returns
-        -------
-        astropy.units.Quantity , shape=(self.log_E_erg_Nsteps,)
-            A logarithmically-spaced series of energies.
-
-        Notes
-        -----
-        It has been observed that the first 0.2 dex of the frequency distribution
-        are treated differently by the energy assignement algorithm. We extend
-        the energy range by 0.2 dex in order to clip it later. This is not a
-        long-term fix.
-        """
-        return np.logspace(self.log_E_erg_min, self.log_E_erg_max, self.log_E_erg_Nsteps)*u.erg
-
-    def generate_teff(self):
-        """ 
-        Randomly generate flare teff and rounds it to an integer.
-
-        Returns
-        -------
-        astropy.units.Quantity 
-            The effective temperature of a flare.
-
-        Raises
-        ------
-        ValueError
-            If `mean_teff` is less than or equal to 0 K.
-        """
-        if self.mean_teff <= 0*u.K:  # prevent looping forever if user gives bad parameters
-            raise ValueError('Cannot have teff <= 0 K')
-        # this cannot be a negative value. We will loop until we get something positive (usually unneccessary)
-        while True:
-            teff = np.random.normal(loc=to_float(
-                self.mean_teff, u.K), scale=to_float(self.sigma_teff, u.K))
-            teff = int(np.round(teff)) * u.K
-            if teff > 0*u.K:
-                return teff
-
-    def generate_flare_series(self, Es: Quantity, time: Quantity):
-        """
-        Generate as many flares within a duration of time as can be fit given computed frequencies.
+        Get the total number of flares in a time period.
 
         Parameters
         ----------
-        Es : astropy.units.Quantity 
-            A series of energies.
-        time : astropy.units.Quantity 
-            Time series to create flares in.
+        time : astropy.units.Quantity
+            The time duration.
 
         Returns
         -------
-        list of `StellarFlare`
-            List of created stellar flares.
+        float
+            The number of flares.
         """
-        flares = []
-        tmin = 0*u.s
-        tmax = time
-        timesets = [[tmin, tmax]]
-        while True:
-            next_timesets = []
-            N = len(timesets)
-            for i in range(N):  # loop thought blocks of time
-                timeset = timesets[i]
-                dtime = timeset[1] - timeset[0]
-                flare_energies = self.generate_flares(Es, dtime)
-                if len(flare_energies) > 0:
-                    base_tpeak = np.random.random()*dtime + timeset[0]
-                    peaks = [deepcopy(base_tpeak)]
-                    for j in range(len(flare_energies)):  # loop through flares
-                        if j > 0:
-                            base_tpeak = base_tpeak + self.generate_flare_set_spacing()
-                            peaks.append(deepcopy(base_tpeak))
-                        energy = flare_energies[j]
-                        lat, lon = self.generate_coords()
-                        fwhm = self.generate_fwhm()
-                        teff = self.generate_teff()
-                        if np.log10(to_float(energy, u.erg)) >= self.log_E_erg_min:
-                            flares.append(StellarFlare(
-                                fwhm, energy, lat, lon, teff, base_tpeak))
-                    next_timesets.append([timeset[0], min(peaks)])
-                    if max(peaks) < timeset[1]:
-                        next_timesets.append([max(peaks), timeset[1]])
-                else:
-                    pass  # there are no flares during this time
-            timesets = next_timesets
-            if len(timesets) == 0:
-                return flares
+        return self.get_nexp_greater_than(self.min_energy, time)
+
+    def pdf(self, energy: u.Quantity):
+        """
+        The probability density function of flare energies.
+
+        Parameters
+        ----------
+        energy : astropy.units.Quantity
+            The energies at which to sample the pdf.
+
+        Returns
+        -------
+        pdf : float or np.ndarray
+            The probability density of energy
+        """
+        return (-self.alpha * energy**(self.alpha-1)/self.min_energy**self.alpha).to_value(u.dimensionless_unscaled)
+
+    def cdf(self, energy: u.Quantity):
+        """
+        Get the cumulative density function.
+
+        Parameters
+        ----------
+        energy : astropy.units.Quantity
+            The energies at which to sample the cdf.
+
+        Returns
+        -------
+        cdf : float or np.ndarray
+            The cumulative density of energy
+        """
+        return 1 - (energy/self.min_energy).to_value(u.dimensionless_unscaled)**self.alpha
+
+    def quantile_func(self, X: np.ndarray):
+        """
+        The quantile function of this flare energy distribution.
+
+        This function maps a variable on the range [0,1) to the distribution
+        defined by :math:`\\beta` and :math:`\\alpha`.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+            A random variable with domain [0,1)
+
+        Returns
+        -------
+        energy : astropy.Units.Quantity
+            The energies represented by ``X``.
+        """
+        X = np.atleast_1d(X)
+        if not (np.all(X >= 0.) and np.all(X < 1.)):
+            raise ValueError('`X` must be in [0,1)')
+        return self.min_energy * (1-X)**(1/self.alpha)
+
+    def get_peaks(self, n_flares):
+        """
+        Generate the times at which each flare reaches its peak.
+
+        Parameters
+        ----------
+        n_flares : int
+            The number of peak times to generate.
+
+        Returns
+        -------
+        tpeaks : astropy.units.Quantity
+            The times that the flares reach their peak.
+        """
+        cluster_sizes = self.rng.poisson(lam=self.cluster_size, size=n_flares)
+        cluster_sizes = cluster_sizes[np.cumsum(cluster_sizes) < n_flares]
+        n_leftover = n_flares - np.sum(cluster_sizes)
+        cluster_sizes = np.append(cluster_sizes, [1]*n_leftover)
+
+        n_clusters = len(cluster_sizes)
+
+        cluster_timescale = 1/n_clusters
+
+        dtimes = []
+        for size in cluster_sizes:
+            dtimes.append(self.rng.exponential(cluster_timescale))
+            flare_timescale = cluster_timescale/size/2
+            for _ in range(size-1):
+                dtimes.append(self.rng.exponential(flare_timescale))
+        dtimes = np.array(dtimes)
+        tpeaks = np.cumsum(dtimes)
+        return tpeaks
+
+    def gen_fwhm(self, n_flares: int):
+        """
+        Generate a FWHM set in a lognormal distribution.
+
+        Parameters
+        ----------
+        n_flares : int
+            The number of random FWHM lengths to generate.
+
+        Returns
+        -------
+        fwhm : astropy.units.Quantity
+            The FWHMs of the flares
+        """
+        dist_logmean_fwhm = np.log10(
+            self.dist_fwhm_mean.to_value(self.time_unit))
+        log_fwhm = self.rng.normal(
+            loc=dist_logmean_fwhm,
+            scale=self.dist_fwhm_logsigma,
+            size=n_flares
+        )
+        fwhm = 10**log_fwhm * self.time_unit
+        return fwhm
+
+    def gen_teffs(self, n_flares):
+        """
+        Generate a random set of flare temperatures.
+
+        Parameters
+        ----------
+        n_flares : int
+            The number of random temperatures to generate.
+
+        Returns
+        -------
+        teffs : astropy.units.Quantity
+            The temperatures of the flares
+        """
+
+        teffs = self.rng.normal(
+            loc=self.dist_teff_mean.to_value(self.temperature_unit),
+            scale=self.dist_teff_sigma.to_value(self.temperature_unit),
+            size=n_flares
+        )*self.temperature_unit
+        return teffs
+
+    def gen_coords(self, n_flares):
+        """
+        Generate a set of random coordinates.
+
+        Parameters
+        ----------
+        n_flares : int
+            The number of random temperatures to generate.
+
+        Returns
+        -------
+        lats : astropy.units.Quantity
+            The stellar latitudes of the flares.
+        lons : astropy.units.Quantity
+            The stellar longitudes of the flares.
+
+        Notes
+        -----
+        ``lats`` is generated using a quantile function for latitude.
+
+        .. math::
+            \\text{lat} = \\arcsin(2X - 1)
+
+        For a random variable :math:`X` on [0,1).
+        """
+        lons = self.rng.random(size=n_flares)*360*u.deg
+        lats = np.arcsin(2*self.rng.random(size=n_flares) - 1) / \
+            np.pi * 180*u.deg
+        return lats, lons
+
+    def generate_flare_series(self, time: u.Quantity):
+        """
+        Generate a series of flares based on the distribution parameters of this
+        generator.
+
+        Parameters
+        ----------
+        time : astropy.units.Quantity
+            The time over which the flares are observed.
+
+        Returns
+        -------
+        flares : list of StellarFlare
+            The flares that occur over ``time``.
+        """
+        nexp = self.get_ntotal(time)
+        n_flares = self.rng.poisson(nexp)
+        if n_flares == 0:
+            return []
+
+        energies = self.quantile_func(self.rng.random(n_flares))
+        tpeaks = self.get_peaks(n_flares)*time
+        fwhms = self.gen_fwhm(n_flares)
+        teffs = self.gen_teffs(n_flares)
+        lats, lons = self.gen_coords(n_flares)
+
+        flares = [
+            StellarFlare(
+                fwhm=f,
+                energy=e,
+                lat=lat,
+                lon=lon,
+                Teff=teff,
+                tpeak=t
+            ) for f, e, lat, lon, teff, t in zip(fwhms, energies, lats, lons, teffs, tpeaks)
+        ]
+        return flares
 
 
 class FlareCollection:
@@ -501,8 +550,8 @@ class FlareCollection:
         fwhm = []
         unit = u.hr
         for flare in self.flares:
-            tpeak.append(to_float(flare.tpeak, unit))
-            fwhm.append(to_float(flare.fwhm, unit))
+            tpeak.append(flare.tpeak.to_value(unit))
+            fwhm.append(flare.fwhm.to_value(unit))
         tpeak = np.array(tpeak)*unit
         fwhm = np.array(fwhm)*unit
         self.peaks = tpeak

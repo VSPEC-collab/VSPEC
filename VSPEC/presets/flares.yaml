@@ -1,0 +1,19 @@
+none:
+  dist_teff_mean: 9000 K
+  dist_teff_sigma: 500 K
+  dist_fwhm_mean : 0.1 day
+  dist_fwhm_logsigma: 0.3
+  alpha: -0.829
+  beta: 26.87
+  min_energy: inf erg
+  cluster_size: 2
+std:
+  dist_teff_mean: 9000 K
+  dist_teff_sigma: 500 K
+  dist_fwhm_mean : 0.1 day
+  dist_fwhm_logsigma: 0.3
+  alpha: -0.829
+  beta: 26.87
+  min_energy: 1e33 erg
+  cluster_size: 2
+  

@@ -16,18 +16,17 @@ from tqdm.auto import tqdm
 import warnings
 from functools import partial
 
-from VSPEC import stellar_spectra
 from VSPEC import variable_star_model as vsm
-from VSPEC.variable_star_model import granules
-from VSPEC.config import PSG_CFG_MAX_LINES
-from VSPEC.files import build_directories, N_ZFILL, get_filename
-from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, to_float, is_port_in_use, arrange_teff, get_surrounding_teffs
-from VSPEC.helpers import plan_to_df, get_planet_indicies
+from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
+from VSPEC import config
+from VSPEC.geometry import SystemGeometry, plan_to_df
+from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs
+from VSPEC.helpers import check_and_build_dir, get_filename
+from VSPEC.helpers import get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
-from VSPEC.analysis import read_lyr
-from VSPEC.params.read import Parameters
+from VSPEC.params.read import InternalParameters 
+from VSPEC.spectra import GridSpectra, get_wavelengths, ForwardSpectra
 
 
 class ObservationModel:
@@ -36,18 +35,18 @@ class ObservationModel:
 
     Parameters
     ----------
-    params : VSPEC.params.Parameters
-        The parameters describing the VSPEC simulation.
+    params : VSPEC.params.InternalParameters
+        The global parameters describing the VSPEC simulation.
 
     Attributes
     ----------
+    params : VSPEC.params.InternalParameters
+        The parameters for this simulation.
     verbose : int
         The verbosity level of the output.
-    params : `VSPEC.read_info.ParamModel`
-        The parameters for this simulation.
-    dirs : dict
+    directories : dict
         The paths to model output directories.
-    star : `VSPEC.variable_star_model.Star`
+    star : VSPEC.variable_star_model.Star or None
         The variable host star.
     rng : numpy.random.Generator
         A psudo-random number generator to be used in
@@ -56,16 +55,21 @@ class ObservationModel:
 
     def __init__(
         self,
-        params:Parameters
+        params: InternalParameters
     ):
+        if isinstance(params, (Path, str)):
+            msg = 'Please use the `from_yaml` classmethod'
+            raise TypeError(msg)
         self.params = params
         self.verbose = params.header.verbose
         self.build_directories()
         self.star = None
         self.rng = np.random.default_rng(self.params.header.seed)
-    
+        self.spec = self.load_spectra()
+        self.bb = ForwardSpectra.blackbody()
+
     @classmethod
-    def from_yaml(cls,config_path: Path):
+    def from_yaml(cls, config_path: Path):
         """
         Initialize a VSPEC run from a YAML file.
 
@@ -74,7 +78,7 @@ class ObservationModel:
         config_path : pathlib.path
             The path to the YAML file.
         """
-        params = Parameters.from_yaml(config_path)
+        params = InternalParameters.from_yaml(config_path)
         return cls(params)
 
     class __flags__:
@@ -91,6 +95,30 @@ class ObservationModel:
             upload the GCM.
         """
         psg_needs_set = True
+    _directories = {
+        'parent': '',
+        'all_model': 'AllModelSpectraValues',
+        'psg_combined': 'PSGCombinedSpectra',
+        'psg_thermal': 'PSGThermalSpectra',
+        'psg_noise': 'PSGNoise',
+        'psg_layers': 'PSGLayers',
+        'psg_configs': 'PSGConfig'
+    }
+    @property
+    def directories(self)->dict:
+        """
+        The directory structure for the VSPEC run.
+
+        Returns
+        -------
+        dict
+            Keys represent the identifiers of directories, and the values are
+            `pathlib.Path` objects.
+        
+        """
+        parent_dir = self.params.header.data_path
+        dir_dict = {key:parent_dir/value for key,value in self._directories.items()}
+        return dir_dict
 
     def wrap_iterator(self, iterator, **kwargs):
         """
@@ -118,100 +146,65 @@ class ObservationModel:
         """
         Build the file system for this run.
         """
-        self.dirs = build_directories(self.params.header.data_path)
+        for _,path in self.directories.items():
+            check_and_build_dir(path)
 
-    def bin_spectra(self):
+    def load_spectra(self):
         """
-        Bins high-resolution spectra to required resolution.
+        Load a GridSpec instance.
 
-        This method loads high-resolution spectra and bins them to the required resolution. The binned spectra are then
-        written to a local file (`self.dirs['binned']/...`).
+        Returns
+        -------
+        VSPEC.spectra.GridSpec
+            The spectal grid object to draw stellar spectra from.
         """
         teffs = arrange_teff(
             self.params.header.teff_min,
             self.params.header.teff_max
         )
-        for teff in self.wrap_iterator(teffs, desc='Binning Spectra', total=len(teffs)):
-            def bin_spectrum(func):
-                """
-                func is a binning function.
-                This way I don't have to type the same arguments twice.
-                """
-                func(
-                    to_float(teff, u.K),
-                    file_name_writer=stellar_spectra.get_binned_filename,
-                    binned_path=self.dirs['binned'],
-                    resolving_power=self.params.inst.bandpass.resolving_power,
-                    lam1=self.params.inst.bandpass.wl_blue,
-                    lam2=self.params.inst.bandpass.wl_red,
-                    model_unit_wavelength=u.AA,
-                    model_unit_flux=u.Unit(
-                        'erg s-1 cm-2 cm-1'),
-                    target_unit_wavelength=self.params.inst.bandpass.wavelength_unit,
-                    target_unit_flux=self.params.inst.bandpass.flux_unit
-                )
-            try:
-                bin_spectrum(stellar_spectra.bin_cached_model)
-            except ValueError:
-                bin_spectrum(stellar_spectra.bin_phoenix_model)
-
-    def read_spectrum(self, teff: u.Quantity) -> typing.Tuple[u.Quantity, u.Quantity]:
+        spec = GridSpectra.from_vspec(
+            w1 = self.params.inst.bandpass.wl_blue,
+            w2 = self.params.inst.bandpass.wl_red,
+            R = self.params.inst.bandpass.resolving_power,
+            teffs = teffs
+        )
+        return spec
+    @property
+    def wl(self):
         """
-        Read a binned spectrum from file.
-
-        Parameters
-        ----------
-        teff : astropy.units.Quantity [temperature]
-            The effective temperature of the spectrum to read.
+        The wavelength axis of the observation.
 
         Returns
         -------
-        wavelengths : astropy.units.Quantity [wavelength]
-            The binned wavelengths of the spectrum.
-        flux : astropy.units.Quantity [flambda]
-            The binned flux of the spectrum.
+        wl : astropy.units.Quantity
+            The wavelength axis.
         """
-        filename = stellar_spectra.get_binned_filename(to_float(teff, u.K))
-        path = self.dirs['binned']
-        return stellar_spectra.read_binned_spectrum(filename, path=path)
-
-    def get_model_spectrum(self, Teff):
+        return get_wavelengths(
+            resolving_power=self.params.inst.bandpass.resolving_power,
+            lam1=self.params.inst.bandpass.wl_blue.to_value(config.wl_unit),
+            lam2=self.params.inst.bandpass.wl_red.to_value(config.wl_unit)
+        )[:-1]*config.wl_unit
+    
+    def get_model_spectrum(self,teff:u.Quantity):
         """
-        Interpolate between binned spectra to produce a model spectrum with a given Teff.
+        Get the interpolated spectrum given an effective temperature.
 
         Parameters
         ----------
-        Teff : astropy.units.Quantity [temperature]
-            The desired effective temperature of the spectrum
+        teff : astropy.units.Quantity
+            The effective temperature
 
         Returns
         -------
-        wavelengths : astropy.units.Quantity [wavelength]
-            The wavelength coordinates of the spectrum.
-        flux : astropy.units.Quantity [flambda]
-            The flux of the spectrum, corrected for system distance.
+        astropy.units.Quantity
+            The flux of the spectrum.
+        
+        Notes
+        -----
+        This function applies the solid angle correction.
         """
-        if Teff == 0*u.K:  # for testing
-            star_teff = self.params.star.teff
-            wave1, flux1 = self.read_spectrum(
-                star_teff - (star_teff % (100*u.K)))
-            return wave1, flux1*0
-        elif (Teff % (100*u.K) == 0*u.K):
-            wave1, flux1 = self.read_spectrum(Teff)
-            return wave1, flux1*self.params.flux_correction
-        else:
-
-            model_teffs = get_surrounding_teffs(Teff)
-            if Teff in model_teffs:
-                wave1, flux1 = self.read_spectrum(Teff)
-                wave2, flux2 = wave1, flux1
-            else:
-                wave1, flux1 = self.read_spectrum(model_teffs[0])
-                wave2, flux2 = self.read_spectrum(model_teffs[1])
-            wavelength, flux = stellar_spectra.interpolate_spectra(Teff,
-                                                                   model_teffs[0], wave1, flux1,
-                                                                   model_teffs[1], wave2, flux2)
-            return wavelength, flux*self.params.flux_correction
+        return self.spec.evaluate(self.wl,teff.to_value(config.teff_unit))*self.params.flux_correction*config.flux_unit
+    
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
@@ -234,8 +227,8 @@ class ObservationModel:
                               semimajor_axis=self.params.planet.semimajor_axis,
                               planetary_rot_period=self.params.planet.rotation_period,
                               planetary_init_substellar_lon=self.params.planet.init_substellar_lon,
-                              stellar_offset_amp=self.params.star.offset_magnitude,
-                              stellar_offset_phase=self.params.star.offset_direction,
+                              stellar_offset_amp=self.params.star.misalignment,
+                              stellar_offset_phase=self.params.star.misalignment_dir,
                               eccentricity=self.params.planet.eccentricity,
                               phase_of_periasteron=self.params.system.phase_of_periasteron,
                               system_distance=self.params.system.distance,
@@ -310,15 +303,13 @@ class ObservationModel:
         if self.params.gcm.gcmtype == 'waccm':
             kwargs = {'obs_time': obstime}
         else:
-            kwargs = {} 
+            kwargs = {}
         content = self.params.gcm.content(**kwargs)
         call_api(
-            config_path=None,
             psg_url=self.params.psg.url,
             api_key=self.params.psg.api_key.value,
             output_type='upd' if update else 'set',
             app='globes',
-            outfile=None,
             config_data=content
         )
         if not update:
@@ -331,12 +322,10 @@ class ObservationModel:
         params = self.params.to_psg()
         content = cfg_to_bytes(params)
         call_api(
-            config_path=None,
             psg_url=self.params.psg.url,
             api_key=self.params.psg.api_key.value,
             output_type='upd',
             app='globes',
-            outfile=None,
             config_data=content
         )
 
@@ -383,12 +372,10 @@ class ObservationModel:
         )
         content = cfg_to_bytes(params)
         call_api(
-            config_path=None,
             psg_url=self.params.psg.url,
             api_key=self.params.psg.api_key.value,
             output_type='upd',
             app='globes',
-            outfile=None,
             config_data=content
         )
 
@@ -443,22 +430,21 @@ class ObservationModel:
         content = bytes(
             f'<OBJECT-NAME>{self.params.planet.name}', encoding='UTF-8')
         response = call_api(
-            config_path=None,
             psg_url=self.params.psg.url,
             api_key=self.params.psg.api_key.value,
             output_type='all',
             app='globes',
-            outfile=None,
             config_data=content
         )
         output_data = parse_full_output(response)
         for key, path in path_dict.items():
             filename = get_filename(i, N_ZFILL, key)
-            with open(path/filename, 'wt', encoding='UTF-8') as file:
-                if not (key == 'lyr' and self.params.psg.use_molecular_signatures is False):
+            key = bytes(key, encoding='UTF-8')
+            with open(path/filename, 'wb') as file:
+                if not (key == b'lyr' and self.params.psg.use_molecular_signatures is False):
                     file.write(output_data[key])
-                if key == 'cfg':
-                    self.check_config(output_data[key])
+                if key == b'cfg':
+                    self.check_config(str(output_data[key], encoding='UTF-8'))
 
     def build_planet(self):
         """
@@ -487,7 +473,7 @@ class ObservationModel:
         obs_plan = self.get_observation_plan(
             observation_parameters, planet=True)
 
-        obs_info_filename = Path(self.dirs['data']) / 'observation_info.csv'
+        obs_info_filename = Path(self.directories['parent']) / 'observation_info.csv'
         plan_to_df(obs_plan).to_csv(obs_info_filename, sep=',', index=False)
 
         if self.verbose > 0:
@@ -508,14 +494,14 @@ class ObservationModel:
 
             if (not self.params.gcm.is_staic) or self.__flags__.psg_needs_set:
                 # enter if we need a reset or if there is time dependence
-                upload = partial(self.upload_gcm,obstime=obs_time)
-                if self.__flags__.psg_needs_set: # do a reset if needed
+                upload = partial(self.upload_gcm, obstime=obs_time)
+                if self.__flags__.psg_needs_set:  # do a reset if needed
                     upload(update=False)
                     self.set_static_config()
                     self.__flags__.psg_needs_set = False
-                else: # update if it's just time dependence.
+                else:  # update if it's just time dependence.
                     upload(update=True)
-            
+
             # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
             update_config = partial(
                 self.update_config,
@@ -528,16 +514,16 @@ class ObservationModel:
             )
             update_config(include_star=True)
             path_dict = {
-                'rad': Path(self.dirs['psg_combined']),
-                'noi': Path(self.dirs['psg_noise']),
-                'cfg': Path(self.dirs['psg_configs'])
+                'rad': Path(self.directories['psg_combined']),
+                'noi': Path(self.directories['psg_noise']),
+                'cfg': Path(self.directories['psg_configs'])
             }
             self.run_psg(path_dict, i)
             # write updates to config file to remove star flux
             update_config(include_star=False)
             path_dict = {
-                'rad': Path(self.dirs['psg_thermal']),
-                'lyr': Path(self.dirs['psg_layers'])
+                'rad': Path(self.directories['psg_thermal']),
+                'lyr': Path(self.directories['psg_layers'])
             }
             self.run_psg(path_dict, i)
 
@@ -545,49 +531,11 @@ class ObservationModel:
         """
         Build a variable star model based on user-specified parameters.
         """
-        empty_spot_collection = vsm.SpotCollection(Nlat=self.params.star.Nlat,
-                                                   Nlon=self.params.star.Nlon)
-        empty_fac_collection = vsm.FaculaCollection(Nlat=self.params.star.Nlat,
-                                                    Nlon=self.params.star.Nlon)
-        flare_generator = vsm.FlareGenerator(
-            self.params.star.teff, self.params.star.period, self.params.star.flares.group_probability,
-            self.params.star.flares.teff_mean, self.params.star.flares.teff_sigma,
-            np.log10(self.params.star.flares.fwhm_mean /
-                     u.day), self.params.star.flares.fwhm_sigma,
-            log_E_erg_max=np.log10(
-                self.params.star.flares.E_max.to_value(u.erg)),
-            log_E_erg_min=np.log10(
-                self.params.star.flares.E_min.to_value(u.erg)),
-            log_E_erg_Nsteps=self.params.star.flares.E_steps
+        self.star = vsm.Star.from_params(
+            starparams=self.params.star,
+            rng=self.rng,
+            seed=self.params.header.seed
         )
-
-        spot_generator = vsm.SpotGenerator(
-            self.params.star.spots.area_mean, self.params.star.spots.area_logsigma,
-            self.params.star.spots.teff_umbra, self.params.star.spots.teff_penumbra,
-            self.params.star.spots.growth_rate, self.params.star.spots.decay_rate,
-            self.params.star.spots.initial_area, self.params.star.spots.distribution,
-            self.params.star.spots.equillibrium_coverage,
-            Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon,
-            rng=self.rng
-        )
-        fac_generator = vsm.FaculaGenerator(
-            R_peak=self.params.star.faculae.mean_radius, R_HWHM=self.params.star.faculae.hwhm_radius,
-            T_peak=self.params.star.faculae.mean_timescale, T_HWHM=self.params.star.faculae.hwhm_timescale,
-            coverage=self.params.star.faculae.equillibrium_coverage, dist=self.params.star.faculae.distribution,
-            Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon
-        )
-        granulation = granules.Granulation(
-            self.params.star.granulation.mean,
-            self.params.star.granulation.amp,
-            self.params.star.granulation.period,
-            self.params.star.granulation.dteff
-        )
-        self.star = vsm.Star(self.params.star.teff, self.params.star.radius,
-                             self.params.star.period, empty_spot_collection, empty_fac_collection,
-                             distance=self.params.system.distance,
-                             Nlat=self.params.star.Nlat, Nlon=self.params.star.Nlon, flare_generator=flare_generator,
-                             spot_generator=spot_generator, fac_generator=fac_generator,
-                             granulation=granulation, u1=self.params.star.ld.u1, u2=self.params.star.ld.u2)
 
     def warm_up_star(self, spot_warmup_time: u.Quantity[u.day] = 0*u.day, facula_warmup_time: u.Quantity[u.day] = 0*u.day):
         """
@@ -630,12 +578,12 @@ class ObservationModel:
         sub_obs_coords,
         tstart,
         tfinish,
-        granulation_fraction:float=0.0,
-        orbit_radius:u.Quantity = 1*u.AU,
-        planet_radius:u.Quantity = 1*u.R_earth,
-        phase:u.Quantity = 90*u.deg,
-        inclination:u.Quantity = 0*u.deg,
-        transit_depth:np.ndarray or float = 0
+        granulation_fraction: float = 0.0,
+        orbit_radius: u.Quantity = 1*u.AU,
+        planet_radius: u.Quantity = 1*u.R_earth,
+        phase: u.Quantity = 90*u.deg,
+        inclination: u.Quantity = 0*u.deg,
+        transit_depth: np.ndarray or float = 0
     ):
         """
         Compute the stellar spectrum given an integration window and the
@@ -664,32 +612,32 @@ class ObservationModel:
         ValueError
             If wavenelength coordinates do not match.
         """
-        total,covered,pl_frac = self.star.calc_coverage(
+        total, covered, pl_frac = self.star.calc_coverage(
             sub_obs_coords,
             granulation_fraction=granulation_fraction,
-            orbit_radius = orbit_radius,
-            planet_radius = planet_radius,
-            phase = phase,
-            inclination = inclination
+            orbit_radius=orbit_radius,
+            planet_radius=planet_radius,
+            phase=phase,
+            inclination=inclination
         )
         visible_flares = self.star.get_flare_int_over_timeperiod(
             tstart, tfinish, sub_obs_coords)
-        base_wave, base_flux = self.get_model_spectrum(self.params.star.teff)
+        base_flux = self.get_model_spectrum(self.params.star.teff)
         base_flux = base_flux * 0
         # add up star flux before considering transit
         for teff, coverage in total.items():
             if coverage > 0:
-                wave, flux = self.get_model_spectrum(teff)
-                if not np.all(isclose(base_wave, wave, 1e-3*u.um)):
-                    raise ValueError('All wavelength axes must be equivalent.')
+                flux = self.get_model_spectrum(teff)
+                if not flux.shape == base_flux.shape:
+                    raise ValueError('All arrays must have same shape.')
                 base_flux = base_flux + flux * coverage
         # get flux of transited region
         transit_flux = base_flux*0
         for teff, coverage in covered.items():
             if coverage > 0:
-                wave, flux = self.get_model_spectrum(teff)
-                if not np.all(isclose(base_wave, wave, 1e-3*u.um)):
-                    raise ValueError('All wavelength axes must be equivalent.')
+                flux = self.get_model_spectrum(teff)
+                if not flux.shape == base_flux.shape:
+                    raise ValueError('All arrays must have same shape.')
                 transit_flux = transit_flux + flux * coverage
         # scale according to effective radius
         transit_flux = transit_flux * transit_depth
@@ -699,14 +647,14 @@ class ObservationModel:
             teff = flare['Teff']
             timearea = flare['timearea']
             eff_area = (timearea/(tfinish-tstart)).to(u.km**2)
-            flux = stellar_spectra.blackbody(base_wave, teff, eff_area, self.params.system.distance,
-                                             target_unit_flux=self.params.inst.bandpass.flux_unit)
+            correction = (eff_area/self.params.system.distance**2).to_value(u.dimensionless_unscaled)
+            flux = self.bb.evaluate(self.wl,teff) * correction
             base_flux = base_flux + flux
 
-        return base_wave, base_flux, pl_frac
+        return base_flux.to(config.flux_unit), pl_frac
 
     def calculate_reflected_spectra(self, N1, N2, N1_frac,
-                                    sub_planet_wavelength, sub_planet_flux,pl_frac:float):
+                                    sub_planet_flux, pl_frac: float):
         """
         Calculate the reflected spectrum based on PSG output and
         our own stellar model. We scale the reflected spectra from PSG
@@ -720,8 +668,6 @@ class ObservationModel:
             The planet index immediately after the current epoch.
         N1_frac : float
             The fraction of the `N1` epoch to use in interpolation.
-        sub_planet_wavelength : astropy.units.Quantity [wavelength]
-            Wavelengths for validation.
         sub_planet_flux : astropy.units.Quantity [flambda]
             Stellar flux to scale to.
         pl_frac : float
@@ -743,13 +689,13 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_combined_path1 = Path(
-            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
         psg_thermal_path1 = Path(
-            self.dirs['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
         psg_combined_path2 = Path(
-            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
         psg_thermal_path2 = Path(
-            self.dirs['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
 
         reflected = []
 
@@ -758,29 +704,25 @@ class ObservationModel:
             combined = PSGrad.from_rad(psg_combined_path)
             thermal = PSGrad.from_rad(psg_thermal_path)
 
-            # validate
-            if not np.all(isclose(sub_planet_wavelength, combined.data['Wave/freq'], 1e-3*u.um)
-                          & isclose(sub_planet_wavelength, thermal.data['Wave/freq'], 1e-3*u.um)):
-                raise ValueError(
-                    'The wavelength coordinates must be equivalent.')
+            
             planet_reflection_only = get_reflected(
                 combined, thermal, self.params.planet.name)
-            planet_reflection_fraction = to_float(
-                planet_reflection_only / combined.data['Stellar'], u.dimensionless_unscaled)
+            planet_reflection_fraction = (
+                planet_reflection_only / combined.data['Stellar']).to_value(u.dimensionless_unscaled)
 
             planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
             reflected.append(planet_reflection_adj)
 
-        return sub_planet_wavelength, reflected[0] * N1_frac + reflected[1] * (1-N1_frac)*pl_frac
+        return reflected[0] * N1_frac + reflected[1] * (1-N1_frac)*pl_frac
 
     def get_transit(
         self,
-        N1:int,
-        N2:int,
-        N1_frac:float,
-        phase:u.Quantity,
-        orbit_radius:u.Quantity
-        ):
+        N1: int,
+        N2: int,
+        N1_frac: float,
+        phase: u.Quantity,
+        orbit_radius: u.Quantity
+    ):
         """
         Get the transit spectra calculated by PSG
 
@@ -810,9 +752,9 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_cmb_path1 = Path(
-            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
         psg_cmb_path2 = Path(
-            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
 
         wavelength = []
         transit = []
@@ -832,17 +774,19 @@ class ObservationModel:
 
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
+        depth_bare_rock = (self.params.planet.radius /
+                           self.params.star.radius).to_value(u.dimensionless_unscaled)**2
         frac_absorbed = transit[0]*N1_frac + transit[1]*(1-N1_frac)
         pl_frac_covering = 1-self.star.get_pl_frac(
-            phase+180*u.deg, orbit_radius,self.params.planet.radius,self.params.system.inclination
+            phase+180*u.deg, orbit_radius, self.params.planet.radius, self.params.system.inclination
         ) * (self.params.planet.radius/self.params.star.radius).to_value(u.dimensionless_unscaled)**2
         if pl_frac_covering == 0:
             normalized_frac_absorbed = pl_frac_covering*0
         else:
-            normalized_frac_absorbed = frac_absorbed/pl_frac_covering
+            normalized_frac_absorbed = frac_absorbed/pl_frac_covering/depth_bare_rock
         return wavelength[0], normalized_frac_absorbed
-    
-    def calculate_noise(self, N1: int, N2: int, N1_frac: float, time_scale_factor: float, cmb_wavelength, cmb_flux):
+
+    def calculate_noise(self, N1: int, N2: int, N1_frac: float, time_scale_factor: float, cmb_flux):
         """
         Calculate the noise in our model based on the noise output from PSG.
 
@@ -858,15 +802,11 @@ class ObservationModel:
             A scaling factor to apply to the noise at the end of the calculation.
             This is 1 if the planet and star sampling has the same cadence. Otherwise,
             it is usually `sqrt(self.planet_phase_binning)`.
-        cmb_wavelength : astropy.units.Quantity [wavelength]
-            The wavelength of the combined spectra.
         cmb_flux : astropy.units.Quantity [flambda]
             The flux of the combined spectrum.
 
         Returns
         -------
-        cmb_wavelength : astropy.units.Quantity [wavelength]
-            The wavelength of the combined spectra
         noise : astropy.units.Quantity [flambda]
             The noise in our model.
 
@@ -878,13 +818,13 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_combined_path1 = Path(
-            self.dirs['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'rad')
         psg_noise_path1 = Path(
-            self.dirs['psg_noise']) / get_filename(N1, N_ZFILL, 'noi')
+            self.directories['psg_noise']) / get_filename(N1, N_ZFILL, 'noi')
         psg_combined_path2 = Path(
-            self.dirs['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'rad')
         psg_noise_path2 = Path(
-            self.dirs['psg_noise']) / get_filename(N2, N_ZFILL, 'noi')
+            self.directories['psg_noise']) / get_filename(N2, N_ZFILL, 'noi')
 
         psg_noise_source = []
         psg_source = []
@@ -896,11 +836,7 @@ class ObservationModel:
             combined = PSGrad.from_rad(psg_combined_path)
             noise = PSGrad.from_rad(psg_noise_path)
 
-            # validate
-            if not np.all(isclose(cmb_wavelength, combined.data['Wave/freq'], 1e-3*u.um)
-                          & isclose(cmb_wavelength, noise.data['Wave/freq'], 1e-3*u.um)):
-                raise ValueError(
-                    'The wavelength coordinates must be equivalent.')
+            
             psg_noise_source.append(noise.data['Source'])
             psg_source.append(combined.data['Total'])
         psg_noise_source = psg_noise_source[0] * \
@@ -912,9 +848,9 @@ class ObservationModel:
                     + (noise.data['Detector'])**2
                     + (noise.data['Telescope'])**2
                     + (noise.data['Background'])**2)
-        return cmb_wavelength, np.sqrt(noise_sq) * time_scale_factor
+        return np.sqrt(noise_sq) * time_scale_factor
 
-    def get_thermal_spectrum(self, N1: int, N2: int, N1_frac: float,pl_frac:float):
+    def get_thermal_spectrum(self, N1: int, N2: int, N1_frac: float, pl_frac: float):
         """
         Get the thermal emission spectra calculated by PSG
 
@@ -944,9 +880,9 @@ class ObservationModel:
             If the wavelength coordinates from the loaded spectra do not match.
         """
         psg_thermal_path1 = Path(
-            self.dirs['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N1, N_ZFILL, 'rad')
         psg_thermal_path2 = Path(
-            self.dirs['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
+            self.directories['psg_thermal']) / get_filename(N2, N_ZFILL, 'rad')
 
         wavelength = []
         thermal = []
@@ -963,7 +899,7 @@ class ObservationModel:
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
 
-        return wavelength[0], thermal[0]*N1_frac + thermal[1]*(1-N1_frac)*pl_frac
+        return thermal[0]*N1_frac + thermal[1]*(1-N1_frac)*pl_frac
 
     def get_layer_data(self, N1: int, N2: int, N1_frac: float) -> pd.DataFrame:
         """
@@ -989,9 +925,9 @@ class ObservationModel:
             If the layer file columns of layer numbers do not match.
         """
         psg_layers_path1 = Path(
-            self.dirs['psg_layers']) / get_filename(N1, N_ZFILL, 'lyr')
+            self.directories['psg_layers']) / get_filename(N1, N_ZFILL, 'lyr')
         psg_layers_path2 = Path(
-            self.dirs['psg_layers']) / get_filename(N2, N_ZFILL, 'lyr')
+            self.directories['psg_layers']) / get_filename(N2, N_ZFILL, 'lyr')
         layers1 = read_lyr(psg_layers_path1)
         layers2 = read_lyr(psg_layers_path2)
         if not np.all(layers1.columns == layers2.columns) & (len(layers1) == len(layers2)):
@@ -1010,14 +946,14 @@ class ObservationModel:
         """
         if self.star is None:  # user can define a custom star before calling this function, e.g. for a specific spot pattern
             self.build_star()
-            self.warm_up_star(spot_warmup_time=self.params.star.spots.warmup,
-                              facula_warmup_time=self.params.star.faculae.warmup)
+            self.warm_up_star(spot_warmup_time=self.params.star.spots.burn_in,
+                              facula_warmup_time=self.params.star.faculae.burn_in)
         observation_parameters = self.get_observation_parameters()
         observation_info = self.get_observation_plan(
             observation_parameters, planet=False)
         # write observation info to file
         obs_info_filename = Path(
-            self.dirs['all_model']) / 'observation_info.csv'
+            self.directories['all_model']) / 'observation_info.csv'
         obs_df = plan_to_df(observation_info)
         obs_df.to_csv(obs_info_filename, sep=',', index=False)
 
@@ -1037,62 +973,59 @@ class ObservationModel:
             planet_phase = observation_info['phase'][index]
             sub_obs_lon = observation_info['sub_obs_lon'][index]
             sub_obs_lat = observation_info['sub_obs_lat'][index]
-            orbital_radius = observation_info['orbit_radius'][index] * self.params.planet.semimajor_axis
+            orbital_radius = observation_info['orbit_radius'][index] * \
+                self.params.planet.semimajor_axis
             granulation_fraction = granulation_fractions[index]
             N1, N2 = get_planet_indicies(planet_times, tindex)
             N1_frac = (planet_times[N2] - tindex)/planet_time_step
             N1_frac = N1_frac.to_value(u.dimensionless_unscaled)
-            # N1_frac = 1 - \
-            #     to_float(
-            #         (tindex - planet_times[N1])/planet_time_step, u.Unit(''))
 
             sub_planet_lon = observation_info['sub_planet_lon'][index]
             sub_planet_lat = observation_info['sub_planet_lat'][index]
-            
 
-            wave, transit_depth = self.get_transit(N1,N2,N1_frac,planet_phase,orbital_radius)
+            wave, transit_depth = self.get_transit(
+                N1, N2, N1_frac, planet_phase, orbital_radius)
 
-            comp_wave, comp_flux, pl_frac = self.calculate_composite_stellar_spectrum(
-                {'lat': sub_obs_lat,'lon': sub_obs_lon}, tstart, tfinish,
+            comp_flux, pl_frac = self.calculate_composite_stellar_spectrum(
+                {'lat': sub_obs_lat, 'lon': sub_obs_lon}, tstart, tfinish,
                 granulation_fraction=granulation_fraction,
                 orbit_radius=orbital_radius,
-                planet_radius = self.params.planet.radius,
-                phase = planet_phase,
-                inclination = self.params.system.inclination,
+                planet_radius=self.params.planet.radius,
+                phase=planet_phase,
+                inclination=self.params.system.inclination,
                 transit_depth=transit_depth
             )
-            wave, true_star, _ = self.calculate_composite_stellar_spectrum(
-                {'lat': sub_obs_lat,'lon': sub_obs_lon}, tstart, tfinish,
+            true_star, _ = self.calculate_composite_stellar_spectrum(
+                {'lat': sub_obs_lat, 'lon': sub_obs_lon}, tstart, tfinish,
                 granulation_fraction=granulation_fraction,
                 orbit_radius=orbital_radius,
-                planet_radius = self.params.planet.radius,
-                phase = planet_phase,
-                inclination = self.params.system.inclination,
+                planet_radius=self.params.planet.radius,
+                phase=planet_phase,
+                inclination=self.params.system.inclination,
                 transit_depth=0.
             )
-            wave, to_planet_flux,_ = self.calculate_composite_stellar_spectrum(
-                {'lat': sub_planet_lat,'lon': sub_planet_lon}, tstart, tfinish,
+            to_planet_flux, _ = self.calculate_composite_stellar_spectrum(
+                {'lat': sub_planet_lat, 'lon': sub_planet_lon}, tstart, tfinish,
                 granulation_fraction=granulation_fraction
             )
-            assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
+            
 
-            wave, reflection_flux_adj = self.calculate_reflected_spectra(
-                N1, N2, N1_frac, comp_wave, to_planet_flux,pl_frac)
-            assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
+            reflection_flux_adj = self.calculate_reflected_spectra(
+                N1, N2, N1_frac, to_planet_flux, pl_frac)
 
-            wave, thermal_spectrum = self.get_thermal_spectrum(N1, N2, N1_frac,pl_frac)
-            assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
+            thermal_spectrum = self.get_thermal_spectrum(
+                N1, N2, N1_frac, pl_frac)
 
             combined_flux = comp_flux + reflection_flux_adj + thermal_spectrum
 
-            wave, noise_flux_adj = self.calculate_noise(N1, N2, N1_frac,
+            noise_flux_adj = self.calculate_noise(N1, N2, N1_frac,
                                                         np.sqrt(
-                                                            to_float(planet_time_step/time_step, u.Unit(''))),
-                                                        comp_wave, combined_flux)
-            assert np.all(isclose(comp_wave, wave, 1e-3*u.um))
+                                                            (planet_time_step/time_step).to_value(u.dimensionless_unscaled)),
+                                                        combined_flux)
+            wl = self.wl
 
             df = pd.DataFrame({
-                f'wavelength[{str(comp_wave.unit)}]': comp_wave.value,
+                f'wavelength[{str(wl.unit)}]': wl.value,
                 f'star[{str(true_star.unit)}]': true_star.value,
                 f'star_towards_planet[{str(to_planet_flux.unit)}]': to_planet_flux.value,
                 f'reflected[{str(reflection_flux_adj.unit)}]': reflection_flux_adj.value,
@@ -1100,14 +1033,14 @@ class ObservationModel:
                 f'total[{str(combined_flux.unit)}]': combined_flux.value,
                 f'noise[{str(noise_flux_adj.unit)}]': noise_flux_adj.value
             })
-            outfile = Path(self.dirs['all_model']) / \
+            outfile = self.directories['all_model'] / \
                 get_filename(index, N_ZFILL, 'csv')
             df.to_csv(outfile, index=False, sep=',')
 
             # layers
             if self.params.psg.use_molecular_signatures:
                 layerdat = self.get_layer_data(N1, N2, N1_frac)
-                outfile = Path(self.dirs['all_model']) / \
+                outfile = self.directories['all_model'] / \
                     f'layer{str(index).zfill(N_ZFILL)}.csv'
                 layerdat.to_csv(outfile, index=False, sep=',')
 

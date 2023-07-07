@@ -42,15 +42,28 @@ def get_flux(
 
 def get_psi(lon:u.Quantity):
     """
-    Translate between longitude and Psi
+    Translate between longitude and Psi.
+    
+    Since the math we are doing for the energy balance requires
+    longituide on [-180,180] deg, we cast everything to this range.
+    
+    Parameters
+    ----------
+    lon : astropy.units.Quantity
+        The longituide to cast.
+    
+    Returns
+    -------
+    np.ndarray
+        The longitude coordinate in degrees cast to [-180,180]
     """
     unit = u.deg
     alon = np.atleast_1d(lon.to_value(unit))
-    return np.where(alon<=180,alon,alon-360)*unit
+    return (np.where(alon<=180,alon,alon-360)*unit).to_value(u.rad)
 
 def pcos(x:u.Quantity):
     """
-    'Positive cosine' -- max(cos(x),0)
+    'Positive cosine' -- :math:`\\max{\\cos{x},0}`
 
     Parameters
     ----------
@@ -75,25 +88,13 @@ def colat(lat:u.Quantity):
     ----------
     lat : astropy.units.Quantity
         The latitude.
-    
+
     Returns
     -------
     colat : astropy.units.Quantity
         The colatitude.
     """
     return 90*u.deg - lat
-
-
-# def get_Teq(
-#     lon:u.Quantity,
-#     lat:u.Quantity,
-#     bond_albedo:float,
-#     teff_star:u.Quantity,
-#     r_star:u.Quantity,
-#     r_orbit:u.Quantity
-# ):
-#     num = (1-bond_albedo) * get_flux(teff_star,r_star,r_orbit)*np.sin(colat(lat))*pcos(get_psi(lon))
-#     return ((num/c.sigma_sb)**0.25).to(u.K)
 
 def get_t0(
     star_teff:u.Quantity,
@@ -181,6 +182,8 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
         y_final = np.atleast_1d(np.mean(result.y[:,-1]))
         
         result = solve_ivp(func,(-np.pi,np.pi),y0=y_final,t_eval=(lons))
+        if not result.success:
+            raise ValueError(result.message)
         return result.t,result.y.T
     elif mode == 'bvp':
         if epsilon < 1:
@@ -231,7 +234,7 @@ class TemperatureMap:
     ----------
     epsilon : float
         The thermal inertia.
-    t0 : u.Quantity
+    t0 : astropy.units.Quantity
         The fiducial temperature.
     """
     min_temp = 40*u.K
@@ -253,7 +256,28 @@ class TemperatureMap:
         self.equator = interp1d(phi,T[:,0])
         self.epsilon = epsilon
         self.t0 = t0
-    def eval(self,lon,lat)->u.Quantity:
+    def eval(
+        self,
+        lon:u.Quantity,
+        lat:u.Quantity
+    )->u.Quantity:
+        """
+        Evaluate the temperature map at a point of points.
+
+        Parameters
+        ----------
+        lon : astropy.units.Quantity
+            The longitude of the points to evaluate.
+        lat : astropy.units.Quantity
+            The latitude of the points to evaluate.
+
+        Returns
+        -------
+        astropy.units.Quantity
+            The surface temperature at the desired points.
+        """
+        if isinstance(lon,u.Quantity):
+            lon = get_psi(lon)
         tmap = self.equator(lon)*np.cos(lat)**0.25 * self.t0
         tmap = np.where(tmap > self.min_temp,tmap,self.min_temp)
         return tmap
@@ -266,6 +290,23 @@ class TemperatureMap:
         r_star:u.Quantity,
         r_orbit:u.Quantity
     ):
+        """
+        Generate a `TemperatureMap` given the properties of a planet.
+
+        Parameters
+        ----------
+        epsilon : float
+            The thermal inertia of the planet.
+        star_teff : astropy.units.Quantity
+            The effective temperature of the host star.
+        albedo : float
+            The Bond albedo of the planet.
+        r_star : astropy.units.Quantity
+            The radius of the host star.
+        r_orbit : astropy.units.Quantity
+            The planet's orbital radius.
+
+        """
         t0 = get_t0(star_teff,albedo,r_star,r_orbit)
         return cls(epsilon,t0)
 
@@ -277,7 +318,32 @@ def validate_energy_balance(
     albedo:float,
     r_star:u.Quantity,
     r_orbit:u.Quantity
-):  
+)->bool:
+    """
+    Validate the energy balance.
+
+    Parameters
+    ----------
+    tmap : astropy.units.Quantity
+        The temperature map.
+    lons : np.ndarray
+        The longitude points of the map.
+    lats : np.ndarray
+        The latitude points of the map.
+    star_teff : astropy.units.Quantity
+        The effective temperature of the star.
+    albedo : float
+        The Bond albedo of the planet.
+    r_star : astropy.units.Quantity
+        The radius of the star.
+    r_orbit : astropy.units.Quantity
+        The orbital radius of the planet.
+
+    Returns
+    -------
+    bool
+        True if the energy is balanced to within 1%.
+    """
     r_planet = 1*u.R_earth # for units. This will divide out later.
     incident_flux = get_flux(star_teff,r_star,r_orbit) # W/m2
     absorbed = (1-albedo) * incident_flux * np.pi * r_planet**2

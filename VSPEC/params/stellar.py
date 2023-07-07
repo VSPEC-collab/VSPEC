@@ -2,12 +2,10 @@
 Stellar Parameters
 """
 from astropy import units as u
-import numpy as np
+import yaml
 
 
-from VSPEC.config import stellar_area_unit
-
-from VSPEC.helpers import MSH
+from VSPEC.config import MSH, PRESET_PATH
 from VSPEC.params.base import BaseParameters
 
 
@@ -32,11 +30,26 @@ class LimbDarkeningParameters(BaseParameters):
 
     Notes
     -----
-    Quadratic Law (Kopal, 1950)
+    Quadratic Law (Kopal, 1950, cited in :cite:t:`2022AJ....163..228P`)
+
     .. math::
 
-        \frac{I(\mu)}{I(1)} = 1 - u_1 (1-\mu) - u_2 (1-\mu)^2
+        \\frac{I(\\mu)}{I(1)} = 1 - u_1 (1-\\mu) - u_2 (1-\\mu)^2
     
+    Examples
+    --------
+    >>> params_dict = {'preset': 'solar'}
+    >>> params = LimbDarkeningParameters.from_dict(params_dict)
+
+    In the example above, the 'solar' preset configuration is used to create an instance
+    of LimbDarkeningParameters.
+
+    >>> params_dict = {'u1': 0.3, 'u2': 0.1}
+    >>> params = LimbDarkeningParameters.from_dict(params_dict)
+
+    In the example above, custom values for 'u1' and 'u2' are provided to create an instance
+    of LimbDarkeningParameters.
+
     """
 
     def __init__(self, u1: float, u2: float):
@@ -84,22 +97,16 @@ class LimbDarkeningParameters(BaseParameters):
 
 class SpotParameters(BaseParameters):
     """
-    Spot Parameters
+    Parameters controling variability from star spots.
 
     Parameters
-    -----------
+    ----------
     distribution : str
-        The distribution function to be used for the spot positions. 'iso' or 'solar'.
+        The distribution function to be used for the spot positions.
+        Either ``iso`` for an isotropic distribution or ``solar`` for two bands at :math:`\\pm 15^\\circ` latitude.
     initial_coverage : float
-        The coverage for a 'hot start'.
-    equillibrium_coverage : float
-        The fractional coverage of the star's surface by spots. This is the value
-        at growth-decay equillibrium, and different from the 'hot start' value given
-        by `initial_coverage`.
-    warmup : astropy.units.Quantity
-        The duration of the warmup period, during which the spot coverage approaches
-        equillibrium.
-    area_mean : astropy.units.quantity
+        The spot coverage created initially by generating spots at random stages of life.
+    area_mean : astropy.units.Quantity
         The mean area of a spot on the star's surface is MSH.
     area_logsigma : float
         The standard deviation of the spot areas. This is a lognormal
@@ -108,6 +115,12 @@ class SpotParameters(BaseParameters):
         The effective temperature of the spot umbrae.
     teff_penumbra : astropy.units.Quantity
         The effective temperature of the spot penumbrae.
+    equillibrium_coverage : float
+        The fractional coverage of the star's surface by spots. This is the value
+        at growth-decay equillibrium.
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the spot coverage approaches
+        equillibrium.
     growth_rate : astropy.units.Quantity
         The rate at which new spots grow.
     decay_rate : astropy.units.Quantity
@@ -115,19 +128,12 @@ class SpotParameters(BaseParameters):
     initial_area : astropy.units.Quantity
         The initial area of newly created spots.
 
-    Attrributes
-    -----------
+    Attributes
+    ----------
     distribution : str
         The distribution function to be used for the spot positions. 'iso' or 'solar'.
     initial_coverage : float
         The coverage for a 'hot start'.
-    equillibrium_coverage : float
-        The fractional coverage of the star's surface by spots. This is the value
-        at growth-decay equillibrium, and different from the 'hot start' value given
-        by `initial_coverage`.
-    warmup : astropy.units.Quantity
-        The duration of the warmup period, during which the spot coverage approaches
-        equillibrium.
     area_logmean : float
         The mean area of a spot on the star's surface is MSH.
     area_logsigma : float
@@ -137,42 +143,53 @@ class SpotParameters(BaseParameters):
         The effective temperature of the spot umbrae.
     teff_penumbra : astropy.units.Quantity
         The effective temperature of the spot penumbrae.
+    equillibrium_coverage : float
+        The fractional coverage of the star's surface by spots. This is the value
+        at growth-decay equillibrium, and different from the 'hot start' value given
+        by `initial_coverage`.
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the spot coverage approaches
+        equillibrium.
     growth_rate : astropy.units.Quantity
         The rate at which new spots grow.
     decay_rate : astropy.units.Quantity
         The rate at which existing spots decay.
     initial_area : astropy.units.Quantity
         The initial area of newly created spots.
+    
     """
-
+    _PRESET_PATH = PRESET_PATH / 'spots.yaml'
+    """
+    The path to the preset file.
+    """
     def __init__(
         self,
         distribution: str,
         initial_coverage: float,
-        equillibrium_coverage: float,
-        warmup: u.Quantity,
         area_mean: u.Quantity,
         area_logsigma: float,
         teff_umbra: u.Quantity,
         teff_penumbra: u.Quantity,
+        equillibrium_coverage: float,
+        burn_in: u.Quantity,
         growth_rate: u.Quantity,
         decay_rate: u.Quantity,
         initial_area: u.Quantity
     ):
         self.distribution = distribution
         self.initial_coverage = initial_coverage
-        self.equillibrium_coverage = equillibrium_coverage
-        self.warmup = warmup
         self.area_mean = area_mean
         self.area_logsigma = area_logsigma
         self.teff_umbra = teff_umbra
         self.teff_penumbra = teff_penumbra
+        self.equillibrium_coverage = equillibrium_coverage
+        self.burn_in = burn_in
         self.growth_rate = growth_rate
         self.decay_rate = decay_rate
         self.initial_area = initial_area
-        self.validate()
+        self._validate()
 
-    def validate(self):
+    def _validate(self):
         """
         Validate class instance
         """
@@ -190,55 +207,55 @@ class SpotParameters(BaseParameters):
         return cls(
             distribution=str(d['distribution']),
             initial_coverage=float(d['initial_coverage']),
-            equillibrium_coverage=float(d['equillibrium_coverage']),
-            warmup=u.Quantity(d['warmup']),
             area_mean=u.Quantity(d['area_mean']),
             area_logsigma=float(d['area_logsigma']),
             teff_umbra=u.Quantity(d['teff_umbra']),
             teff_penumbra=u.Quantity(d['teff_penumbra']),
+            equillibrium_coverage=float(d['equillibrium_coverage']),
+            burn_in=u.Quantity(d['burn_in']),
             growth_rate=u.Quantity(d['growth_rate']),
             decay_rate=u.Quantity(d['decay_rate']),
             initial_area=u.Quantity(d['initial_area'])
         )
+    @classmethod
+    def from_preset(cls,name):
+        """
+        Load a ``SpotParameters`` instance from a preset file.
+
+        Parameters
+        ----------
+        name : str
+            The name of the preset to load.
+        
+        Returns
+        -------
+        SpotParameters
+            The class instance loaded from a preset.
+        """
+        with open(cls._PRESET_PATH, 'r',encoding='UTF-8') as file:
+            data = yaml.safe_load(file)
+            return cls.from_dict(data[name])
 
     @classmethod
     def none(cls):
         """
         No spots
         """
-        return cls(
-            'iso', 0., 0., 0.*u.s,
-            500*MSH, 0.2,
-            100*u.K, 100*u.K,
-            0./u.day, 0*MSH/u.day,
-            10*MSH
-        )
+        return cls.from_preset('none')
 
     @classmethod
     def mdwarf(cls):
         """
         Static Spots
         """
-        return cls(
-            'iso', 0.2, 0., 0.,
-            500*MSH, 0.2,
-            2500*u.K, 2700*u.K,
-            0./u.day, 0*MSH/u.day,
-            10*MSH
-        )
+        return cls.from_preset('mdwarf')
 
     @classmethod
     def solar(cls):
         """
         Solar-style spots
         """
-        return cls(
-            'solar', 0.1, 0.1, 30*u.day,
-            500*MSH, 0.2,
-            2500*u.K, 2700*u.K,
-            0.52/u.day, 10.8*MSH/u.day,
-            10*MSH
-        )
+        return cls.from_preset('solar')
 
 
 class FaculaParameters(BaseParameters):
@@ -248,21 +265,34 @@ class FaculaParameters(BaseParameters):
     Parameters
     ----------
     distribution : str
-        The distribution used to generate the faculae on the star. Currently only 'iso' is supported.
+        The distribution used to generate the faculae on the star.
+        Currently only 'iso' is supported.
     equillibrium_coverage : float
         The fraction of the star's surface covered by the faculae at growth-decay equilibrium.
-    warmup : astropy.units.Quantity [time]
-        The warmup time for the faculae on the star to reach equilibrium.
-    mean_radius : astropy.units.quantity.Quantity [distance]
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the facula coverage approaches
+        equillibrium.
+    mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
-    hwhm_radius : astropy.units.quantity.Quantity [distance]
-        The half-width at half-maximum radius of the faculae. It is the difference between the peak of the radius
-        distribution and the half maximum in the positive direction.
-    mean_timescale : astropy.units.quantity.Quantity [time]
+    logsigma_radius : float
+        The standard deviation of :math:`\\log{r_{0}}.
+    depth : astropy.units.Quantity
+        The depth of the facula depression.
+    mean_timescale : astropy.units.Quantity
         The mean faculae lifetime.
-    hwhm_timescale : astropy.units.quantity.Quantity [time]
-        The facula timescale distribution half-width-half-maximum in hours. It is the difference between the peak of
-        the timescale distribution and the half maximum in the positive direction.
+    logsigma_timescale : float
+        The standard deviation of :math:`\\log{\\tau}`
+    floor_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    floor_teff_min_rad : astropy.units.Quantity
+        The minimum radius at which the floor is visible. Otherwise the facula
+        is a bright point -- even near disk center.
+    floor_teff_base_dteff : astropy.units.Quantity
+        The Teff of the floor at the minimum radius.
+    wall_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    wall_teff_intercept : astropy.units.Quantity
+        The Teff of the wall when :math:`R = 0`.
 
     Attributes
     ----------
@@ -270,38 +300,64 @@ class FaculaParameters(BaseParameters):
         The distribution used to generate the faculae on the star.
     equillibrium_coverage : float
         The fraction of the star's surface covered by the faculae at growth-decay equilibrium.
-    warmup : astropy.units.Quantity
-        The warmup time for the faculae on the star to reach equilibrium.
-    mean_radius : astropy.units.quantity.Quantity
+    burn_in : astropy.units.Quantity
+        The duration of the burn-in period, during which the facula coverage approaches
+        equillibrium.
+    mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
-    hwhm_radius : astropy.units.quantity.Quantity
-        The half-width at half-maximum radius of the faculae.
-    mean_timescale : astropy.units.quantity.Quantity
+    logsigma_radius : float
+        The standard deviation of :math:`\\log{r_{0}}.
+    depth : astropy.units.Quantity
+        The depth of the facula depression.
+    mean_timescale : astropy.units.Quantity
         The mean faculae lifetime.
-    hwhm_timescale : astropy.units.quantity.Quantity
-        The facula timescale distribution half-width-half-maximum in hours.
+    logsigma_timescale : float
+        The standard deviation of :math:`\\log{\\tau}`
+    floor_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    floor_teff_min_rad : astropy.units.Quantity
+        The minimum radius at which the floor is visible. Otherwise the facula
+        is a bright point -- even near disk center.
+    floor_teff_base_dteff : astropy.units.Quantity
+        The Teff of the floor at the minimum radius.
+    wall_teff_slope : astropy.units.Quantity
+        The slope of the radius-Teff relationship
+    wall_teff_intercept : astropy.units.Quantity
+        The Teff of the wall when :math:`R = 0`.
     """
-
+    _PRESET_PATH = PRESET_PATH / 'faculae.yaml'
     def __init__(
         self,
         distribution: str,
         equillibrium_coverage: float,
-        warmup: u.Quantity,
+        burn_in: u.Quantity,
         mean_radius: u.Quantity,
-        hwhm_radius: u.Quantity,
+        logsigma_radius: float,
+        depth: u.Quantity,
         mean_timescale: u.Quantity,
-        hwhm_timescale: u.Quantity
+        logsigma_timescale:float,
+        floor_teff_slope: u.Quantity,
+        floor_teff_min_rad: u.Quantity,
+        floor_teff_base_dteff: u.Quantity,
+        wall_teff_slope: u.Quantity,
+        wall_teff_intercept: u.Quantity,
     ):
         self.distribution = distribution
         self.equillibrium_coverage = equillibrium_coverage
-        self.warmup = warmup
+        self.burn_in = burn_in
         self.mean_radius = mean_radius
-        self.hwhm_radius = hwhm_radius
+        self.logsigma_radius = logsigma_radius
+        self.depth = depth
         self.mean_timescale = mean_timescale
-        self.hwhm_timescale = hwhm_timescale
-        self.validate()
+        self.logsigma_timescale = logsigma_timescale
+        self.floor_teff_slope = floor_teff_slope
+        self.floor_teff_min_rad = floor_teff_min_rad
+        self.floor_teff_base_dteff = floor_teff_base_dteff
+        self.wall_teff_slope = wall_teff_slope
+        self.wall_teff_intercept = wall_teff_intercept
+        self._validate()
 
-    def validate(self):
+    def _validate(self):
         """
         Validate class instance
         """
@@ -316,28 +372,48 @@ class FaculaParameters(BaseParameters):
         return cls(
             distribution=str(d['distribution']),
             equillibrium_coverage=float(d['equillibrium_coverage']),
-            warmup=u.Quantity(d['warmup']),
+            burn_in=u.Quantity(d['burn_in']),
             mean_radius=u.Quantity(d['mean_radius']),
-            hwhm_radius=u.Quantity(d['hwhm_radius']),
+            logsigma_radius=float(d['logsigma_radius']),
             mean_timescale=u.Quantity(d['mean_timescale']),
-            hwhm_timescale=u.Quantity(d['hwhm_timescale']),
+            logsigma_timescale=float(d['logsigma_timescale']),
+            depth=u.Quantity(d['depth']),
+            floor_teff_slope=u.Quantity(d['floor_teff_slope']),
+            floor_teff_min_rad=u.Quantity(d['floor_teff_min_rad']),
+            floor_teff_base_dteff=u.Quantity(d['floor_teff_base_dteff']),
+            wall_teff_slope=u.Quantity(d['wall_teff_slope']),
+            wall_teff_intercept=u.Quantity(d['wall_teff_intercept'])
         )
+    @classmethod
+    def from_preset(cls, name):
+        """
+        Load a ``FaculaParameters`` instance from a preset file.
 
+        Parameters
+        ----------
+        name : str
+            The name of the preset to load.
+        
+        Returns
+        -------
+        FaculaParameters
+            The class instance loaded from a preset.
+        """
+        return super().from_preset(name)
     @classmethod
     def none(cls):
-        return cls(
-            'iso', 0.000, 0*u.s,
-            500*u.km, 200*u.km,
-            10*u.hr, 4*u.hr,
-        )
+        """
+        Load a parameter set without faculae.
+        """
+        return cls.from_preset('none')
 
     @classmethod
     def std(cls):
-        return cls(
-            'iso', 0.001, 30*u.hr,
-            500*u.km, 200*u.km,
-            10*u.hr, 4*u.hr
-        )
+        """
+        Load a parameter preset with simple standard faculae
+        for testing.
+        """
+        return cls.from_preset('std')
 
 
 class FlareParameters(BaseParameters):
@@ -346,93 +422,104 @@ class FlareParameters(BaseParameters):
 
     Parameters
     ----------
-    group_probability : float
-        The probability that a given flare will be closely followed by another flare.
-    teff_mean : astropy.units.quantity.Quantity [temperature]
-        The mean temperature of the flare blackbody.
-    teff_sigma : astropy.units.quantity.Quantity [temperature]
-        The standard deviation of the generated flare temperature.
-    fwhm_mean : astropy.units.Quantity
-        The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
-    fwhm_sigma : float
-        The standard deviation of the logarithm of the FWHM of the flare in days.
-    E_min : astropy.units.Quantity
-        Log of the minimum energy flares to be considered in ergs.
-    E_max : astropy.units.Quantity
-        Log of the maximum energy flares to be considered in ergs.
-    E_steps : int
-        The number of flare energy steps to consider.
-
+    dist_teff_mean : astropy.units.Quantity
+        The mean of the temperature distribution.
+    dist_teff_sigma : astropy.units.Quantity
+        The standard deviation of the temperature distribution.
+    dist_fwhm_mean : astropy.units.Quantity
+        The mean of the FWHM distribution.
+    dist_fwhm_logsigma : float
+        The standard deviation of the logorithm of the FWHM distribution in dex.
+    alpha : float
+        The slope of the log frequency - log energy relationship.
+    beta : float
+        The y-intercept of the log frequency - log energy relationship.
+    min_energy : astropy.units.Quantity
+        The minimum energy to consider. Set to ``np.inf*u.erg`` to disable flares.
+    cluster_size : int
+        The typical size of flare clusters.
+    
     Attributes
     ----------
-    group_probability : float
-        The probability that a given flare will be closely followed by another flare.
-    teff_mean : astropy.units.quantity.Quantity [temperature]
-        The mean temperature of the flare blackbody.
-    teff_sigma : astropy.units.quantity.Quantity [temperature]
-        The standard deviation of the generated flare temperature.
-    fwhm_mean : astropy.units.Quantity
-        The mean logarithm of the full width at half maximum (FWHM) of the flare in days.
-    fwhm_sigma : float
-        The standard deviation of the logarithm of the FWHM of the flare in days.
-    E_min : astropy.units.Quantity
-        Log of the minimum energy flares to be considered in ergs.
-    E_max : astropy.units.Quantity
-        Log of the maximum energy flares to be considered in ergs.
-    E_steps : int
-        The number of flare energy steps to consider.
+    dist_teff_mean : astropy.units.Quantity
+        The mean of the temperature distribution.
+    dist_teff_sigma : astropy.units.Quantity
+        The standard deviation of the temperature distribution.
+    dist_fwhm_mean : astropy.units.Quantity
+        The mean of the FWHM distribution.
+    dist_fwhm_logsigma : float
+        The standard deviation of the logorithm of the FWHM distribution in dex.
+    alpha : float
+        The slope of the log frequency - log energy relationship.
+    beta : float
+        The y-intercept of the log frequency - log energy relationship.
+    min_energy : astropy.units.Quantity
+        The minimum energy to consider. Set to ``np.inf*u.erg`` to disable flares.
+    cluster_size : int
+        The typical size of flare clusters.
     """
-
+    _PRESET_PATH = PRESET_PATH / 'flares.yaml'
     def __init__(
         self,
-        group_probability: float,
-        teff_mean: u.Quantity,
-        teff_sigma: u.Quantity,
-        fwhm_mean: u.Quantity,
-        fwhm_sigma: float,
-        E_min: u.Quantity,
-        E_max: u.Quantity,
-        E_steps: int
+        dist_teff_mean: u.Quantity,
+        dist_teff_sigma: u.Quantity,
+        dist_fwhm_mean: u.Quantity,
+        dist_fwhm_logsigma: float,
+        alpha: float,
+        beta: float,
+        min_energy: u.Quantity,
+        cluster_size: int
     ):
-        self.group_probability = group_probability
-        self.teff_mean = teff_mean
-        self.teff_sigma = teff_sigma
-        self.fwhm_mean = fwhm_mean
-        self.fwhm_sigma = fwhm_sigma
-        self.E_min = E_min
-        self.E_max = E_max
-        self.E_steps = E_steps
+        self.dist_teff_mean = dist_teff_mean
+        self.dist_teff_sigma = dist_teff_sigma
+        self.dist_fwhm_mean = dist_fwhm_mean
+        self.dist_fwhm_logsigma = dist_fwhm_logsigma
+        self.alpha = alpha
+        self.beta = beta
+        self.min_energy = min_energy
+        self.cluster_size = cluster_size
+    @classmethod
+    def from_preset(cls, name):
+        """
+        Load a ``FlareParameters`` configuration from a preset.
 
+        Parameters
+        ----------
+        name : str
+            The name of the preset to load.
+        
+        Returns
+        -------
+        FlareParameters
+            The class instance loaded from a preset.
+        """
+        return super().from_preset(name)
     @classmethod
     def _from_dict(cls, d):
         return cls(
-            group_probability=float(d['group_probability']),
-            teff_mean=u.Quantity(d['teff_mean']),
-            teff_sigma=u.Quantity(d['teff_sigma']),
-            fwhm_mean=u.Quantity(d['fwhm_mean']),
-            fwhm_sigma=float(d['fwhm_sigma']),
-            E_min=u.Quantity(d['E_min']),
-            E_max=u.Quantity(d['E_max']),
-            E_steps=int(d['E_steps'])
+            dist_teff_mean=u.Quantity(d['dist_teff_mean']),
+            dist_teff_sigma=u.Quantity(d['dist_teff_sigma']),
+            dist_fwhm_mean=u.Quantity(d['dist_fwhm_mean']),
+            dist_fwhm_logsigma=float(d['dist_fwhm_logsigma']),
+            alpha=float(d['alpha']),
+            beta=float(d['beta']),
+            min_energy=u.Quantity(d['min_energy']),
+            cluster_size=int(d['cluster_size'])
         )
 
     @classmethod
     def none(cls):
-        return cls(
-            0.5, 9000*u.K, 500*u.K,
-            u.Quantity(0.14*u.day), 0.3,
-            u.Quantity(10**32.5*u.erg), u.Quantity(10**34.5*u.erg),
-            0
-        )
+        """
+        A configuration with no flares.
+        """
+        return cls.from_preset('none')
 
     @classmethod
     def std(cls):
-        return cls(
-            0.5, 9000*u.K, 500*u.K,
-            u.Quantity(0.14*u.day), 0.3,
-            u.Quantity(10**32.5*u.erg), u.Quantity(10**34.5*u.erg),
-            100
-        )
+        """
+        A standard flare configuration for testing.
+        """
+        return cls.from_preset('std')
 
 
 class GranulationParameters(BaseParameters):
@@ -505,24 +592,24 @@ class GranulationParameters(BaseParameters):
 
 class StarParameters(BaseParameters):
     """
-    Class to store stellar model parameters.
+    Parameters describing the ``VSPEC`` stellar model.
 
     Parameters
     ----------
-    template : str
+    psg_star_template : str
         The template used for the stellar model.
-    teff : astropy.units.quantity.Quantity
+    teff : astropy.units.Quantity
         The effective temperature of the star.
-    mass : astropy.units.quantity.Quantity
+    mass : astropy.units.Quantity
         The mass of the star.
-    radius : astropy.units.quantity.Quantity
+    radius : astropy.units.Quantity
         The radius of the star.
-    period : astropy.units.quantity.Quantity
+    period : astropy.units.Quantity
         The rotational period of the star.
-    offset_magnitude : astropy.units.quantity.Quantity
-        The magnitude of the stellar rotation axis offset.
-    offset_direction : astropy.units.quantity.Quantity
-        The direction offset of the stellar rotation axis offset.
+    misalignment : astropy.units.Quantity
+        The misalignment between the stellar rotation axis and the orbital axis.
+    misalignment_dir : astropy.units.Quantity
+        The direction of stellar rotation axis misalignment.
     ld : LimbDarkeningParameters
         The limb darkening parameters of the star.
     spots : SpotParameters
@@ -540,20 +627,20 @@ class StarParameters(BaseParameters):
     
     Attributes
     ----------
-    template : str
+    psg_star_template : str
         The template used for the stellar model.
-    teff : astropy.units.quantity.Quantity
+    teff : astropy.units.Quantity
         The effective temperature of the star.
-    mass : astropy.units.quantity.Quantity
+    mass : astropy.units.Quantity
         The mass of the star.
-    radius : astropy.units.quantity.Quantity
+    radius : astropy.units.Quantity
         The radius of the star.
-    period : astropy.units.quantity.Quantity
+    period : astropy.units.Quantity
         The rotational period of the star.
-    offset_magnitude : astropy.units.quantity.Quantity
-        The magnitude of the stellar rotation axis offset.
-    offset_direction : astropy.units.quantity.Quantity
-        The direction offset of the stellar rotation axis offset.
+    misalignment : astropy.units.Quantity
+        The misalignment between the stellar rotation axis and the orbital axis.
+    misalignment_dir : astropy.units.Quantity
+        The direction of stellar rotation axis misalignment.
     ld : LimbDarkeningParameters
         The limb darkening parameters of the star.
     spots : SpotParameters
@@ -572,13 +659,13 @@ class StarParameters(BaseParameters):
 
     def __init__(
         self,
-        template: str,
+        psg_star_template: str,
         teff: u.Quantity,
         mass: u.Quantity,
         radius: u.Quantity,
         period: u.Quantity,
-        offset_magnitude: u.Quantity,
-        offset_direction: u.Quantity,
+        misalignment: u.Quantity,
+        misalignment_dir: u.Quantity,
         ld: LimbDarkeningParameters,
         spots: SpotParameters,
         faculae: FaculaParameters,
@@ -587,13 +674,13 @@ class StarParameters(BaseParameters):
         Nlat: int,
         Nlon: int
     ):
-        self.template = template
+        self.psg_star_template = psg_star_template
         self.teff = teff
         self.mass = mass
         self.radius = radius
         self.period = period
-        self.offset_magnitude = offset_magnitude
-        self.offset_direction = offset_direction
+        self.misalignment = misalignment
+        self.misalignment_dir = misalignment_dir
         self.ld = ld
         self.spots = spots
         self.faculae = faculae
@@ -601,17 +688,31 @@ class StarParameters(BaseParameters):
         self.granulation = granulation
         self.Nlat = Nlat
         self.Nlon = Nlon
+    @classmethod
+    def from_dict(cls, d: dict):
+        """
+        Construct a ``StarParameters`` object from a dictionary.
 
+        Parameters
+        ----------
+        d : dict
+            The dictionary representing the ``StarParameters`` object.
+        
+        Notes
+        -----
+        Available presets include ``static_proxima``, ``spotted_proxima``, ``flaring_proxima``, and ``proxima``.
+        """
+        return super().from_dict(d)
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            template=str(d['template']),
+            psg_star_template=str(d['psg_star_template']),
             teff=u.Quantity(d['teff']),
             mass=u.Quantity(d['mass']),
             radius=u.Quantity(d['radius']),
             period=u.Quantity(d['period']),
-            offset_magnitude=u.Quantity(d['offset_magnitude']),
-            offset_direction=u.Quantity(d['offset_direction']),
+            misalignment=u.Quantity(d['misalignment']),
+            misalignment_dir=u.Quantity(d['misalignment_dir']),
             ld=LimbDarkeningParameters.from_dict(d['ld']),
             spots=SpotParameters.from_dict(d['spots']),
             faculae=FaculaParameters.from_dict(d['faculae']),
@@ -621,8 +722,16 @@ class StarParameters(BaseParameters):
             Nlon=int(d['Nlon'])
         )
     def to_psg(self)->dict:
+        """
+        Write a dictionary containing PSG config options.
+
+        Returns
+        -------
+        dict
+            Configurations to send to PSG.
+        """
         return {
-            'OBJECT-STAR-TYPE': self.template,
+            'OBJECT-STAR-TYPE': self.psg_star_template,
             'OBJECT-STAR-TEMPERATURE': f'{self.teff.to_value(u.K):.1f}',
             'OBJECT-STAR-RADIUS': f'{self.radius.to_value(u.R_sun):.4f}',
             'GENERATOR-CONT-STELLAR': 'Y'
@@ -630,14 +739,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def static_proxima(cls):
+        """
+        A Proxima Centauri-like star that has no variability.
+        """
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.none(),
             faculae=FaculaParameters.none(),
@@ -648,14 +760,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def spotted_proxima(cls):
+        """
+        A Proxima Centauri-like star that has spots.
+        """
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.mdwarf(),
             faculae=FaculaParameters.none(),
@@ -666,14 +781,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def flaring_proxima(cls):
+        """
+        A Proxima Centauri-like star that flares.
+        """
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.none(),
             faculae=FaculaParameters.none(),
@@ -684,14 +802,17 @@ class StarParameters(BaseParameters):
 
     @classmethod
     def proxima(cls):
+        """
+        A Proxima Centauri-like star that has spots and flares.
+        """
         return cls(
-            template='M',
+            psg_star_template='M',
             teff=3300*u.K,
             mass=0.12*u.M_sun,
             radius=0.154*u.R_sun,
             period=40*u.day,
-            offset_magnitude=0*u.deg,
-            offset_direction=0*u.deg,
+            misalignment=0*u.deg,
+            misalignment_dir=0*u.deg,
             ld=LimbDarkeningParameters.proxima(),
             spots=SpotParameters.mdwarf(),
             faculae=FaculaParameters.none(),

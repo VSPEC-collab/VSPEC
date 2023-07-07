@@ -14,7 +14,10 @@ import numpy as np
 from astropy import units as u
 from astropy.units.quantity import Quantity
 
-from VSPEC.helpers import to_float, CoordinateGrid, MSH
+from VSPEC.helpers import CoordinateGrid
+from VSPEC.config import MSH, starspot_initial_area
+from VSPEC import config
+from VSPEC.params import SpotParameters
 
 
 class StarSpot:
@@ -29,7 +32,7 @@ class StarSpot:
     but with parameterized values for spot temperature and 
     lifetime that can be matched to observations of other 
     stellar types and ages.
-    
+
     Parameters
     ----------
     lat : astropy.units.Quantity 
@@ -67,23 +70,25 @@ class StarSpot:
 
     Attributes
     ----------
+    radius
     coords : dict
         A dictionary containing the latitude and longitude of the spot's center.
-    area_max : astropy.units.Quantity 
+    area_max : astropy.units.Quantity
         The maximum area a spot reaches before it decays.
-    area_current : astropy.units.Quantity 
+    area_current : astropy.units.Quantity
         The current area of the spot.
-    Teff_umbra : astropy.units.Quantity 
+    Teff_umbra : astropy.units.Quantity
         The effective temperature of the spot umbra.
-    Teff_penumbra : astropy.units.Quantity 
+    Teff_penumbra : astropy.units.Quantity
         The effective temperature of the spot penumbra.
     decay_rate : astropy.units.Quantity
         The rate at which a spot linearly decays.
     total_area_over_umbra_area : float
-        The ratio of total spot area to umbra area. 5+/-1 according to :cite:t:`2003A&ARv..11..153S`.
+        The ratio of total spot area to umbra area. 5+/-1 according
+        to :cite:t:`2003A&ARv..11..153S`.
     is_growing : bool
         Whether or not the spot is growing.
-    growth_rate : astropy.units.Quantity 
+    growth_rate : astropy.units.Quantity
         Fractional growth of the spot for a given unit time.
     gridmaker : CoordinateGrid or None
         A `CoordinateGrid` object used to produce points on the stellar surface. If None,
@@ -91,8 +96,6 @@ class StarSpot:
     r : np.ndarray
         An array of points on the stellar surface with their pre-computed
         distance from the center of the spot.
-    radius
-
 
     References
     ----------
@@ -144,6 +147,7 @@ class StarSpot:
         s += f'area = {self.area_current.to(MSH):.0f}, '
         s += f'lat = {self.coords["lat"]:.1f}, lon = {self.coords["lon"]:.1f}'
         return s
+
     @property
     def radius(self) -> Quantity[u.km]:
         """
@@ -239,7 +243,7 @@ class StarSpot:
         rad = a**2 - (c-c0)**2
         rad[rad < 0] = 0
         integrand = 2 * np.cos(c)*np.sqrt(rad)
-        return to_float(np.trapz(integrand, x=c)/(2*np.pi*u.steradian), u.Unit(''))
+        return (np.trapz(integrand, x=c)/(2*np.pi*u.steradian)).to_value(u.dimensionless_unscaled)
 
     def age(self, time: Quantity[u.s]) -> None:
         """
@@ -420,7 +424,8 @@ class SpotCollection:
             # umbra
             umbra = teff_dict[spot.Teff_umbra] & (
                 surface_map > spot.Teff_umbra)
-            surface_map = np.where(umbra,spot.Teff_umbra,np.where(penumbra,spot.Teff_penumbra,surface_map))
+            surface_map = np.where(umbra, spot.Teff_umbra, np.where(
+                penumbra, spot.Teff_penumbra, surface_map))
         return surface_map
 
     def age(self, time: Quantity[u.day]) -> None:
@@ -438,18 +443,19 @@ class SpotCollection:
         for spot in self.spots:
             spot.age(time)
         self.clean_spotlist()
+
     def get_coverage(
         self,
-        r_star:u.Quantity,
+        r_star: u.Quantity,
     ):
         """
         Get the fractional coverage of star spots.
 
         Parameters
-        ---------
+        ----------
         r_star : astropy.units.Quantity
             The radius of the star.
-        
+
         Returns
         -------
         coverage : float
@@ -458,7 +464,7 @@ class SpotCollection:
         teff_star = np.inf*u.K
         lats2d, _ = self.gridmaker.grid()
         jacobian = np.cos(lats2d).value
-        tmap = self.map_pixels(r_star,teff_star)
+        tmap = self.map_pixels(r_star, teff_star)
         is_spot = tmap != teff_star
         return np.sum(jacobian*is_spot)/np.sum(jacobian)
 
@@ -541,27 +547,27 @@ class SpotGenerator:
     """
 
     def __init__(self,
-                 average_area: Quantity[MSH],
-                 area_spread: float,
+                 dist_area_mean: Quantity[MSH],
+                 dist_area_logsigma: float,
                  umbra_teff: Quantity[u.K],
                  penumbra_teff: Quantity[u.K],
                  growth_rate: Quantity[1/u.day] = 0.52/u.day,
                  decay_rate: Quantity[MSH/u.day] = 10.89 * MSH/u.day,
-                 starting_size: Quantity[MSH] = 10*MSH,
+                 init_area: Quantity[MSH] = 10*MSH,
                  distribution='solar',
                  coverage: float = 0.2,
                  Nlat: int = 500,
                  Nlon: int = 1000,
                  gridmaker=None,
-                 rng:np.random.Generator=np.random.default_rng()
+                 rng: np.random.Generator = np.random.default_rng()
                  ):
-        self.average_spot_area = average_area
-        self.spot_area_spread = area_spread
+        self.dist_area_mean = dist_area_mean
+        self.dist_area_logsigma = dist_area_logsigma
         self.umbra_teff = umbra_teff
         self.penumbra_teff = penumbra_teff
         self.growth_rate = growth_rate
         self.decay_rate = decay_rate
-        self.starting_size = starting_size
+        self.init_area = init_area
         self.distribution = distribution
         self.coverage = coverage
         if gridmaker is None:
@@ -570,8 +576,53 @@ class SpotGenerator:
             self.gridmaker = gridmaker
         self.rng = rng
 
+    @classmethod
+    def from_params(
+        cls,
+        spotparams: SpotParameters,
+        nlat: int = config.nlat,
+        nlon: int = config.nlon,
+        gridmaker: CoordinateGrid = None,
+        rng: np.random.Generator = np.random.default_rng()
+    ):
+        """
+        Construct a ``SpotGenerator`` object from a ``SpotParameters`` object.
+
+        Parameters
+        ----------
+        spotparams : SpotParameters
+            The parameters to build the instance from.
+        nlat : int, default=VSPEC.config.nlat
+            The number of latitude points. Default defined in `VSPEC.config`.
+        nlon : int, default=VSPEC.config.nlon
+            The number of longitude points. Default defined in `VSPEC.config`.
+        gridmaker : CoordinateGrid, default=None
+            The ``CoordianteGrid`` object to create the surface array.
+        rng : numpy.random.Generator, default=np.random.default_rng()
+            The random number generator to use.
+
+        Notes
+        -----
+        ``init_area`` is set to ``VSPEC.config.starspot_initial_area``.
+        """
+        return cls(
+            dist_area_mean=spotparams.area_mean,
+            dist_area_logsigma=spotparams.area_logsigma,
+            umbra_teff=spotparams.teff_umbra,
+            penumbra_teff=spotparams.teff_penumbra,
+            growth_rate=spotparams.growth_rate,
+            decay_rate=spotparams.decay_rate,
+            init_area=starspot_initial_area,
+            distribution=spotparams.distribution,
+            coverage=spotparams.equillibrium_coverage,
+            Nlat=nlat,
+            Nlon=nlon,
+            gridmaker=gridmaker,
+            rng=rng
+        )
+
     @property
-    def is_static(self)->bool:
+    def is_static(self) -> bool:
         """
         True if the spots do not decay.
 
@@ -583,7 +634,7 @@ class SpotGenerator:
         return self.decay_rate == 0*MSH/u.day
 
     @property
-    def mean_lifetime(self)->u.Quantity:
+    def mean_lifetime(self) -> u.Quantity:
         """
         The mean lifetime of the spots.
 
@@ -595,11 +646,11 @@ class SpotGenerator:
         if self.is_static:
             return np.inf * u.day
         else:
-            return ((self.average_spot_area/self.decay_rate) 
-                -  np.log(self.starting_size/self.average_spot_area)/self.growth_rate ).to(u.day)
-    
+            return ((self.dist_area_mean/self.decay_rate)
+                    - np.log(self.init_area/self.dist_area_mean)/self.growth_rate).to(u.day)
+
     @property
-    def mean_area(self)->u.Quantity:
+    def mean_area(self) -> u.Quantity:
         """
         The time-averaged area of a typical spot.
 
@@ -609,12 +660,12 @@ class SpotGenerator:
             The time-averaged area of a typical spot.
         """
         if self.is_static:
-            return self.average_spot_area
+            return self.dist_area_mean
         else:
-            Adt =  (self.average_spot_area / self.growth_rate) \
-                + (self.starting_size / self.growth_rate) \
-                + (self.average_spot_area**2/2/self.decay_rate)
-            return Adt / self.mean_lifetime 
+            Adt = (self.dist_area_mean / self.growth_rate) \
+                + (self.init_area / self.growth_rate) \
+                + (self.dist_area_mean**2/2/self.decay_rate)
+            return Adt / self.mean_lifetime
 
     def get_coordinates(self, N: int):
         """
@@ -672,7 +723,7 @@ class SpotGenerator:
             If an unknown value is given for distribution.
         """
         new_max_areas = self.rng.lognormal(mean=np.log(
-            self.average_spot_area/MSH), sigma=self.spot_area_spread, size=N)*MSH
+            self.dist_area_mean/MSH), sigma=self.dist_area_logsigma, size=N)*MSH
         new_r_A = self.rng.normal(loc=5, scale=1, size=N)
         while np.any(new_r_A <= 0):
             new_r_A = self.rng.normal(loc=5, scale=1, size=N)
@@ -684,7 +735,7 @@ class SpotGenerator:
         spots = []
         for i in range(N):
             spots.append(StarSpot(
-                lat[i], lon[i], new_max_areas[i], self.starting_size, umbra_teff, penumbra_teff,
+                lat[i], lon[i], new_max_areas[i], self.init_area, umbra_teff, penumbra_teff,
                 growth_rate=self.growth_rate, decay_rate=self.decay_rate,
                 r_A=new_r_A[i], Nlat=self.gridmaker.Nlat, Nlon=self.gridmaker.Nlon, gridmaker=self.gridmaker
             ))
@@ -707,7 +758,8 @@ class SpotGenerator:
         N_exp : float
             Expected number of new `StarSpot` objects.
         """
-        N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.mean_area * time / self.mean_lifetime).to_value(u.dimensionless_unscaled)
+        N_exp = (self.coverage * 4*np.pi*rad_star**2 / self.mean_area *
+                 time / self.mean_lifetime).to_value(u.dimensionless_unscaled)
         return N_exp
 
     def birth_spots(self, time: Quantity[u.day], rad_star: Quantity[u.R_sun]) -> tuple[StarSpot]:
@@ -761,7 +813,7 @@ class SpotGenerator:
         while current_omega < target_omega:
             new_spot = self.generate_spots(1)[0]
             if self.is_static:
-                area0 = self.starting_size
+                area0 = self.init_area
                 area_range = new_spot.area_max - area0
                 area = self.rng.random()*area_range + area0
                 new_spot.area_current = area

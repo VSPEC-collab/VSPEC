@@ -7,8 +7,7 @@ from netCDF4 import Dataset
 from typing import Union
 import yaml
 
-from VSPEC.config import psg_encoding
-from VSPEC.files import PRESET_PATH
+from VSPEC.config import psg_encoding, PRESET_PATH
 from VSPEC.params.base import BaseParameters
 from VSPEC.waccm.read_nc import get_time_index
 from VSPEC.waccm.write_psg import get_cfg_contents
@@ -225,40 +224,33 @@ class gcmParameters(BaseParameters):
     """
     Class to store GCM parameters.
 
-    Parameters:
-    -----------
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
-
-    Attributes:
-    -----------
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
-    
-    Properties
+    Parameters
     ----------
-    is_static : bool
-        True if the GCM changes with time.
-    gcmtype : str
-        A string identifier for the GCM type
+    gcm : binaryGCM or waccmGCM
+        The GCM instance containing the GCM data.
+    mean_molec_weight : float
+        The mean molecular weight of the atmosphere
+        in g/mol.
 
-    Methods:
-    --------
-    content(**kwargs)
-        Get the content of the GCM for the specified observation parameters.
-
-    Class Methods:
-    --------------
-    _from_dict(d: dict)
-        Construct a gcmParameters instance from a dictionary representation.
+    Attributes
+    ----------
+    is_static
+    gcmtype
+    gcm : binaryGCM or waccmGCM
+        The GCM instance containing the GCM data.
+    mean_molec_weight : float
+        The mean molecular weight of the atmosphere
+        in g/mol.
 
     """
 
     def __init__(
         self,
-        gcm:Union[binaryGCM,Union[vspecGCM,waccmGCM]]
+        gcm:Union[binaryGCM,Union[vspecGCM,waccmGCM]],
+        mean_molec_weight: float
     ):
         self.gcm = gcm
+        self.mean_molec_weight = mean_molec_weight
 
     def content(self,**kwargs):
         return self.gcm.content(**kwargs)
@@ -280,20 +272,36 @@ class gcmParameters(BaseParameters):
         gcm_dict = d['gcm']
         star_dict = d['star']
         planet_dict = d['planet']
+        mean_molec_weight = float(gcm_dict['mean_molec_weight'])
         if 'binary' in gcm_dict:
             return cls(
-                gcm=binaryGCM.from_dict(gcm_dict['binary'])
+                gcm=binaryGCM.from_dict(gcm_dict['binary']),
+                mean_molec_weight=mean_molec_weight
             )
         elif 'waccm' in gcm_dict:
             return cls(
-                gcm=waccmGCM.from_dict(gcm_dict['waccm'])
+                gcm=waccmGCM.from_dict(gcm_dict['waccm']),
+                mean_molec_weight=mean_molec_weight
             )
         elif 'vspec' in gcm_dict:
             return cls(
-                gcm=vspecGCM.from_dict(gcm_dict['vspec'],star_dict,planet_dict)
+                gcm=vspecGCM.from_dict(gcm_dict['vspec'],star_dict,planet_dict),
+                mean_molec_weight=mean_molec_weight
             )
         else:
             raise KeyError(f'`binary`, `waccm`, or `vspec` not in {list(d.keys())}')
+    def to_psg(self)->dict:
+        """
+        Write parameters to the PSG format.
+
+        Returns
+        -------
+        dict
+            The PSG parameters in a dictionary
+        """
+        return {
+            'ATMOSPHERE-WEIGHT': f'{self.mean_molec_weight:.1f}'
+        }
 
 
 class APIkey(BaseParameters):
@@ -310,15 +318,11 @@ class APIkey(BaseParameters):
 
     Attributes
     ----------
+    value
     path : pathlib.Path or None
         The path to the file containing the API key.
     _value : str or None
         The API key value.
-
-    Properties
-    ----------
-    value : str
-        The API key value. If `path` is provided, the value is read from the file.
 
     """
 
@@ -375,6 +379,18 @@ class psgParameters(BaseParameters):
         interpolated to match the cadence of the variable star simulation.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    nmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of n-stream pairs - Use 0 for extinction
+        calculations only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
+    lmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of scattering Legendre polynomials used
+        for describing the phase function - Use 0 for extinction calculations
+        only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
+    continuum : list of str
+        The continuum opacities to include in the radiative transfer calculation, such as
+        'Rayleigh', 'Refraction', 'CIA_all'.
     url : str
         URL of the Planetary Spectrum Generator.
     api_key : APIkey
@@ -389,6 +405,15 @@ class psgParameters(BaseParameters):
         Number of phase epochs to bin together when simulating the planet.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    nmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of n-stream pairs - Use 0 for extinction
+        calculations only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
+    lmax : int
+        PSG handbook: 'When performing scattering aerosols calculations, this
+        parameter indicates the number of scattering Legendre polynomials used
+        for describing the phase function - Use 0 for extinction calculations
+        only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
     url : str
         URL of the Planetary Spectrum Generator.
     api_key : APIkey
@@ -401,12 +426,18 @@ class psgParameters(BaseParameters):
         gcm_binning: int,
         phase_binning: int,
         use_molecular_signatures: bool,
+        nmax: int,
+        lmax: int,
+        continuum: list,
         url: str,
         api_key: APIkey
     ):
         self.gcm_binning = gcm_binning
         self.phase_binning = phase_binning
         self.use_molecular_signatures = use_molecular_signatures
+        self.nmax = nmax
+        self.lmax=lmax
+        self.continuum = continuum
         self.url = url
         self.api_key = api_key
 
@@ -416,6 +447,9 @@ class psgParameters(BaseParameters):
             gcm_binning=int(d['gcm_binning']),
             phase_binning=int(d['phase_binning']),
             use_molecular_signatures=bool(d['use_molecular_signatures']),
+            nmax=int(d['nmax']),
+            lmax=int(d['lmax']),
+            continuum = list(d['continuum']),
             url=str(d['url']),
             api_key=APIkey.none() if d.get(
                 'api_key', None) is None else APIkey.from_dict(d['api_key'])
@@ -434,4 +468,7 @@ class psgParameters(BaseParameters):
         return {
             'GENERATOR-GCM-BINNING': f'{self.gcm_binning}',
             'GENERATOR-GAS-MODEL': 'Y' if self.use_molecular_signatures else 'N',
+            'ATMOSPHERE-NMAX': f'{self.nmax}',
+            'ATMOSPHERE-LMAX': f'{self.lmax}',
+            'ATMOSPHERE-CONTINUUM': ','.join(self.continuum)
         }

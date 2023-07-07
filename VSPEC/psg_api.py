@@ -6,26 +6,65 @@ and the Planetary Spectrum Generator via the API.
 
 from io import StringIO
 import re
-from pathlib import Path
 import warnings
 from astropy import units as u
 import pandas as pd
 import numpy as np
 import requests
+from typing import Union
 
-from VSPEC.params.read import Parameters
-from VSPEC.helpers import isclose
+from VSPEC.params.read import InternalParameters
 
 warnings.simplefilter('ignore', category=u.UnitsWarning)
 
 
-def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov',
-             api_key: str = None, output_type: str = None, app: str = None,
-             outfile: str = None, config_data: str = None) -> None:
+def call_api(
+    psg_url: str = 'https://psg.gsfc.nasa.gov',
+    api_key: str = None,
+    output_type: str = None,
+    app: str = None,
+    config_data: str = None
+)->bytes:
     """
-    Call the PSG api
+    Call the PSG API.
 
-    Build and execute an API query to communicate with PSG.
+    Parameters
+    ----------
+    psg_url : str, default='https://psg.gsfc.nasa.gov'
+        The URL of the `PSG` API. Use 'http://localhost:3000' if running locally.
+    api_key : str, default=None
+        The key for the public API. Needed only if not runnning `PSG` locally.
+    output_type : str, default=None
+        The type of output to retrieve from `PSG`. Options include 'cfg', 'rad',
+        'noi', 'lyr', 'all'.
+    app : str, default=None
+        The PSG app to call. For example: 'globes'
+    config_data : str, default=None
+        The data contained by a config file. Essentially removes the need
+        to write a config to file.
+
+    Returns
+    -------
+    bytes
+        The content of the response from PSG.
+    """
+    data = {}
+    data['file'] = config_data
+    if api_key is not None:
+        data['key'] = api_key
+    if app is not None:
+        data['app'] = app
+    if output_type is not None:
+        data['type'] = output_type
+    url = f'{psg_url}/api.php'
+    reply = requests.post(url, data=data, timeout=120)
+    return reply.content
+
+
+def call_api_from_file(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov',
+             api_key: str = None, output_type: str = None, app: str = None) -> Union[None,bytes]:
+    """
+    Call the PSG api by first reading data from a file.
 
     Parameters
     ----------
@@ -40,53 +79,33 @@ def call_api(config_path: str = None, psg_url: str = 'https://psg.gsfc.nasa.gov'
         'noi', 'lyr', 'all'.
     app : str, default=None
         The PSG app to call. For example: 'globes'
-    outfile : str, default=None
-        The path to write the PSG output.
-    config_data : str, default=None
-        The data contained by a config file. Essentially removes the need
-        to write a config to file.
 
-    Raises
-    ------
-    ValueError
-        If `config_path` and `config_data` are both `None`
+    
+    Returns
+    -------
+    bytes
+       The content of the response.
     """
-    data = {}
-    if config_path is not None:
-        with open(config_path, 'rb') as file:
-            dat = file.read()
-        data['file'] = dat
-    else:
-        if config_data is None:
-            raise ValueError(
-                'A config file or the files contents must be specified '
-                'using the `config_path` or `config_data` parameters'
-            )
-        else:
-            data['file'] = config_data
-    if api_key is not None:
-        data['key'] = api_key
-    if app is not None:
-        data['app'] = app
-    if output_type is not None:
-        data['type'] = output_type
-    url = f'{psg_url}/api.php'
-    reply = requests.post(url, data=data, timeout=120)
-    if outfile is not None:
-        with open(outfile, 'w', encoding='UTF-8') as file:
-            file.write(reply.text)
-        return None
-    else:
-        return reply.text
+    with open(config_path, 'rb') as file:
+        dat = file.read()
+    
+    content = call_api(
+        psg_url=psg_url,
+        api_key=api_key,
+        output_type=output_type,
+        app=app,
+        config_data=dat
+    )
+    return content
 
 
-def parse_full_output(output_text:str):
+def parse_full_output(output_text:bytes):
     """
     Parse PSG full output.
 
     Parameters
     ----------
-    output_text : str
+    output_text : bytes
         The output of a PSG 'all' call.
 
     Returns
@@ -94,7 +113,7 @@ def parse_full_output(output_text:str):
     dict
         The parsed, separated output files.
     """
-    pattern = r'results_([\w]+).txt'
+    pattern = rb'results_([\w]+).txt'
     split_text = re.split(pattern,output_text)
     names = split_text[1::2]
     content = split_text[2::2]
@@ -133,7 +152,7 @@ def cfg_to_dict(config:str)->dict:
     return cfg
 
 def change_psg_parameters(
-    params:Parameters,
+    params:InternalParameters,
     phase:u.Quantity,
     orbit_radius_coeff:float,
     sub_stellar_lon:u.Quantity,
@@ -170,7 +189,7 @@ def change_psg_parameters(
         The PSG config in dictionary form.
     """
     config = {}
-    config['OBJECT-STAR-TYPE'] = params.star.template if include_star else '-'
+    config['OBJECT-STAR-TYPE'] = params.star.psg_star_template if include_star else '-'
     config['OBJECT-SEASON'] = f'{phase.to_value(u.deg):.4f}'
     config['OBJECT-STAR-DISTANCE'] = f'{(orbit_radius_coeff*params.planet.semimajor_axis).to_value(u.AU):.4f}'
     config['OBJECT-SOLAR-LONGITUDE'] = f'{sub_stellar_lon.to_value(u.deg)}'
@@ -256,7 +275,7 @@ class PSGrad:
                     re.findall(r'\[([\w\d/]+)\]', item)[0])
             elif 'Radiance unit' in item:
                 header['radiance_unit'] = u.Unit(
-                    re.findall(r'\[([\w\d/]+)\]', item)[0])
+                    re.findall(r'\[([\w\d/]+)\]', item)[0].replace('W/m2/um','W m-2 um-1')) # avoid UnitWarning
         columns = raw_header[-1][1:].strip().split()
         dat = StringIO('\n'.join(raw_data))
         df = pd.read_csv(dat, names=columns, delim_whitespace=True)
@@ -296,7 +315,12 @@ def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Qua
         If neither object has a `'Reflected'` data array and at least one
         of them is missing the `planet_name` data array.
     """
-    if not np.all(isclose(cmb_rad.data['Wave/freq'], therm_rad.data['Wave/freq'], 1e-3*u.um)):
+    axis_equal = np.all(np.isclose(
+        cmb_rad.data['Wave/freq'].to_value(u.um),
+        therm_rad.data['Wave/freq'].to_value(u.um),
+        atol=1e-3
+    ))
+    if not axis_equal:
         raise ValueError('The spectral axes must be equivalent.')
 
     if 'Reflected' in cmb_rad.data.keys():
@@ -304,9 +328,9 @@ def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Qua
     elif 'Reflected' in therm_rad.data.keys():
         return therm_rad.data['Reflected']
     elif (planet_name in cmb_rad.data.keys()) and (planet_name in therm_rad.data.keys()):
-        try:
-            return cmb_rad.data[planet_name] - therm_rad.data[planet_name] - cmb_rad.data['Transit']
-        except KeyError:
+        if 'Transit' in cmb_rad.data:
+            return cmb_rad.data[planet_name] * 0 # assume there is no refection during transit
+        else:
             return cmb_rad.data[planet_name] - therm_rad.data[planet_name]
     else:
         raise KeyError(f'Data array {planet_name} not found.')

@@ -1,5 +1,5 @@
 """
-
+VSPEC GCM structure
 """
 from astropy import units as u
 
@@ -54,6 +54,19 @@ class Variable:
         self.dat = dat
     @property
     def flat(self)->np.array:
+        """
+        Get a flattened version of the array.
+        
+        Returns a flattened version of the data values of the variable as a
+        NumPy array, with the physical unit converted to the specified `psg_unit`.
+        The array is of dtype 'float32' and the flattening order is 'C'. This is the
+        format in which PSG assumes GCM binaries are written.
+
+        Returns
+        -------
+        np.array
+            The flattened array.
+        """
         if self.dat.ndim == 1:
             return self.dat.to_value(self.psg_unit).astype('float32').flatten('C')
         if self.dat.ndim == 2:
@@ -63,6 +76,14 @@ class Variable:
         return np.swapaxes(self.dat.to_value(self.psg_unit).astype('float32'),*axes).flatten('C')
     @property
     def shape(self)->tuple:
+        """
+        Get the shape of the data.
+
+        Returns
+        -------
+        tuple
+            The shape of the data.
+        """
         return self.dat.shape
 
 class Wind(Variable):
@@ -84,11 +105,6 @@ class Wind(Variable):
         The physical unit of the wind variable, which is set to 'm s-1' for wind variables.
     dat : astropy.units.Quantity
         The data values of the wind variable as a `astropy.units.Quantity` object.
-
-    Methods:
-    --------
-    constant(cls, name: str, value: astropy.units.Quantity, shape: tuple) -> Wind:
-        Creates a Wind object with constant wind values.
 
     """
 
@@ -140,16 +156,6 @@ class Pressure(Variable):
     dat : astropy.units.Quantity
         The data values of the pressure variable as a `astropy.units.Quantity` object.
 
-    Methods
-    -------
-    from_profile(cls, profile: astropy.units.Quantity, shape: tuple) -> Pressure:
-        Creates a Pressure object with pressure values from a profile.
-
-    from_limits(cls, high: astropy.units.Quantity, low: astropy.units.Quantity, shape: tuple) -> Pressure:
-        Creates a Pressure object with pressure values between specified high and low limits.
-
-    get_adiabatic_scalar(self, gamma: float) -> np.ndarray:
-        Calculates the adiabatic scalar for the pressure variable using a specified gamma value.
 
     """
 
@@ -248,14 +254,6 @@ class SurfacePressure(Variable):
     dat : astropy.units.Quantity
         The data values of the surface pressure variable as a `astropy.units.Quantity` object.
 
-    Methods
-    -------
-    constant(cls, value: astropy.units.Quantity, shape: tuple) -> SurfacePressure:
-        Creates a `SurfacePressure` object with constant surface pressure values.
-
-    from_pressure(cls, pressure: Pressure) -> SurfacePressure:
-        Creates a `SurfacePressure` object from a `Pressure` object.
-
     """
 
     def __init__(self, dat: u.Quantity):
@@ -318,11 +316,6 @@ class SurfaceTemperature(Variable):
         The physical unit of the surface temperature variable, which is set to Kelvin (K) using the `astropy.units` module.
     dat : astropy.units.Quantity
         The data values of the surface temperature variable as a `astropy.units.Quantity` object.
-
-    Methods
-    -------
-    from_map(cls, shape: tuple, epsilon: float, star_teff: astropy.units.Quantity, albedo: float, r_star: astropy.units.Quantity, r_orbit: astropy.units.Quantity) -> SurfaceTemperature:
-        Creates a `SurfaceTemperature` object from a temperature map.
 
     """
     def __init__(self, dat: u.Quantity):
@@ -405,11 +398,6 @@ class Temperature(Variable):
     dat : astropy.units.Quantity
         The data values of the temperature variable as a `astropy.units.Quantity` object.
 
-    Methods
-    -------
-    from_adiabat(cls, gamma: float, tsurf: SurfacePressure, pressure: Pressure) -> Temperature:
-        Creates a `Temperature` object from an adiabatic profile.
-
     """
 
     def __init__(self, dat: u.Quantity):
@@ -463,10 +451,6 @@ class Molecule(Variable):
     dat : astropy.units.Quantity
         The data values of the molecule concentration as a `astropy.units.Quantity` object.
 
-    Methods
-    -------
-    constant(cls, name: str, val: astropy.units.Quantity, shape: tuple) -> Molecule:
-        Creates a `Molecule` object with constant concentration values.
 
     """
 
@@ -514,15 +498,6 @@ class Aerosol(Variable):
         The physical unit of the aerosol concentration, which is set to a logarithmic unit of 'kg kg-1' using the `astropy.units` module.
     dat : astropy.units.Quantity
         The data values of the aerosol concentration as a `astropy.units.Quantity` object.
-
-    Methods
-    -------
-    constant(cls, name: str, val: astropy.units.Quantity, shape: tuple) -> Aerosol:
-        Creates an `Aerosol` object with constant aerosol concentration values.
-
-    buoyant_exp(cls, name: str, max_val: astropy.units.Quantity, max_pressure: astropy.units.Quantity, sigma: float, pressure: Pressure) -> Aerosol:
-        Creates an `Aerosol` object with a concentration that floats at a certain pressure and falls
-        off exponentially with height.
 
     """
 
@@ -596,11 +571,6 @@ class AerosolSize(Variable):
     dat : astropy.units.Quantity
         The data values of the aerosol particle sizes as a `astropy.units.Quantity` object.
 
-    Methods
-    -------
-    constant(cls, name: str, val: astropy.units.Quantity, shape: tuple) -> AerosolSize:
-        Creates an `AerosolSize` object with constant aerosol particle sizes.
-
     """
 
     def __init__(self, name: str, dat: u.Quantity):
@@ -646,11 +616,6 @@ class Albedo(Variable):
     dat : astropy.units.Quantity
         The data values of the albedo variable as a `astropy.units.Quantity` object.
 
-    Methods
-    -------
-    constant(cls, name: str, val: astropy.units.Quantity, shape: tuple) -> Albedo:
-        Creates an `Albedo` object with constant albedo values.
-
     """
 
     def __init__(self, dat: u.Quantity):
@@ -694,11 +659,6 @@ class Emissivity(Variable):
     dat : astropy.units.Quantity
         The data values of the albedo variable as a `astropy.units.Quantity` object.
 
-    Methods
-    -------
-    constant(cls, name: str, val: astropy.units.Quantity, shape: tuple) -> Albedo:
-        Creates an `Albedo` object with constant emissivity values.
-
     """
 
     def __init__(self, dat: u.Quantity):
@@ -717,8 +677,8 @@ class Emissivity(Variable):
 
         Returns
         -------
-        Albedo
-            An `Albedo` object with constant albedo values specified by the given value, and shape.
+        emissivity
+            An `Emissivity` object with constant albedo values specified by the given value, and shape.
         """
 
         dat = np.ones(shape=shape) * val
