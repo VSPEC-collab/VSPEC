@@ -1,7 +1,8 @@
-.. image:: ../source/_static/images/vspec_logo.png
+.. image:: https://vspec.readthedocs.io/en/latest/_images/vspec_logo.png
     :width: 400
     :alt: VSPEC Logo
 
+|Documentation Status|
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/vspec/badge/?version=latest
    :target: http://vspec.readthedocs.io/?badge=latest
