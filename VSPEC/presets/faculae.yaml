@@ -1,0 +1,29 @@
+none:
+  distribution: iso
+  equillibrium_coverage: 0.0
+  burn_in: 0 hr
+  mean_radius: 100 km
+  logsigma_radius: 0.3
+  depth: 100 km
+  mean_timescale: 10 hr
+  logsigma_timescale: 0.3
+  floor_teff_slope: 0 K km-1
+  floor_teff_min_rad: 20 km
+  floor_teff_base_dteff: -200 K
+  wall_teff_slope: 0 K km-1
+  wall_teff_intercept: 100 K
+std:
+  distribution: iso
+  equillibrium_coverage: 0.01
+  burn_in: 10 hr
+  mean_radius: 800 km
+  logsigma_radius: 0.3
+  depth: 100 km
+  mean_timescale: 20 hr
+  logsigma_timescale: 0.3
+  floor_teff_slope: 0 K km-1
+  floor_teff_min_rad: 20 km
+  floor_teff_base_dteff: -200 K
+  wall_teff_slope: 0 K km-1
+  wall_teff_intercept: 100 K
+  

@@ -139,18 +139,22 @@ ProxCenTemplate/
 Configs/GCMs/config.txt
 Configs/Stellar/config.txt
 Configs/
-test/*/*/
 test/*/*.png
 test/*/*.ipynb
 test/test_gcms
-proxCen0spot/
-newproxcen/
-examples/
-testPlots.py
+test/old
+test/end_to_end_tests/*/*.png
+test/end_to_end_tests/*/*/
+test/test_gcm/*.txt
+test/pytest/data/*/Data
+test/pytest/data/test_analysis
 
 .DS_stores
 *.gif
 
 docs/tutorials/*/*/Data
 docs/source/api
+docs/source/auto_examples
 docs/readme/default
+examples/*/*/Data
+.vspec

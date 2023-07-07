@@ -22,7 +22,7 @@ copyright = '2023, The VSPEC Collaboration'
 author = 'Ted Johnson and Cameron Kelahan'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,10 +36,32 @@ extensions = [
     'sphinx_automodapi.smart_resolver',
     'numpydoc',
     'sphinx.ext.intersphinx',
-    'nbsphinx',
-    'nbsphinx_link'
+    # 'nbsphinx',
+    # 'nbsphinx_link',
+    'sphinxcontrib.bibtex',
+    'sphinx_gallery.gen_gallery',
+    # 'sphinx.ext.autosummary',
+    # 'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
 ]
 numpydoc_show_class_members = False
+bibtex_bibfiles = ['refs.bib']
+
+# autosummary_generate = True
+# autodoc_default_options = {
+#     'template': 'custom_template.rst',
+#     # other options...
+# }
+
+todo_include_todos = True
+# Settings for sphinx gallery
+sphinx_gallery_conf = {
+     'examples_dirs': ['../../examples/other','../../examples/end_to_end'],   # path to your example scripts
+     'gallery_dirs': ['auto_examples/other','auto_examples/end_to_end'],  # path to where to save gallery generated output
+     'matplotlib_animations': True,
+    #  'run_stale_examples': True,
+}
+
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -56,7 +78,16 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
+
+# html_theme_options = {
+#     "light_css_variables": {
+#         "color-brand-primary": "red",
+#         "color-brand-content": "#CC3333",
+#         "color-admonition-background": "orange",
+#     },
+# }
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -67,6 +98,7 @@ html_static_path = ['_static']
 # or fully qualified paths (eg. https://...)
 html_css_files = [
     'css/table_fix.css',
+    'css/custom.css'
 ]
 
 # Logo and favicon
@@ -88,3 +120,8 @@ intersphinx_mapping = {
     'astropy': ('https://docs.astropy.org/en/stable/', None),
     'h5py': ('https://docs.h5py.org/en/stable/', None),
 }
+
+
+bibtex_reference_style = 'author_year'
+
+bibtex_default_style = 'unsrt'

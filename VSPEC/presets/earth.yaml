@@ -1,0 +1,22 @@
+star:
+  teff: 5800 K
+  radius: 1.0 R_sun
+planet:
+  semimajor_axis: 1.0 AU
+gcm:
+  nlon: 40
+  nlat : 30
+  nlayer: 10
+  epsilon: 6.28
+  gamma: 1.4
+  albedo: 0.3
+  emissivity: 1.0
+  psurf: 1 bar
+  ptop: 1e-5 bar
+  wind:
+    U: 0 m/s
+    V: 0 m/s
+  molecules:
+    O2: 0.209
+    CO2: 3.7e-4
+    H20: 1e-4

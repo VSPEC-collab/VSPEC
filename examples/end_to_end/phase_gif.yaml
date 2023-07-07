@@ -1,0 +1,107 @@
+header:
+  data_path: phase_gif
+  teff_min: 3200 K
+  teff_max: 3400 K
+  desc: This is a VSPEC example.
+  seed: 20
+  verbose: 0
+star:
+  psg_star_template: M
+  teff: 3300 K
+  mass: 0.12 M_sun
+  radius: 0.154 R_sun
+  period: 40 day
+  misalignment: 0 deg
+  misalignment_dir: 0 deg
+  ld:
+    u1: 1.0
+    u2: 0.0
+  spots:
+    distribution: iso
+    initial_coverage: 0.0
+    equillibrium_coverage: 0.0
+    burn_in: 0 day
+    area_mean: 500 msh
+    area_logsigma: 0.2
+    teff_umbra: 2500 K
+    teff_penumbra: 2700 K
+    growth_rate: 0.0 1/day
+    decay_rate: 0.0 msh/day
+    initial_area: 10 msh
+  faculae:
+    preset: none
+  flares:
+    preset: std
+  granulation:
+    mean: 0.0
+    amp: 0.00
+    period: 5 day
+    dteff: 200 K
+  Nlat: 500
+  Nlon: 1000
+planet:
+  name: Exoplanet
+  radius: 1 R_earth
+  gravity:
+    mode: kg
+    value: 1.0 M_earth
+  semimajor_axis: 0.05 AU
+  orbit_period: 10 day
+  rotation_period: 10 day
+  eccentricity: 0.0
+  obliquity: 0 deg
+  obliquity_direction: 0 deg
+  init_phase: 0 deg
+  init_substellar_lon: 0 deg
+system:
+  distance: 1.3 pc
+  inclination: 80 deg
+  phase_of_periasteron: 0 deg
+obs:
+  observation_time: 10 day
+  integration_time: 2 hour
+inst:
+  single:
+    aperture: 2 m
+    zodi: 1.0
+  bandpass:
+    wl_blue: 1 um
+    wl_red: 18 um
+    resolving_power: 50
+    wavelength_unit: um
+    flux_unit: W m-2 um-1
+  detector:
+    beam_width: 5 arcsec
+    integration_time: 0.5 s
+    ccd:
+      pixel_sampling: 64
+      read_noise: 6 electron
+      dark_current: 100 electron/s
+      throughput: 0.5
+      emissivity: 0.1
+      temperature: 35 K
+psg:
+  gcm_binning: 200
+  phase_binning: 1
+  nmax: 0
+  lmax: 0
+  continuum: [Rayleigh, Refraction, CIA_all]
+  use_molecular_signatures: True
+  url: http://localhost:3000
+gcm:
+  mean_molec_weight: 28
+  vspec:
+    nlon: 30
+    nlat : 20
+    nlayer: 10
+    epsilon: 3
+    gamma: 1.4
+    albedo: 0.3
+    emissivity: 1.0
+    psurf: 1 bar
+    ptop: 1e-5 bar
+    wind:
+      U: 0 m/s
+      V: 0 m/s
+    molecules:
+      CO2: 1e-4

@@ -6,7 +6,6 @@ This module is designed to allow a user to easily handle
 
 import re
 from copy import deepcopy
-from io import StringIO
 from pathlib import Path
 import warnings
 import numpy as np
@@ -14,9 +13,9 @@ import pandas as pd
 from astropy import units as u
 from astropy.io import fits
 from datetime import datetime
+import json
 
-from VSPEC.helpers import to_float
-from VSPEC.files import N_ZFILL
+from VSPEC.config import N_ZFILL, MOLEC_DATA_PATH
 
 
 class PhaseAnalyzer:
@@ -93,23 +92,23 @@ class PhaseAnalyzer:
             # star
             col = cols[cols.str.contains(r'star\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            star.append(to_float(spectra[col].values * unit, fluxunit))
+            star.append((spectra[col].values * unit).to_value(fluxunit))
             # reflected
             col = cols[cols.str.contains(r'reflected\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            reflected.append(to_float(spectra[col].values * unit, fluxunit))
+            reflected.append((spectra[col].values * unit).to_value(fluxunit))
             # reflected
             col = cols[cols.str.contains(r'planet_thermal\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            thermal.append(to_float(spectra[col].values * unit, fluxunit))
+            thermal.append((spectra[col].values * unit).to_value(fluxunit))
             # total
             col = cols[cols.str.contains(r'total\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            total.append(to_float(spectra[col].values * unit, fluxunit))
+            total.append((spectra[col].values * unit).to_value(fluxunit))
             # noise
             col = cols[cols.str.contains(r'noise\[')].values[0]
             unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            noise.append(to_float(spectra[col].values * unit, fluxunit))
+            noise.append((spectra[col].values * unit).to_value(fluxunit))
         self.star = np.asarray(star).T * fluxunit
         self.reflected = np.asarray(reflected).T * fluxunit
         self.thermal = np.asarray(thermal).T * fluxunit
@@ -150,6 +149,24 @@ class PhaseAnalyzer:
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
             self.layers = fits.HDUList([])
 
+    def get_mean_molecular_mass(self):
+        """
+        Get the mean molecular mass
+        """
+        with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
+            molec_data = json.loads(file.read())
+        shape = self.get_layer('Alt').shape
+        mean_molec_mass = np.zeros(shape=shape)*u.g/u.mol
+        for mol, dat in molec_data.items():
+            mass = dat['mass']
+            try:
+                data = self.get_layer(mol)
+                mean_molec_mass += data*mass*u.g/u.mol
+            except KeyError:
+                pass
+        return mean_molec_mass
+        
+
     def get_layer(self, var: str) -> u.Quantity:
         """
         Get data from layer variable.
@@ -174,6 +191,8 @@ class PhaseAnalyzer:
         """
         if len(self.layers) == 0:
             raise KeyError('`self.layers` does not contain any data')
+        if var == 'MEAN_MASS':
+            return self.get_mean_molecular_mass()
         hdu = self.layers[var]
         unit = u.Unit(hdu.header['UNIT'])
         return hdu.data*unit
@@ -233,10 +252,10 @@ class PhaseAnalyzer:
         if flux.ndim > 1:
             flux = flux.mean(axis=0)
         if isinstance(normalize, int):
-            flux = to_float(flux/flux[normalize], u.Unit(''))
+            flux = (flux/flux[normalize]).to_value(u.dimensionless_unscaled)
         elif isinstance(normalize, str):
             if normalize == 'max':
-                flux = to_float(flux/flux.max(), u.Unit(''))
+                flux = (flux/flux.max()).to_value(u.dimensionless_unscaled)
             elif normalize == 'none':
                 pass
             else:
@@ -329,45 +348,45 @@ class PhaseAnalyzer:
         cols = []
         for col in self.observation_data.columns:
             cols.append(fits.Column(
-                name=col, array=self.observation_data[col].value, format='K'))
+                name=col, array=self.observation_data[col].values, format='D'))
         obs_tab = fits.BinTableHDU.from_columns(cols)
         obs_tab.name = 'OBS'
 
-        time = fits.Column(name='time', array=self.time.value, format='K')
-        phase = fits.Column(name='phase', array=self.phase.value, format='K')
+        time = fits.Column(name='time', array=self.time.value, format='D')
+        phase = fits.Column(name='phase', array=self.phase.value, format='D')
         unique_phase = fits.Column(
-            name='unique_phase', array=self.unique_phase.value, format='K')
+            name='unique_phase', array=self.unique_phase.value, format='D')
         tab1 = fits.BinTableHDU.from_columns([time, phase, unique_phase])
-        tab1.header['TIME_UNIT'] = str(self.time.unit)
-        tab1.header['PHASE_UNIT'] = str(self.phase.unit)
-        tab1.header['UNIQUE_PHASE_UNIT'] = str(self.unique_phase.unit)
+        tab1.header['U_TIME'] = str(self.time.unit)
+        tab1.header['U_PHASE'] = str(self.phase.unit)
+        tab1.header['U_UPHASE'] = str(self.unique_phase.unit)
         tab1.name = 'PHASE'
         wavelength = fits.Column(
-            name='wavelength', array=self.wavelength.value, format='K')
+            name='wavelength', array=self.wavelength.value, format='D')
         tab2 = fits.BinTableHDU.from_columns([wavelength])
-        tab2.header['WAVELENGTH_UNIT'] = str(self.wavelength.unit)
+        tab2.header['U_WAVE'] = str(self.wavelength.unit)
         tab2.name = 'WAVELENGTH'
 
         total = fits.ImageHDU(self.total.value)
-        total.header['FLUX_UNIT'] = str(self.total.unit)
+        total.header['U_FLUX'] = str(self.total.unit)
         total.name = 'TOTAL'
         star = fits.ImageHDU(self.star.value)
-        star.header['FLUX_UNIT'] = str(self.star.unit)
+        star.header['U_FLUX'] = str(self.star.unit)
         star.name = 'STAR'
         reflected = fits.ImageHDU(self.reflected.value)
-        reflected.header['FLUX_UNIT'] = str(self.reflected.unit)
+        reflected.header['U_FLUX'] = str(self.reflected.unit)
         reflected.name = 'REFLECTED'
         thermal = fits.ImageHDU(self.thermal.value)
-        thermal.header['FLUX_UNIT'] = str(self.thermal.unit)
+        thermal.header['U_FLUX'] = str(self.thermal.unit)
         thermal.name = 'THERMAL'
         noise = fits.ImageHDU(self.noise.value)
-        noise.header['FLUX_UNIT'] = str(self.noise.unit)
+        noise.header['U_FLUX'] = str(self.noise.unit)
         noise.name = 'NOISE'
 
         hdul = fits.HDUList([primary, obs_tab, tab1, tab2,
                             total, star, reflected, thermal, noise])
         hdul = hdul + self.layers
-        return hdul
+        return fits.HDUList(hdul)
 
     def write_fits(self, filename: str) -> None:
         """
@@ -378,46 +397,26 @@ class PhaseAnalyzer:
         filename : str
         """
         hdul = self.to_fits()
-        hdul.writeto(filename)
+        hdul.writeto(filename,overwrite=True)
+    def to_twocolumn(self,index:tuple,outfile:str,fmt='ppm',wl='um'):
+        """
+        Write data to a two column file that can be used in a retrival.
+        """
+        if fmt == 'ppm':
+            flux = (self.spectrum('thermal',index,False)+self.spectrum('reflected',index,False))/self.spectrum('total',index,False) * 1e6
+            noise = self.spectrum('noise',index,False)/self.spectrum('total',index,False) * 1e6
+            flux_unit = u.dimensionless_unscaled
+        elif fmt == 'flambda':
+            flux = self.spectrum('thermal',index,False)+self.spectrum('reflected',index,False)
+            noise = self.spectrum('noise',index,False)
+            flux_unit = u.Unit('W m-2 um-1')
+        else:
+            raise ValueError(f'Unknown format "{fmt}"')
+        wl_unit = u.Unit(wl)
+        wl = self.wavelength.to_value(wl_unit)
+        flux = flux.to_value(flux_unit)
+        noise = noise.to_value(flux_unit)
+        with open(outfile,'wt',encoding='ascii') as file:
+            for w,f,n in zip(wl,flux,noise):
+                file.write(f'{w:<10.4f}{f:<14.4e}{n:<14.4e}\n')
 
-
-def read_lyr(filename: str) -> pd.DataFrame:
-    """
-    Read layer file
-
-    Parse a PSG .lyr file and turn it into a
-    pandas DataFrame.
-
-    Parameters
-    ----------
-    filename : str
-        The name of the layer file.
-
-    Returns
-    -------
-    pandas.DataFrame
-        DataFrame containing the layer data.
-    """
-    lines = []
-    with open(filename, 'r', encoding='UTF-8') as file:
-        save = False
-        for line in file:
-            if 'Alt[km]' in line:
-                save = True
-            if save:
-                if '--' in line:
-                    if len(lines) > 2:
-                        save = False
-                    else:
-                        pass
-                else:
-                    lines.append(line[2:-1])
-    if len(lines) == 0:
-        raise ValueError('No data was captured. Perhaps the format is wrong.')
-    dat = StringIO('\n'.join(lines[1:]))
-    names = lines[0].split()
-    for i, name in enumerate(names):
-        # get previous parameter (e.g 'water' for 'water_size')
-        if 'size' in name:
-            names[i] = names[i-1] + '_' + name
-    return pd.read_csv(dat, delim_whitespace=True, names=names)

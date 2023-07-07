@@ -1,0 +1,74 @@
+ccd:
+  miri-lrs:
+    pixel_sampling:
+      table:
+        y: [0.76, 1.03, 1.44, 1.87, 2.17, 2.49, 2.76, 3.08, 3.44, 3.72, 4.03, 4.3]
+        x: [5.01, 5.65, 6.57, 7.54, 8.24, 8.95, 9.55, 10.3, 11.03, 11.69, 12.35, 13.02]
+    read_noise: 32 electron
+    dark_current: 0.2 electron/s
+    throughput:
+      table:
+        y: [
+          0.0, 0.04, 0.07, 0.12, 0.16, 0.18, 0.2, 0.23, 0.25, 0.27, 0.29, 0.3, 0.3,
+          0.29, 0.29, 0.3, 0.31, 0.33, 0.32, 0.32, 0.31, 0.29, 0.27, 0.26, 0.24, 0.22,
+          0.2, 0.17, 0.15, 0.13, 0.11, 0.09, 0.08
+        ]
+        x: [
+          4.52, 4.72, 4.9, 4.98, 5.13, 5.18, 5.24, 5.39, 5.53, 5.88, 6.14, 6.37, 6.6,
+          6.89, 7.23, 7.55, 7.75, 8.07, 8.48, 8.85, 9.17, 9.57, 9.95, 10.3, 10.56, 10.79,
+          10.96, 11.25, 11.48, 11.74, 12.09, 12.4, 12.52
+        ]
+    emissivity: 0.1
+    temperature: 50 K
+  niriss-soss:
+    pixel_sampling: 8
+    read_noise: 11.55 electron
+    dark_current: 0.005 electron/s
+    throughput: 0.4
+    emissivity: 0.1
+    temperature: 50 K
+detector:
+  miri-lrs:
+    beam_width: 5 arcsec
+    integration_time: 0.5 s
+    ccd:
+      preset: miri-lrs
+  niriss-soss:
+    beam_width: 5 arcsec
+    integration_time: 0.5 s
+    ccd:
+      preset: niriss-soss
+bandpass:
+  miri-lrs:
+    wl_blue: 5 um
+    wl_red: 12 um
+    resolving_power: 100
+    wavelength_unit: um
+    flux_unit: W m-2 um-1
+  niriss-soss:
+    wl_blue: 0.6 um
+    wl_red:  2.8 um
+    resolving_power: 500
+    wavelength_unit: um
+    flux_unit: W m-2 um-1
+telescope:
+  jwst:
+    single:
+      aperture: 5.64 m
+      zodi: 2.0
+instrument:
+  miri-lrs:
+    single:
+      preset: jwst
+    bandpass:
+      preset: miri-lrs
+    detector:
+      preset: miri-lrs
+  niriss-soss:
+    single:
+      preset: jwst
+    bandpass:
+      preset: niriss-soss
+    detector:
+      preset: niriss-soss
+

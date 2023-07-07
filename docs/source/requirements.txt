@@ -3,4 +3,5 @@ sphinx-automodapi
 numpydoc
 nbsphinx
 nbsphinx-link
-git+https://github.com/tedjohnson12/xoflares.git@numpy-only
+sphinxcontrib-bibtex
+sphinx-gallery

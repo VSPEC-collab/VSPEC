@@ -6,3 +6,5 @@ scipy
 pathlib
 tqdm
 h5py
+tinygp
+git+https://github.com/tedjohnson12/xoflares.git@numpy-only

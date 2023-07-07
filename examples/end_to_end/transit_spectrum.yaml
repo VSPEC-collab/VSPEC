@@ -1,0 +1,109 @@
+header:
+  data_path: transit
+  teff_min: 2300 K
+  teff_max: 3900 K
+  desc: This is a VSPEC example.
+  verbose: 0
+  seed: 32
+star:
+  psg_star_template: M
+  teff: 3300 K
+  mass: 0.12 M_sun
+  radius: 0.154 R_sun
+  period: 1e6 day
+  misalignment: 0 deg
+  misalignment_dir: 0 deg
+  ld:
+    u1: 0.
+    u2: 0.
+  spots:
+    distribution: iso
+    initial_coverage: 0.0
+    equillibrium_coverage: 0.0
+    burn_in: 0 day
+    area_mean: 30000 msh
+    area_logsigma: 0.2
+    teff_umbra: 2500 K
+    teff_penumbra: 2700 K
+    growth_rate: 0.0 1/day
+    decay_rate: 0.0 msh/day
+    initial_area: 10 msh
+  faculae:
+    preset: none
+  flares:
+    preset: none
+  granulation:
+    mean: 0.0
+    amp: 0.00
+    period: 5 day
+    dteff: 200 K
+  Nlat: 500
+  Nlon: 1000
+planet:
+  name: Exoplanet
+  radius: 1 R_earth
+  gravity:
+    mode: kg
+    value: 1.0 M_earth
+  semimajor_axis: 0.05 AU
+  orbit_period: 10 day
+  rotation_period: 10 day
+  eccentricity: 0.0
+  obliquity: 0 deg
+  obliquity_direction: 0 deg
+  init_phase: 178.8 deg
+  init_substellar_lon: 0 deg
+system:
+  distance: 1.5 pc
+  inclination: 90 deg
+  phase_of_periasteron: 0 deg
+obs:
+  observation_time: 1.5 hour
+  integration_time: 5 min
+inst:
+  single:
+    aperture: 5.64 m
+    zodi: 2.0
+  bandpass:
+    wl_blue: 0.6 um
+    wl_red:  2.8 um
+    resolving_power: 500
+    wavelength_unit: um
+    flux_unit: W m-2 um-1
+  detector:
+    beam_width: 5 arcsec
+    integration_time: 0.5 s
+    ccd:
+      pixel_sampling: 8
+      read_noise: 11 electron
+      dark_current: 0.005 electron/s
+      throughput: 0.4
+      emissivity: 0.1
+      temperature: 50 K
+psg:
+  gcm_binning: 200
+  phase_binning: 1
+  use_molecular_signatures: True
+  nmax: 0
+  lmax: 0
+  continuum: [Rayleigh, Refraction, CIA_all]
+  url: http://localhost:3000
+gcm:
+  mean_molec_weight: 28
+  vspec:
+    vspec:
+    nlon: 40
+    nlat : 30
+    nlayer: 20
+    epsilon: 6
+    gamma: 1.4
+    albedo: 0.3
+    emissivity: 1.0
+    psurf: 1 bar
+    ptop: 1e-7 bar
+    wind:
+      U: 0 m/s
+      V: 0 m/s
+    molecules:
+      CO2: 1e-4
+      H2O: 1e-3
