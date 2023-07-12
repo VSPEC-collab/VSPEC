@@ -9,6 +9,7 @@ flaring star when it also has spots.
 from astropy import units as u
 import matplotlib.pyplot as plt
 from pathlib import Path
+import numpy as np
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
@@ -28,7 +29,7 @@ header = params.Header(
     data_path=Path('.vspec/flare_spot_lightcurve'),
     teff_min=2900*u.K,
     teff_max=3400*u.K,
-    seed=SEED,verbose=0
+    seed=SEED,verbose=1
 )
 
 star = params.StarParameters(
@@ -71,12 +72,12 @@ star = params.StarParameters(
 planet = params.PlanetParameters.std(init_phase=180*u.deg,init_substellar_lon=0*u.deg)
 system = params.SystemParameters(
     distance=1.3*u.pc,
-    inclination=30*u.deg,
+    inclination=80*u.deg,
     phase_of_periasteron=0*u.deg
 )
 observation = params.ObservationParameters(
-    observation_time=3*u.day,
-    integration_time=30*u.min
+    observation_time=10*u.day,
+    integration_time=4*u.hr
 )
 psg_params = params.psgParameters(
     gcm_binning=200,
@@ -88,7 +89,7 @@ psg_params = params.psgParameters(
     url='http://localhost:3000',
     api_key=params.APIkey.none()
 )
-instrument = params.InstrumentParameters.niriss_soss()
+instrument = params.InstrumentParameters.mirecle()
 
 gcm = params.gcmParameters(
     gcm=params.vspecGCM.earth(molecules={'CO2':1e-4}),
@@ -124,18 +125,28 @@ model.build_spectra()
 
 data = PhaseAnalyzer(model.directories['all_model'])
 
-wl_pixels = [0,300,700]
-colors = ['xkcd:azure','xkcd:coral','xkcd:lavender']
-time = data.time.to(u.day)
-time = time-time[0]
-for i,c in zip(wl_pixels,colors):
-    wl = data.wavelength[i]
-    lc = data.lightcurve(
-        source='star',
-        pixel=i,
-        normalize=0
-    )
-    plt.plot(time,lc,label=f'{wl:.1f}',c=c)
-plt.legend()
-plt.xlabel(f'time ({time.unit})')
-_=plt.ylabel('Flux (normalized)')
+# %%
+# Make the figure
+# ---------------
+#
+
+time = (data.time - data.time[0]).to_value(u.day)
+wl = data.wavelength.to_value(u.um)
+
+emission = (data.thermal/data.total).to_value(u.dimensionless_unscaled)*1e6
+
+variation = (data.star/data.star[:,0,np.newaxis]-1).to_value(u.dimensionless_unscaled)*100
+
+fig,ax = plt.subplots(1,2,figsize=(8,4))
+
+im=ax[0].pcolormesh(time,wl,emission,cmap='cividis')
+fig.colorbar(im,ax=ax[0],label='Planet Thermal Emission (ppm)',location='top')
+# ax[0].set_title('Planet')
+
+im=ax[1].pcolormesh(time,wl,variation,cmap='cividis')
+fig.colorbar(im,ax=ax[1],label='Stellar Variation (%)',location='top')
+# ax[1].set_title('Star')
+
+ax[0].set_ylabel('Wavelength (${\\rm \\mu m}$)')
+fig.text(0.5,0.02,'Time (days)',ha='center')
+
