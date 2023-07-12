@@ -1,0 +1,7 @@
+﻿VSPEC.params.TelescopeParameters
+================================
+
+.. autoclass :: VSPEC.params.TelescopeParameters
+    :show-inheritance:
+    :members:
+

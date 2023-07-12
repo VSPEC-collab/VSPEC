@@ -1,0 +1,6 @@
+is_port_in_use
+==============
+
+.. currentmodule:: VSPEC.helpers
+
+.. autofunction:: is_port_in_use

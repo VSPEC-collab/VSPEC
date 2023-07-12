@@ -1,0 +1,9 @@
+﻿GranulationParameters
+==========================================
+
+.. currentmodule:: VSPEC.params.stellar
+
+.. autoclass:: GranulationParameters
+    :show-inheritance:
+    :members:
+

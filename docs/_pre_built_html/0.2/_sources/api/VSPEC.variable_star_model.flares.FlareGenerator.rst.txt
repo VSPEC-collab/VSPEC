@@ -1,0 +1,9 @@
+﻿FlareGenerator
+===============================================
+
+.. currentmodule:: VSPEC.variable_star_model.flares
+
+.. autoclass:: FlareGenerator
+    :show-inheritance:
+    :members:
+

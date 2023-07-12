@@ -1,0 +1,7 @@
+﻿VSPEC.params.InstrumentParameters
+=================================
+
+.. autoclass :: VSPEC.params.InstrumentParameters
+    :show-inheritance:
+    :members:
+

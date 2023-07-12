@@ -1,0 +1,6 @@
+get_binned_filename
+===================
+
+.. currentmodule:: VSPEC.stellar_spectra
+
+.. autofunction:: get_binned_filename

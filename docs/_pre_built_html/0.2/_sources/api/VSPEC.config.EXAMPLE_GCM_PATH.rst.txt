@@ -1,0 +1,6 @@
+EXAMPLE_GCM_PATH
+================
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: EXAMPLE_GCM_PATH

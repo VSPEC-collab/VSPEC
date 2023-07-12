@@ -1,0 +1,6 @@
+write_binned_spectrum
+=====================
+
+.. currentmodule:: VSPEC.stellar_spectra
+
+.. autofunction:: write_binned_spectrum

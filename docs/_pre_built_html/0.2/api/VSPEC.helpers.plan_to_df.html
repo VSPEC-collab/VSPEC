@@ -1,0 +1,454 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
+        <title>plan_to_df - VSPEC 0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/table_fix.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">VSPEC 0.2 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/vspec_logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VSPEC 0.2 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../components.html">VSPEC Modules</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of VSPEC Modules</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/main.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.main</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of VSPEC.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.main.ObservationModel.html">ObservationModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/geometry.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.geometry</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of VSPEC.geometry</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.geometry.plan_to_df.html">plan_to_df</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.geometry.SystemGeometry.html">SystemGeometry</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/variable_star_model.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.variable_star_model</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of VSPEC.variable_star_model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.star.Star.html">Star</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.spots.StarSpot.html">StarSpot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.spots.SpotCollection.html">SpotCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.spots.SpotGenerator.html">SpotGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.faculae.Facula.html">Facula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.faculae.FaculaCollection.html">FaculaCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.faculae.FaculaGenerator.html">FaculaGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.flares.StellarFlare.html">StellarFlare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.flares.FlareCollection.html">FlareCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.flares.FlareGenerator.html">FlareGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.granules.GranulationKernel.html">GranulationKernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.variable_star_model.granules.Granulation.html">Granulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/spectra.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.spectra</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of VSPEC.spectra</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.spectra.bin_spectra.html">bin_spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.spectra.get_wavelengths.html">get_wavelengths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.spectra.read_phoenix.html">read_phoenix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.spectra.ForwardSpectra.html">ForwardSpectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.spectra.GridSpectra.html">GridSpectra</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/psg_api.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.psg_api</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of VSPEC.psg_api</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.call_api.html">call_api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.call_api_from_file.html">call_api_from_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.cfg_to_bytes.html">cfg_to_bytes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.cfg_to_dict.html">cfg_to_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.change_psg_parameters.html">change_psg_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.get_reflected.html">get_reflected</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.parse_full_output.html">parse_full_output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.psg_api.PSGrad.html">PSGrad</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/analysis.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.analysis</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of VSPEC.analysis</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.analysis.PhaseAnalyzer.html">PhaseAnalyzer</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/helpers.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.helpers</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of VSPEC.helpers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.arrange_teff.html">arrange_teff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.calc_circ_fraction_inside_unit_circle.html">calc_circ_fraction_inside_unit_circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.check_and_build_dir.html">check_and_build_dir</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.clip_teff.html">clip_teff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.get_angle_between.html">get_angle_between</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.get_filename.html">get_filename</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.get_planet_indicies.html">get_planet_indicies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.get_surrounding_teffs.html">get_surrounding_teffs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.get_transit_radius.html">get_transit_radius</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.is_port_in_use.html">is_port_in_use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.isclose.html">isclose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.proj_ortho.html">proj_ortho</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.read_lyr.html">read_lyr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.round_teff.html">round_teff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.set_psg_state.html">set_psg_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.helpers.CoordinateGrid.html">CoordinateGrid</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/waccm.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.waccm</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of VSPEC.waccm</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_aerosol.html">get_aerosol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_albedo.html">get_albedo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_coords.html">get_coords</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_ice.html">get_ice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_molecule.html">get_molecule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_molecule_suite.html">get_molecule_suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_pressure.html">get_pressure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_psurf.html">get_psurf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_shape.html">get_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_temperature.html">get_temperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_time_index.html">get_time_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_tsurf.html">get_tsurf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_water.html">get_water</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.get_winds.html">get_winds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.read_nc.validate_variables.html">validate_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.write_psg.get_binary_array.html">get_binary_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.write_psg.get_cfg_contents.html">get_cfg_contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.write_psg.get_cfg_params.html">get_cfg_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.waccm.write_psg.get_gcm_params.html">get_gcm_params</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/gcm.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.gcm</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of VSPEC.gcm</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.Planet.html">Planet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.GCMdecoder.html">GCMdecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.TemperatureMap.html">TemperatureMap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.get_flux.html">get_flux</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.get_psi.html">get_psi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.pcos.html">pcos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.colat.html">colat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.get_t0.html">get_t0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.get_equator_curve.html">get_equator_curve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.heat_transfer.validate_energy_balance.html">validate_energy_balance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Variable.html">Variable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Wind.html">Wind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Pressure.html">Pressure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.SurfacePressure.html">SurfacePressure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.SurfaceTemperature.html">SurfaceTemperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Temperature.html">Temperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Molecule.html">Molecule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Aerosol.html">Aerosol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.AerosolSize.html">AerosolSize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Albedo.html">Albedo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.structure.Emissivity.html">Emissivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.planet.Winds.html">Winds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.planet.Molecules.html">Molecules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.gcm.planet.Aerosols.html">Aerosols</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../modules/config.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.config</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of VSPEC.config</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.BINNED_PHOENIX_PATH.html">BINNED_PHOENIX_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.EXAMPLE_GCM_PATH.html">EXAMPLE_GCM_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.MOLEC_DATA_PATH.html">MOLEC_DATA_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.MSH.html">MSH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.N_ZFILL.html">N_ZFILL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.PRESET_PATH.html">PRESET_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.PSG_CFG_MAX_LINES.html">PSG_CFG_MAX_LINES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.PSG_EXT_URL.html">PSG_EXT_URL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.PSG_PORT.html">PSG_PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.RAW_PHOENIX_PATH.html">RAW_PHOENIX_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.VSPEC_PARENT_PATH.html">VSPEC_PARENT_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.aerosol_name_dict.html">aerosol_name_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.aerosol_type_dict.html">aerosol_type_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.atmosphere_type_dict.html">atmosphere_type_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.flux_unit.html">flux_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.grid_teff_bounds.html">grid_teff_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.nlat.html">nlat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.nlon.html">nlon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.period_unit.html">period_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.planet_distance_unit.html">planet_distance_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.planet_radius_unit.html">planet_radius_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.psg_aerosol_size_unit.html">psg_aerosol_size_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.psg_encoding.html">psg_encoding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.psg_pressure_unit.html">psg_pressure_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.starspot_initial_area.html">starspot_initial_area</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.stellar_area_unit.html">stellar_area_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.teff_unit.html">teff_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VSPEC.config.wl_unit.html">wl_unit</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../modules/params.html">Input Parameters</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Input Parameters</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.read.InternalParameters.html">InternalParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.read.Header.html">Header</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.stellar.StarParameters.html">StarParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.stellar.SpotParameters.html">SpotParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.stellar.FaculaParameters.html">FaculaParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.stellar.FlareParameters.html">FlareParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.stellar.GranulationParameters.html">GranulationParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.stellar.LimbDarkeningParameters.html">LimbDarkeningParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.planet.PlanetParameters.html">PlanetParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.planet.GravityParameters.html">GravityParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.planet.SystemParameters.html">SystemParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.gcm.gcmParameters.html">gcmParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.gcm.binaryGCM.html">binaryGCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.gcm.vspecGCM.html">vspecGCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.gcm.waccmGCM.html">waccmGCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.gcm.psgParameters.html">psgParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.gcm.APIkey.html">APIkey</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.ObservationParameters.html">ObservationParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.InstrumentParameters.html">InstrumentParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.TelescopeParameters.html">TelescopeParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.SingleDishParameters.html">SingleDishParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.CoronagraphParameters.html">CoronagraphParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.BandpassParameters.html">BandpassParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.DetectorParameters.html">DetectorParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.observation.ccdParameters.html">ccdParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.base.PSGtable.html">PSGtable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.base.parse_table.html">parse_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VSPEC.params.base.BaseParameters.html">BaseParameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../references.html">References</a></li>
+</ul>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/end_to_end/index.html">End-to-End Examples</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of End-to-End Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/end_to_end/plot_transit_spectrum.html">Plot the spectrum of a transiting planet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/end_to_end/plot_phase_gif.html">Make a phase curve GIF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/end_to_end/plot_spotted_transit.html">Observe a transit of a spotted star.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/end_to_end/plot_gj1214b_kempton23.html">Observe a phase curve of a spotted star.</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/other/index.html">Other Examples</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Other Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/other/gcm/index.html">GCM Examples</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of GCM Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/gcm/plot_cowan2011.html">Compare to Cowan &amp; Agol (2011)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../auto_examples/other/star/index.html">VSPEC Star Examples</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of VSPEC Star Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_spot_lightcurve.html">Plot the lightcurve of a spotted star</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_spot_growth.html">Plot the growth and decay of a spot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_star_surface.html">Plot a map of the stellar surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_flare_frequency.html">Plot flare frequency function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_effect_facula_depth.html">Plot the effect of facula depth on it’s lightcurve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_granulation_lightcurve.html">Plot the lightcurve stellar granulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_flare_lightcurve.html">Plot the lightcurve of a flaring star</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_faculae_lightcurve.html">Plot the lightcurve of a star with faculae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../auto_examples/other/star/plot_spot_generator.html">Visualize the Spot Generator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="plan-to-df">
+<h1>plan_to_df<a class="headerlink" href="#plan-to-df" title="Permalink to this heading">#</a></h1>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, The VSPEC Collaboration
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    </body>
+</html>

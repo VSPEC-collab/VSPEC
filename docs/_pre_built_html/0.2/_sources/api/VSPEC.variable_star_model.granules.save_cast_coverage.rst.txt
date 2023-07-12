@@ -1,0 +1,6 @@
+save_cast_coverage
+==================
+
+.. currentmodule:: VSPEC.variable_star_model.granules
+
+.. autofunction:: save_cast_coverage

@@ -1,0 +1,6 @@
+get_gcm_params
+==============
+
+.. currentmodule:: VSPEC.waccm.write_psg
+
+.. autofunction:: get_gcm_params

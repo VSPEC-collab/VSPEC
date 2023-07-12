@@ -1,0 +1,9 @@
+﻿Temperature
+===============================
+
+.. currentmodule:: VSPEC.gcm.structure
+
+.. autoclass:: Temperature
+    :show-inheritance:
+    :members:
+

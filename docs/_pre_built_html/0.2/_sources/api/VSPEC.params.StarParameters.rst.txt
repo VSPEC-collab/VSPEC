@@ -1,0 +1,7 @@
+﻿VSPEC.params.StarParameters
+===========================
+
+.. autoclass :: VSPEC.params.StarParameters
+    :show-inheritance:
+    :members:
+

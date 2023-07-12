@@ -1,0 +1,6 @@
+bin_from_cache
+==============
+
+.. currentmodule:: VSPEC.stellar_spectra
+
+.. autofunction:: bin_from_cache

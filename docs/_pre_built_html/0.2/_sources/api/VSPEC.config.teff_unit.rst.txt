@@ -1,0 +1,6 @@
+teff_unit
+=========
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: teff_unit

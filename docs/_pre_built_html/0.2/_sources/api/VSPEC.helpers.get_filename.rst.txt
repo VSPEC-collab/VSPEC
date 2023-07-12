@@ -1,0 +1,6 @@
+get_filename
+============
+
+.. currentmodule:: VSPEC.helpers
+
+.. autofunction:: get_filename

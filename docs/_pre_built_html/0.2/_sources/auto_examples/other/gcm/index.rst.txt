@@ -1,0 +1,42 @@
+
+
+.. _sphx_glr_auto_examples_other_gcm:
+
+GCM Examples
+------------
+
+Here we demonstrate ``VSPEC``'s built-in GCM.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example compares our thermal inertia model to that of :cite2011ApJ...726...82C.">
+
+.. only:: html
+
+  .. image:: /auto_examples/other/gcm/images/thumb/sphx_glr_plot_cowan2011_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_other_gcm_plot_cowan2011.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Compare to Cowan & Agol (2011)</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/other/gcm/plot_cowan2011
+

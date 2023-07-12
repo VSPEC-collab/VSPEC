@@ -1,0 +1,7 @@
+﻿spots
+===============================
+
+.. autoclass :: VSPEC.variable_star_model.spots
+    :show-inheritance:
+    :members:
+

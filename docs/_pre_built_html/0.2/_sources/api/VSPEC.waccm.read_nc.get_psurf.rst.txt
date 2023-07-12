@@ -1,0 +1,6 @@
+get_psurf
+=========
+
+.. currentmodule:: VSPEC.waccm.read_nc
+
+.. autofunction:: get_psurf

@@ -1,0 +1,6 @@
+get_gcm_binary
+==============
+
+.. currentmodule:: VSPEC.analysis
+
+.. autofunction:: get_gcm_binary

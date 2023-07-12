@@ -1,0 +1,21 @@
+CoordinateGrid
+==============
+
+.. currentmodule:: VSPEC.helpers
+
+.. autoclass:: CoordinateGrid
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~CoordinateGrid.grid
+      ~CoordinateGrid.oned
+      ~CoordinateGrid.zeros
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: grid
+   .. automethod:: oned
+   .. automethod:: zeros

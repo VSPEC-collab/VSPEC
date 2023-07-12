@@ -1,0 +1,51 @@
+SystemGeometry
+==============
+
+.. currentmodule:: VSPEC.geometry
+
+.. autoclass:: SystemGeometry
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SystemGeometry.eccentric_anomaly
+      ~SystemGeometry.get_observation_plan
+      ~SystemGeometry.get_pl_sub_obs_lat
+      ~SystemGeometry.get_pl_sub_obs_lon
+      ~SystemGeometry.get_planet_visual
+      ~SystemGeometry.get_radius_coeff
+      ~SystemGeometry.get_substellar_lat
+      ~SystemGeometry.get_substellar_lon
+      ~SystemGeometry.get_substellar_lon_at_periasteron
+      ~SystemGeometry.get_system_visual
+      ~SystemGeometry.get_time_since_periasteron
+      ~SystemGeometry.mean_anomaly
+      ~SystemGeometry.mean_motion
+      ~SystemGeometry.phase
+      ~SystemGeometry.plot
+      ~SystemGeometry.sub_obs
+      ~SystemGeometry.sub_planet
+      ~SystemGeometry.true_anomaly
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: eccentric_anomaly
+   .. automethod:: get_observation_plan
+   .. automethod:: get_pl_sub_obs_lat
+   .. automethod:: get_pl_sub_obs_lon
+   .. automethod:: get_planet_visual
+   .. automethod:: get_radius_coeff
+   .. automethod:: get_substellar_lat
+   .. automethod:: get_substellar_lon
+   .. automethod:: get_substellar_lon_at_periasteron
+   .. automethod:: get_system_visual
+   .. automethod:: get_time_since_periasteron
+   .. automethod:: mean_anomaly
+   .. automethod:: mean_motion
+   .. automethod:: phase
+   .. automethod:: plot
+   .. automethod:: sub_obs
+   .. automethod:: sub_planet
+   .. automethod:: true_anomaly

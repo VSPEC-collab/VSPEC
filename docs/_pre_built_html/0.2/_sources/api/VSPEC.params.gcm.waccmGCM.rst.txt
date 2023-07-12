@@ -1,0 +1,9 @@
+﻿waccmGCM
+=========================
+
+.. currentmodule:: VSPEC.params.gcm
+
+.. autoclass:: waccmGCM
+    :show-inheritance:
+    :members:
+

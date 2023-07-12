@@ -1,0 +1,6 @@
+get_transit_radius
+==================
+
+.. currentmodule:: VSPEC.helpers
+
+.. autofunction:: get_transit_radius

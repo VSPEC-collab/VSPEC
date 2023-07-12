@@ -1,0 +1,9 @@
+﻿SingleDishParameters
+=============================================
+
+.. currentmodule:: VSPEC.params.observation
+
+.. autoclass:: SingleDishParameters
+    :show-inheritance:
+    :members:
+

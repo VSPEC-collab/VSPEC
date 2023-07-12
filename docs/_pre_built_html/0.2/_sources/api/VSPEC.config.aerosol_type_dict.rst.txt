@@ -1,0 +1,6 @@
+aerosol_type_dict
+=================
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: aerosol_type_dict

@@ -1,0 +1,1079 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Observe a phase curve of a spotted star." href="plot_gj1214b_kempton23.html" /><link rel="prev" title="Make a phase curve GIF" href="plot_phase_gif.html" />
+
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/><!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
+        <title>Observe a transit of a spotted star. - VSPEC 0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/table_fix.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">VSPEC 0.2 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../../_static/vspec_logo.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">VSPEC 0.2 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../components.html">VSPEC Modules</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of VSPEC Modules</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/main.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.main</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of VSPEC.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.main.ObservationModel.html">ObservationModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/geometry.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.geometry</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of VSPEC.geometry</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.geometry.plan_to_df.html">plan_to_df</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.geometry.SystemGeometry.html">SystemGeometry</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/variable_star_model.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.variable_star_model</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of VSPEC.variable_star_model</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.star.Star.html">Star</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.spots.StarSpot.html">StarSpot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.spots.SpotCollection.html">SpotCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.spots.SpotGenerator.html">SpotGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.faculae.Facula.html">Facula</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.faculae.FaculaCollection.html">FaculaCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.faculae.FaculaGenerator.html">FaculaGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.flares.StellarFlare.html">StellarFlare</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.flares.FlareCollection.html">FlareCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.flares.FlareGenerator.html">FlareGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.granules.GranulationKernel.html">GranulationKernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.variable_star_model.granules.Granulation.html">Granulation</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/spectra.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.spectra</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of VSPEC.spectra</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.spectra.bin_spectra.html">bin_spectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.spectra.get_wavelengths.html">get_wavelengths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.spectra.read_phoenix.html">read_phoenix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.spectra.ForwardSpectra.html">ForwardSpectra</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.spectra.GridSpectra.html">GridSpectra</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/psg_api.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.psg_api</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of VSPEC.psg_api</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.call_api.html">call_api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.call_api_from_file.html">call_api_from_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.cfg_to_bytes.html">cfg_to_bytes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.cfg_to_dict.html">cfg_to_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.change_psg_parameters.html">change_psg_parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.get_reflected.html">get_reflected</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.parse_full_output.html">parse_full_output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.psg_api.PSGrad.html">PSGrad</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/analysis.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.analysis</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of VSPEC.analysis</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.analysis.PhaseAnalyzer.html">PhaseAnalyzer</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/helpers.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.helpers</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of VSPEC.helpers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.arrange_teff.html">arrange_teff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.calc_circ_fraction_inside_unit_circle.html">calc_circ_fraction_inside_unit_circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.check_and_build_dir.html">check_and_build_dir</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.clip_teff.html">clip_teff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.get_angle_between.html">get_angle_between</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.get_filename.html">get_filename</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.get_planet_indicies.html">get_planet_indicies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.get_surrounding_teffs.html">get_surrounding_teffs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.get_transit_radius.html">get_transit_radius</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.is_port_in_use.html">is_port_in_use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.isclose.html">isclose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.proj_ortho.html">proj_ortho</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.read_lyr.html">read_lyr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.round_teff.html">round_teff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.set_psg_state.html">set_psg_state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.helpers.CoordinateGrid.html">CoordinateGrid</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/waccm.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.waccm</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of VSPEC.waccm</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_aerosol.html">get_aerosol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_albedo.html">get_albedo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_coords.html">get_coords</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_ice.html">get_ice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_molecule.html">get_molecule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_molecule_suite.html">get_molecule_suite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_pressure.html">get_pressure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_psurf.html">get_psurf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_shape.html">get_shape</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_temperature.html">get_temperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_time_index.html">get_time_index</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_tsurf.html">get_tsurf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_water.html">get_water</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.get_winds.html">get_winds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.read_nc.validate_variables.html">validate_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.write_psg.get_binary_array.html">get_binary_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.write_psg.get_cfg_contents.html">get_cfg_contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.write_psg.get_cfg_params.html">get_cfg_params</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.waccm.write_psg.get_gcm_params.html">get_gcm_params</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/gcm.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.gcm</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of VSPEC.gcm</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.Planet.html">Planet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.GCMdecoder.html">GCMdecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.TemperatureMap.html">TemperatureMap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.get_flux.html">get_flux</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.get_psi.html">get_psi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.pcos.html">pcos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.colat.html">colat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.get_t0.html">get_t0</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.get_equator_curve.html">get_equator_curve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.heat_transfer.validate_energy_balance.html">validate_energy_balance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Variable.html">Variable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Wind.html">Wind</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Pressure.html">Pressure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.SurfacePressure.html">SurfacePressure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.SurfaceTemperature.html">SurfaceTemperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Temperature.html">Temperature</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Molecule.html">Molecule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Aerosol.html">Aerosol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.AerosolSize.html">AerosolSize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Albedo.html">Albedo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.structure.Emissivity.html">Emissivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.planet.Winds.html">Winds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.planet.Molecules.html">Molecules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.gcm.planet.Aerosols.html">Aerosols</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../modules/config.html"><code class="docutils literal notranslate"><span class="pre">VSPEC.config</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of VSPEC.config</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.BINNED_PHOENIX_PATH.html">BINNED_PHOENIX_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.EXAMPLE_GCM_PATH.html">EXAMPLE_GCM_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.MOLEC_DATA_PATH.html">MOLEC_DATA_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.MSH.html">MSH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.N_ZFILL.html">N_ZFILL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.PRESET_PATH.html">PRESET_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.PSG_CFG_MAX_LINES.html">PSG_CFG_MAX_LINES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.PSG_EXT_URL.html">PSG_EXT_URL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.PSG_PORT.html">PSG_PORT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.RAW_PHOENIX_PATH.html">RAW_PHOENIX_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.VSPEC_PARENT_PATH.html">VSPEC_PARENT_PATH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.aerosol_name_dict.html">aerosol_name_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.aerosol_type_dict.html">aerosol_type_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.atmosphere_type_dict.html">atmosphere_type_dict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.flux_unit.html">flux_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.grid_teff_bounds.html">grid_teff_bounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.nlat.html">nlat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.nlon.html">nlon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.period_unit.html">period_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.planet_distance_unit.html">planet_distance_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.planet_radius_unit.html">planet_radius_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.psg_aerosol_size_unit.html">psg_aerosol_size_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.psg_encoding.html">psg_encoding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.psg_pressure_unit.html">psg_pressure_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.starspot_initial_area.html">starspot_initial_area</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.stellar_area_unit.html">stellar_area_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.teff_unit.html">teff_unit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/VSPEC.config.wl_unit.html">wl_unit</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../modules/params.html">Input Parameters</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Input Parameters</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.read.InternalParameters.html">InternalParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.read.Header.html">Header</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.stellar.StarParameters.html">StarParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.stellar.SpotParameters.html">SpotParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.stellar.FaculaParameters.html">FaculaParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.stellar.FlareParameters.html">FlareParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.stellar.GranulationParameters.html">GranulationParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.stellar.LimbDarkeningParameters.html">LimbDarkeningParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.planet.PlanetParameters.html">PlanetParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.planet.GravityParameters.html">GravityParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.planet.SystemParameters.html">SystemParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.gcm.gcmParameters.html">gcmParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.gcm.binaryGCM.html">binaryGCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.gcm.vspecGCM.html">vspecGCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.gcm.waccmGCM.html">waccmGCM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.gcm.psgParameters.html">psgParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.gcm.APIkey.html">APIkey</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.ObservationParameters.html">ObservationParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.InstrumentParameters.html">InstrumentParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.TelescopeParameters.html">TelescopeParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.SingleDishParameters.html">SingleDishParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.CoronagraphParameters.html">CoronagraphParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.BandpassParameters.html">BandpassParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.DetectorParameters.html">DetectorParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.observation.ccdParameters.html">ccdParameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.base.PSGtable.html">PSGtable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.base.parse_table.html">parse_table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/VSPEC.params.base.BaseParameters.html">BaseParameters</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../references.html">References</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">End-to-End Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of End-to-End Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="plot_transit_spectrum.html">Plot the spectrum of a transiting planet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_phase_gif.html">Make a phase curve GIF</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Observe a transit of a spotted star.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_gj1214b_kempton23.html">Observe a phase curve of a spotted star.</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../other/index.html">Other Examples</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Other Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../other/gcm/index.html">GCM Examples</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of GCM Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../other/gcm/plot_cowan2011.html">Compare to Cowan &amp; Agol (2011)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../other/star/index.html">VSPEC Star Examples</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of VSPEC Star Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_spot_lightcurve.html">Plot the lightcurve of a spotted star</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_spot_growth.html">Plot the growth and decay of a spot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_star_surface.html">Plot a map of the stellar surface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_flare_frequency.html">Plot flare frequency function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_effect_facula_depth.html">Plot the effect of facula depth on it’s lightcurve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_granulation_lightcurve.html">Plot the lightcurve stellar granulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_flare_lightcurve.html">Plot the lightcurve of a flaring star</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_faculae_lightcurve.html">Plot the lightcurve of a star with faculae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/star/plot_spot_generator.html">Visualize the Spot Generator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-end-to-end-plot-spotted-transit-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="observe-a-transit-of-a-spotted-star">
+<span id="sphx-glr-auto-examples-end-to-end-plot-spotted-transit-py"></span><h1>Observe a transit of a spotted star.<a class="headerlink" href="#observe-a-transit-of-a-spotted-star" title="Permalink to this heading">#</a></h1>
+<p>This example demonstrates stellar contamination of a transit spectrum.</p>
+<p>A transit can change the spot coverage of a star and produce a signal
+that is difficult to distinguish from atmospheric absorption. We aim to simulate
+data from <span id="id1">Moran <em>et al.</em> [<a class="reference internal" href="../../references.html#id13" title="Sarah E. Moran, Kevin B. Stevenson, David K. Sing, Ryan J. MacDonald, James Kirk, Jacob Lustig-Yaeger, Sarah Peacock, L. C. Mayorga, Katherine A. Bennett, Mercedes López-Morales, E. M. May, Zafar Rustamkulov, Jeff A. Valenti, Jéa I. Adams Redai, Munazza K. Alam, Natasha E. Batalha, Guangwei Fu, Junellie Gonzalez-Quiles, Alicia N. Highland, Ethan Kruse, Joshua D. Lothringer, Kevin N. Ortiz Ceballos, Kristin S. Sotzen, and Hannah R. Wakeford. High Tide or Riptide on the Cosmic Shoreline? A Water-rich Atmosphere or Stellar Contamination for the Warm Super-Earth GJ 486b from JWST Observations. \apjl , 948(1):L11, May 2023. arXiv:2305.00868, doi:10.3847/2041-8213/accb9c.">2023</a>]</span>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+
+<span class="kn">from</span> <span class="nn">VSPEC</span> <span class="kn">import</span> <span class="n">ObservationModel</span><span class="p">,</span><span class="n">PhaseAnalyzer</span>
+<span class="kn">from</span> <span class="nn">VSPEC</span> <span class="kn">import</span> <span class="n">params</span>
+<span class="kn">from</span> <span class="nn">VSPEC.config</span> <span class="kn">import</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MSH</span></a>
+
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SEED</span></a> <span class="o">=</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<section id="create-the-needed-configurations">
+<h2>Create the needed configurations<a class="headerlink" href="#create-the-needed-configurations" title="Permalink to this heading">#</a></h2>
+<p><span id="id2">Moran <em>et al.</em> [<a class="reference internal" href="../../references.html#id13" title="Sarah E. Moran, Kevin B. Stevenson, David K. Sing, Ryan J. MacDonald, James Kirk, Jacob Lustig-Yaeger, Sarah Peacock, L. C. Mayorga, Katherine A. Bennett, Mercedes López-Morales, E. M. May, Zafar Rustamkulov, Jeff A. Valenti, Jéa I. Adams Redai, Munazza K. Alam, Natasha E. Batalha, Guangwei Fu, Junellie Gonzalez-Quiles, Alicia N. Highland, Ethan Kruse, Joshua D. Lothringer, Kevin N. Ortiz Ceballos, Kristin S. Sotzen, and Hannah R. Wakeford. High Tide or Riptide on the Cosmic Shoreline? A Water-rich Atmosphere or Stellar Contamination for the Warm Super-Earth GJ 486b from JWST Observations. \apjl , 948(1):L11, May 2023. arXiv:2305.00868, doi:10.3847/2041-8213/accb9c.">2023</a>]</span> observed super-Earth GJ 486b with
+JWST NIRSpec/G395H</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instrument</span>
+
+<span class="n">inst</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">InstrumentParameters</span><span class="p">(</span>
+    <span class="n">telescope</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">SingleDishParameters</span><span class="o">.</span><span class="n">jwst</span><span class="p">(),</span>
+    <span class="n">bandpass</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">BandpassParameters</span><span class="p">(</span>
+        <span class="n">wl_blue</span><span class="o">=</span><span class="mf">2.87</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.PrefixUnit.html#astropy.units.PrefixUnit" title="astropy.units.PrefixUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">um</span></a><span class="p">,</span>
+        <span class="n">wl_red</span><span class="o">=</span><span class="mf">5.14</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.PrefixUnit.html#astropy.units.PrefixUnit" title="astropy.units.PrefixUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">um</span></a><span class="p">,</span>
+        <span class="n">resolving_power</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+        <span class="n">wavelength_unit</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.PrefixUnit.html#astropy.units.PrefixUnit" title="astropy.units.PrefixUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">um</span></a><span class="p">,</span>
+        <span class="n">flux_unit</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class"><span class="n">u</span><span class="o">.</span><span class="n">Unit</span></a><span class="p">(</span><span class="s1">&#39;W m-2 um-1&#39;</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">detector</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">DetectorParameters</span><span class="p">(</span>
+        <span class="n">beam_width</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">arcsec</span></a><span class="p">,</span>
+        <span class="n">integration_time</span><span class="o">=</span><span class="mf">0.5</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">s</span></a><span class="p">,</span>
+        <span class="n">ccd</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">ccdParameters</span><span class="p">(</span>
+            <span class="n">pixel_sampling</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">read_noise</span><span class="o">=</span><span class="mf">16.8</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">electron</span></a><span class="p">,</span>
+            <span class="n">dark_current</span><span class="o">=</span><span class="mf">0.005</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">electron</span></a><span class="o">/</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">s</span></a><span class="p">,</span>
+            <span class="n">throughput</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+            <span class="n">emissivity</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="mi">50</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">K</span></a>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Observation</span>
+
+<span class="n">observation</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">ObservationParameters</span><span class="p">(</span>
+    <span class="n">observation_time</span><span class="o">=</span><span class="mf">3.53</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">hr</span></a><span class="p">,</span>
+    <span class="n">integration_time</span><span class="o">=</span><span class="mi">8</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">min</span></a>
+<span class="p">)</span>
+
+<span class="c1"># PSG</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">psg_kwargs</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">gcm_binning</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">phase_binning</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">nmax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">lmax</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">continuum</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Rayleigh&#39;</span><span class="p">,</span> <span class="s1">&#39;Refraction&#39;</span><span class="p">],</span>
+    <span class="n">url</span><span class="o">=</span><span class="s1">&#39;http://localhost:3000&#39;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">APIkey</span><span class="o">.</span><span class="n">none</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="n">psg_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">psgParameters</span><span class="p">(</span>
+    <span class="n">use_molecular_signatures</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">psg_kwargs</span></a>
+<span class="p">)</span>
+<span class="n">psg_no_atm</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">psgParameters</span><span class="p">(</span>
+    <span class="n">use_molecular_signatures</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">psg_kwargs</span></a>
+<span class="p">)</span>
+
+<span class="c1"># Star and Planet</span>
+
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_teff</span></a> <span class="o">=</span> <span class="mi">3291</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">K</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_rad</span></a> <span class="o">=</span> <span class="mf">0.339</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">R_sun</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_rad</span></a> <span class="o">=</span> <span class="mf">1.305</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">R_earth</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_rad</span></a> <span class="o">=</span> <span class="mf">0.01734</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">AU</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_period</span></a> <span class="o">=</span> <span class="mf">1.467119</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">day</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_rot_period</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_period</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_rot_period</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">inf</span></a><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">s</span></a> <span class="c1"># assume the star does not change.</span>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_mass</span></a> <span class="o">=</span> <span class="mf">2.82</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">M_earth</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_mass</span></a> <span class="o">=</span> <span class="mf">0.323</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">M_sun</span></a>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inclination</span></a> <span class="o">=</span> <span class="mf">88.4</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a>
+
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">observation_angle</span></a> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">rad</span></a> <span class="o">*</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">observation</span><span class="o">.</span><span class="n">observation_time</span></a><span class="o">/</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_period</span></a><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">)</span>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">initial_phase</span></a> <span class="o">=</span> <span class="mi">180</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a> <span class="o">-</span> <span class="mf">0.5</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">observation_angle</span></a>
+
+<span class="n">planet_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">PlanetParameters</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;GJ486b&#39;</span><span class="p">,</span>
+    <span class="n">radius</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_rad</span></a><span class="p">,</span>
+    <span class="n">gravity</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">GravityParameters</span><span class="p">(</span><span class="s1">&#39;kg&#39;</span><span class="p">,</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_mass</span></a><span class="p">),</span>
+    <span class="n">semimajor_axis</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_rad</span></a><span class="p">,</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_period</span></a><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_period</span></a><span class="p">,</span>
+    <span class="n">rotation_period</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_rot_period</span></a><span class="p">,</span>
+    <span class="n">eccentricity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">obliquity</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">,</span>
+    <span class="n">obliquity_direction</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">,</span>
+    <span class="n">init_phase</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">initial_phase</span></a><span class="p">,</span>
+    <span class="n">init_substellar_lon</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a>
+<span class="p">)</span>
+
+<span class="n">system_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">SystemParameters</span><span class="p">(</span>
+    <span class="n">distance</span><span class="o">=</span><span class="mf">8.07</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">pc</span></a><span class="p">,</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inclination</span></a><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inclination</span></a><span class="p">,</span>
+    <span class="n">phase_of_periasteron</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a>
+<span class="p">)</span>
+
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_dict</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;teff&#39;</span><span class="p">:</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_teff</span></a><span class="p">,</span>
+    <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_rad</span></a>
+<span class="p">}</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_dict</span></a> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;semimajor_axis&#39;</span><span class="p">:</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_rad</span></a><span class="p">}</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">gcm_dict</span></a> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;nlayer&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">&#39;nlon&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="s1">&#39;nlat&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="s1">&#39;epsilon&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s1">&#39;albedo&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s1">&#39;emissivity&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s1">&#39;gamma&#39;</span><span class="p">:</span> <span class="mf">1.4</span><span class="p">,</span>
+    <span class="s1">&#39;psurf&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">bar</span></a><span class="p">,</span>
+    <span class="s1">&#39;ptop&#39;</span><span class="p">:</span> <span class="mf">1e-8</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">bar</span></a><span class="p">,</span>
+    <span class="s1">&#39;wind&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;U&#39;</span><span class="p">:</span> <span class="s1">&#39;0 m/s&#39;</span><span class="p">,</span><span class="s1">&#39;V&#39;</span><span class="p">:</span><span class="s1">&#39;0 m/s&#39;</span><span class="p">},</span>
+    <span class="s1">&#39;molecules&#39;</span><span class="p">:{</span><span class="s1">&#39;H2O&#39;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Create two sets of GCM Parameters</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">h2o_atm</span></a> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;molecules&#39;</span><span class="p">:{</span><span class="s1">&#39;H2O&#39;</span><span class="p">:</span><span class="mf">0.99</span><span class="p">}}</span>
+<span class="n">gcm_h2o</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">gcmParameters</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span>
+    <span class="s1">&#39;star&#39;</span><span class="p">:</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_dict</span></a><span class="p">,</span>
+    <span class="s1">&#39;planet&#39;</span><span class="p">:</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_dict</span></a><span class="p">,</span>
+    <span class="s1">&#39;gcm&#39;</span><span class="p">:{</span><span class="s1">&#39;vspec&#39;</span><span class="p">:</span><span class="nb">dict</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">gcm_dict</span></a><span class="p">,</span><span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">h2o_atm</span></a><span class="p">),</span><span class="s1">&#39;mean_molec_weight&#39;</span><span class="p">:</span><span class="mi">18</span><span class="p">}</span>
+<span class="p">})</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_kwargs</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">psg_star_template</span><span class="o">=</span><span class="s1">&#39;M&#39;</span><span class="p">,</span>
+    <span class="n">teff</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_teff</span></a><span class="p">,</span>
+    <span class="n">mass</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_mass</span></a><span class="p">,</span>
+    <span class="n">radius</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_rad</span></a><span class="p">,</span>
+    <span class="n">period</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_rot_period</span></a><span class="p">,</span>
+    <span class="n">misalignment</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">,</span>
+    <span class="n">misalignment_dir</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">,</span>
+    <span class="n">ld</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">LimbDarkeningParameters</span><span class="o">.</span><span class="n">proxima</span><span class="p">(),</span>
+    <span class="n">faculae</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">FaculaParameters</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span>
+    <span class="n">flares</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">FlareParameters</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span>
+    <span class="n">granulation</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">GranulationParameters</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span>
+    <span class="n">Nlat</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">Nlon</span><span class="o">=</span><span class="mi">1000</span>
+<span class="p">)</span>
+<span class="n">quiet_star</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">StarParameters</span><span class="p">(</span>
+    <span class="n">spots</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">SpotParameters</span><span class="o">.</span><span class="n">none</span><span class="p">(),</span>
+    <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_kwargs</span></a>
+<span class="p">)</span>
+<span class="n">spotted_star</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">StarParameters</span><span class="p">(</span>
+    <span class="n">spots</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">SpotParameters</span><span class="p">(</span>
+        <span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;iso&#39;</span><span class="p">,</span>
+        <span class="n">initial_coverage</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span>
+        <span class="n">area_mean</span><span class="o">=</span><span class="mi">300</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MSH</span></a><span class="p">,</span>
+        <span class="n">area_logsigma</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">teff_umbra</span><span class="o">=</span><span class="mi">2700</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">K</span></a><span class="p">,</span>
+        <span class="n">teff_penumbra</span><span class="o">=</span><span class="mi">2700</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">K</span></a><span class="p">,</span>
+        <span class="n">equillibrium_coverage</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">burn_in</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">s</span></a><span class="p">,</span>
+        <span class="n">growth_rate</span><span class="o">=</span><span class="mf">0.0</span><span class="o">/</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">day</span></a><span class="p">,</span>
+        <span class="n">decay_rate</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MSH</span></a><span class="o">/</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">day</span></a><span class="p">,</span>
+        <span class="n">initial_area</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">MSH</span></a>
+    <span class="p">),</span>
+    <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">star_kwargs</span></a>
+<span class="p">)</span>
+
+<span class="c1"># Set parameters for simulation</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">header_kwargs</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">teff_min</span><span class="o">=</span><span class="mi">2300</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">K</span></a><span class="p">,</span><span class="n">teff_max</span><span class="o">=</span><span class="mi">3400</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">K</span></a><span class="p">,</span>
+    <span class="n">seed</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SEED</span></a>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">internal_params_kwargs</span></a> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">planet</span><span class="o">=</span><span class="n">planet_params</span><span class="p">,</span>
+    <span class="n">system</span><span class="o">=</span><span class="n">system_params</span><span class="p">,</span>
+    <span class="n">obs</span><span class="o">=</span><span class="n">observation</span><span class="p">,</span>
+    <span class="n">gcm</span><span class="o">=</span><span class="n">gcm_h2o</span><span class="p">,</span>
+    <span class="n">inst</span><span class="o">=</span><span class="n">inst</span>
+<span class="p">)</span>
+
+<span class="c1"># Make the three cases</span>
+
+<span class="n">params_rock_quiet</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">InternalParameters</span><span class="p">(</span>
+    <span class="n">header</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">Header</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s1">&#39;.vspec/rock_quiet&#39;</span><span class="p">),</span><span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">header_kwargs</span></a><span class="p">),</span>
+    <span class="n">star</span> <span class="o">=</span> <span class="n">quiet_star</span><span class="p">,</span>
+    <span class="n">psg</span><span class="o">=</span><span class="n">psg_no_atm</span><span class="p">,</span>
+    <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">internal_params_kwargs</span></a>
+<span class="p">)</span>
+<span class="n">params_h2o_quiet</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">InternalParameters</span><span class="p">(</span>
+    <span class="n">header</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">Header</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s1">&#39;.vspec/h2o_quiet&#39;</span><span class="p">),</span><span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">header_kwargs</span></a><span class="p">),</span>
+    <span class="n">star</span> <span class="o">=</span> <span class="n">quiet_star</span><span class="p">,</span>
+    <span class="n">psg</span><span class="o">=</span><span class="n">psg_params</span><span class="p">,</span>
+    <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">internal_params_kwargs</span></a>
+<span class="p">)</span>
+
+<span class="n">params_rock_spotted</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">InternalParameters</span><span class="p">(</span>
+    <span class="n">header</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">Header</span><span class="p">(</span><span class="n">data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s1">&#39;.vspec/rock_spotted&#39;</span><span class="p">),</span><span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">header_kwargs</span></a><span class="p">),</span>
+    <span class="n">star</span> <span class="o">=</span> <span class="n">spotted_star</span><span class="p">,</span>
+    <span class="n">psg</span><span class="o">=</span><span class="n">psg_no_atm</span><span class="p">,</span>
+    <span class="o">**</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">internal_params_kwargs</span></a>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="run-vspec-for-the-simplest-case">
+<h2>Run VSPEC for the simplest case<a class="headerlink" href="#run-vspec-for-the-simplest-case" title="Permalink to this heading">#</a></h2>
+<p>We read in the config file and run the model.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model_rock_quiet</span> <span class="o">=</span> <span class="n">ObservationModel</span><span class="p">(</span><span class="n">params_rock_quiet</span><span class="p">)</span>
+<span class="n">model_rock_quiet</span><span class="o">.</span><span class="n">build_planet</span><span class="p">()</span>
+<span class="n">model_rock_quiet</span><span class="o">.</span><span class="n">build_spectra</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Loading Spectra:   0%|          | 0/12 [00:00&lt;?, ?it/s]
+Loading Spectra:  92%|#########1| 11/12 [00:00&lt;00:00, 100.10it/s]
+Loading Spectra: 100%|##########| 12/12 [00:00&lt;00:00, 99.19it/s]
+Starting at phase 161.9544290544939 deg, observe for 3.53 h in 26 steps
+Phases = [161.95 163.4  164.84 166.29 167.73 169.17 170.62 172.06 173.5  174.95
+ 176.39 177.83 179.28 180.72 182.17 183.61 185.05 186.5  187.94 189.38
+ 190.83 192.27 193.71 195.16 196.6  198.05] deg
+
+Build Planet:   0%|          | 0/26 [00:00&lt;?, ?it/s]
+Build Planet:   4%|3         | 1/26 [00:00&lt;00:14,  1.67it/s]
+Build Planet:   8%|7         | 2/26 [00:01&lt;00:14,  1.70it/s]
+Build Planet:  12%|#1        | 3/26 [00:01&lt;00:13,  1.68it/s]
+Build Planet:  15%|#5        | 4/26 [00:02&lt;00:13,  1.66it/s]
+Build Planet:  19%|#9        | 5/26 [00:03&lt;00:13,  1.61it/s]
+Build Planet:  23%|##3       | 6/26 [00:03&lt;00:12,  1.60it/s]
+Build Planet:  27%|##6       | 7/26 [00:04&lt;00:11,  1.59it/s]
+Build Planet:  31%|###       | 8/26 [00:05&lt;00:11,  1.55it/s]
+Build Planet:  35%|###4      | 9/26 [00:05&lt;00:11,  1.50it/s]
+Build Planet:  38%|###8      | 10/26 [00:06&lt;00:10,  1.56it/s]
+Build Planet:  42%|####2     | 11/26 [00:06&lt;00:09,  1.56it/s]
+Build Planet:  46%|####6     | 12/26 [00:07&lt;00:08,  1.61it/s]
+Build Planet:  50%|#####     | 13/26 [00:08&lt;00:07,  1.64it/s]
+Build Planet:  54%|#####3    | 14/26 [00:08&lt;00:07,  1.63it/s]
+Build Planet:  58%|#####7    | 15/26 [00:09&lt;00:06,  1.61it/s]
+Build Planet:  62%|######1   | 16/26 [00:09&lt;00:06,  1.60it/s]
+Build Planet:  65%|######5   | 17/26 [00:10&lt;00:05,  1.58it/s]
+Build Planet:  69%|######9   | 18/26 [00:11&lt;00:05,  1.40it/s]
+Build Planet:  73%|#######3  | 19/26 [00:12&lt;00:05,  1.33it/s]
+Build Planet:  77%|#######6  | 20/26 [00:13&lt;00:04,  1.29it/s]
+Build Planet:  81%|########  | 21/26 [00:14&lt;00:03,  1.27it/s]
+Build Planet:  85%|########4 | 22/26 [00:14&lt;00:03,  1.23it/s]
+Build Planet:  88%|########8 | 23/26 [00:15&lt;00:02,  1.21it/s]
+Build Planet:  92%|#########2| 24/26 [00:16&lt;00:01,  1.18it/s]
+Build Planet:  96%|#########6| 25/26 [00:17&lt;00:00,  1.16it/s]
+Build Planet: 100%|##########| 26/26 [00:18&lt;00:00,  1.12it/s]
+Build Planet: 100%|##########| 26/26 [00:18&lt;00:00,  1.40it/s]
+
+Build Spectra:   0%|          | 0/26 [00:00&lt;?, ?it/s]
+Build Spectra:   4%|3         | 1/26 [00:00&lt;00:18,  1.33it/s]
+Build Spectra:   8%|7         | 2/26 [00:01&lt;00:13,  1.81it/s]
+Build Spectra:  12%|#1        | 3/26 [00:01&lt;00:10,  2.17it/s]
+Build Spectra:  15%|#5        | 4/26 [00:01&lt;00:09,  2.34it/s]
+Build Spectra:  19%|#9        | 5/26 [00:02&lt;00:08,  2.44it/s]
+Build Spectra:  23%|##3       | 6/26 [00:02&lt;00:07,  2.51it/s]
+Build Spectra:  27%|##6       | 7/26 [00:03&lt;00:07,  2.52it/s]
+Build Spectra:  31%|###       | 8/26 [00:03&lt;00:07,  2.46it/s]
+Build Spectra:  35%|###4      | 9/26 [00:03&lt;00:06,  2.54it/s]
+Build Spectra:  38%|###8      | 10/26 [00:04&lt;00:07,  2.28it/s]
+Build Spectra:  42%|####2     | 11/26 [00:04&lt;00:06,  2.16it/s]
+Build Spectra:  46%|####6     | 12/26 [00:05&lt;00:07,  1.99it/s]
+Build Spectra:  50%|#####     | 13/26 [00:06&lt;00:06,  1.95it/s]
+Build Spectra:  54%|#####3    | 14/26 [00:06&lt;00:06,  1.93it/s]
+Build Spectra:  58%|#####7    | 15/26 [00:07&lt;00:05,  1.94it/s]
+Build Spectra:  62%|######1   | 16/26 [00:07&lt;00:05,  1.91it/s]
+Build Spectra:  65%|######5   | 17/26 [00:08&lt;00:04,  1.96it/s]
+Build Spectra:  69%|######9   | 18/26 [00:08&lt;00:03,  2.12it/s]
+Build Spectra:  73%|#######3  | 19/26 [00:08&lt;00:03,  2.21it/s]
+Build Spectra:  77%|#######6  | 20/26 [00:09&lt;00:02,  2.34it/s]
+Build Spectra:  81%|########  | 21/26 [00:09&lt;00:02,  2.46it/s]
+Build Spectra:  85%|########4 | 22/26 [00:09&lt;00:01,  2.61it/s]
+Build Spectra:  88%|########8 | 23/26 [00:10&lt;00:01,  2.55it/s]
+Build Spectra:  92%|#########2| 24/26 [00:10&lt;00:00,  2.59it/s]
+Build Spectra:  96%|#########6| 25/26 [00:11&lt;00:00,  2.65it/s]
+Build Spectra: 100%|##########| 26/26 [00:11&lt;00:00,  2.55it/s]
+Build Spectra: 100%|##########| 26/26 [00:11&lt;00:00,  2.26it/s]
+</pre></div>
+</div>
+</section>
+<section id="load-in-the-data">
+<h2>Load in the data<a class="headerlink" href="#load-in-the-data" title="Permalink to this heading">#</a></h2>
+<p>We can use VSPEC to read in the synthetic
+data we just created.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data_rock_quiet</span> <span class="o">=</span> <span class="n">PhaseAnalyzer</span><span class="p">(</span><span class="n">model_rock_quiet</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="s1">&#39;all_model&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/Users/tjohns39/Documents/github/VSPEC/VSPEC/analysis.py:148: RuntimeWarning: No Layer info, maybe globes or molecular signatures are off
+  warnings.warn(
+</pre></div>
+</div>
+</section>
+<section id="plot-the-transit">
+<h2>Plot the transit<a class="headerlink" href="#plot-the-transit" title="Permalink to this heading">#</a></h2>
+<p>Lets plot the lightcurve of each channel.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_transit</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="n">PhaseAnalyzer</span><span class="p">,</span><span class="n">title</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">color</span></a><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="n">time_from_mid_transit</span> <span class="o">=</span> <span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">time</span></a><span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">time</span></a><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">time</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">hour</span></a><span class="p">)</span>
+
+    <a href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span><span class="n">axes</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+        <span class="n">time_from_mid_transit</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">lightcurve</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">,(</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">normalize</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+        <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a> <span class="o">=</span> <span class="s1">&#39;white light curve&#39;</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">color</span></a>
+    <span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time past mid-transit (hour)&#39;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Transit depth (ppm)&#39;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="c1"># standardize the epochs to use for analysis</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pre_transit</span></a> <span class="o">=</span> <span class="mi">8</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">in_transit</span></a> <span class="o">=</span> <span class="mi">11</span>
+
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unocculted_spectrum</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">,</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pre_transit</span></a><span class="p">)</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">occulted_spectrum</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">,</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">in_transit</span></a><span class="p">)</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lost_to_transit</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unocculted_spectrum</span></a><span class="o">-</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">occulted_spectrum</span></a>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">transit_depth</span></a> <span class="o">=</span> <span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lost_to_transit</span></a><span class="o">/</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unocculted_spectrum</span></a><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.CompositeUnit.html#astropy.units.CompositeUnit" title="astropy.units.CompositeUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">dimensionless_unscaled</span></a><span class="p">)</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">wavelength</span></a><span class="p">,</span> <span class="mf">1e6</span><span class="o">*</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">transit_depth</span></a><span class="p">),</span><span class="n">c</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">color</span></a><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Wavelength (</span><span class="si">{</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity.unit" title="astropy.units.Quantity.unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-attribute"><span class="n">data</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">unit</span></a><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Transit depth (ppm)&#39;</span><span class="p">)</span>
+    <span class="n">ylo</span><span class="p">,</span><span class="n">yhi</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">yhi</span><span class="o">-</span><span class="n">ylo</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">ylo</span><span class="o">+</span><span class="n">yhi</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">mean</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span><span class="n">mean</span><span class="o">+</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">return</span> <a href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a>
+
+<span class="n">plot_transit</span><span class="p">(</span><span class="n">data_rock_quiet</span><span class="p">,</span><span class="s1">&#39;Spotless Star and Bare Rock&#39;</span><span class="p">,</span><span class="s1">&#39;xkcd:lavender&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_spotted_transit_001.png" srcset="../../_images/sphx_glr_plot_spotted_transit_001.png" alt="Spotless Star and Bare Rock" class = "sphx-glr-single-img"/></section>
+<section id="run-the-other-models">
+<h2>Run the other models<a class="headerlink" href="#run-the-other-models" title="Permalink to this heading">#</a></h2>
+<p>Let’s do the same analysis for the other cases.</p>
+<section id="spotless-star-h2o-planet">
+<h3>Spotless Star, H2O Planet<a class="headerlink" href="#spotless-star-h2o-planet" title="Permalink to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model_h2o_quiet</span> <span class="o">=</span> <span class="n">ObservationModel</span><span class="p">(</span><span class="n">params_h2o_quiet</span><span class="p">)</span>
+<span class="n">model_h2o_quiet</span><span class="o">.</span><span class="n">build_planet</span><span class="p">()</span>
+<span class="n">model_h2o_quiet</span><span class="o">.</span><span class="n">build_spectra</span><span class="p">()</span>
+
+<span class="n">data_h2o_quiet</span> <span class="o">=</span> <span class="n">PhaseAnalyzer</span><span class="p">(</span><span class="n">model_h2o_quiet</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="s1">&#39;all_model&#39;</span><span class="p">])</span>
+
+<span class="n">plot_transit</span><span class="p">(</span><span class="n">data_h2o_quiet</span><span class="p">,</span><span class="s1">&#39;Spotless Star and 1 bar H2O Atmosphere&#39;</span><span class="p">,</span><span class="s1">&#39;xkcd:azure&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_spotted_transit_002.png" srcset="../../_images/sphx_glr_plot_spotted_transit_002.png" alt="Spotless Star and 1 bar H2O Atmosphere" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Loading Spectra:   0%|          | 0/12 [00:00&lt;?, ?it/s]
+Loading Spectra:  83%|########3 | 10/12 [00:00&lt;00:00, 99.76it/s]
+Loading Spectra: 100%|##########| 12/12 [00:00&lt;00:00, 98.31it/s]
+Starting at phase 161.9544290544939 deg, observe for 3.53 h in 26 steps
+Phases = [161.95 163.4  164.84 166.29 167.73 169.17 170.62 172.06 173.5  174.95
+ 176.39 177.83 179.28 180.72 182.17 183.61 185.05 186.5  187.94 189.38
+ 190.83 192.27 193.71 195.16 196.6  198.05] deg
+
+Build Planet:   0%|          | 0/26 [00:00&lt;?, ?it/s]
+Build Planet:   4%|3         | 1/26 [00:01&lt;00:49,  1.99s/it]
+Build Planet:   8%|7         | 2/26 [00:03&lt;00:47,  1.97s/it]
+Build Planet:  12%|#1        | 3/26 [00:05&lt;00:45,  1.96s/it]
+Build Planet:  15%|#5        | 4/26 [00:07&lt;00:43,  1.97s/it]
+Build Planet:  19%|#9        | 5/26 [00:09&lt;00:41,  1.98s/it]
+Build Planet:  23%|##3       | 6/26 [00:11&lt;00:39,  1.98s/it]
+Build Planet:  27%|##6       | 7/26 [00:13&lt;00:37,  1.97s/it]
+Build Planet:  31%|###       | 8/26 [00:15&lt;00:36,  2.03s/it]
+Build Planet:  35%|###4      | 9/26 [00:18&lt;00:35,  2.08s/it]
+Build Planet:  38%|###8      | 10/26 [00:20&lt;00:32,  2.04s/it]
+Build Planet:  42%|####2     | 11/26 [00:22&lt;00:30,  2.06s/it]
+Build Planet:  46%|####6     | 12/26 [00:24&lt;00:29,  2.08s/it]
+Build Planet:  50%|#####     | 13/26 [00:26&lt;00:27,  2.11s/it]
+Build Planet:  54%|#####3    | 14/26 [00:28&lt;00:25,  2.14s/it]
+Build Planet:  58%|#####7    | 15/26 [00:31&lt;00:24,  2.19s/it]
+Build Planet:  62%|######1   | 16/26 [00:33&lt;00:22,  2.22s/it]
+Build Planet:  65%|######5   | 17/26 [00:35&lt;00:19,  2.22s/it]
+Build Planet:  69%|######9   | 18/26 [00:37&lt;00:18,  2.27s/it]
+Build Planet:  73%|#######3  | 19/26 [00:40&lt;00:15,  2.26s/it]
+Build Planet:  77%|#######6  | 20/26 [00:42&lt;00:13,  2.21s/it]
+Build Planet:  81%|########  | 21/26 [00:44&lt;00:10,  2.16s/it]
+Build Planet:  85%|########4 | 22/26 [00:46&lt;00:08,  2.15s/it]
+Build Planet:  88%|########8 | 23/26 [00:48&lt;00:06,  2.13s/it]
+Build Planet:  92%|#########2| 24/26 [00:50&lt;00:04,  2.14s/it]
+Build Planet:  96%|#########6| 25/26 [00:52&lt;00:02,  2.15s/it]
+Build Planet: 100%|##########| 26/26 [00:55&lt;00:00,  2.21s/it]
+Build Planet: 100%|##########| 26/26 [00:55&lt;00:00,  2.12s/it]
+
+Build Spectra:   0%|          | 0/26 [00:00&lt;?, ?it/s]
+Build Spectra:   4%|3         | 1/26 [00:00&lt;00:15,  1.58it/s]
+Build Spectra:   8%|7         | 2/26 [00:01&lt;00:13,  1.78it/s]
+Build Spectra:  12%|#1        | 3/26 [00:01&lt;00:11,  2.04it/s]
+Build Spectra:  15%|#5        | 4/26 [00:01&lt;00:09,  2.22it/s]
+Build Spectra:  19%|#9        | 5/26 [00:02&lt;00:08,  2.37it/s]
+Build Spectra:  23%|##3       | 6/26 [00:02&lt;00:08,  2.41it/s]
+Build Spectra:  27%|##6       | 7/26 [00:03&lt;00:07,  2.43it/s]
+Build Spectra:  31%|###       | 8/26 [00:03&lt;00:07,  2.45it/s]
+Build Spectra:  35%|###4      | 9/26 [00:03&lt;00:06,  2.50it/s]
+Build Spectra:  38%|###8      | 10/26 [00:04&lt;00:06,  2.29it/s]
+Build Spectra:  42%|####2     | 11/26 [00:05&lt;00:07,  2.03it/s]
+Build Spectra:  46%|####6     | 12/26 [00:05&lt;00:07,  1.94it/s]
+Build Spectra:  50%|#####     | 13/26 [00:06&lt;00:07,  1.85it/s]
+Build Spectra:  54%|#####3    | 14/26 [00:06&lt;00:06,  1.84it/s]
+Build Spectra:  58%|#####7    | 15/26 [00:07&lt;00:06,  1.77it/s]
+Build Spectra:  62%|######1   | 16/26 [00:07&lt;00:05,  1.77it/s]
+Build Spectra:  65%|######5   | 17/26 [00:08&lt;00:04,  1.82it/s]
+Build Spectra:  69%|######9   | 18/26 [00:08&lt;00:03,  2.01it/s]
+Build Spectra:  73%|#######3  | 19/26 [00:09&lt;00:03,  2.06it/s]
+Build Spectra:  77%|#######6  | 20/26 [00:09&lt;00:02,  2.20it/s]
+Build Spectra:  81%|########  | 21/26 [00:10&lt;00:02,  2.30it/s]
+Build Spectra:  85%|########4 | 22/26 [00:10&lt;00:01,  2.43it/s]
+Build Spectra:  88%|########8 | 23/26 [00:10&lt;00:01,  2.42it/s]
+Build Spectra:  92%|#########2| 24/26 [00:11&lt;00:00,  2.53it/s]
+Build Spectra:  96%|#########6| 25/26 [00:11&lt;00:00,  2.47it/s]
+Build Spectra: 100%|##########| 26/26 [00:12&lt;00:00,  2.44it/s]
+Build Spectra: 100%|##########| 26/26 [00:12&lt;00:00,  2.16it/s]
+</pre></div>
+</div>
+</section>
+<section id="spotted-star-co2-planet">
+<h3>Spotted Star, CO2 Planet<a class="headerlink" href="#spotted-star-co2-planet" title="Permalink to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model_rock_spotted</span> <span class="o">=</span> <span class="n">ObservationModel</span><span class="p">(</span><span class="n">params_rock_spotted</span><span class="p">)</span>
+<span class="n">model_rock_spotted</span><span class="o">.</span><span class="n">build_planet</span><span class="p">()</span>
+<span class="n">model_rock_spotted</span><span class="o">.</span><span class="n">build_spectra</span><span class="p">()</span>
+
+<span class="n">data_rock_spotted</span> <span class="o">=</span> <span class="n">PhaseAnalyzer</span><span class="p">(</span><span class="n">model_rock_spotted</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="s1">&#39;all_model&#39;</span><span class="p">])</span>
+
+<span class="n">plot_transit</span><span class="p">(</span><span class="n">data_rock_spotted</span><span class="p">,</span><span class="s1">&#39;Spotted Star and Bare Rock&#39;</span><span class="p">,</span><span class="s1">&#39;xkcd:golden yellow&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_spotted_transit_003.png" srcset="../../_images/sphx_glr_plot_spotted_transit_003.png" alt="Spotted Star and Bare Rock" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Loading Spectra:   0%|          | 0/12 [00:00&lt;?, ?it/s]
+Loading Spectra:  75%|#######5  | 9/12 [00:00&lt;00:00, 85.27it/s]
+Loading Spectra: 100%|##########| 12/12 [00:00&lt;00:00, 82.62it/s]
+Starting at phase 161.9544290544939 deg, observe for 3.53 h in 26 steps
+Phases = [161.95 163.4  164.84 166.29 167.73 169.17 170.62 172.06 173.5  174.95
+ 176.39 177.83 179.28 180.72 182.17 183.61 185.05 186.5  187.94 189.38
+ 190.83 192.27 193.71 195.16 196.6  198.05] deg
+
+Build Planet:   0%|          | 0/26 [00:00&lt;?, ?it/s]
+Build Planet:   4%|3         | 1/26 [00:00&lt;00:15,  1.64it/s]
+Build Planet:   8%|7         | 2/26 [00:01&lt;00:15,  1.59it/s]
+Build Planet:  12%|#1        | 3/26 [00:01&lt;00:14,  1.63it/s]
+Build Planet:  15%|#5        | 4/26 [00:02&lt;00:13,  1.60it/s]
+Build Planet:  19%|#9        | 5/26 [00:03&lt;00:13,  1.52it/s]
+Build Planet:  23%|##3       | 6/26 [00:03&lt;00:13,  1.52it/s]
+Build Planet:  27%|##6       | 7/26 [00:04&lt;00:12,  1.51it/s]
+Build Planet:  31%|###       | 8/26 [00:05&lt;00:12,  1.41it/s]
+Build Planet:  35%|###4      | 9/26 [00:06&lt;00:12,  1.38it/s]
+Build Planet:  38%|###8      | 10/26 [00:06&lt;00:11,  1.45it/s]
+Build Planet:  42%|####2     | 11/26 [00:07&lt;00:10,  1.45it/s]
+Build Planet:  46%|####6     | 12/26 [00:08&lt;00:09,  1.50it/s]
+Build Planet:  50%|#####     | 13/26 [00:08&lt;00:08,  1.50it/s]
+Build Planet:  54%|#####3    | 14/26 [00:09&lt;00:08,  1.49it/s]
+Build Planet:  58%|#####7    | 15/26 [00:10&lt;00:07,  1.49it/s]
+Build Planet:  62%|######1   | 16/26 [00:10&lt;00:06,  1.50it/s]
+Build Planet:  65%|######5   | 17/26 [00:11&lt;00:06,  1.47it/s]
+Build Planet:  69%|######9   | 18/26 [00:12&lt;00:05,  1.34it/s]
+Build Planet:  73%|#######3  | 19/26 [00:13&lt;00:05,  1.28it/s]
+Build Planet:  77%|#######6  | 20/26 [00:14&lt;00:04,  1.23it/s]
+Build Planet:  81%|########  | 21/26 [00:14&lt;00:04,  1.20it/s]
+Build Planet:  85%|########4 | 22/26 [00:15&lt;00:03,  1.16it/s]
+Build Planet:  88%|########8 | 23/26 [00:16&lt;00:02,  1.15it/s]
+Build Planet:  92%|#########2| 24/26 [00:17&lt;00:01,  1.11it/s]
+Build Planet:  96%|#########6| 25/26 [00:18&lt;00:00,  1.07it/s]
+Build Planet: 100%|##########| 26/26 [00:19&lt;00:00,  1.03it/s]
+Build Planet: 100%|##########| 26/26 [00:19&lt;00:00,  1.31it/s]
+Generated 37 mature spots
+
+Build Spectra:   0%|          | 0/26 [00:00&lt;?, ?it/s]
+Build Spectra:   4%|3         | 1/26 [00:00&lt;00:19,  1.28it/s]
+Build Spectra:   8%|7         | 2/26 [00:01&lt;00:14,  1.66it/s]
+Build Spectra:  12%|#1        | 3/26 [00:01&lt;00:12,  1.87it/s]
+Build Spectra:  15%|#5        | 4/26 [00:02&lt;00:11,  1.96it/s]
+Build Spectra:  19%|#9        | 5/26 [00:02&lt;00:11,  1.88it/s]
+Build Spectra:  23%|##3       | 6/26 [00:03&lt;00:10,  1.86it/s]
+Build Spectra:  27%|##6       | 7/26 [00:03&lt;00:09,  1.95it/s]
+Build Spectra:  31%|###       | 8/26 [00:04&lt;00:09,  2.00it/s]
+Build Spectra:  35%|###4      | 9/26 [00:04&lt;00:08,  2.02it/s]
+Build Spectra:  38%|###8      | 10/26 [00:05&lt;00:08,  1.87it/s]
+Build Spectra:  42%|####2     | 11/26 [00:05&lt;00:08,  1.80it/s]
+Build Spectra:  46%|####6     | 12/26 [00:06&lt;00:08,  1.71it/s]
+Build Spectra:  50%|#####     | 13/26 [00:07&lt;00:08,  1.46it/s]
+Build Spectra:  54%|#####3    | 14/26 [00:08&lt;00:08,  1.47it/s]
+Build Spectra:  58%|#####7    | 15/26 [00:08&lt;00:07,  1.45it/s]
+Build Spectra:  62%|######1   | 16/26 [00:09&lt;00:06,  1.47it/s]
+Build Spectra:  65%|######5   | 17/26 [00:10&lt;00:06,  1.48it/s]
+Build Spectra:  69%|######9   | 18/26 [00:10&lt;00:05,  1.52it/s]
+Build Spectra:  73%|#######3  | 19/26 [00:11&lt;00:04,  1.57it/s]
+Build Spectra:  77%|#######6  | 20/26 [00:11&lt;00:03,  1.65it/s]
+Build Spectra:  81%|########  | 21/26 [00:12&lt;00:02,  1.67it/s]
+Build Spectra:  85%|########4 | 22/26 [00:13&lt;00:02,  1.59it/s]
+Build Spectra:  88%|########8 | 23/26 [00:13&lt;00:01,  1.53it/s]
+Build Spectra:  92%|#########2| 24/26 [00:14&lt;00:01,  1.59it/s]
+Build Spectra:  96%|#########6| 25/26 [00:15&lt;00:00,  1.61it/s]
+Build Spectra: 100%|##########| 26/26 [00:15&lt;00:00,  1.63it/s]
+Build Spectra: 100%|##########| 26/26 [00:15&lt;00:00,  1.66it/s]
+/Users/tjohns39/Documents/github/VSPEC/VSPEC/analysis.py:148: RuntimeWarning: No Layer info, maybe globes or molecular signatures are off
+  warnings.warn(
+</pre></div>
+</div>
+</section>
+</section>
+<section id="plot-the-observed-spectra">
+<h2>Plot the observed spectra<a class="headerlink" href="#plot-the-observed-spectra" title="Permalink to this heading">#</a></h2>
+<p>Let’s compare the transits. We also load in the actual JWST data.</p>
+<section id="get-the-data">
+<h3>Get the data<a class="headerlink" href="#get-the-data" title="Permalink to this heading">#</a></h3>
+<p>Reduced data from <span id="id3">Moran <em>et al.</em> [<a class="reference internal" href="../../references.html#id13" title="Sarah E. Moran, Kevin B. Stevenson, David K. Sing, Ryan J. MacDonald, James Kirk, Jacob Lustig-Yaeger, Sarah Peacock, L. C. Mayorga, Katherine A. Bennett, Mercedes López-Morales, E. M. May, Zafar Rustamkulov, Jeff A. Valenti, Jéa I. Adams Redai, Munazza K. Alam, Natasha E. Batalha, Guangwei Fu, Junellie Gonzalez-Quiles, Alicia N. Highland, Ethan Kruse, Joshua D. Lothringer, Kevin N. Ortiz Ceballos, Kristin S. Sotzen, and Hannah R. Wakeford. High Tide or Riptide on the Cosmic Shoreline? A Water-rich Atmosphere or Stellar Contamination for the Warm Super-Earth GJ 486b from JWST Observations. \apjl , 948(1):L11, May 2023. arXiv:2305.00868, doi:10.3847/2041-8213/accb9c.">2023</a>]</span> is publicly available.
+However, you must download it from the figure caption of the online version.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filename</span></a> <span class="o">=</span> <span class="s1">&#39;moran2023_fig3.txt&#39;</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">df</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.read_fwf.html#pandas.read_fwf" title="pandas.read_fwf" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_fwf</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filename</span></a><span class="p">,</span><span class="n">colspecs</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span><span class="mi">8</span><span class="p">),(</span><span class="mi">9</span><span class="p">,</span><span class="mi">14</span><span class="p">),(</span><span class="mi">15</span><span class="p">,</span><span class="mi">20</span><span class="p">),(</span><span class="mi">21</span><span class="p">,</span><span class="mi">25</span><span class="p">),(</span><span class="mi">26</span><span class="p">,</span><span class="mi">28</span><span class="p">)],</span>
+    <span class="n">header</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Reduction&#39;</span><span class="p">,</span><span class="s1">&#39;Wave&#39;</span><span class="p">,</span><span class="s1">&#39;Width&#39;</span><span class="p">,</span><span class="s1">&#39;Depth&#39;</span><span class="p">,</span><span class="s1">&#39;e_Depth&#39;</span><span class="p">])</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.core.series.Series" class="sphx-glr-backref-module-pandas-core-series sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">used_eureka</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">df</span></a><span class="p">[</span><span class="s1">&#39;Reduction&#39;</span><span class="p">]</span><span class="o">==</span><span class="s1">&#39;Eureka&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="make-the-figure">
+<h3>Make the figure<a class="headerlink" href="#make-the-figure" title="Permalink to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">data</span><span class="p">,</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="p">,</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">color</span></a> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">data_rock_quiet</span><span class="p">,</span><span class="n">data_h2o_quiet</span><span class="p">,</span><span class="n">data_rock_spotted</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;Rock&#39;</span><span class="p">,</span> <span class="s1">&#39;H2O&#39;</span><span class="p">,</span> <span class="s1">&#39;Rock+Spots&#39;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s1">&#39;xkcd:lavender&#39;</span><span class="p">,</span><span class="s1">&#39;xkcd:azure&#39;</span><span class="p">,</span><span class="s1">&#39;xkcd:golden yellow&#39;</span><span class="p">]</span>
+<span class="p">):</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pre_transit</span></a> <span class="o">=</span> <span class="mi">8</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">in_transit</span></a> <span class="o">=</span> <span class="mi">11</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unocculted_spectrum</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">,</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">pre_transit</span></a><span class="p">)</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">occulted_spectrum</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">,</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">in_transit</span></a><span class="p">)</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lost_to_transit</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unocculted_spectrum</span></a><span class="o">-</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">occulted_spectrum</span></a>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">transit_depth</span></a> <span class="o">=</span> <span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lost_to_transit</span></a><span class="o">/</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unocculted_spectrum</span></a><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.CompositeUnit.html#astropy.units.CompositeUnit" title="astropy.units.CompositeUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">dimensionless_unscaled</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">wavelength</span></a><span class="p">,</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">transit_depth</span></a><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">label</span></a><span class="p">,</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">color</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">color</span></a><span class="p">)</span>
+
+<span class="c1"># ax.errorbar(df.loc[used_eureka,&#39;Wave&#39;],df.loc[used_eureka,&#39;Depth&#39;],yerr=df.loc[used_eureka,&#39;e_Depth&#39;],</span>
+<span class="c1">#     fmt=&#39;o&#39;,color=&#39;k&#39;)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s1">&#39;Wavelength (um)&#39;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s1">&#39;Transit depth (ppm)&#39;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_spotted_transit_004.png" srcset="../../_images/sphx_glr_plot_spotted_transit_004.png" alt="plot spotted transit" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fdf5584a850&gt;
+</pre></div>
+</div>
+</section>
+</section>
+<section id="plot-the-star">
+<h2>Plot the star<a class="headerlink" href="#plot-the-star" title="Permalink to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">transit_phase</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data_rock_spotted</span><span class="o">.</span><span class="n">phase</span></a><span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+<span class="n">model_rock_spotted</span><span class="o">.</span><span class="n">star</span><span class="o">.</span><span class="n">plot_surface</span><span class="p">(</span>
+    <span class="n">lat0</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">,</span><span class="n">lon0</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">,</span>
+    <span class="n">orbit_radius</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">orbit_rad</span></a><span class="p">,</span><span class="n">radius</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">planet_rad</span></a><span class="p">,</span>
+    <span class="n">phase</span><span class="o">=</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">transit_phase</span></a><span class="p">,</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inclination</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">inclination</span></a>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_spotted_transit_005.png" srcset="../../_images/sphx_glr_plot_spotted_transit_005.png" alt="plot spotted transit" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 2 minutes  35.797 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-end-to-end-plot-spotted-transit-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/e4711081c098b98a182b016f9787c9ac/plot_spotted_transit.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_spotted_transit.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c8751aa4ba74469278915768f17e5331/plot_spotted_transit.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_spotted_transit.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="plot_gj1214b_kempton23.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Observe a phase curve of a spotted star.</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="plot_phase_gif.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Make a phase curve GIF</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, The VSPEC Collaboration
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Observe a transit of a spotted star.</a><ul>
+<li><a class="reference internal" href="#create-the-needed-configurations">Create the needed configurations</a></li>
+<li><a class="reference internal" href="#run-vspec-for-the-simplest-case">Run VSPEC for the simplest case</a></li>
+<li><a class="reference internal" href="#load-in-the-data">Load in the data</a></li>
+<li><a class="reference internal" href="#plot-the-transit">Plot the transit</a></li>
+<li><a class="reference internal" href="#run-the-other-models">Run the other models</a><ul>
+<li><a class="reference internal" href="#spotless-star-h2o-planet">Spotless Star, H2O Planet</a></li>
+<li><a class="reference internal" href="#spotted-star-co2-planet">Spotted Star, CO2 Planet</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#plot-the-observed-spectra">Plot the observed spectra</a><ul>
+<li><a class="reference internal" href="#get-the-data">Get the data</a></li>
+<li><a class="reference internal" href="#make-the-figure">Make the figure</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#plot-the-star">Plot the star</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/scripts/furo.js"></script>
+    </body>
+</html>

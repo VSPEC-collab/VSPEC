@@ -1,0 +1,9 @@
+﻿psgParameters
+==============================
+
+.. currentmodule:: VSPEC.params.gcm
+
+.. autoclass:: psgParameters
+    :show-inheritance:
+    :members:
+

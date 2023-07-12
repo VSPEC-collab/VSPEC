@@ -1,0 +1,6 @@
+check_and_build_dir
+===================
+
+.. currentmodule:: VSPEC.files
+
+.. autofunction:: check_and_build_dir

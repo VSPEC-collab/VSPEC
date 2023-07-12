@@ -1,0 +1,7 @@
+﻿VSPEC.params.SpotParameters
+===========================
+
+.. autoclass :: VSPEC.params.SpotParameters
+    :show-inheritance:
+    :members:
+

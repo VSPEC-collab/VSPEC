@@ -1,0 +1,7 @@
+﻿get_psi
+===============================
+
+.. currentmodule:: VSPEC.gcm.heat_transfer
+
+.. autofunction:: get_psi
+

@@ -1,0 +1,9 @@
+﻿InternalParameters
+====================================
+
+.. currentmodule:: VSPEC.params.read
+
+.. autoclass:: InternalParameters
+    :show-inheritance:
+    :members:
+

@@ -1,0 +1,7 @@
+﻿VSPEC.params.BandpassParameters
+===============================
+
+.. autoclass :: VSPEC.params.BandpassParameters
+    :show-inheritance:
+    :members:
+

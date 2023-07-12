@@ -1,0 +1,6 @@
+round_teff
+==========
+
+.. currentmodule:: VSPEC.helpers
+
+.. autofunction:: round_teff

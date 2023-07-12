@@ -1,0 +1,6 @@
+grid_teff_bounds
+================
+
+.. currentmodule:: VSPEC.config
+
+.. autodata:: grid_teff_bounds
