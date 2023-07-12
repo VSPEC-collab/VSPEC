@@ -354,6 +354,35 @@ ax.set_ylabel('Transit depth (ppm)')
 ax.legend()
 
 
+# %%
+# Make the figure again
+# +++++++++++++++++++++
+#
+# This time without the bare rock
+
+fig, ax = plt.subplots(1,1,figsize=(5,3.5),tight_layout=True)
+
+for data,label,color in zip(
+    [data_h2o_quiet,data_rock_spotted],
+    ['H2O', 'Rock+Spots'],
+    ['xkcd:azure','xkcd:golden yellow']
+):
+    pre_transit = 8
+    in_transit = 11
+    unocculted_spectrum = data.spectrum('total',pre_transit)
+    occulted_spectrum = data.spectrum('total',in_transit)
+    lost_to_transit = unocculted_spectrum-occulted_spectrum
+    transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)
+    ax.plot(data.wavelength,transit_depth*1e6,label=label,color=color)
+
+# ax.errorbar(df.loc[used_eureka,'Wave'],df.loc[used_eureka,'Depth'],yerr=df.loc[used_eureka,'e_Depth'],
+#     fmt='o',color='k')
+
+ax.set_xlabel('Wavelength (um)')
+ax.set_ylabel('Transit depth (ppm)')
+ax.legend()
+
+
 
 
 
