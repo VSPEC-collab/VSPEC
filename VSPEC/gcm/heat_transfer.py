@@ -55,7 +55,7 @@ def get_psi(lon:u.Quantity):
     Returns
     -------
     np.ndarray
-        The longitude coordinate in degrees cast to [-180,180]
+        The longitude coordinate in radians cast to [-pi,pi]
     """
     unit = u.deg
     alon = np.atleast_1d(lon.to_value(unit))

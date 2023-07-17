@@ -23,13 +23,37 @@ def test_get_flux():
 
 def test_get_psi():
     l = 0*u.deg
-    assert ht.get_psi(l) == l
+    assert ht.get_psi(l) == 0
     l = 90*u.deg
-    assert ht.get_psi(l) == l
+    assert ht.get_psi(l) == np.pi/2
     l = 270*u.deg
-    assert ht.get_psi(l) == -90*u.deg
-    l = np.arange(-180,180,37)*u.deg
-    assert np.all(ht.get_psi(l) == l)
+    assert ht.get_psi(l) == -np.pi/2
+
+def test_pcos():
+    xs = [0,np.pi,0*u.deg,90*u.deg,180*u.deg]
+    ys = [1,0,1,0,0]
+    for x,y in zip(xs,ys):
+        assert ht.pcos(x) == pytest.approx(y,abs=1e-6)
+
+def test_colat():
+    lats = [0,45,90,-45]*u.deg
+    colats = [90,45,0,135]*u.deg
+    for lat, colat in zip(lats,colats):
+        assert ht.colat(lat) == colat
+
+def test_equation_curve():
+    modes = ['ivp_reflect','bvp','ivp_interate','analytic']
+    epsilons = [0.1,2,0.1,10]
+    n_steps = 90
+    for mode,eps in zip(modes,epsilons):
+        lon,temp = ht.get_equator_curve(eps,n_steps,mode)
+        assert lon[0] == pytest.approx(-np.pi,abs=1e-6)
+        assert lon[-1] == pytest.approx(np.pi,abs=1e-6)
+        assert len(lon) == n_steps
+        avg = np.mean(temp**4)**0.25
+        assert avg == pytest.approx(0.75,rel=0.05)
+
+
 
 
 def test_equation_diagnostic():
