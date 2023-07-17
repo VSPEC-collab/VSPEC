@@ -13,7 +13,6 @@ from pathlib import Path
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
-from VSPEC.config import MSH
 
 SEED = 10
 
@@ -49,14 +48,16 @@ psg_params = params.psgParameters(
 
 star_teff = 2900*u.K
 star_rad = 0.141*u.R_sun
-planet_rad = 1*u.R_earth
+inclination = 85*u.deg
+planet_mass = 1.07*u.M_earth/np.sin(inclination)
+planet_rad = 1*u.R_earth * planet_mass.to_value(u.M_earth)**3
 orbit_rad = 0.04856*u.AU
 orbit_period = 11.18*u.day
 planet_rot_period = orbit_period
 star_rot_period = 90*u.day
 planet_mass = 1.07*u.M_earth
 star_mass = 0.122*u.M_sun
-inclination = 85*u.deg
+
 
 
 initial_phase = 180*u.deg
@@ -99,10 +100,9 @@ gcm_dict = {
     'psurf': 1*u.bar,
     'ptop': 1e-8*u.bar,
     'wind': {'U': '0 m/s','V':'0 m/s'},
-    'molecules':{'N2':0.99,'CO2':0.01}
+    'molecules':{'CO2':1e-4}
 }
 
-# Create two sets of GCM Parameters
 gcm_params = params.gcmParameters.from_dict({
     'star':star_dict,
     'planet':planet_dict,
@@ -119,33 +119,25 @@ quiet_star = params.StarParameters(
     misalignment_dir=0*u.deg,
     ld=params.LimbDarkeningParameters.proxima(),
     faculae=params.FaculaParameters.none(),
-    flares=params.FlareParameters.std(),
+    flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
     Nlat=500,Nlon=1000
 )
 
 # Set parameters for simulation
-header_kwargs = dict(
-    
-)
-internal_params_kwargs = dict(
+
+internal_params = params.InternalParameters(
+    header=params.Header(
+        data_path=Path('.vspec/proxcenb'),
+        teff_min=2300*u.K,teff_max=3400*u.K,
+        seed = SEED),
+    star = quiet_star,
+    psg=psg_params,
     planet=planet_params,
     system=system_params,
     obs=observation,
     gcm=gcm_params,
     inst=inst
-)
-
-# Make the three cases
-
-internal_params = params.InternalParameters(
-    header=params.Header(
-        data_path=Path('.vspec/rock_quiet'),
-        teff_min=2300*u.K,teff_max=3400*u.K,
-        seed = SEED),
-    star = quiet_star,
-    psg=psg_params,
-    **internal_params_kwargs
 )
 
 # %%
@@ -173,15 +165,35 @@ data = PhaseAnalyzer(model.directories['all_model'])
 # --------------------
 #
 
-fig,ax = plt.subplots(1,1,figsize=(4,4))
+fig,ax = plt.subplots(1,1,figsize=(4,4),tight_layout=True)
 
 emission = (data.thermal/data.total).to_value(u.dimensionless_unscaled)*1e6
+noise = (data.noise/data.total).to_value(u.dimensionless_unscaled)*1e6
+sim_noise = model.rng.normal(loc=0,scale=noise)
+sim_data = emission + sim_noise
 
 time = (data.time - data.time[0]).to_value(u.day)
 wl = data.wavelength.to_value(u.um)
 
-im = ax.pcolormesh(time,wl,emission,cmap='cividis')
+im = ax.pcolormesh(time,wl,sim_data,cmap='viridis')
 fig.colorbar(im,ax=ax,label='Emission (ppm)')
 
-ax.set_xlabel('time (days)')
-ax.set_ylabel('wavelength ($\\mu m$)')
+ax.set_xlabel('Time (days)')
+ax.set_ylabel('Wavelength ($\\mu m$)')
+
+# %%
+# Plot the integrated spectrum
+# ----------------------------
+#
+
+true = np.mean(emission,axis=1)
+observed = np.mean(sim_data,axis=1)
+err = np.sqrt(np.sum(noise**2,axis=1))/noise.shape[1]
+
+fig,ax = plt.subplots(1,1,figsize=(4,3),tight_layout=True)
+
+ax.plot(wl,true,c='xkcd:azure',label='True')
+ax.errorbar(wl,observed,yerr=err,fmt='o',color='xkcd:rose pink',label='Observed',markersize=2)
+ax.set_xlabel('Wavelength ($\\mu m$)')
+ax.set_ylabel('Planetary Emission (ppm)')
+ax.legend()
