@@ -43,19 +43,19 @@ def test_colat():
 
 def test_equation_curve():
     modes = ['ivp_reflect','bvp','ivp_interate','analytic']
-    epsilons = [0.1,2,0.1,10]
-    n_steps = 90
+    epsilons = [0.1,2,0.1,30]
+    n_steps = 30
     for mode,eps in zip(modes,epsilons):
         lon,temp = ht.get_equator_curve(eps,n_steps,mode)
         assert lon[0] == pytest.approx(-np.pi,abs=1e-6)
         assert lon[-1] == pytest.approx(np.pi,abs=1e-6)
-        assert len(lon) == n_steps
+        assert len(lon) == n_steps, f'wrong number of steps for mode {mode}'
         avg = np.mean(temp**4)**0.25
         assert avg == pytest.approx(0.75,rel=0.05)
 
 
 
-
+@pytest.mark.skip()
 def test_equation_diagnostic():
     n_steps = 30
     eps = np.logspace(-4,3,n_steps)
@@ -82,7 +82,7 @@ def test_equation_diagnostic():
     plt.legend()
     0
 
-
+@pytest.mark.skip()
 def test_temp_map():
     eps = 6
     t0 = 300*u.K

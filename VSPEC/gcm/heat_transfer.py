@@ -168,7 +168,8 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
     `analytic`: Use an analytic approximation. Very fast, valid for `epsilon` > 10
 
     """
-    lons = np.linspace(-np.pi,np.pi,n_points)
+    def get_lons(n):
+        return np.linspace(-np.pi,np.pi,n)
     def func(phi,T):
         return (pcos(phi) - T**4)/epsilon
     def minus_func(phi,T):
@@ -177,6 +178,7 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
         if epsilon > 1:
             msg = 'Using method `ivp_reflect` with `epsilon` > 1. Energy balance may be invalid.'
             warnings.warn(msg,RuntimeWarning)
+        lons = get_lons(n_points)
         y0 = np.atleast_1d(1)
         result = solve_ivp(minus_func,(np.pi,-np.pi),y0=y0)
         y_final = np.atleast_1d(np.mean(result.y[:,-1]))
@@ -189,6 +191,7 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
         if epsilon < 1:
             msg = 'Using method `bvp` with `epsilon` < 1. Energy balance may be invalid.'
             warnings.warn(msg,RuntimeWarning)
+        lons = get_lons(n_points)
         def bfunc(phi,T):
             return np.vstack((func(phi,T)))
         def bc(ya,yb):
@@ -200,6 +203,7 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
         if epsilon > 0.5:
             msg = 'Using method `ivp_iterate` with `epsilon` > 0.5. Energy balance may be invalid.'
             warnings.warn(msg,RuntimeWarning)
+        lons = get_lons(n_points)
         y0 = np.atleast_1d(0.5)
         for _ in range(10):
             result = solve_ivp(func,(-np.pi,np.pi),y0=y0,t_eval=lons)
@@ -212,6 +216,7 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
         if epsilon < 10:
             msg = 'Using method `analytic` with `epsilon` < 10. Energy balance may be invalid.'
             warnings.warn(msg,RuntimeWarning)
+        lons = get_lons(n_points)
         lon_prime = np.where(lons<-np.pi/2,lons+2*np.pi,lons)
         T_tild0 = np.pi**(-0.25)
         gamma = 4*T_tild0**3/epsilon
