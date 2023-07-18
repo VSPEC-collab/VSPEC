@@ -76,7 +76,8 @@ class GridSpectra:
         w1: u.Quantity,
         w2: u.Quantity,
         R: int,
-        teffs: u.Quantity
+        teffs: u.Quantity,
+        verbose: bool = False
     ):
         """
         Load the default VSPEC PHOENIX grid.
@@ -91,11 +92,17 @@ class GridSpectra:
             The resolving power to use.
         teffs : astropy.units.Quantity
             The temperature coordinates to load.
+        verbose : bool
+            Whether to print progress. Default=False
 
         """
         specs = []
         wl = None
-        for teff in tqdm(teffs, desc='Loading Spectra', total=len(teffs)):
+        if verbose:
+            iterator = tqdm(teffs, desc='Loading Spectra', total=len(teffs))
+        else:
+            iterator = teffs
+        for teff in iterator:
             wave, flux = read_phoenix(teff, R, w1, w2)
             specs.append(flux.to_value(config.flux_unit))
             if wl is None:
