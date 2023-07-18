@@ -39,8 +39,7 @@ def get_gcm_params(data:Dataset,molecules:list,aerosols:list):
     return coords + vars + molecs + aeros
 
 
-def get_cfg_params(data:Dataset,molecules:list,aerosols:list,
-                    nmax:int=2,lmax:int=2):
+def get_cfg_params(data:Dataset,molecules:list,aerosols:list):
     """
     Get parameters for a PSG config file
 
@@ -73,8 +72,6 @@ def get_cfg_params(data:Dataset,molecules:list,aerosols:list,
         'ATMOSPHERE-TYPE': ','.join(gas_types),
         'ATMOSPHERE-ABUN': ','.join(['1']*len(gases)),
         'ATMOSPHERE-UNIT': ','.join(['scl']*len(gases)),
-        'ATMOSPHERE-NMAX': f'{nmax}',
-        'ATMOSPHERE-LMAX': f'{lmax}',
         'ATMOSPHERE-NAERO': f'{len(aerosols)}',
         'ATMOSPHERE-AEROS': ','.join(aerosols),
         'ATMOSPHERE-ATYPE': ','.join(aerosol_types),
