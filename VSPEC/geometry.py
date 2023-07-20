@@ -500,15 +500,13 @@ class SystemGeometry:
             A dictionary of arrays describing the geometry at each
             epoch. Each dict value is an astropy.units.Quantity array
         """
-        if isinstance(time_step, type(None)):
-            N_obs = int(N_obs)
-        else:
-            N_obs = int(total_time/time_step)
+        if time_step is None:
+            time_step = total_time/N_obs
+        N_obs = int(np.floor((total_time/time_step).to_value(u.dimensionless_unscaled)))
         t0 = self.get_time_since_periasteron(phase0)
-        start_times = np.linspace(
-            t0.to_value(u.s),
-            (t0+total_time).to_value(u.s), N_obs, endpoint=True
-        )*u.s
+        start_times = np.arange(N_obs)*time_step + t0
+        start_times = start_times.to(u.s)
+        
         phases = []
         sub_obs_lats = []
         sub_obs_lons = []
