@@ -82,16 +82,18 @@ psg_no_atm = params.psgParameters(
 
 # Star and Planet
 
-star_teff = 3291*u.K
+star_teff = 3343*u.K
 star_rad = 0.339*u.R_sun
-planet_rad = 1.305*u.R_earth
-orbit_rad = 0.01734*u.AU
+a_rstar = 11.229 # Moran+23 Table 1
+rp_rstar = 0.03709 # Moran+23 Table 1
+planet_rad = star_rad * rp_rstar
+orbit_rad = star_rad * a_rstar
 orbit_period = 1.467119*u.day
 planet_rot_period = orbit_period
 star_rot_period = np.inf*u.s # assume the star does not change.
 planet_mass = 2.82*u.M_earth
 star_mass = 0.323*u.M_sun
-inclination = 88.4*u.deg
+inclination = 89.06*u.deg
 
 observation_angle = (2*np.pi*u.rad * observation.observation_time/orbit_period).to(u.deg)
 initial_phase = 180*u.deg - 0.5*observation_angle
@@ -166,8 +168,8 @@ quiet_star = params.StarParameters(
 spotted_star = params.StarParameters(
     spots=params.SpotParameters(
         distribution='iso',
-        initial_coverage=0.025,
-        area_mean=300*MSH,
+        initial_coverage=0.11,
+        area_mean=500*MSH,
         area_logsigma=0.2,
         teff_umbra=2700*u.K,
         teff_penumbra=2700*u.K,
@@ -346,8 +348,8 @@ for data,label,color in zip(
     transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)
     ax.plot(data.wavelength,transit_depth*1e6,label=label,color=color)
 
-# ax.errorbar(df.loc[used_eureka,'Wave'],df.loc[used_eureka,'Depth'],yerr=df.loc[used_eureka,'e_Depth'],
-#     fmt='o',color='k')
+ax.errorbar(df.loc[used_eureka,'Wave'],df.loc[used_eureka,'Depth'],yerr=df.loc[used_eureka,'e_Depth'],
+    fmt='o',color='k')
 
 ax.set_xlabel('Wavelength (um)')
 ax.set_ylabel('Transit depth (ppm)')
