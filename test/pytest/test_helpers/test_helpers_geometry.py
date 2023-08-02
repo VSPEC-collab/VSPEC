@@ -19,8 +19,7 @@ def test_get_angle_between():
     for case in cases:
         assert helpers.get_angle_between(
             *case['args']).to_value(u.deg) == pytest.approx(case['pred'].to_value(u.deg), abs=1)
-
-
+@pytest.mark.filterwarnings('error')
 def test_proj_ortho():
     lat0 = 30 * u.deg
     lon0 = 45 * u.deg
@@ -44,6 +43,20 @@ def test_proj_ortho():
     # Check for incorrect input type
     with pytest.raises(TypeError):
         helpers.proj_ortho(lat0.value, lon0.value, lats, lons)
+        
+    lat0 = 0 * u.deg
+    lon0 = 10 * u.deg
+    lats = np.array([0, 0, 0]) * u.deg
+    lons = np.array([100, 40, 10]) * u.deg
+    x, y = helpers.proj_ortho(lat0, lon0, lats, lons)
+    assert y[0] == pytest.approx(0., rel=0.01)
+    assert y[1] == pytest.approx(0., rel=0.01)
+    assert y[2] == pytest.approx(0., rel=0.01)
+    
+    assert x[0] == pytest.approx(1., rel=0.01)
+    assert x[1] == pytest.approx(0.5, rel=0.01)
+    assert x[2] == pytest.approx(0., rel=0.01)
+    
 
 
 def test_circle_intersection():

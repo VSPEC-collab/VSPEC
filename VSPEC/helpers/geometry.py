@@ -150,9 +150,12 @@ def proj_ortho(
               + np.cos(lat0) * np.cos(lats)
               * np.cos(lon0-lons))
         a = np.arccos(mu)
+        num = np.cos(c) - np.cos(a)*np.cos(b)
+        den = np.sin(a)*np.sin(b)
+        den[den==0]=1e-20 # supress warning. This is overwritten anyway.
         cos_C = np.where(
             mu < 1,
-            (np.cos(c) - np.cos(a)*np.cos(b)) / (np.sin(a)*np.sin(b)),
+            num / den,
             1
         )
         cos_C = np.round(cos_C, 4)
