@@ -123,6 +123,20 @@ def test_age_method_with_zero_time(star_with_spots:Star):
     assert len(star_with_spots.spots.spots) == initial_num_spots
     assert len(star_with_spots.faculae.faculae) == initial_num_faculae
 
+def test_transit_mask(star:Star):
+    mask, val = star.get_transit_mask(
+        lat0=0*u.deg,
+        lon0=0*u.deg,
+        orbit_radius=0.05*u.AU,
+        radius = 1*u.R_earth,
+        phase=180*u.deg,
+        inclination=90*u.deg
+    )
+    assert val == 1
+    assert np.any(mask == 0)
+    assert np.any(mask == 1)
+    assert np.any((mask<1) & (mask>0))
+
 
 # def test_add_fac_to_map():
 #     Teff = 3000 * u.K
