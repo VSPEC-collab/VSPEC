@@ -11,7 +11,7 @@ by a transiting planet.
 Once the surface coverage is calculated, a composite spectrum
 is computed from a grid of PHOENIX stellar spectra :cite:p:`2013A&A...553A...6H`.
 As of ``VSPEC 0.1``, we have spectra between 2300 K and 3900 K, with steps of
-100 K. Each spectrum has :math:`\log{g} = 5.0` and solar metalicity.
+100 K. Each spectrum has :math:`\\log{g} = 5.0` and solar metalicity.
 The raw spectra span from 0.1 to 20 um with 5e-6 um steps, however binned
 versions are available for faster runtimes.
 
@@ -455,10 +455,28 @@ class Star:
             return self.gridmaker.zeros().astype('bool'), planet_fraction
         else:
             llat, llon = self.gridmaker.grid()
-            xcoord, ycoord = proj_ortho(lat0, lon0, llat, llon)
-            rad_map = np.sqrt((xcoord-x)**2 + (ycoord-y)**2)
-            covered = np.where(rad_map <= rad, 1, 0).astype('bool')
-            return covered, 1.0
+            dlat = 0.5*180*u.deg/(self.gridmaker.Nlat-1)
+            dlon = 0.5*360*u.deg/self.gridmaker.Nlon
+            # get each corner
+            # 00 ... 02
+            # :  11  :
+            # 20 ... 22
+            # where (x11, y11) is the pixel center
+            # This is similar to the subpixel method
+            x00,y00 = proj_ortho(lat0, lon0, llat+dlat, llon-dlon)
+            x02,y02 = proj_ortho(lat0, lon0, llat+dlat, llon+dlon)
+            x20,y20 = proj_ortho(lat0, lon0, llat-dlat, llon-dlon)
+            x22,y22 = proj_ortho(lat0, lon0, llat-dlat, llon+dlon)
+            # xcoord, ycoord = proj_ortho(lat0, lon0, llat, llon)
+            # rad_map = np.sqrt((xcoord-x)**2 + (ycoord-y)**2) # map of pixel centers
+            ul_map = np.sqrt((x00-x)**2 + (y00-y)**2)
+            ur_map = np.sqrt((x02-x)**2 + (y02-y)**2)
+            ll_map = np.sqrt((x20-x)**2 + (y20-y)**2)
+            lr_map = np.sqrt((x22-x)**2 + (y22-y)**2)
+            coverages = np.array([np.where(map <= rad, 1, 0).astype('float') for map in [ul_map,ur_map,ll_map,lr_map]])
+            # covered = np.where(rad_map <= rad, 1, 0).astype('bool')
+            integrated_coverage = np.mean(coverages,axis=0)            
+            return integrated_coverage, 1.0
 
     def calc_coverage(
         self,
