@@ -455,28 +455,27 @@ class Star:
             return self.gridmaker.zeros().astype('bool'), planet_fraction
         else:
             llat, llon = self.gridmaker.grid()
-            dlat = 0.5*180*u.deg/(self.gridmaker.Nlat-1)
-            dlon = 0.5*360*u.deg/self.gridmaker.Nlon
-            # get each corner
-            # 00 ... 02
-            # :  11  :
-            # 20 ... 22
-            # where (x11, y11) is the pixel center
-            # This is similar to the subpixel method
-            x00,y00 = proj_ortho(lat0, lon0, llat+dlat, llon-dlon)
-            x02,y02 = proj_ortho(lat0, lon0, llat+dlat, llon+dlon)
-            x20,y20 = proj_ortho(lat0, lon0, llat-dlat, llon-dlon)
-            x22,y22 = proj_ortho(lat0, lon0, llat-dlat, llon+dlon)
-            # xcoord, ycoord = proj_ortho(lat0, lon0, llat, llon)
-            # rad_map = np.sqrt((xcoord-x)**2 + (ycoord-y)**2) # map of pixel centers
-            ul_map = np.sqrt((x00-x)**2 + (y00-y)**2)
-            ur_map = np.sqrt((x02-x)**2 + (y02-y)**2)
-            ll_map = np.sqrt((x20-x)**2 + (y20-y)**2)
-            lr_map = np.sqrt((x22-x)**2 + (y22-y)**2)
-            coverages = np.array([np.where(map <= rad, 1, 0).astype('float') for map in [ul_map,ur_map,ll_map,lr_map]])
-            # covered = np.where(rad_map <= rad, 1, 0).astype('bool')
-            integrated_coverage = np.mean(coverages,axis=0)            
-            return integrated_coverage, 1.0
+            dlat = 180*u.deg/(self.gridmaker.Nlat-1)
+            dlon = 360*u.deg/self.gridmaker.Nlon
+            xcoord, ycoord = proj_ortho(lat0, lon0, llat, llon)
+            rad_map = np.sqrt((xcoord-x)**2 + (ycoord-y)**2) # map of pixel centers
+            pixels_to_consider = np.where(rad_map <= rad*1.3, 1, 0).astype('bool')
+            covered_value = np.where(rad_map <= rad*1.3, 1, 0).astype('float')
+            indicies = np.argwhere(pixels_to_consider)
+            n_subdiv = 2
+            for index in indicies:
+                i = index[0]
+                j = index[1]
+                lon = llon[i,j]
+                lat = llat[i,j]
+                lats = np.linspace(-0.5,0.5,n_subdiv,endpoint=False)*dlat + lat
+                lons = np.linspace(-0.5,0.5,n_subdiv,endpoint=False)*dlon + lon
+                latgrid,longrid = np.meshgrid(lats,lons)
+                xs, ys = proj_ortho(lat0,lon0,latgrid,longrid)
+                radii = np.sqrt((x-xs)**2+(y-ys)**2)
+                frac_inside = np.sum(radii<rad)/np.size(radii)
+                covered_value[i,j] = frac_inside        
+            return covered_value, 1.0
 
     def calc_coverage(
         self,
