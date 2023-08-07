@@ -3,6 +3,7 @@ import astropy.units as u
 import numpy as np
 import matplotlib.pyplot as plt
 from cartopy import crs as ccrs
+from datetime import datetime
 
 
 from VSPEC.variable_star_model import Star, SpotCollection, FaculaCollection, FlareGenerator, SpotGenerator, FaculaGenerator
@@ -18,7 +19,7 @@ def star():
     period = 10 * u.day
     spots = SpotCollection()
     faculae = FaculaCollection()
-    return Star(Teff, radius, period, spots, faculae)
+    return Star(Teff, radius, period, spots, faculae,Nlat=500,Nlon=1000)
 
 @pytest.fixture
 def star_with_spots():
@@ -123,7 +124,14 @@ def test_age_method_with_zero_time(star_with_spots:Star):
     assert len(star_with_spots.spots.spots) == initial_num_spots
     assert len(star_with_spots.faculae.faculae) == initial_num_faculae
 
-def test_transit_mask(star:Star):
+def test_transit_mask():
+    Teff = 3000 * u.K
+    radius = 0.15 * u.Rsun
+    period = 10 * u.day
+    spots = SpotCollection()
+    faculae = FaculaCollection()
+    star = Star(Teff, radius, period, spots, faculae,Nlat=500,Nlon=1000)
+    
     mask, val = star.get_transit_mask(
         lat0=0*u.deg,
         lon0=0*u.deg,
@@ -136,6 +144,73 @@ def test_transit_mask(star:Star):
     assert np.any(mask == 0)
     assert np.any(mask == 1)
     assert np.any((mask<1) & (mask>0))
+    
+    
+    # star-sized planet
+    mask, val = star.get_transit_mask(
+        lat0=0*u.deg,
+        lon0=0*u.deg,
+        orbit_radius=1*u.AU,
+        radius = star.radius,
+        phase=180*u.deg,
+        inclination=90*u.deg
+    )
+    jac = star.get_jacobian().to_value(u.dimensionless_unscaled)
+    mu = star.get_mu(lat0=0*u.deg,lon0=0*u.deg).to_value(u.dimensionless_unscaled)
+    facing = mu > 0
+    area = jac*mu
+    area_facing = np.sum(area[facing])
+    area_blocked = np.sum((mask[facing])*area[facing])
+    assert area_blocked == pytest.approx(area_facing,rel=1e-6)
+    
+    # rp/rs = 0.5
+    # x = [8,32,128]
+    # y = []
+    # phases = (np.linspace(0,1,20)+180)*u.deg
+    # t0 = datetime.now()
+    # for rs_rp in x:
+    #     # rs_rp = 4
+    #     lat0 = 0*u.deg
+    #     lon0=0*u.deg
+    #     a = 0.05*u.AU
+    #     rad = star.radius/rs_rp
+    #     phase = 180.*u.deg
+    #     i = 90*u.deg
+    #     yy = []
+    #     for phase in phases:
+    #         mask, val = star.get_transit_mask(
+    #             lat0=lat0,
+    #             lon0=lon0,
+    #             orbit_radius=a,
+    #             radius = rad,
+    #             phase=phase,
+    #             inclination=i
+    #         )
+    #         jac = star.get_jacobian().to_value(u.dimensionless_unscaled)
+    #         mu = star.get_mu(lat0=0*u.deg,lon0=0*u.deg).to_value(u.dimensionless_unscaled)
+    #         facing = mu > 0
+    #         area = jac*mu
+    #         area_facing = np.sum(area[facing])
+    #         area_blocked = np.sum((mask[facing])*area[facing])
+    #         expected_area_blocked = area_facing/rs_rp**2
+    #         extra_area_blocked = area_blocked - expected_area_blocked
+    #         extra_area_blocked_div_exp = extra_area_blocked/expected_area_blocked
+    #         yy.append(extra_area_blocked_div_exp*100)
+    #         # unity = rs_rp**2*area_blocked/area_facing
+    #         # y.append(100*(unity-1))
+    #     plt.scatter(phases,yy,label=f'{rs_rp}')
+    # # plt.scatter(x,y)
+    # plt.xlabel('phase')
+    # plt.ylabel('Extra Area blocked (%)')
+    # # plt.ylabel('Divergence from expected (%)')
+    # # plt.xscale('log')
+    # # plt.xticks(x,labels=x)
+    # plt.title(datetime.now()-t0)
+    # plt.savefig('transit_bad.png',facecolor='w')
+    
+        
+    
+    
 
 
 # def test_add_fac_to_map():
@@ -289,5 +364,5 @@ def test_transit_mask(star:Star):
 
 
 
-# if __name__ in '__main__':
-#     test_get_pixelmap()
+if __name__ in '__main__':
+    test_transit_mask()
