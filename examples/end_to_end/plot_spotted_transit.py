@@ -19,6 +19,8 @@ from VSPEC import params
 from VSPEC.config import MSH
 
 SEED = 10
+PRE_TRANSIT = 8
+IN_TRANSIT = 13
 
 
 # %%
@@ -95,6 +97,9 @@ planet_mass = 2.82*u.M_earth
 star_mass = 0.323*u.M_sun
 inclination = 89.06*u.deg
 
+print(f'Planet radius: {planet_rad.to_value(u.R_earth)} R_earth')
+print(f'Semimajor axis: {orbit_rad.to_value(u.AU)} AU')
+
 observation_angle = (2*np.pi*u.rad * observation.observation_time/orbit_period).to(u.deg)
 initial_phase = 180*u.deg - 0.5*observation_angle
 
@@ -126,15 +131,15 @@ star_dict = {
 planet_dict = {'semimajor_axis': orbit_rad}
 
 gcm_dict = {
-    'nlayer': 30,
-    'nlon': 30,
-    'nlat': 15,
+    'nlayer': 40,
+    'nlon': 60,
+    'nlat': 30,
     'epsilon': 100,
     'albedo': 0.3,
     'emissivity': 1.0,
-    'gamma': 1.4,
+    'gamma': 1.0,
     'psurf': 1*u.bar,
-    'ptop': 1e-8*u.bar,
+    'ptop': 1e-10*u.bar,
     'wind': {'U': '0 m/s','V':'0 m/s'},
     'molecules':{'H2O':0.99}
 }
@@ -159,7 +164,7 @@ star_kwargs = dict(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    Nlat=500,Nlon=1000
+    Nlat=2000,Nlon=4000
 )
 quiet_star = params.StarParameters(
     spots=params.SpotParameters.none(),
@@ -224,8 +229,8 @@ params_rock_spotted = params.InternalParameters(
 # We read in the config file and run the model.
 
 model_rock_quiet = ObservationModel(params_rock_quiet)
-model_rock_quiet.build_planet()
-model_rock_quiet.build_spectra()
+# model_rock_quiet.build_planet()
+# model_rock_quiet.build_spectra()
 
 # %%
 # Load in the data
@@ -257,8 +262,8 @@ def plot_transit(data:PhaseAnalyzer,title:str,color:str):
     axes[0].set_title(title)
 
     # standardize the epochs to use for analysis
-    pre_transit = 8
-    in_transit = 11
+    pre_transit = PRE_TRANSIT
+    in_transit = IN_TRANSIT
 
     unocculted_spectrum = data.spectrum('total',pre_transit)
     occulted_spectrum = data.spectrum('total',in_transit)
@@ -288,8 +293,8 @@ plot_transit(data_rock_quiet,'Spotless Star and Bare Rock','xkcd:lavender').show
 # +++++++++++++++++++++++++
 
 model_h2o_quiet = ObservationModel(params_h2o_quiet)
-model_h2o_quiet.build_planet()
-model_h2o_quiet.build_spectra()
+# model_h2o_quiet.build_planet()
+# model_h2o_quiet.build_spectra()
 
 data_h2o_quiet = PhaseAnalyzer(model_h2o_quiet.directories['all_model'])
 
@@ -300,7 +305,7 @@ plot_transit(data_h2o_quiet,'Spotless Star and 1 bar H2O Atmosphere','xkcd:azure
 # ++++++++++++++++++++++++
 
 model_rock_spotted = ObservationModel(params_rock_spotted)
-model_rock_spotted.build_planet()
+# model_rock_spotted.build_planet()
 model_rock_spotted.build_spectra()
 
 data_rock_spotted = PhaseAnalyzer(model_rock_spotted.directories['all_model'])
@@ -327,6 +332,10 @@ filename = 'moran2023_fig3.txt'
 df = pd.read_fwf(filename,colspecs=[(0,8),(9,14),(15,20),(21,25),(26,28)],
     header=20,names=['Reduction','Wave','Width','Depth','e_Depth'])
 used_eureka = df['Reduction']=='Eureka'
+moran_x = df.loc[used_eureka,'Wave']
+moran_y = df.loc[used_eureka,'Depth']
+moran_yerr = df.loc[used_eureka,'e_Depth']
+moran_mean = np.mean(moran_y)
 
 # %%
 # Make the figure
@@ -340,16 +349,18 @@ for data,label,color in zip(
     ['Rock', 'H2O', 'Rock+Spots'],
     ['xkcd:lavender','xkcd:azure','xkcd:golden yellow']
 ):
-    pre_transit = 8
-    in_transit = 11
+    pre_transit = PRE_TRANSIT
+    in_transit = IN_TRANSIT
     unocculted_spectrum = data.spectrum('total',pre_transit)
     occulted_spectrum = data.spectrum('total',in_transit)
     lost_to_transit = unocculted_spectrum-occulted_spectrum
-    transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)
-    ax.plot(data.wavelength,transit_depth*1e6,label=label,color=color)
+    transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)*1e6
+    depth_mean = np.mean(transit_depth)
+    shift = moran_mean/depth_mean
+    ax.plot(data.wavelength,transit_depth*shift,label=label,color=color)
 
-ax.errorbar(df.loc[used_eureka,'Wave'],df.loc[used_eureka,'Depth'],yerr=df.loc[used_eureka,'e_Depth'],
-    fmt='o',color='k')
+ax.errorbar(moran_x,moran_y,yerr=moran_yerr,
+    fmt='o',color='k',label='Moran+23 Eureka!')
 
 ax.set_xlabel('Wavelength (um)')
 ax.set_ylabel('Transit depth (ppm)')
@@ -369,8 +380,8 @@ for data,label,color in zip(
     ['H2O', 'Rock+Spots'],
     ['xkcd:azure','xkcd:golden yellow']
 ):
-    pre_transit = 8
-    in_transit = 11
+    pre_transit = PRE_TRANSIT
+    in_transit = IN_TRANSIT
     unocculted_spectrum = data.spectrum('total',pre_transit)
     occulted_spectrum = data.spectrum('total',in_transit)
     lost_to_transit = unocculted_spectrum-occulted_spectrum
@@ -392,9 +403,47 @@ ax.legend()
 # Plot the star
 # -------------
 #
-transit_phase = data_rock_spotted.phase[11]
+transit_phase = data_rock_spotted.phase[IN_TRANSIT]
 model_rock_spotted.star.plot_surface(
     lat0=0*u.deg,lon0=0*u.deg,
     orbit_radius=orbit_rad,radius=planet_rad,
     phase=transit_phase,inclination = inclination
 )
+
+# %%
+# Stellar surface grid resolution
+# -------------------------------
+#
+# What effects are caused by the discretization of the stellar surface?
+#
+#
+# Bare Rock
+# +++++++++
+
+NLON = 500
+NLAT = 250
+
+
+fig, ax = plt.subplots(1,1)
+
+ax.errorbar(moran_x,moran_y,yerr=moran_yerr,
+    fmt='o',color='k',label='Moran+23 Eureka!')
+
+
+scales = [2,4]
+for scale in scales:
+    model = ObservationModel(params_rock_quiet)
+    model.params.star.Nlat = NLAT*scale
+    model.params.star.Nlon = NLON*scale
+    model.build_spectra()
+
+    data = PhaseAnalyzer(model.directories['all_model'])
+    unocculted_spectrum = data.spectrum('total',PRE_TRANSIT)
+    occulted_spectrum = data.spectrum('total',IN_TRANSIT)
+    lost_to_transit = unocculted_spectrum-occulted_spectrum
+    transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)*1e6
+    ax.plot(data.wavelength,transit_depth,label=f'{NLON*scale}x{NLAT*scale}')
+
+ax.set_xlabel('Wavelength (um)')
+ax.set_ylabel('Transit depth (ppm)')
+ax.legend()
