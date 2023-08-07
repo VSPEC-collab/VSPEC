@@ -71,7 +71,7 @@ class CoordinateGrid:
 
         """
         lats = np.linspace(-90, 90, self.Nlat)*u.deg
-        lons = np.linspace(0, 360, self.Nlon)*u.deg
+        lons = np.linspace(0, 360, self.Nlon,endpoint=False)*u.deg
         return lats, lons
 
     def grid(self):
