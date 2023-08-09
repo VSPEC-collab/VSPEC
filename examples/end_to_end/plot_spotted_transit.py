@@ -160,7 +160,7 @@ star_kwargs = dict(
     period=star_rot_period,
     misalignment=0*u.deg,
     misalignment_dir=0*u.deg,
-    ld=params.LimbDarkeningParameters.proxima(),
+    ld=params.LimbDarkeningParameters.lambertian(),
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
@@ -357,6 +357,7 @@ for data,label,color in zip(
     transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)*1e6
     depth_mean = np.mean(transit_depth)
     shift = moran_mean/depth_mean
+    shift = 1
     ax.plot(data.wavelength,transit_depth*shift,label=label,color=color)
 
 ax.errorbar(moran_x,moran_y,yerr=moran_yerr,
