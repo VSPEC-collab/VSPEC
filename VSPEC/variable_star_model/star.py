@@ -157,7 +157,10 @@ class Star:
             )
         else:
             self.fac_generator = fac_generator
-        self.granulation = granulation
+        if granulation is None:
+            self.granulation = Granulation(0,0,1*u.day,0*u.K)
+        else:
+            self.granulation = granulation
         self.u1 = u1
         self.u2 = u2
         self.set_spot_grid()
@@ -437,6 +440,13 @@ class Star:
             The phase of the planet. 180 degrees is mid transit.
         inclination : astropy.units.Quantity
             The inclination of the planet. 90 degrees is transiting.
+        
+        Returns
+        -------
+        mask : np.ndarray
+            The fraction of each pixel that is covered by the planet.
+        pl_frac : float
+            The fraction of the planet that is visible to the observer.
         """
         eclipse = False
         if np.cos(phase) > 0:
@@ -462,7 +472,7 @@ class Star:
             pixels_to_consider = np.where(rad_map <= rad*1.3, 1, 0).astype('bool')
             covered_value = np.where(rad_map <= rad*1.3, 1, 0).astype('float')
             indicies = np.argwhere(pixels_to_consider)
-            n_subdiv = 2
+            n_subdiv = 5
             for index in indicies:
                 i = index[0]
                 j = index[1]
