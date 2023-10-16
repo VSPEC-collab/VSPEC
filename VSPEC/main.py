@@ -413,7 +413,10 @@ class ObservationModel:
                     else:
                         msg += f'{str(err)}\n'
                 else:
-                    msg += f'{str(err)}\n'
+                    try:
+                        assert (float(value)) == (float(cfg_dict[key]))
+                    except:
+                        msg += f'{str(err)}\n'
         if not msg == '':
             raise RuntimeError(f'PSG config validation error:\n{msg}')
 
