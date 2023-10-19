@@ -69,7 +69,7 @@ class StellarFlare:
         self.Teff = Teff
         self.tpeak = tpeak
 
-    def calc_peak_area(self) -> u.Quantity[u.km**2]:
+    def calc_peak_area(self) -> u.Quantity:
         """
         Calculate the flare area at its peak
 
@@ -84,7 +84,7 @@ class StellarFlare:
         area = time_area/time_area_std * area_std
         return area.to(u.km**2)
 
-    def areacurve(self, time: Quantity[u.hr]):
+    def areacurve(self, time: Quantity):
         """
         Compute the flare area as a function of time
 
@@ -110,7 +110,7 @@ class StellarFlare:
         )
         return areas * a_unit
 
-    def get_timearea(self, time: Quantity[u.hr]):
+    def get_timearea(self, time: Quantity):
         """
         Calcualte the integrated time*area of the flare.
 
@@ -557,7 +557,7 @@ class FlareCollection:
         self.peaks = tpeak
         self.fwhms = fwhm
 
-    def mask(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]):
+    def mask(self, tstart: Quantity, tfinish: Quantity):
         """
         Create a boolean mask to indicate which flares are visible within a certain time period.
 
@@ -581,7 +581,7 @@ class FlareCollection:
 
         return after_start & before_end
 
-    def get_flares_in_timeperiod(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr]) -> List[StellarFlare]:
+    def get_flares_in_timeperiod(self, tstart: Quantity, tfinish: Quantity) -> List[StellarFlare]:
         """
         Generate a mask and select flares without casting to `np.ndarray`
         (use a list comprehension instead).
@@ -605,7 +605,7 @@ class FlareCollection:
         # essentially the same as self.flares[mask], but without casting to ndarray
         return masked_flares
 
-    def get_visible_flares_in_timeperiod(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
+    def get_visible_flares_in_timeperiod(self, tstart: Quantity, tfinish: Quantity,
                                          sub_obs_coords={'lat': 0*u.deg, 'lon': 0*u.deg}) -> List[StellarFlare]:
         """
         Get visible flares in a given time period on a given hemisphere.
@@ -635,7 +635,7 @@ class FlareCollection:
                 visible_flares.append(flare)
         return visible_flares
 
-    def get_flare_integral_in_timeperiod(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr],
+    def get_flare_integral_in_timeperiod(self, tstart: Quantity, tfinish: Quantity,
                                          sub_obs_coords={'lat': 0*u.deg, 'lon': 0*u.deg}):
         """
         Calculate the integrated time-area for each visible

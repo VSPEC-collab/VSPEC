@@ -333,7 +333,7 @@ class SystemGeometry:
         time = newton(func, (guess/u.day).to(u.Unit(''))) * u.day
         return time.to(u.day)
 
-    def get_substellar_lon_at_periasteron(self) -> u.Quantity[u.deg]:
+    def get_substellar_lon_at_periasteron(self) -> u.Quantity:
         """
         Compute the sub-stellar longitude at the previous periasteron
         given the rotation period, orbital period, and initial
@@ -382,7 +382,7 @@ class SystemGeometry:
         # lon = self.planetary_init_substellar_lon + dphase - rotated
         return lon % (360.0*u.deg)
 
-    def get_substellar_lat(self, phase: u.Quantity[u.deg]) -> u.Quantity[u.deg]:
+    def get_substellar_lat(self, phase: u.Quantity) -> u.Quantity:
         """
         Calculate the sub-stellar latitude of the planet at a particular phase.
 
@@ -428,7 +428,7 @@ class SystemGeometry:
         lon = self.get_substellar_lon(time_since_periasteron) - phase
         return lon
 
-    def get_pl_sub_obs_lat(self, phase: u.Quantity[u.deg]) -> u.Quantity[u.deg]:
+    def get_pl_sub_obs_lat(self, phase: u.Quantity) -> u.Quantity:
         """
         Compute the sub-observer latitude of the planet.
 
