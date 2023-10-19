@@ -195,7 +195,7 @@ class Facula:
         msg = 'The `set_gridmaker` method of Facula is no longer necessary.'
         warnings.warn(msg, DeprecationWarning)
 
-    def age(self, time: Quantity[u.day]):
+    def age(self, time: Quantity):
         """
         Progress the development of the facula by an amount of time.
 
@@ -303,8 +303,8 @@ class Facula:
                 round_teff(self.floor_dteff): np.trapz(Reffs, x)
             }
 
-    def fractional_effective_area(self, angle: Quantity[u.deg],
-                                  N: int = 101) -> Dict[Quantity[u.K], Quantity]:
+    def fractional_effective_area(self, angle: Quantity,
+                                  N: int = 101) -> Dict[Quantity, Quantity]:
         """
         Calculate the fractional effective area as a fraction of the
         projected area of a region of quiet photosphere with

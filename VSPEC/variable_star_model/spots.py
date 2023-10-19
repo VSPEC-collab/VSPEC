@@ -104,9 +104,9 @@ class StarSpot:
     """
 
     def __init__(
-        self, lat: Quantity[u.deg], lon: Quantity[u.deg], Amax: Quantity[MSH], A0: Quantity[MSH],
-        Teff_umbra: Quantity[u.K], Teff_penumbra: Quantity[u.K], r_A: float = 5, growing: bool = True,
-        growth_rate: Quantity[1/u.day] = 0.52/u.day, decay_rate: Quantity[MSH/u.day] = 10.89 * MSH/u.day,
+        self, lat: Quantity, lon: Quantity, Amax: Quantity, A0: Quantity,
+        Teff_umbra: Quantity, Teff_penumbra: Quantity, r_A: float = 5, growing: bool = True,
+        growth_rate: Quantity = 0.52/u.day, decay_rate: Quantity = 10.89 * MSH/u.day,
         Nlat: int = 500, Nlon: int = 1000, gridmaker=None
     ):
 
@@ -149,7 +149,7 @@ class StarSpot:
         return s
 
     @property
-    def radius(self) -> Quantity[u.km]:
+    def radius(self) -> Quantity:
         """
         Radius
 
@@ -162,7 +162,7 @@ class StarSpot:
         """
         return np.sqrt(self.area_current/np.pi).to(u.km)
 
-    def angular_radius(self, star_rad: Quantity[u.R_sun]) -> Quantity[u.deg]:
+    def angular_radius(self, star_rad: Quantity) -> Quantity:
         """
         Angular radius
 
@@ -181,7 +181,7 @@ class StarSpot:
         cos_angle = 1 - self.area_current/(2*np.pi*star_rad**2)
         return (np.arccos(cos_angle)).to(u.deg)
 
-    def map_pixels(self, star_rad: Quantity[u.R_sun]) -> dict:
+    def map_pixels(self, star_rad: Quantity) -> dict:
         """
         Map latitude and longituide points continaing the umbra and penumbra
 
@@ -210,7 +210,7 @@ class StarSpot:
                 self.Teff_penumbra: self.r < radius}
 
     def surface_fraction(self, sub_obs_coords: dict,
-                         star_rad: Quantity[u.R_sun], N: int = 1001) -> float:
+                         star_rad: Quantity, N: int = 1001) -> float:
         """
         Determine the surface fraction covered by a spot from a given 
         angle of observation using the orthographic projection.
@@ -245,7 +245,7 @@ class StarSpot:
         integrand = 2 * np.cos(c)*np.sqrt(rad)
         return (np.trapz(integrand, x=c)/(2*np.pi*u.steradian)).to_value(u.dimensionless_unscaled)
 
-    def age(self, time: Quantity[u.s]) -> None:
+    def age(self, time: Quantity) -> None:
         """
         Age a spot according to its growth timescale and decay rate
 
@@ -393,7 +393,7 @@ class SpotCollection:
                 spots_to_keep.append(spot)
         self.spots = spots_to_keep
 
-    def map_pixels(self, star_rad: Quantity[u.R_sun], star_teff: Quantity[u.K]):
+    def map_pixels(self, star_rad: Quantity, star_teff: Quantity):
         """
         Map latitude and longitude points containing the umbra and penumbra
         of each spot. For pixels with coverage from multiple spots, assign
@@ -428,7 +428,7 @@ class SpotCollection:
                 penumbra, spot.Teff_penumbra, surface_map))
         return surface_map
 
-    def age(self, time: Quantity[u.day]) -> None:
+    def age(self, time: Quantity) -> None:
         """
         Age spots according to its growth timescale and decay rate.
 
@@ -547,13 +547,13 @@ class SpotGenerator:
     """
 
     def __init__(self,
-                 dist_area_mean: Quantity[MSH],
+                 dist_area_mean: Quantity,
                  dist_area_logsigma: float,
-                 umbra_teff: Quantity[u.K],
-                 penumbra_teff: Quantity[u.K],
-                 growth_rate: Quantity[1/u.day] = 0.52/u.day,
-                 decay_rate: Quantity[MSH/u.day] = 10.89 * MSH/u.day,
-                 init_area: Quantity[MSH] = 10*MSH,
+                 umbra_teff: Quantity,
+                 penumbra_teff: Quantity,
+                 growth_rate: Quantity = 0.52/u.day,
+                 decay_rate: Quantity = 10.89 * MSH/u.day,
+                 init_area: Quantity = 10*MSH,
                  distribution='solar',
                  coverage: float = 0.2,
                  Nlat: int = 500,
@@ -741,7 +741,7 @@ class SpotGenerator:
             ))
         return tuple(spots)
 
-    def get_N_spots_to_birth(self, time: Quantity[u.day], rad_star: Quantity[u.R_sun]) -> float:
+    def get_N_spots_to_birth(self, time: Quantity, rad_star: Quantity) -> float:
         """
         Calculate how many new `StarSpot` objects to birth over a given time duration (expectation value).
 
@@ -762,7 +762,7 @@ class SpotGenerator:
                  time / self.mean_lifetime).to_value(u.dimensionless_unscaled)
         return N_exp
 
-    def birth_spots(self, time: Quantity[u.day], rad_star: Quantity[u.R_sun]) -> tuple[StarSpot]:
+    def birth_spots(self, time: Quantity, rad_star: Quantity) -> tuple[StarSpot]:
         """
         Generate new `StarSpot` objects to be birthed over a given time duration.
 
@@ -786,7 +786,7 @@ class SpotGenerator:
 
         return self.generate_spots(N)
 
-    def generate_mature_spots(self, coverage: float, R_star: Quantity[u.R_sun]) -> List[StarSpot]:
+    def generate_mature_spots(self, coverage: float, R_star: Quantity) -> List[StarSpot]:
         """Generate mature StarSpot objects to cover a given fraction of the star's surface.
 
         This method generates mature spots such that the total solid angle subtended by the spots

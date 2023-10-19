@@ -9,11 +9,11 @@ import pandas as pd
 
 
 def get_transit_radius(
-    system_distance: u.Quantity[u.pc],
-    stellar_radius: u.Quantity[u.R_sun],
-    semimajor_axis: u.Quantity[u.AU],
-    planet_radius: u.Quantity[u.R_earth]
-) -> u.Quantity[u.rad]:
+    system_distance: u.Quantity,
+    stellar_radius: u.Quantity,
+    semimajor_axis: u.Quantity,
+    planet_radius: u.Quantity
+) -> u.Quantity:
     """
     Get the phase radius of a planetary transit.
 
@@ -57,7 +57,10 @@ def get_transit_radius(
     return (angle_point_planet+planet_radius_angle)*u.rad
 
 
-def get_planet_indicies(planet_times: u.Quantity, tindex: u.Quantity) -> tuple[int, int]:
+def get_planet_indicies(
+    planet_times: u.Quantity,
+    tindex: u.Quantity
+    ) -> tuple[int, int]:
     """
     Get the indices of the planet spectra to interpolate over.
 

@@ -540,7 +540,7 @@ class ObservationModel:
             seed=self.params.header.seed
         )
 
-    def warm_up_star(self, spot_warmup_time: u.Quantity[u.day] = 0*u.day, facula_warmup_time: u.Quantity[u.day] = 0*u.day):
+    def warm_up_star(self, spot_warmup_time: u.Quantity = 0*u.day, facula_warmup_time: u.Quantity = 0*u.day):
         """
         "Warm up" the star. Generate spots, faculae, and/or flares for the star.
         The goal is to approach growth-decay equillibrium, something that is hard to

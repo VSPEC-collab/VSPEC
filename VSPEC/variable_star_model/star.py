@@ -664,7 +664,7 @@ class Star:
         ax.imshow(np.ones_like(ld), extent=(lon.min(), lon.max(), lat.min(), lat.max()),
                   transform=ccrs.PlateCarree(), origin='lower', alpha=alpha, cmap=plt.cm.get_cmap('gray'), zorder=100)
 
-    def get_flares_over_observation(self, time_duration: Quantity[u.hr]):
+    def get_flares_over_observation(self, time_duration: Quantity):
         """
         Generate a collection of flares over a specified observation period.
 
@@ -683,7 +683,7 @@ class Star:
         flares = self.flare_generator.generate_flare_series(time_duration)
         self.flares = FlareCollection(flares)
 
-    def get_flare_int_over_timeperiod(self, tstart: Quantity[u.hr], tfinish: Quantity[u.hr], sub_obs_coords):
+    def get_flare_int_over_timeperiod(self, tstart: Quantity, tfinish: Quantity, sub_obs_coords):
         """
         Compute the total flare integral over a specified time period and sub-observer point.
 
