@@ -111,12 +111,12 @@ geometry = model.get_observation_parameters()
 gcm = GCMdecoder.from_psg(model.params.gcm.content())
 
 def gif_image(i):
-    s = (max(0,i-10,min(data.N_images,i+10)))
+    s = (max(0,i-10,min(data.N_images-1,i+10)))
     return make_fig(data,geometry,gcm,s)
 
 images = []
 fname='temp.png'
-for i in range(10):
+for i in range(data.N_images):
     fig = gif_image(i)
     fig.savefig(fname)
     plt.close(fig)
