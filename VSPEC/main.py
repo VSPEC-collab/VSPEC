@@ -7,26 +7,28 @@ and PSG.
 """
 
 from pathlib import Path
-import typing
+import warnings
+from functools import partial
 
 import numpy as np
 import pandas as pd
 from astropy import units as u
 from tqdm.auto import tqdm
-import warnings
-from functools import partial
+
+from GridPolator import GridSpectra
+from GridPolator.binning import get_wavelengths
 
 from VSPEC import variable_star_model as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
 from VSPEC import config
 from VSPEC.geometry import SystemGeometry, plan_to_df
-from VSPEC.helpers import isclose, is_port_in_use, arrange_teff, get_surrounding_teffs
+from VSPEC.helpers import isclose, is_port_in_use, arrange_teff
 from VSPEC.helpers import check_and_build_dir, get_filename
 from VSPEC.helpers import get_planet_indicies, read_lyr
 from VSPEC.psg_api import call_api, PSGrad, get_reflected, cfg_to_bytes
 from VSPEC.psg_api import change_psg_parameters, parse_full_output, cfg_to_dict
-from VSPEC.params.read import InternalParameters 
-from VSPEC.spectra import GridSpectra, get_wavelengths, ForwardSpectra
+from VSPEC.params.read import InternalParameters
+from VSPEC.spectra import ForwardSpectra
 
 
 class ObservationModel:
