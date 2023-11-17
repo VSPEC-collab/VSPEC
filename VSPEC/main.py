@@ -106,8 +106,9 @@ class ObservationModel:
         'psg_layers': 'PSGLayers',
         'psg_configs': 'PSGConfig'
     }
+
     @property
-    def directories(self)->dict:
+    def directories(self) -> dict:
         """
         The directory structure for the VSPEC run.
 
@@ -116,10 +117,11 @@ class ObservationModel:
         dict
             Keys represent the identifiers of directories, and the values are
             `pathlib.Path` objects.
-        
+
         """
         parent_dir = self.params.header.data_path
-        dir_dict = {key:parent_dir/value for key,value in self._directories.items()}
+        dir_dict = {key: parent_dir/value for key,
+                    value in self._directories.items()}
         return dir_dict
 
     def wrap_iterator(self, iterator, **kwargs):
@@ -148,7 +150,7 @@ class ObservationModel:
         """
         Build the file system for this run.
         """
-        for _,path in self.directories.items():
+        for _, path in self.directories.items():
             check_and_build_dir(path)
 
     def load_spectra(self):
@@ -165,12 +167,13 @@ class ObservationModel:
             self.params.header.teff_max
         )
         spec = GridSpectra.from_vspec(
-            w1 = self.params.inst.bandpass.wl_blue,
-            w2 = self.params.inst.bandpass.wl_red,
-            R = self.params.inst.bandpass.resolving_power,
-            teffs = teffs
+            w1=self.params.inst.bandpass.wl_blue,
+            w2=self.params.inst.bandpass.wl_red,
+            R=self.params.inst.bandpass.resolving_power,
+            teffs=teffs
         )
         return spec
+
     @property
     def wl(self):
         """
@@ -186,8 +189,8 @@ class ObservationModel:
             lam1=self.params.inst.bandpass.wl_blue.to_value(config.wl_unit),
             lam2=self.params.inst.bandpass.wl_red.to_value(config.wl_unit)
         )[:-1]*config.wl_unit
-    
-    def get_model_spectrum(self,teff:u.Quantity):
+
+    def get_model_spectrum(self, teff: u.Quantity):
         """
         Get the interpolated spectrum given an effective temperature.
 
@@ -200,13 +203,12 @@ class ObservationModel:
         -------
         astropy.units.Quantity
             The flux of the spectrum.
-        
+
         Notes
         -----
         This function applies the solid angle correction.
         """
-        return self.spec.evaluate(self.wl,teff.to_value(config.teff_unit))*self.params.flux_correction*config.flux_unit
-    
+        return self.spec.evaluate(self.wl, teff.to_value(config.teff_unit))*self.params.flux_correction*config.flux_unit
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
@@ -417,7 +419,7 @@ class ObservationModel:
                 else:
                     try:
                         assert (float(value)) == (float(cfg_dict[key]))
-                    except:
+                    except AssertionError:
                         msg += f'{str(err)}\n'
         if not msg == '':
             raise RuntimeError(f'PSG config validation error:\n{msg}')
@@ -478,7 +480,8 @@ class ObservationModel:
         obs_plan = self.get_observation_plan(
             observation_parameters, planet=True)
 
-        obs_info_filename = Path(self.directories['parent']) / 'observation_info.csv'
+        obs_info_filename = Path(
+            self.directories['parent']) / 'observation_info.csv'
         plan_to_df(obs_plan).to_csv(obs_info_filename, sep=',', index=False)
 
         if self.verbose > 0:
@@ -652,8 +655,9 @@ class ObservationModel:
             teff = flare['Teff']
             timearea = flare['timearea']
             eff_area = (timearea/(tfinish-tstart)).to(u.km**2)
-            correction = (eff_area/self.params.system.distance**2).to_value(u.dimensionless_unscaled)
-            flux = self.bb.evaluate(self.wl,teff) * correction
+            correction = (eff_area/self.params.system.distance **
+                          2).to_value(u.dimensionless_unscaled)
+            flux = self.bb.evaluate(self.wl, teff) * correction
             base_flux = base_flux + flux
 
         return base_flux.to(config.flux_unit), pl_frac
@@ -709,7 +713,6 @@ class ObservationModel:
             combined = PSGrad.from_rad(psg_combined_path)
             thermal = PSGrad.from_rad(psg_thermal_path)
 
-            
             planet_reflection_only = get_reflected(
                 combined, thermal, self.params.planet.name)
             planet_reflection_fraction = (
@@ -841,7 +844,6 @@ class ObservationModel:
             combined = PSGrad.from_rad(psg_combined_path)
             noise = PSGrad.from_rad(psg_noise_path)
 
-            
             psg_noise_source.append(noise.data['Source'])
             psg_source.append(combined.data['Total'])
         psg_noise_source = psg_noise_source[0] * \
@@ -1013,7 +1015,6 @@ class ObservationModel:
                 {'lat': sub_planet_lat, 'lon': sub_planet_lon}, tstart, tfinish,
                 granulation_fraction=granulation_fraction
             )
-            
 
             reflection_flux_adj = self.calculate_reflected_spectra(
                 N1, N2, N1_frac, to_planet_flux, pl_frac)
@@ -1024,9 +1025,9 @@ class ObservationModel:
             combined_flux = comp_flux + reflection_flux_adj + thermal_spectrum
 
             noise_flux_adj = self.calculate_noise(N1, N2, N1_frac,
-                                                        np.sqrt(
-                                                            (planet_time_step/time_step).to_value(u.dimensionless_unscaled)),
-                                                        combined_flux)
+                                                  np.sqrt(
+                                                      (planet_time_step/time_step).to_value(u.dimensionless_unscaled)),
+                                                  combined_flux)
             wl = self.wl
 
             df = pd.DataFrame({
