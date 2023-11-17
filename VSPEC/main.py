@@ -990,7 +990,7 @@ class ObservationModel:
             sub_planet_lon = observation_info['sub_planet_lon'][index]
             sub_planet_lat = observation_info['sub_planet_lat'][index]
 
-            wave, transit_depth = self.get_transit(
+            _, transit_depth = self.get_transit(
                 N1, N2, N1_frac, planet_phase, orbital_radius)
 
             comp_flux, pl_frac = self.calculate_composite_stellar_spectrum(
