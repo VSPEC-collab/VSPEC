@@ -11,3 +11,4 @@ jax
 netCDF4
 requests
 git+https://github.com/tedjohnson12/xoflares.git@numpy-only
+git+https://github.com/VSPEC-collab/GridPolator@releases/tag/v0.1.0
