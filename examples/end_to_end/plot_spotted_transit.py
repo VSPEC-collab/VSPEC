@@ -164,7 +164,7 @@ star_kwargs = dict(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    grid_params=(2000,4000)
+    grid_params=10000
 )
 quiet_star = params.StarParameters(
     spots=params.SpotParameters.none(),
@@ -229,8 +229,8 @@ params_rock_spotted = params.InternalParameters(
 # We read in the config file and run the model.
 
 model_rock_quiet = ObservationModel(params_rock_quiet)
-# model_rock_quiet.build_planet()
-# model_rock_quiet.build_spectra()
+model_rock_quiet.build_planet()
+model_rock_quiet.build_spectra()
 
 # %%
 # Load in the data
@@ -293,8 +293,8 @@ plot_transit(data_rock_quiet,'Spotless Star and Bare Rock','xkcd:lavender').show
 # +++++++++++++++++++++++++
 
 model_h2o_quiet = ObservationModel(params_h2o_quiet)
-# model_h2o_quiet.build_planet()
-# model_h2o_quiet.build_spectra()
+model_h2o_quiet.build_planet()
+model_h2o_quiet.build_spectra()
 
 data_h2o_quiet = PhaseAnalyzer(model_h2o_quiet.directories['all_model'])
 
@@ -305,7 +305,7 @@ plot_transit(data_h2o_quiet,'Spotless Star and 1 bar H2O Atmosphere','xkcd:azure
 # ++++++++++++++++++++++++
 
 model_rock_spotted = ObservationModel(params_rock_spotted)
-# model_rock_spotted.build_planet()
+model_rock_spotted.build_planet()
 model_rock_spotted.build_spectra()
 
 data_rock_spotted = PhaseAnalyzer(model_rock_spotted.directories['all_model'])

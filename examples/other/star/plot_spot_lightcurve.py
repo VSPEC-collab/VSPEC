@@ -12,7 +12,10 @@ import matplotlib.pyplot as plt
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 
-CFG_PATH = Path(__file__).parent / 'spot_lightcurve.yaml'
+try:
+    CFG_PATH = Path(__file__).parent / 'spot_lightcurve.yaml'
+except NameError:
+    CFG_PATH = 'spot_lightcurve.yaml'
 
 # %%
 # Initialize the VSPEC run
