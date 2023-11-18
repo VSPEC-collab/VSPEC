@@ -18,7 +18,9 @@ from tqdm.auto import tqdm
 from GridPolator import GridSpectra
 from GridPolator.binning import get_wavelengths
 
-from VSPEC import variable_star_model as vsm
+import vspec_vsm as vsm
+
+# from VSPEC import variable_star_model as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
 from VSPEC import config
 from VSPEC.geometry import SystemGeometry, plan_to_df

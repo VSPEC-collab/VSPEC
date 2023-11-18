@@ -671,8 +671,7 @@ class StarParameters(BaseParameters):
         faculae: FaculaParameters,
         flares: FlareParameters,
         granulation: GranulationParameters,
-        Nlat: int,
-        Nlon: int
+        grid_params: tuple,
     ):
         self.psg_star_template = psg_star_template
         self.teff = teff
@@ -686,8 +685,7 @@ class StarParameters(BaseParameters):
         self.faculae = faculae
         self.flares = flares
         self.granulation = granulation
-        self.Nlat = Nlat
-        self.Nlon = Nlon
+        self.grid_params = grid_params
     @classmethod
     def from_dict(cls, d: dict):
         """
@@ -705,6 +703,10 @@ class StarParameters(BaseParameters):
         return super().from_dict(d)
     @classmethod
     def _from_dict(cls, d: dict):
+        try:
+            grid_params = tuple(d['grid_params'])
+        except TypeError:
+            grid_params = int(d['grid_params'])
         return cls(
             psg_star_template=str(d['psg_star_template']),
             teff=u.Quantity(d['teff']),
@@ -718,8 +720,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.from_dict(d['faculae']),
             flares=FlareParameters.from_dict(d['flares']),
             granulation=GranulationParameters.from_dict(d['granulation']),
-            Nlat=int(d['Nlat']),
-            Nlon=int(d['Nlon'])
+            grid_params=grid_params,
         )
     def to_psg(self)->dict:
         """
@@ -755,7 +756,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
         )
 
     @classmethod
@@ -776,7 +777,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
         )
 
     @classmethod
@@ -797,7 +798,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.std(),
             granulation=GranulationParameters.none(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
         )
 
     @classmethod
@@ -818,5 +819,5 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.std(),
             granulation=GranulationParameters.std(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
         )
