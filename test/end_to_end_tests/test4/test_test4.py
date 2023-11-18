@@ -43,7 +43,7 @@ def make_fig(data:VSPEC.PhaseAnalyzer):
     spec.legend()
 
     lc = fig.add_subplot(gs[1,:])
-    for i in [0,20,40,80,145]:
+    for i in [0,20,40]:
         lc.plot(data.time,data.lightcurve('star',i,normalize=0),label=f'{data.wavelength[i]:.1f}')
     lc.set_ylabel('Flux (normalized)')
     lc.set_xlabel(f'Time ({data.time.unit})')
