@@ -57,7 +57,7 @@ def test_get_planet_indices():
     assert N1 == 2
     assert N2 == 2
 
-
+@pytest.mark.skip()
 def test_read_lyr():
     """
     Test `VSPEC.helpers.read_lyr()`

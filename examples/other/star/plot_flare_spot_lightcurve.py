@@ -66,7 +66,7 @@ star = params.StarParameters(
         cluster_size=3
     ),
     granulation=params.GranulationParameters.none(),
-    Nlat=500,Nlon=1000
+    grid_params=(500, 1000)
 )
 
 planet = params.PlanetParameters.std(init_phase=180*u.deg,init_substellar_lon=0*u.deg)

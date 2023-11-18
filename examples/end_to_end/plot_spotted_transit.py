@@ -164,7 +164,7 @@ star_kwargs = dict(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    Nlat=2000,Nlon=4000
+    grid_params=(2000,4000)
 )
 quiet_star = params.StarParameters(
     spots=params.SpotParameters.none(),

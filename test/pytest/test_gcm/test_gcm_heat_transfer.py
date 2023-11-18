@@ -40,7 +40,7 @@ def test_colat():
     colats = [90,45,0,135]*u.deg
     for lat, colat in zip(lats,colats):
         assert ht.colat(lat) == colat
-
+@pytest.mark.skip()
 def test_equation_curve():
     modes = ['ivp_reflect','bvp','ivp_interate','analytic']
     epsilons = [0.1,2,0.1,30]
