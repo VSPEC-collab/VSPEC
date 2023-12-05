@@ -389,6 +389,7 @@ class ObservationModel:
             app='globes',
             url=self.params.psg.url
         )
+        _= caller()
 
     def check_config(self, cfg_from_psg:pypsg.PyConfig):
         """
