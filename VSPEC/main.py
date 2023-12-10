@@ -175,7 +175,7 @@ class ObservationModel:
         spec = GridSpectra.from_vspec(
             w1=self.params.inst.bandpass.wl_blue,
             w2=self.params.inst.bandpass.wl_red,
-            R=self.params.inst.bandpass.resolving_power,
+            resolving_power=self.params.inst.bandpass.resolving_power,
             teffs=teffs
         )
         return spec
@@ -424,7 +424,7 @@ class ObservationModel:
         
         
 
-    def run_psg(self, path_dict: dict, i: int):
+    def run_psg(self, path_dict: dict, i: int,has_star: bool):
         """
         Run PSG
 
@@ -443,7 +443,13 @@ class ObservationModel:
             app='globes',
             url=self.params.psg.url
         )
-        response = caller()
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            response = caller()
+            for _w in w:
+                if _w.category is pypsg.cfg.ConfigTooLongWarning:
+                    self.__flags__.psg_needs_set = True
         
         rad = response.rad
         noi = response.noi
@@ -460,6 +466,8 @@ class ObservationModel:
                 format='fits',
                 overwrite=True
             )
+            if has_star and 'Stellar' not in rad.colnames:
+                raise ValueError('No Column named "Stellar" in .rad file')
             
         if noi is None or 'noi' not in path_dict:
             pass
@@ -563,14 +571,14 @@ class ObservationModel:
                 'noi': Path(self.directories['psg_noise']),
                 'cfg': Path(self.directories['psg_configs']),
             }
-            self.run_psg(path_dict, i)
+            self.run_psg(path_dict, i,has_star=True)
             # write updates to config file to remove star flux
             update_config(include_star=False)
             path_dict = {
                 'rad': Path(self.directories['psg_thermal']),
                 'lyr': Path(self.directories['psg_layers'])
             }
-            self.run_psg(path_dict, i)
+            self.run_psg(path_dict, i,has_star=False)
 
     def build_star(self):
         """
