@@ -527,7 +527,6 @@ class CoronagraphParameters(TelescopeParameters):
         self,
         aperture: u.Quantity,
         zodi: float,
-        exozodi: float,
         contrast: float,
         iwa: PSGtable
     ):
@@ -535,13 +534,12 @@ class CoronagraphParameters(TelescopeParameters):
             aperture,
             'coronagraph',
             zodi,
-            exozodi = exozodi,
             contrast = contrast,
             iwa = iwa
         )
     def _to_psg(self):
         return {
-            'GENERATOR-TELESCOPE2': f'{self.zodi:.2f},{self.exozodi:.2f}',
+            'GENERATOR-TELESCOPE2': f'{self.zodi:.2f}',
             'GENERATOR-TELESCOPE1': f'{self.contrast:.2e}',
             'GENERATOR-TELESCOPE3': str(self.iwa)
         }
@@ -550,7 +548,6 @@ class CoronagraphParameters(TelescopeParameters):
         return cls(
             aperture = u.Quantity(d['aperture']),
             zodi = float(d['zodi']),
-            exozodi = float(d['exozodi']),
             contrast = float(d['contrast']),
             iwa = PSGtable.from_dict(d['iwa']['table'])
         )

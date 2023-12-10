@@ -14,6 +14,8 @@ from astropy import units as u
 from astropy.io import fits
 from datetime import datetime
 import json
+from astropy.table import QTable
+from pypsg import PyLyr
 
 from VSPEC.config import N_ZFILL, MOLEC_DATA_PATH
 
@@ -81,34 +83,28 @@ class PhaseAnalyzer:
         total = []
         noise = []
         for i in range(self.N_images):
-            filename = path / f'phase{str(i).zfill(N_ZFILL)}.csv'
-            spectra = pd.read_csv(filename)
-            cols = pd.Series(spectra.columns)
+            filename = path / f'phase{str(i).zfill(N_ZFILL)}.fits'
+            spectra = QTable.read(filename)
+            cols = spectra.colnames
             if i == 0:  # only do once
                 # wavelength
-                col = cols[cols.str.contains('wavelength')]
-                unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col[0])[0])
-                self.wavelength = spectra[col].values.T[0] * unit
+                col = 'wavelength'
+                self.wavelength = spectra[col]
             # star
-            col = cols[cols.str.contains(r'star\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            star.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'star'
+            star.append((spectra[col]).to_value(fluxunit))
             # reflected
-            col = cols[cols.str.contains(r'reflected\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            reflected.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'reflected'
+            reflected.append((spectra[col]).to_value(fluxunit))
             # reflected
-            col = cols[cols.str.contains(r'planet_thermal\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            thermal.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'planet_thermal'
+            thermal.append((spectra[col]).to_value(fluxunit))
             # total
-            col = cols[cols.str.contains(r'total\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            total.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'total'
+            total.append((spectra[col]).to_value(fluxunit))
             # noise
-            col = cols[cols.str.contains(r'noise\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            noise.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'noise'
+            noise.append((spectra[col]).to_value(fluxunit))
         self.star = np.asarray(star).T * fluxunit
         self.reflected = np.asarray(reflected).T * fluxunit
         self.thermal = np.asarray(thermal).T * fluxunit
@@ -119,23 +115,22 @@ class PhaseAnalyzer:
             layers = []
             first = True
             for i in range(self.N_images):
-                filename = path / f'layer{str(i).zfill(N_ZFILL)}.csv'
-                dat = pd.read_csv(filename)
+                filename = path / f'layer{str(i).zfill(N_ZFILL)}.fits'
+                dat:QTable = PyLyr.from_fits(filename).prof
                 if not first:
-                    assert np.all(dat.columns == cols)
+                    assert np.all(dat.colnames == cols)
                 else:
                     first = False
-                cols = dat.columns
-                layers.append(dat.values)
+                cols = dat.colnames
+                subdat = [dat[col].value for col in cols]
+                layers.append(subdat)
+            first_lyr:QTable = PyLyr.from_fits(path / f'layer{str(0).zfill(N_ZFILL)}.fits').prof
+            
             layer_data = np.array(layers)
             hdus = []
-            for i, var in enumerate(cols):
-                dat = layer_data[:, :, i]
-                if '[' in var:
-                    unit = u.Unit(var.split('[')[1].replace(']', ''))
-                    var = var.split('[')[0]
-                else:
-                    unit = u.dimensionless_unscaled
+            for i, var in enumerate(first_lyr.colnames): # layer and time for each var
+                unit = first_lyr[var].unit
+                dat = layer_data[:,:,i]
                 image = fits.ImageHDU(dat)
                 image.header['AXIS0'] = 'PHASE'
                 image.header['AXIS1'] = 'LAYER'

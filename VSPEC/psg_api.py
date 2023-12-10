@@ -13,6 +13,8 @@ import numpy as np
 import requests
 from typing import Union
 
+import pypsg
+
 from VSPEC.params.read import InternalParameters
 
 warnings.simplefilter('ignore', category=u.UnitsWarning)
@@ -291,7 +293,11 @@ class PSGrad:
         return cls(header, data)
 
 
-def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Quantity:
+def get_reflected(
+    cmb_rad: pypsg.PyRad,
+    therm_rad: pypsg.PyRad,
+    planet_name: str
+    ) -> u.Quantity:
     """
     Get reflected spectra.
 
@@ -316,21 +322,23 @@ def get_reflected(cmb_rad: PSGrad, therm_rad: PSGrad, planet_name: str) -> u.Qua
         of them is missing the `planet_name` data array.
     """
     axis_equal = np.all(np.isclose(
-        cmb_rad.data['Wave/freq'].to_value(u.um),
-        therm_rad.data['Wave/freq'].to_value(u.um),
+        cmb_rad.wl.to_value(u.um),
+        therm_rad.wl.to_value(u.um),
         atol=1e-3
     ))
     if not axis_equal:
         raise ValueError('The spectral axes must be equivalent.')
+    planet_name = planet_name.replace(' ', '-')
 
-    if 'Reflected' in cmb_rad.data.keys():
-        return cmb_rad.data['Reflected']
-    elif 'Reflected' in therm_rad.data.keys():
-        return therm_rad.data['Reflected']
-    elif (planet_name in cmb_rad.data.keys()) and (planet_name in therm_rad.data.keys()):
-        if 'Transit' in cmb_rad.data:
-            return cmb_rad.data[planet_name] * 0 # assume there is no refection during transit
+    
+    if 'Reflected' in cmb_rad.colnames:
+        return cmb_rad['Reflected']
+    elif 'Reflected' in therm_rad.colnames:
+        return therm_rad['Reflected']
+    elif (planet_name in cmb_rad.colnames) and (planet_name in therm_rad.colnames):
+        if 'Transit' in cmb_rad.colnames:
+            return cmb_rad[planet_name] * 0 # assume there is no refection during transit
         else:
-            return cmb_rad.data[planet_name] - therm_rad.data[planet_name]
+            return cmb_rad[planet_name] - therm_rad[planet_name]
     else:
         raise KeyError(f'Data array {planet_name} not found.')

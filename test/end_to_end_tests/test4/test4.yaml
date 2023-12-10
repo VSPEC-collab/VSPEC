@@ -62,7 +62,6 @@ inst:
   coronagraph:
     aperture: 15 m
     zodi: 1.0
-    exozodi: 1.0
     contrast: 1e-10
     iwa:
       table:

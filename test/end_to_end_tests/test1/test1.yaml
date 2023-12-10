@@ -1,7 +1,7 @@
 header:
   data_path: test1
-  teff_min: 2300 K
-  teff_max: 3900 K
+  teff_min: 3200 K
+  teff_max: 3400 K
   desc: This is a VSPEC test run.
   seed: 10
 star:
@@ -51,10 +51,10 @@ star:
     min_energy: 1e33 erg
     cluster_size: 2
   granulation:
-    mean: 0.2
-    amp: 0.01
+    mean: 0.0
+    amp: 0.00
     period: 5 day
-    dteff: 200 K
+    dteff: 0 K
   grid_params: 1000
 planet:
   name: Exoplanet
