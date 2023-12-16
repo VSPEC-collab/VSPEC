@@ -9,7 +9,7 @@ and PSG.
 from pathlib import Path
 import warnings
 from functools import partial
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import numpy as np
 from astropy import units as u
@@ -59,7 +59,7 @@ class ObservationModel:
         A psudo-random number generator to be used in
         the simulation.
     """
-
+    star: vsm.Star=None
     def __init__(
         self,
         params: InternalParameters
@@ -70,7 +70,6 @@ class ObservationModel:
         self.params = params
         self.verbose = params.header.verbose
         self.build_directories()
-        self.star = None
         self.rng = np.random.default_rng(self.params.header.seed)
         self.spec = self.load_spectra()
         self.bb = ForwardSpectra.blackbody()
@@ -195,7 +194,7 @@ class ObservationModel:
             lam2=self.params.inst.bandpass.wl_red.to_value(config.wl_unit)
         )[:-1]*config.wl_unit
 
-    def get_model_spectrum(self, teff: u.Quantity):
+    def get_model_spectrum(self, teff: u.Quantity)->u.Quantity:
         """
         Get the interpolated spectrum given an effective temperature.
 
@@ -277,8 +276,7 @@ class ObservationModel:
             start_times = np.arange(0, n_obs+1) * \
                 int_time * self.params.psg.phase_binning
 
-        return observation_parameters.get_observation_plan(self.params.planet.init_phase,
-                                                           start_times)
+        return observation_parameters.get_observation_plan(start_times)
 
     def check_psg(self):
         """
@@ -543,7 +541,7 @@ class ObservationModel:
                   str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
         ####################################
         # iterate through phases
-        for i in self.wrap_iterator(range(self.params.planet_total_images), desc='Build Planet', total=self.params.planet_total_images):
+        for i in self.wrap_iterator(range(self.params.planet_total_images+1), desc='Build Planet', total=self.params.planet_total_images):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
@@ -633,7 +631,7 @@ class ObservationModel:
         self.star.get_flares_over_observation(
             self.params.obs.observation_time)
 
-    def calculate_composite_stellar_spectrum(
+    def     calculate_composite_stellar_spectrum(
         self,
         sub_obs_coords,
         tstart,
@@ -789,7 +787,7 @@ class ObservationModel:
         N1_frac: float,
         phase: u.Quantity,
         orbit_radius: u.Quantity
-    ):
+    )-> Tuple[u.Quantity, np.ndarray]:
         """
         Get the transit spectra calculated by PSG
 
@@ -806,10 +804,10 @@ class ObservationModel:
 
         Returns
         -------
-        wavelength : astropy.units.Quantity [wavelength]
+        wavelength : astropy.units.Quantity
             The wavelength of the thermal emission.
-        flux : astropy.units.Quantity [flambda]
-            The flux of the thermal emission.
+        flux : np.ndarray
+            The dimensionless fraction of light blocked by the planet at each wavelength.
 
         Raises
         ------
@@ -824,35 +822,44 @@ class ObservationModel:
             self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'fits')
 
         wavelength = []
-        transit = []
+        transit:List[np.ndarray] = []
 
         for psg_cmb_path in [psg_cmb_path1, psg_cmb_path2]:
             cmb_rad: pypsg.PyRad = pypsg.PyRad.read(
                 psg_cmb_path, format='fits')
 
             wavelength.append(cmb_rad.wl)
-            try:
-                transit.append(
-                    -1*cmb_rad['Transit']/cmb_rad['Stellar']
-                )
-            except KeyError:
-                transit.append(
-                    0*cmb_rad['Stellar']/cmb_rad['Stellar']
-                )
+            if 'Transit' in cmb_rad.colnames:
+                tran = cmb_rad['Transit']
+                star = cmb_rad['Stellar']
+                blocked_frac = -1*(tran/star).to_value(u.dimensionless_unscaled)
+                transit.append(blocked_frac)
+            else:
+                star = cmb_rad['Stellar']
+                blocked_frac = 0*(star/star).to_value(u.dimensionless_unscaled)
+                transit.append(blocked_frac)
 
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
-        depth_bare_rock = (self.params.planet.radius /
+        
+        frac_absorbed: np.ndarray = transit[0]*N1_frac + transit[1]*(1-N1_frac)
+        
+        depth_bare_rock:float = (self.params.planet.radius /
                            self.params.star.radius).to_value(u.dimensionless_unscaled)**2
-        frac_absorbed = transit[0]*N1_frac + transit[1]*(1-N1_frac)
-        pl_frac_covering = 1-self.star.get_pl_frac(
-            phase+180*u.deg, orbit_radius, self.params.planet.radius, self.params.system.inclination
-        ) * (self.params.planet.radius/self.params.star.radius).to_value(u.dimensionless_unscaled)**2
-        if pl_frac_covering == 0:
-            normalized_frac_absorbed = pl_frac_covering*0
-        else:
-            normalized_frac_absorbed = frac_absorbed/pl_frac_covering/depth_bare_rock
-        return wavelength[0], normalized_frac_absorbed
+        return wavelength[0], frac_absorbed/depth_bare_rock
+
+        # pl_frac_visible = self.star.get_pl_frac(
+        #     angle_past_midtransit=phase+180*u.deg,
+        #     orbit_radius=orbit_radius,
+        #     planet_radius=self.params.planet.radius,
+        #     inclination=self.params.system.inclination
+        # )
+        # pl_frac_covering = 1-pl_frac_visible * (self.params.planet.radius/self.params.star.radius).to_value(u.dimensionless_unscaled)**2
+        # if pl_frac_covering == 0:
+        #     normalized_frac_absorbed = pl_frac_covering*0
+        # else:
+        #     normalized_frac_absorbed = frac_absorbed/pl_frac_covering/depth_bare_rock
+        # return wavelength[0], normalized_frac_absorbed
 
     def calculate_noise(self, N1: int, N2: int, N1_frac: float, time_scale_factor: float, cmb_flux):
         """

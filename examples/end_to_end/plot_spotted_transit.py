@@ -23,6 +23,7 @@ PRE_TRANSIT = 8
 IN_TRANSIT = 13
 
 
+
 # %%
 # Create the needed configurations
 # --------------------------------
@@ -65,7 +66,7 @@ observation = params.ObservationParameters(
 # PSG
 
 psg_kwargs = dict(
-    gcm_binning=5,
+    gcm_binning=200,
     phase_binning=1,
     nmax=0,
     lmax=0,
@@ -328,7 +329,11 @@ plot_transit(data_rock_spotted,'Spotted Star and Bare Rock','xkcd:golden yellow'
 
 import pandas as pd
 
-filename = 'moran2023_fig3.txt'
+try:
+    filename = Path(__file__).parent / 'moran2023_fig3.txt'
+except NameError:
+    filename = 'moran2023_fig3.txt'
+
 df = pd.read_fwf(filename,colspecs=[(0,8),(9,14),(15,20),(21,25),(26,28)],
     header=20,names=['Reduction','Wave','Width','Depth','e_Depth'])
 used_eureka = df['Reduction']=='Eureka'
@@ -396,55 +401,3 @@ ax.set_xlabel('Wavelength (um)')
 ax.set_ylabel('Transit depth (ppm)')
 ax.legend()
 
-
-
-
-
-# %%
-# Plot the star
-# -------------
-#
-transit_phase = data_rock_spotted.phase[IN_TRANSIT]
-model_rock_spotted.star.plot_surface(
-    lat0=0*u.deg,lon0=0*u.deg,
-    orbit_radius=orbit_rad,radius=planet_rad,
-    phase=transit_phase,inclination = inclination
-)
-
-# %%
-# Stellar surface grid resolution
-# -------------------------------
-#
-# What effects are caused by the discretization of the stellar surface?
-#
-#
-# Bare Rock
-# +++++++++
-
-NLON = 500
-NLAT = 250
-
-
-fig, ax = plt.subplots(1,1)
-
-ax.errorbar(moran_x,moran_y,yerr=moran_yerr,
-    fmt='o',color='k',label='Moran+23 Eureka!')
-
-
-scales = [2,4]
-for scale in scales:
-    model = ObservationModel(params_rock_quiet)
-    model.params.star.Nlat = NLAT*scale
-    model.params.star.Nlon = NLON*scale
-    model.build_spectra()
-
-    data = PhaseAnalyzer(model.directories['all_model'])
-    unocculted_spectrum = data.spectrum('total',PRE_TRANSIT)
-    occulted_spectrum = data.spectrum('total',IN_TRANSIT)
-    lost_to_transit = unocculted_spectrum-occulted_spectrum
-    transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)*1e6
-    ax.plot(data.wavelength,transit_depth,label=f'{NLON*scale}x{NLAT*scale}')
-
-ax.set_xlabel('Wavelength (um)')
-ax.set_ylabel('Transit depth (ppm)')
-ax.legend()
