@@ -12,7 +12,6 @@ from functools import partial
 from typing import Dict
 
 import numpy as np
-import pandas as pd
 from astropy import units as u
 from astropy.table import QTable
 from tqdm.auto import tqdm
@@ -27,7 +26,7 @@ import vspec_vsm as vsm
 # from VSPEC import variable_star_model as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
 from VSPEC import config
-from VSPEC.geometry import SystemGeometry, plan_to_df
+from VSPEC.geometry import SystemGeometry
 from VSPEC.helpers import isclose, is_port_in_use, arrange_teff
 from VSPEC.helpers import check_and_build_dir, get_filename
 from VSPEC.helpers import get_planet_indicies
@@ -214,7 +213,10 @@ class ObservationModel:
         -----
         This function applies the solid angle correction.
         """
-        return self.spec.evaluate(self.wl.to_value(config.wl_unit), teff.to_value(config.teff_unit))*self.params.flux_correction*config.flux_unit
+        return self.spec.evaluate(
+            self.wl.to_value(config.wl_unit),
+            teff.to_value(config.teff_unit)
+        )*self.params.flux_correction*config.flux_unit
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
@@ -245,7 +247,7 @@ class ObservationModel:
                               obliquity=self.params.planet.obliquity,
                               obliquity_direction=self.params.planet.obliquity_direction)
 
-    def get_observation_plan(self, observation_parameters: SystemGeometry, planet=False)->QTable:
+    def get_observation_plan(self, observation_parameters: SystemGeometry, planet=False) -> QTable:
         """
         Compute the locations and geometries of each object in this simulation.
 
@@ -264,16 +266,20 @@ class ObservationModel:
         """
         int_time = self.params.obs.integration_time
         obs_time = self.params.obs.observation_time
-        
+
         if not planet:
-            n_obs = int(round((obs_time / int_time).to_value(u.dimensionless_unscaled)))
+            n_obs = int(
+                round((obs_time / int_time).to_value(u.dimensionless_unscaled)))
             start_times = np.arange(0, n_obs) * int_time
         else:
-            n_obs = int(round((obs_time / int_time/self.params.psg.phase_binning).to_value(u.dimensionless_unscaled)))
-            start_times = np.arange(0, n_obs+1) * int_time * self.params.psg.phase_binning
-            
+            n_obs = int(round(
+                (obs_time / int_time/self.params.psg.phase_binning).to_value(u.dimensionless_unscaled)))
+            start_times = np.arange(0, n_obs+1) * \
+                int_time * self.params.psg.phase_binning
+
         return observation_parameters.get_observation_plan(self.params.planet.init_phase,
                                                            start_times)
+
     def check_psg(self):
         """
         Check that PSG is running
@@ -393,9 +399,9 @@ class ObservationModel:
             app='globes',
             url=self.params.psg.url
         )
-        _= caller()
+        _ = caller()
 
-    def check_config(self, cfg_from_psg:pypsg.PyConfig):
+    def check_config(self, cfg_from_psg: pypsg.PyConfig):
         """
         Validate the config file recieved from PSG to ensure that
         the parameters sent are the parameters used in the simulation.
@@ -413,10 +419,9 @@ class ObservationModel:
         n_lines = len(cfg_from_psg.content.split('\n'))
         if n_lines > PSG_CFG_MAX_LINES:
             self.__flags__.psg_needs_set = True
-        
-        
+
         expected_cfg = pypsg.PyConfig.from_dict(self.params.to_psg())
-        
+
         assert expected_cfg.target == cfg_from_psg.target, 'PSG target does not match'
         assert expected_cfg.geometry == cfg_from_psg.geometry, 'PSG geometry does not match'
         assert expected_cfg.atmosphere == cfg_from_psg.atmosphere, 'PSG atmosphere does not match'
@@ -425,10 +430,8 @@ class ObservationModel:
         assert expected_cfg.telescope == cfg_from_psg.telescope, 'PSG telescope does not match'
         assert expected_cfg.noise == cfg_from_psg.noise, 'PSG noise does not match'
         # do not check the GCM
-        
-        
 
-    def run_psg(self, path_dict: dict, i: int,has_star: bool):
+    def run_psg(self, path_dict: dict, i: int, has_star: bool):
         """
         Run PSG
 
@@ -454,12 +457,12 @@ class ObservationModel:
             for _w in w:
                 if _w.category is pypsg.cfg.ConfigTooLongWarning:
                     self.__flags__.psg_needs_set = True
-        
+
         rad = response.rad
         noi = response.noi
         lyr = response.lyr
         cfg = response.cfg
-        
+
         if rad is None:
             raise RuntimeError('PSG returned no .rad file')
         else:
@@ -472,7 +475,7 @@ class ObservationModel:
             )
             if has_star and 'Stellar' not in rad.colnames:
                 raise ValueError('No Column named "Stellar" in .rad file')
-            
+
         if noi is None or 'noi' not in path_dict:
             pass
         else:
@@ -483,7 +486,7 @@ class ObservationModel:
                 format='fits',
                 overwrite=True
             )
-        
+
         if cfg is None:
             raise RuntimeError('PSG returned no .cfg file')
         elif 'cfg' not in path_dict:
@@ -494,14 +497,14 @@ class ObservationModel:
             cfg.to_file(path_dict[key]/filename)
 
             # TODO: Check config against expected
-        
+
         if lyr is None or 'lyr' not in path_dict:
             pass
         else:
-            key = 'lyr' #TODO: Change this
+            key = 'lyr'
             filename = get_filename(i, N_ZFILL, 'fits')
             lyr.to_fits(path_dict[key]/filename)
-    
+
     def build_planet(self):
         """
         Use the PSG GlobES API to construct a planetary phase curve.
@@ -575,14 +578,14 @@ class ObservationModel:
                 'noi': Path(self.directories['psg_noise']),
                 'cfg': Path(self.directories['psg_configs']),
             }
-            self.run_psg(path_dict, i,has_star=True)
+            self.run_psg(path_dict, i, has_star=True)
             # write updates to config file to remove star flux
             update_config(include_star=False)
             path_dict = {
                 'rad': Path(self.directories['psg_thermal']),
                 'lyr': Path(self.directories['psg_layers'])
             }
-            self.run_psg(path_dict, i,has_star=False)
+            self.run_psg(path_dict, i, has_star=False)
 
     def build_star(self):
         """
@@ -713,12 +716,12 @@ class ObservationModel:
 
     def calculate_reflected_spectra(
         self,
-        N1:int,
-        N2:int,
-        N1_frac:float,
+        N1: int,
+        N2: int,
+        N1_frac: float,
         sub_planet_flux: u.Quantity,
         pl_frac: float
-    )->u.Quantity:
+    ) -> u.Quantity:
         """
         Calculate the reflected spectrum based on PSG output and
         our own stellar model. We scale the reflected spectra from PSG
@@ -763,16 +766,15 @@ class ObservationModel:
 
         for psg_combined_path, psg_thermal_path in zip([psg_combined_path1, psg_combined_path2],
                                                        [psg_thermal_path1, psg_thermal_path2]):
-            combined = pypsg.PyRad.read(psg_combined_path,format='fits')
-            thermal = pypsg.PyRad.read(psg_thermal_path,format='fits')
-            
+            combined = pypsg.PyRad.read(psg_combined_path, format='fits')
+            thermal = pypsg.PyRad.read(psg_thermal_path, format='fits')
 
             planet_reflection_only = get_reflected(
                 combined,
                 thermal,
                 self.params.planet.name
             )
-            planet_reflection_fraction:np.ndarray = (
+            planet_reflection_fraction: np.ndarray = (
                 planet_reflection_only / combined['Stellar']).to_value(u.dimensionless_unscaled)
 
             planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
@@ -825,7 +827,8 @@ class ObservationModel:
         transit = []
 
         for psg_cmb_path in [psg_cmb_path1, psg_cmb_path2]:
-            cmb_rad:pypsg.PyRad = pypsg.PyRad.read(psg_cmb_path,format='fits')
+            cmb_rad: pypsg.PyRad = pypsg.PyRad.read(
+                psg_cmb_path, format='fits')
 
             wavelength.append(cmb_rad.wl)
             try:
@@ -898,8 +901,10 @@ class ObservationModel:
             [psg_combined_path1, psg_combined_path2],
             [psg_noise_path1, psg_noise_path2]
         ):
-            combined:pypsg.PyRad = pypsg.PyRad.read(psg_combined_path,format='fits')
-            noise:pypsg.PyRad = pypsg.PyRad.read(psg_noise_path,format='fits')
+            combined: pypsg.PyRad = pypsg.PyRad.read(
+                psg_combined_path, format='fits')
+            noise: pypsg.PyRad = pypsg.PyRad.read(
+                psg_noise_path, format='fits')
 
             psg_noise_source.append(noise['Source'])
             psg_source.append(combined['Total'])
@@ -952,7 +957,7 @@ class ObservationModel:
         thermal = []
 
         for psg_thermal_path in [psg_thermal_path1, psg_thermal_path2]:
-            thermal_rad = pypsg.PyRad.read(psg_thermal_path,format='fits')
+            thermal_rad = pypsg.PyRad.read(psg_thermal_path, format='fits')
 
             wavelength.append(thermal_rad.wl)
             try:
@@ -994,27 +999,29 @@ class ObservationModel:
             self.directories['psg_layers']) / get_filename(N2, N_ZFILL, 'fits')
         layers1 = pypsg.PyLyr.from_fits(psg_layers_path1)
         layers2 = pypsg.PyLyr.from_fits(psg_layers_path2)
-        
+
         if not np.all(layers1.prof.colnames == layers2.prof.colnames):
             raise ValueError(
                 'Layer Profiles table files must have matching columns')
         if not np.all(layers1.cg.colnames == layers2.cg.colnames):
             raise ValueError(
                 'Layer CG table files must have matching columns')
-        
+
         prof_names = layers1.prof.colnames
         cg_names = layers1.cg.colnames
-        
+
         prof_data = {}
         cg_data = {}
         for name in prof_names:
-            prof_data[name] = layers1.prof[name] * N1_frac + layers2.prof[name] * (1-N1_frac)   
+            prof_data[name] = layers1.prof[name] * \
+                N1_frac + layers2.prof[name] * (1-N1_frac)
         for name in cg_names:
-            cg_data[name] = layers1.cg[name] * N1_frac + layers2.cg[name] * (1-N1_frac)
-        
+            cg_data[name] = layers1.cg[name] * \
+                N1_frac + layers2.cg[name] * (1-N1_frac)
+
         return pypsg.PyLyr(
-            prof=QTable(data=prof_data,meta=layers1.prof.meta),
-            cg=QTable(data=cg_data,meta=layers1.cg.meta)
+            prof=QTable(data=prof_data, meta=layers1.prof.meta),
+            cg=QTable(data=cg_data, meta=layers1.cg.meta)
         )
 
     def build_spectra(self):
@@ -1100,7 +1107,7 @@ class ObservationModel:
                                                       (planet_time_step/time_step).to_value(u.dimensionless_unscaled)),
                                                   combined_flux)
             wl = self.wl
-            data:Dict[str, u.Quantity] = {}
+            data: Dict[str, u.Quantity] = {}
             data['wavelength'] = wl
             data['star'] = true_star
             data['star_towards_planet'] = to_planet_flux
@@ -1108,7 +1115,7 @@ class ObservationModel:
             data['planet_thermal'] = thermal_spectrum
             data['total'] = combined_flux
             data['noise'] = noise_flux_adj
-            
+
             df = QTable(data)
 
             outfile = self.directories['all_model'] / \
@@ -1121,7 +1128,7 @@ class ObservationModel:
                 outfile = self.directories['all_model'] / \
                     f'layer{str(index).zfill(N_ZFILL)}.fits'
                 layerdat.to_fits(outfile)
-                
+
             self.star.birth_spots(time_step)
             self.star.birth_faculae(time_step)
             self.star.age(time_step)
