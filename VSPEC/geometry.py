@@ -505,7 +505,7 @@ class SystemGeometry:
         pl_sub_obs_lats = []
         orbit_radii = []
         u_angle = u.deg
-        for time in start_times:
+        for time in start_times + self.init_time_since_periasteron:
             phase = self.phase(time).to_value(u.deg)  # % (360*u.deg)
             phases.append(phase)
             sub_obs = self.sub_obs(time)
