@@ -68,10 +68,10 @@ class PhaseAnalyzer:
     def __init__(self, path, fluxunit=u.Unit('W m-2 um-1')):
         if not isinstance(path, Path):
             path = Path(path)
-        self.observation_data = pd.read_csv(path / 'observation_info.csv')
+        self.observation_data: QTable = QTable.read(path / 'observation_info.fits')
         self.N_images = len(self.observation_data)
-        self.time = self.observation_data['time[s]'].values * u.s
-        self.phase = self.observation_data['phase[deg]'].values * u.deg
+        self.time = self.observation_data['time']
+        self.phase = self.observation_data['phase']
         self.unique_phase = deepcopy(self.phase)
         for i in range(len(self.unique_phase) - 1):
             while self.unique_phase[i] > self.unique_phase[i+1]:
@@ -341,7 +341,7 @@ class PhaseAnalyzer:
         primary.header['N_images'] = self.N_images
 
         cols = []
-        for col in self.observation_data.columns:
+        for col in self.observation_data.colnames:
             cols.append(fits.Column(
                 name=col, array=self.observation_data[col].values, format='D'))
         obs_tab = fits.BinTableHDU.from_columns(cols)

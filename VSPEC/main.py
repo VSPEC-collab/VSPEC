@@ -245,7 +245,7 @@ class ObservationModel:
                               obliquity=self.params.planet.obliquity,
                               obliquity_direction=self.params.planet.obliquity_direction)
 
-    def get_observation_plan(self, observation_parameters: SystemGeometry, planet=False):
+    def get_observation_plan(self, observation_parameters: SystemGeometry, planet=False)->QTable:
         """
         Compute the locations and geometries of each object in this simulation.
 
@@ -259,17 +259,21 @@ class ObservationModel:
 
         Returns
         -------
-        dict
-            A dictionary of arrays describing the geometry at each
-            epoch. Each dict value is an astropy.units.Quantity array.
+        QTable
+            A table containing the observation plan.
         """
-        if planet:
-            N_obs = self.params.planet_total_images
+        int_time = self.params.obs.integration_time
+        obs_time = self.params.obs.observation_time
+        
+        if not planet:
+            n_obs = int(round((obs_time / int_time).to_value(u.dimensionless_unscaled)))
+            start_times = np.arange(0, n_obs) * int_time
         else:
-            N_obs = self.params.star_total_images
+            n_obs = int(round((obs_time / int_time/self.params.psg.phase_binning).to_value(u.dimensionless_unscaled)))
+            start_times = np.arange(0, n_obs+1) * int_time * self.params.psg.phase_binning
+            
         return observation_parameters.get_observation_plan(self.params.planet.init_phase,
-                                                           self.params.obs.observation_time, N_obs=N_obs)
-
+                                                           start_times)
     def check_psg(self):
         """
         Check that PSG is running
@@ -526,8 +530,8 @@ class ObservationModel:
             observation_parameters, planet=True)
 
         obs_info_filename = Path(
-            self.directories['parent']) / 'observation_info.csv'
-        plan_to_df(obs_plan).to_csv(obs_info_filename, sep=',', index=False)
+            self.directories['parent']) / 'observation_info.fits'
+        obs_plan.write(obs_info_filename, overwrite=True)
 
         if self.verbose > 0:
             print(
@@ -1028,9 +1032,8 @@ class ObservationModel:
             observation_parameters, planet=False)
         # write observation info to file
         obs_info_filename = Path(
-            self.directories['all_model']) / 'observation_info.csv'
-        obs_df = plan_to_df(observation_info)
-        obs_df.to_csv(obs_info_filename, sep=',', index=False)
+            self.directories['all_model']) / 'observation_info.fits'
+        observation_info.write(obs_info_filename, overwrite=True)
 
         planet_observation_info = self.get_observation_plan(
             observation_parameters, planet=True)
