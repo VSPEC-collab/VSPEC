@@ -59,7 +59,6 @@ class ObservationModel:
         A psudo-random number generator to be used in
         the simulation.
     """
-    star: vsm.Star=None
     def __init__(
         self,
         params: InternalParameters
@@ -72,6 +71,7 @@ class ObservationModel:
         self.build_directories()
         self.rng = np.random.default_rng(self.params.header.seed)
         self.spec = self.load_spectra()
+        self.star:vsm.Star = None
         self.bb = ForwardSpectra.blackbody()
 
     @classmethod
