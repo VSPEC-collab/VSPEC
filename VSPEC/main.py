@@ -912,9 +912,9 @@ class ObservationModel:
                 psg_combined_path, format='fits')
             noise: pypsg.PyRad = pypsg.PyRad.read(
                 psg_noise_path, format='fits')
-
             psg_noise_source.append(noise['Source'])
             psg_source.append(combined['Total'])
+            
         psg_noise_source = psg_noise_source[0] * \
             N1_frac + psg_noise_source[1] * (1-N1_frac)
         psg_source = psg_source[0]*N1_frac + psg_source[1] * (1-N1_frac)
@@ -1054,7 +1054,7 @@ class ObservationModel:
         planet_times = planet_observation_info['time']
 
         time_step = self.params.obs.integration_time
-        planet_time_step = self.params.obs.integration_time * self.params.psg.phase_binning
+        planet_time_step = self.params.obs.observation_time / (self.params.planet_total_images+1)
         granulation_fractions = self.star.get_granulation_coverage(
             observation_info['time'])
 
