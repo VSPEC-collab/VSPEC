@@ -4,7 +4,7 @@ This module is designed to allow a user to easily handle
 `VSPEC` outputs.
 """
 
-import re
+from typing import Dict
 from copy import deepcopy
 from pathlib import Path
 import warnings
@@ -84,7 +84,7 @@ class PhaseAnalyzer:
         noise = []
         for i in range(self.N_images):
             filename = path / f'phase{str(i).zfill(N_ZFILL)}.fits'
-            spectra = QTable.read(filename)
+            spectra: QTable = QTable.read(filename)
             cols = spectra.colnames
             if i == 0:  # only do once
                 # wavelength
@@ -112,33 +112,23 @@ class PhaseAnalyzer:
         self.noise = np.asarray(noise).T * fluxunit
 
         try:
-            layers = []
-            first = True
+            first_lyr:QTable = PyLyr.from_fits(path / f'layer{str(0).zfill(N_ZFILL)}.fits').prof
+            colnames = first_lyr.colnames
+            vartables: Dict[str, QTable] = {}
+            for name in colnames:
+                tab = QTable()
+                vartables[name] = tab
+            
             for i in range(self.N_images):
                 filename = path / f'layer{str(i).zfill(N_ZFILL)}.fits'
                 dat:QTable = PyLyr.from_fits(filename).prof
-                if not first:
-                    assert np.all(dat.colnames == cols)
-                else:
-                    first = False
-                cols = dat.colnames
-                subdat = [dat[col].value for col in cols]
-                layers.append(subdat)
-            first_lyr:QTable = PyLyr.from_fits(path / f'layer{str(0).zfill(N_ZFILL)}.fits').prof
+                for name in colnames:
+                    val = dat[name].value
+                    unit = dat[name].unit
+                    colname=f'col{i}'
+                    vartables[name].add_column(val*unit, name=colname)
             
-            layer_data = np.array(layers)
-            hdus = []
-            for i, var in enumerate(first_lyr.colnames): # layer and time for each var
-                unit = first_lyr[var].unit
-                dat = layer_data[:,:,i]
-                image = fits.ImageHDU(dat)
-                image.header['AXIS0'] = 'PHASE'
-                image.header['AXIS1'] = 'LAYER'
-                image.header['VAR'] = var
-                image.header['UNIT'] = str(unit)
-                image.name = var
-                hdus.append(image)
-            self.layers = fits.HDUList(hdus)
+            self.layers = vartables
         except FileNotFoundError:
             warnings.warn(
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
@@ -188,9 +178,12 @@ class PhaseAnalyzer:
             raise KeyError('`self.layers` does not contain any data')
         if var == 'MEAN_MASS':
             return self.get_mean_molecular_mass()
-        hdu = self.layers[var]
-        unit = u.Unit(hdu.header['UNIT'])
-        return hdu.data*unit
+        tab: QTable = self.layers[var]
+        cols = tab.colnames
+        unit = tab[cols[0]].unit
+        return np.array(
+            [tab[col].to_value(unit) for col in cols],
+        )*unit
 
     def lightcurve(self, source, pixel, normalize='none', noise=False):
         """
