@@ -97,6 +97,13 @@ star_rot_period = np.inf*u.s # assume the star does not change.
 planet_mass = 2.82*u.M_earth
 star_mass = 0.323*u.M_sun
 inclination = 89.06*u.deg
+planet_norm_factor = {
+    'rock_quiet': 1,
+    'rock_spotted': 0.97,
+    'water_quiet': 0.98,
+} # We will multiply the radius by these scalars rather than fit
+  # later (because I have run this code before and know how much
+  # each model is off by).
 
 print(f'Planet radius: {planet_rad.to_value(u.R_earth)} R_earth')
 print(f'Semimajor axis: {orbit_rad.to_value(u.AU)} AU')
@@ -104,9 +111,8 @@ print(f'Semimajor axis: {orbit_rad.to_value(u.AU)} AU')
 observation_angle = (2*np.pi*u.rad * observation.observation_time/orbit_period).to(u.deg)
 initial_phase = 180*u.deg - 0.5*observation_angle
 
-planet_params = params.PlanetParameters(
+planet_kwargs = dict(
     name='GJ486b',
-    radius=planet_rad,
     gravity=params.GravityParameters('kg',planet_mass),
     semimajor_axis=orbit_rad,
     orbit_period=orbit_period,
@@ -117,6 +123,20 @@ planet_params = params.PlanetParameters(
     init_phase=initial_phase,
     init_substellar_lon=0*u.deg
 )
+
+quiet_rock_planet = params.PlanetParameters(
+    radius=planet_rad*planet_norm_factor['rock_quiet'],
+    **planet_kwargs
+)
+quiet_water_planet = params.PlanetParameters(
+    radius=planet_rad*planet_norm_factor['water_quiet'],
+    **planet_kwargs
+)
+spotted_rock_planet = params.PlanetParameters(
+    radius=planet_rad*planet_norm_factor['rock_spotted'],
+    **planet_kwargs
+)
+
 
 system_params = params.SystemParameters(
     distance=8.07*u.pc,
@@ -165,7 +185,7 @@ star_kwargs = dict(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    grid_params=10000
+    grid_params=100000
 )
 quiet_star = params.StarParameters(
     spots=params.SpotParameters.none(),
@@ -194,7 +214,6 @@ header_kwargs = dict(
     seed = SEED
 )
 internal_params_kwargs = dict(
-    planet=planet_params,
     system=system_params,
     obs=observation,
     gcm=gcm_h2o,
@@ -207,12 +226,14 @@ params_rock_quiet = params.InternalParameters(
     header=params.Header(data_path=Path('.vspec/rock_quiet'),**header_kwargs),
     star = quiet_star,
     psg=psg_no_atm,
+    planet=quiet_rock_planet,
     **internal_params_kwargs
 )
 params_h2o_quiet = params.InternalParameters(
     header=params.Header(data_path=Path('.vspec/h2o_quiet'),**header_kwargs),
     star = quiet_star,
     psg=psg_params,
+    planet=quiet_water_planet,
     **internal_params_kwargs
 )
 
@@ -220,6 +241,7 @@ params_rock_spotted = params.InternalParameters(
     header=params.Header(data_path=Path('.vspec/rock_spotted'),**header_kwargs),
     star = spotted_star,
     psg=psg_no_atm,
+    planet=spotted_rock_planet,
     **internal_params_kwargs
 )
 
@@ -282,7 +304,6 @@ def plot_transit(data:PhaseAnalyzer,title:str,color:str):
     return fig
 
 plot_transit(data_rock_quiet,'Spotless Star and Bare Rock','xkcd:lavender').show()
-
 
 # %%
 # Run the other models
@@ -394,8 +415,8 @@ for data,label,color in zip(
     transit_depth = (lost_to_transit/unocculted_spectrum).to_value(u.dimensionless_unscaled)
     ax.plot(data.wavelength,transit_depth*1e6,label=label,color=color)
 
-# ax.errorbar(df.loc[used_eureka,'Wave'],df.loc[used_eureka,'Depth'],yerr=df.loc[used_eureka,'e_Depth'],
-#     fmt='o',color='k')
+ax.errorbar(moran_x,moran_y,yerr=moran_yerr,
+    fmt='o',color='k',label='Moran+23 Eureka!')
 
 ax.set_xlabel('Wavelength (um)')
 ax.set_ylabel('Transit depth (ppm)')
