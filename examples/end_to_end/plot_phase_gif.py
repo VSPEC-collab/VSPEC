@@ -4,20 +4,22 @@ Make a phase curve GIF
 
 This example turns a phase curve into a gif.
 """
-
+from pathlib import Path
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
-from pathlib import Path
-import imageio
-import os
+from imageio.v2 import imread, mimsave
+from cartopy import crs as ccrs
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC.geometry import SystemGeometry
 from VSPEC.gcm import GCMdecoder
-from cartopy import crs as ccrs
 
-CONFIG_PATH = Path('phase_gif.yaml')
+try:
+    CONFIG_PATH = Path(__file__).parent / 'phase_gif.yaml'
+except NameError:
+    CONFIG_PATH = Path('phase_gif.yaml')
 
 
 #%%
@@ -42,13 +44,14 @@ def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:GCMdecoder,s:tuple):
     s is the phase index (start, stop)
     """
     i = int(np.mean(s)) # int representation of s
+    p,q = s
     
     fig = plt.figure(figsize=(10,5))
     gs = fig.add_gridspec(1,2)
     prof_ax = fig.add_subplot(gs[0,0])
 
-    pressure = np.mean(data.get_layer('Pressure')[slice(s),:],axis=0)
-    temp = np.mean(data.get_layer('Temp')[slice(s),:],axis=0)
+    pressure = np.mean(data.get_layer('Pressure')[p:q,:],axis=0)
+    temp = np.mean(data.get_layer('Temp')[p:q,:],axis=0)
 
     prof_ax.plot(temp,pressure)
     prof_ax.set_yscale('log')
@@ -99,19 +102,30 @@ def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:GCMdecoder,s:tuple):
     lons = gcm.get_lons()
     im = mapax.pcolormesh(lons,lats,tsurf,cmap='gist_heat',transform=ccrs.PlateCarree())
     fig.colorbar(im,ax=cbarax,label='$T_{\\rm surf}$ (K)')
-
     return fig
 
 #%%
-# Make the gif
+# Get the data
 # ------------
 
 data = PhaseAnalyzer(model.directories['all_model'])
 geometry = model.get_observation_parameters()
 gcm = GCMdecoder.from_psg(model.params.gcm.content())
 
+#%%
+# Display one frame
+# -----------------
+
+fig = make_fig(data,geometry,gcm,(0,20))
+fig.show()
+
+#%%
+# Make a GIF
+# ----------
+
+
 def gif_image(i):
-    s = (max(0,i-10,min(data.N_images-1,i+10)))
+    s = (max(0,i-10),min(data.N_images-1,i+10))
     return make_fig(data,geometry,gcm,s)
 
 images = []
@@ -120,8 +134,8 @@ for i in range(data.N_images):
     fig = gif_image(i)
     fig.savefig(fname)
     plt.close(fig)
-    images.append(imageio.imread(fname))
+    images.append(imread(fname))
     os.remove(fname)
 
-_=imageio.mimsave('phase_curve.gif', images,fps=20)
-
+filename = 'phase_curve.gif'
+_=mimsave(filename, images,fps=20)
