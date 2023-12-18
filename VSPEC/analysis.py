@@ -9,7 +9,6 @@ from copy import deepcopy
 from pathlib import Path
 import warnings
 import numpy as np
-import pandas as pd
 from astropy import units as u
 from astropy.io import fits
 from datetime import datetime
@@ -85,7 +84,6 @@ class PhaseAnalyzer:
         for i in range(self.N_images):
             filename = path / f'phase{str(i).zfill(N_ZFILL)}.fits'
             spectra: QTable = QTable.read(filename)
-            cols = spectra.colnames
             if i == 0:  # only do once
                 # wavelength
                 col = 'wavelength'
@@ -225,7 +223,7 @@ class PhaseAnalyzer:
         """
         if isinstance(pixel, tuple):
             pixel = slice(*pixel)
-        flux = getattr(self, source)[pixel, :]
+        flux:np.ndarray = getattr(self, source)[pixel, :]
         if isinstance(noise, bool):
             if noise:
                 flux = flux + \
