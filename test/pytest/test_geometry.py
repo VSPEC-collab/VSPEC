@@ -8,9 +8,9 @@ import astropy.units as u
 import pytest
 import numpy as np
 from matplotlib.figure import Figure
-import pkg_resources
+from pathlib import Path
 
-from VSPEC.geometry import SystemGeometry, plan_to_df
+from VSPEC.geometry import SystemGeometry
 
 
 def compare_angles(angle1, angle2, abs=None):
@@ -469,13 +469,19 @@ def test_get_observation_plan():
     Run tests for `SystemGeometry.get_observation_plan()`
     """
     geo = SystemGeometry()
-    plan = geo.get_observation_plan(0*u.deg,10*u.day,N_obs=10)
-    for value in plan.values():
-        assert len(value)==10
-    plan = geo.get_observation_plan(0*u.deg,10*u.day,time_step=0.5*u.day,N_obs=10)
-    for value in plan.values():
-        assert len(value)==20
-@pytest.mark.skipif('cartopy' not in [pkg.key for pkg in pkg_resources.working_set],reason='Cartopy is required to run plot method.')
+    start_times = np.linspace(0, 10, 10)*u.day
+    plan = geo.get_observation_plan(start_times=start_times)
+    for col in plan.colnames:
+        assert len(plan[col])==10
+
+def cartopy_installed()->bool:
+    try:
+        import cartopy
+        return True
+    except ImportError:
+        return False
+
+@pytest.mark.skipif(not cartopy_installed(),reason='Cartopy is required to run plot method.')
 def test_plot():
     """
     Run tests for `SystemGeometry.plot()`
@@ -485,35 +491,6 @@ def test_plot():
     assert isinstance(plot,Figure)
 
 
-def test_plan_to_df():
-    """
-    Test `VSPEC.helpers.plan_to_df`
-    """
-    geo = SystemGeometry()
-    plan = geo.get_observation_plan(0*u.deg,10*u.day,N_obs=10)
-    df = plan_to_df(plan)
-    for key in plan.keys():
-        assert np.any(df.columns.str.contains(key))
-
-
 
 if __name__ in '__main__':
-    test_compare_angles()
-    test_default_init()
-    test_custon_init()
-    test_sub_obs()
-    test_mean_motion()
-    test_mean_anomaly()
-    test_eccentric_anomaly()
-    test_true_anomaly()
-    test_phase()
-    test_sub_planet()
-    test_get_time_since_periasteron()
-    test_get_substellar_lon_at_periasteron()
-    test_get_substellar_lon()
-    test_get_substellar_lat()
-    test_get_pl_sub_obs_lon()
-    test_get_pl_sub_obs_lat()
-    test_get_radius_coefficient()
-    test_get_observation_plan()
-    test_plot()
+    pytest.main(args=[Path(__file__)])
