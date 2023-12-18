@@ -6,23 +6,22 @@ Tests for `VSPEC.analysis` module
 from pathlib import Path
 import pytest
 import numpy as np
-import pandas as pd
 from astropy import units as u
-from astropy.io import fits
+from astropy.table import QTable
+
 from VSPEC import PhaseAnalyzer
 from VSPEC.helpers import isclose
 
-DATA_DIR = Path(__file__).parent / 'data' / 'test_analysis'
+TEST1_DIR = Path(__file__).parent.parent / 'end_to_end_tests' / 'test1' / '.vspec' / 'test1' / 'AllModelSpectraValues'
 EMPTY_DIR = Path(__file__).parent / 'data' / 'empty'
 
-@pytest.mark.skip()
 def test_init():
     """
     Test the `__init__` method of `VSPEC.PhaseAnalyzer`
     """
-    path = DATA_DIR
+    path = TEST1_DIR
     data = PhaseAnalyzer(path)
-    assert isinstance(data.observation_data, pd.DataFrame)
+    assert isinstance(data.observation_data, QTable)
     assert isinstance(data.N_images, int)
     assert isinstance(data.time, u.Quantity)
     assert isinstance(data.phase, u.Quantity)
@@ -33,7 +32,7 @@ def test_init():
     assert isinstance(data.thermal, u.Quantity)
     assert isinstance(data.total, u.Quantity)
     assert isinstance(data.noise, u.Quantity)
-    assert isinstance(data.layers, fits.HDUList)
+    assert isinstance(data.layers, dict)
 
     assert np.all(data.phase >= 0 * u.deg)
     assert np.all(data.phase <= 360 * u.deg)
@@ -48,14 +47,12 @@ def test_init():
     assert data.total.unit == u.W / (u.m ** 2 * u.um)
     assert data.noise.unit == u.W / (u.m ** 2 * u.um)
 
-    for hdu in data.layers:
-        name = hdu.name
-        dat = data.get_layer(name)
+    for hdu in data.layers.keys():
+        dat = data.get_layer(hdu)
         assert isinstance(dat,u.Quantity)
     with pytest.raises(KeyError):
         data.get_layer('fake_variable')
 
-@pytest.mark.skip()
 def test_init_wrong_path():
     """
     Test `PhaseAnalyzer()` when given path to empty directory.
@@ -63,22 +60,21 @@ def test_init_wrong_path():
     with pytest.raises(FileNotFoundError):
         PhaseAnalyzer(EMPTY_DIR)
 
-@pytest.mark.skip()
 def test_init_wrong_unit():
     """
     Test the `__init__` method of `VSPEC.PhaseAnalyzer`
     with a non-physical value for `fluxunit`
     """
-    path = DATA_DIR
+    path = TEST1_DIR
     with pytest.raises(u.UnitConversionError):
         PhaseAnalyzer(path, fluxunit=u.s)
 
-@pytest.mark.skip()
+
 def test_lightcurve():
     """
     Test `PhaseAnalyzer.lightcurve()`
     """
-    path = DATA_DIR
+    path = TEST1_DIR
     data = PhaseAnalyzer(path)
 
     assert data.lightcurve('total', 0).shape == (data.N_images,)
@@ -108,12 +104,11 @@ def test_lightcurve():
     assert np.all(isclose(data.lightcurve(
         'total', 0), data.total[0, :], tol))
 
-@pytest.mark.skip()
 def test_spectrum():
     """
     Test `PhaseAnalyzer.spectrum()`
     """
-    path = DATA_DIR
+    path = TEST1_DIR
     data = PhaseAnalyzer(path)
     result = data.spectrum('total', 0, noise=False)
     assert isinstance(result, u.Quantity)
@@ -148,8 +143,4 @@ def test_spectrum():
 
 
 if __name__ in '__main__':
-    test_init()
-    test_init_wrong_path()
-    test_init_wrong_unit()
-    test_lightcurve()
-    test_spectrum()
+    pytest.main(args=[Path(__file__)])
