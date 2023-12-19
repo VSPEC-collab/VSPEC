@@ -56,19 +56,3 @@ def test_get_planet_indices():
 
     assert N1 == 2
     assert N2 == 2
-
-@pytest.mark.skip()
-def test_read_lyr():
-    """
-    Test `VSPEC.helpers.read_lyr()`
-    """
-    file = DATA_DIR / 'layer00000.csv'
-    fake_file = EMPTY_DIR / 'layer00000.csv'
-    wrong_file = DATA_DIR / 'phase00000.csv'
-
-    with pytest.raises(FileNotFoundError):
-        helpers.read_lyr(fake_file)
-    with pytest.raises(ValueError):
-        helpers.read_lyr(wrong_file)
-    data = helpers.read_lyr(file)
-    assert isinstance(data, pd.DataFrame)
