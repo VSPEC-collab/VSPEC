@@ -1,0 +1,66 @@
+[project]
+dynamic = ["version"]
+name = "VSPEC"
+authors = [
+    { name = "Ted Johnson", email = "ted.johnson@unlv.edu" },
+    { name = "Cameron Kelahan", email = "cameron.kelahan@gmail.com"}
+]
+maintainers = [ { name = "Ted Johnson", email = "ted.johnson@unlv.edu" } ]
+description = "Simulate Observations of Exoplanets in Variable Star Systems"
+readme = "docs/readme.rst"
+license = {file = "LICENSE"}
+keywords = ["exoplanet", "astronomy", "star"]
+requires-python = ">= 3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "astropy",
+    "scipy",
+    "tqdm",
+    "matplotlib",
+    "pathlib",
+    "h5py",
+    "tinygp",
+    "jax",
+    "netCDF4",
+    "requests",
+    "pyyaml",
+    "git+https://github.com/tedjohnson12/xoflares.git@numpy-only",
+    "git+https://github.com/VSPEC-collab/GridPolator@releases/tag/v0.1.0",
+    "git+https://github.com/VSPEC-collab/vspec-vsm@releases/tag/v0.1.0"
+]
+[project.optional-dependencies]
+plot = ["matplotlib","cartopy"]
+dev = [
+"pytest",
+"pep8",
+"furo=2023.9.10",
+"imagio",
+"numpydoc",
+"sphinx",
+"sphinx-automodapi",
+"sphinx-gallery",
+"sphinxcontrib-bibtex",
+"sphinxcontrib-napoleon",
+]
+
+[project.urls]
+Documentation = "https://vspec.readthedocs.io/en/latest/"
+Repository = "https://github.com/VSPEC-collab/VSPEC"
+Issues = "https://github.com/VSPEC-collab/VSPEC/issues"
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "plot: marks tests as requiring plotting (deselect with '-m \"not plot\"')",
+]

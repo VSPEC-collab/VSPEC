@@ -4,11 +4,9 @@ This module communucates between `VSPEC` and
 and the Planetary Spectrum Generator via the API.
 """
 
-from io import StringIO
 import re
 import warnings
 from astropy import units as u
-import pandas as pd
 import numpy as np
 import requests
 from typing import Union

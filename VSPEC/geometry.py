@@ -5,7 +5,6 @@ to simulate a `VSPEC` observation.
 """
 import numpy as np
 from astropy import units as u
-import pandas as pd
 from scipy.optimize import newton
 from astropy.table import QTable
 

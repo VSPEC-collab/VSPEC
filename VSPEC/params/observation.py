@@ -3,7 +3,6 @@ Observation parameters
 """
 from typing import Union
 from astropy import units as u
-import numpy as np
 import yaml
 
 from VSPEC.config import flux_unit as default_flux_unit, PRESET_PATH

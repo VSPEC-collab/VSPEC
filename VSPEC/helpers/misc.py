@@ -4,8 +4,6 @@ Misc helpers
 
 from astropy import units as u
 import numpy as np
-from io import StringIO
-import pandas as pd
 
 
 def get_transit_radius(

@@ -9,7 +9,6 @@ from astropy import units as u, constants as c
 import numpy as np
 from scipy.integrate import solve_ivp, solve_bvp
 import warnings
-# from scipy.optimize import fsolve
 from copy import deepcopy
 from scipy.interpolate import interp1d
 
@@ -37,6 +36,7 @@ def get_flux(
         The flux of the star at the planet.
     
     """
+    # pylint: disable-next:no-member
     flux = c.sigma_sb * teff_star**4 * (r_star/r_orbit)**2
     return flux.to(u.Unit('W m-2'))
 
@@ -284,7 +284,7 @@ class TemperatureMap:
         if isinstance(lon,u.Quantity):
             lon = get_psi(lon)
         tmap = self.equator(lon)*np.cos(lat)**0.25 * self.t0
-        tmap = np.where(tmap > self.min_temp,tmap,self.min_temp)
+        tmap:u.Quantity = np.where(tmap > self.min_temp,tmap,self.min_temp)
         return tmap
     @classmethod
     def from_planet(
