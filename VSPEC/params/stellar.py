@@ -6,7 +6,11 @@ from astropy import units as u
 import numpy as np
 import yaml
 
-from vspec_vsm import SpotGenerator, CoordinateGrid
+from vspec_vsm import (
+    SpotGenerator,
+    FaculaGenerator,
+    CoordinateGrid
+)
 from vspec_vsm import config as vsm_config
 
 
@@ -459,6 +463,49 @@ class FaculaParameters(BaseParameters):
         for testing.
         """
         return cls.from_preset('std')
+    def to_generator(
+        self,
+        grid_params: Union[int,Tuple[int, int]] = (vsm_config.NLAT, vsm_config.NLON),
+        gridmaker: CoordinateGrid = None,
+        rng: np.random.Generator = np.random.default_rng()
+    )->FaculaGenerator:
+        """
+        Construct a `vspec_vsm.FaculaGenerator` instance from the class.
+        
+        Parameters
+        ----------
+        grid_params : Union[int,Tuple[int, int]]
+            If tuple, the number of grid points in the latitude and longitude
+            directions. If int, the number of total grid points for a sprial
+            grid. Defaults to (vsm_config.NLAT, vsm_config.NLON).
+        gridmaker : CoordinateGrid
+            An instance of `vspec_vsm.CoordinateGrid` to use for the grid.
+            Defaults to None.
+        rng : np.random.Generator
+            Random number generator. Defaults to np.random.default_rng().
+        
+        Returns
+        -------
+        vspec_vsm.FaculaGenerator
+            The `vspec_vsm.FaculaGenerator` instance.
+        """
+        return FaculaGenerator(
+            dist_r_peak=self.mean_radius,
+            dist_r_logsigma=self.logsigma_radius,
+            depth=self.depth,
+            dist_life_peak=self.mean_timescale,
+            dist_life_logsigma=self.logsigma_timescale,
+            floor_teff_slope=self.floor_teff_slope,
+            floor_teff_min_rad=self.floor_teff_min_rad,
+            floor_teff_base_dteff=self.floor_teff_base_dteff,
+            wall_teff_slope=self.wall_teff_slope,
+            wall_teff_intercept=self.wall_teff_intercept,
+            coverage=self.equillibrium_coverage,
+            dist=self.distribution,
+            grid_params=grid_params,
+            gridmaker=gridmaker,
+            rng=rng
+        )
 
 
 class FlareParameters(BaseParameters):
