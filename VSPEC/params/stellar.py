@@ -10,6 +10,7 @@ from vspec_vsm import (
     SpotGenerator,
     FaculaGenerator,
     FlareGenerator,
+    Granulation,
     CoordinateGrid
 )
 from vspec_vsm import config as vsm_config
@@ -708,6 +709,30 @@ class GranulationParameters(BaseParameters):
     def none(cls):
         return cls(
             0.0, 0.00, 5*u.day, 200*u.K
+        )
+    def to_generator(
+        self,
+        seed: int=0
+    )->Granulation:
+        """
+        Create a `vspec_vsm.Granulation` instance from the class instance.
+        
+        Parameters
+        ----------
+        seed : int, optional
+            The seed for the random number generator. Defaults to 0.
+        
+        Returns
+        -------
+        vspec_vsm.Granulation
+            The `vspec_vsm.Granulation` instance.
+        """
+        return Granulation(
+            mean_coverage=self.mean,
+            amplitude=self.amp,
+            period=self.period,
+            dteff=self.dteff,
+            seed=seed
         )
 
 
