@@ -11,6 +11,9 @@ from vspec_vsm import (
     FaculaGenerator,
     FlareGenerator,
     Granulation,
+    Star,
+    SpotCollection,
+    FaculaCollection,
     CoordinateGrid
 )
 from vspec_vsm import config as vsm_config
@@ -966,4 +969,42 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.std(),
             granulation=GranulationParameters.std(),
             grid_params=(500, 1000),
+        )
+    def to_star(
+        self,
+        rng: np.random.Generator = np.random.default_rng(),
+        seed: int = 0
+    )->Star:
+        """
+        Create a `vspec_vsm.Star` instance from the class instance.
+        
+        Parameters
+        ----------
+        rng : np.random.Generator, optional
+            The random number generator to use. Defaults to np.random.default_rng().
+        seed : int, optional
+            The seed for the random number generator. Defaults to 0.
+        """
+        return Star(
+            radius=self.radius,
+            period=self.period,
+            teff=self.teff,
+            spots=SpotCollection(grid_params=self.grid_params),
+            faculae=FaculaCollection(grid_params=self.grid_params),
+            grid_params=self.grid_params,
+            flare_generator=self.flares.to_generator(rng=rng),
+            spot_generator=self.spots.to_generator(
+                grid_params=self.grid_params,
+                gridmaker=None,
+                rng=rng
+            ),
+            fac_generator=self.faculae.to_generator(
+                grid_params=self.grid_params,
+                gridmaker=None,
+                rng=rng
+            ),
+            granulation=self.granulation.to_generator(seed=seed),
+            u1=self.ld.u1,
+            u2=self.ld.u2,
+            rng=rng
         )
