@@ -1,8 +1,13 @@
 """
 Stellar Parameters
 """
+from typing import Union, Tuple
 from astropy import units as u
+import numpy as np
 import yaml
+
+from vspec_vsm import SpotGenerator, CoordinateGrid
+from vspec_vsm import config as vsm_config
 
 
 from VSPEC.config import MSH, PRESET_PATH
@@ -256,6 +261,46 @@ class SpotParameters(BaseParameters):
         Solar-style spots
         """
         return cls.from_preset('solar')
+    def to_generator(
+        self,
+        grid_params: Union[int,Tuple[int, int]] = (vsm_config.NLAT, vsm_config.NLON),
+        gridmaker: CoordinateGrid = None,
+        rng: np.random.Generator = np.random.default_rng()
+    )-> SpotGenerator:
+        """
+        Create a `vspec_vsm.SpotGenerator` instance from the class instance.
+        
+        Parameters
+        ----------
+        grid_params : Union[int, Tuple[int, int]], optional
+            If tuple, the number of grid points in the latitude and longitude directions.
+            If int, the number of total grid points for a sprial grid.
+            Defaults to (vsm_config.NLAT, vsm_config.NLON).
+        gridmaker : CoordinateGrid, optional
+            An instance of `vspec_vsm.CoordinateGrid` to use for the grid.
+            Defaults to None.
+        rng : np.random.Generator, optional
+            The random number generator to use. Defaults to np.random.default_rng().
+        
+        Returns
+        -------
+        vspec_vsm.SpotGenerator
+            The `vspec_vsm.SpotGenerator` instance.
+        """
+        return SpotGenerator(
+            dist_area_mean=self.area_mean,
+            dist_area_logsigma=self.area_logsigma,
+            umbra_teff=self.teff_umbra,
+            penumbra_teff=self.teff_penumbra,
+            growth_rate=self.growth_rate,
+            decay_rate=self.decay_rate,
+            init_area=vsm_config.starspot_initial_area,
+            distribution=self.distribution,
+            coverage=self.equillibrium_coverage,
+            grid_params=grid_params,
+            gridmaker=gridmaker,
+            rng=rng
+        )
 
 
 class FaculaParameters(BaseParameters):
