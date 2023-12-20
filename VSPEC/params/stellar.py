@@ -9,6 +9,7 @@ import yaml
 from vspec_vsm import (
     SpotGenerator,
     FaculaGenerator,
+    FlareGenerator,
     CoordinateGrid
 )
 from vspec_vsm import config as vsm_config
@@ -612,6 +613,34 @@ class FlareParameters(BaseParameters):
         A standard flare configuration for testing.
         """
         return cls.from_preset('std')
+    def to_generator(
+        self,
+        rng: np.random.Generator = np.random.default_rng()
+    )->FlareGenerator:
+        """
+        Create a `vspec_vsm.FlareGenerator` instance from the class instance.
+        
+        Parameters
+        ----------
+        rng : np.random.Generator, optional
+            The random number generator to use. Defaults to np.random.default_rng().
+        
+        Returns
+        -------
+        vspec_vsm.FlareGenerator
+            The `vspec_vsm.FlareGenerator` instance.
+        """
+        return FlareGenerator(
+            dist_teff_mean=self.dist_teff_mean,
+            dist_teff_sigma=self.dist_teff_sigma,
+            dist_fwhm_mean=self.dist_fwhm_mean,
+            dist_fwhm_logsigma=self.dist_fwhm_logsigma,
+            alpha=self.alpha,
+            beta=self.beta,
+            min_energy=self.min_energy,
+            cluster_size=self.cluster_size,
+            rng=rng
+        )
 
 
 class GranulationParameters(BaseParameters):
