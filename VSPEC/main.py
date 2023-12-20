@@ -589,8 +589,7 @@ class ObservationModel:
         """
         Build a variable star model based on user-specified parameters.
         """
-        self.star = vsm.Star.from_params(
-            starparams=self.params.star,
+        self.star = self.params.star.to_star(
             rng=self.rng,
             seed=self.params.header.seed
         )
