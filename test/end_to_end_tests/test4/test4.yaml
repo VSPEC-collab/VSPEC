@@ -7,8 +7,8 @@ header:
 star:
   psg_star_template: M
   teff: 3300 K
-  mass: 0.12 M_sun
-  radius: 0.154 R_sun
+  mass: 1.2 M_sun
+  radius: 1.54 R_sun
   period: 40 day
   misalignment: 0 deg
   misalignment_dir: 0 deg
@@ -16,17 +16,7 @@ star:
     u1: 0.0
     u2: 0.0
   spots:
-    distribution: iso
-    initial_coverage: 0.0
-    equillibrium_coverage: 0.0
-    burn_in: 0 day
-    area_mean: 500 msh
-    area_logsigma: 0.2
-    teff_umbra: 2500 K
-    teff_penumbra: 2700 K
-    growth_rate: 0.0 1/day
-    decay_rate: 0.0 msh/day
-    initial_area: 10 msh
+    preset: none
   faculae:
     preset: none
   flares:
@@ -43,7 +33,7 @@ planet:
   gravity:
     mode: kg
     value: 1.0 M_earth
-  semimajor_axis: 0.05 AU
+  semimajor_axis: 0.5 AU
   orbit_period: 10 day
   rotation_period: 10 day
   eccentricity: 0.0

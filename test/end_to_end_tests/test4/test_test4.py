@@ -35,8 +35,8 @@ def make_fig(data:VSPEC.PhaseAnalyzer):
 
     spec = fig.add_subplot(gs[0,1])
     images = 0
-    spec.plot(data.wavelength,1e6*data.spectrum('thermal',images,False)/data.spectrum('total',images,False),c='xkcd:azure',label='True')
-    spec.errorbar(data.wavelength,1e6*data.spectrum('thermal',images,True)/data.spectrum('total',images,False),c='xkcd:rose pink',label='Observed',
+    spec.plot(data.wavelength,1e6*data.spectrum('reflected',images,False)/data.spectrum('total',images,False),c='xkcd:azure',label='True')
+    spec.errorbar(data.wavelength,1e6*data.spectrum('reflected',images,True)/data.spectrum('total',images,False),c='xkcd:rose pink',label='Observed',
                     yerr = 1e6*data.spectrum('noise',images,False)/data.spectrum('total',images,False),fmt='o',markersize=6)
     spec.set_ylabel('Flux (ppm)')
     spec.set_xlabel(f'Wavelength ({data.wavelength.unit})')
