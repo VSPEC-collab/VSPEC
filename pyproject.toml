@@ -35,8 +35,8 @@ dependencies = [
     "netCDF4",
     "requests",
     "pyyaml",
-    "git+https://github.com/VSPEC-collab/GridPolator@releases/tag/v0.1.0",
-    "git+https://github.com/VSPEC-collab/vspec-vsm@releases/tag/v0.1.0"
+    "vspec-vsm==0.3.0",
+    "git+https://github.com/VSPEC-collab/GridPolator@releases/tag/v0.2.0",
 ]
 [project.optional-dependencies]
 plot = ["matplotlib","cartopy"]
