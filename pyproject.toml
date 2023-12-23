@@ -36,14 +36,14 @@ dependencies = [
     "requests",
     "pyyaml",
     "vspec-vsm==0.3.0",
-    "git+https://github.com/VSPEC-collab/GridPolator@v0.2.0",
+    "GridPolator @ git+https://github.com/VSPEC-collab/GridPolator@v0.2.0",
 ]
 [project.optional-dependencies]
 plot = ["matplotlib","cartopy"]
 dev = [
 "pytest",
 "pep8",
-"furo=2023.9.10",
+"furo==2023.9.10",
 "imagio",
 "numpydoc",
 "sphinx",
