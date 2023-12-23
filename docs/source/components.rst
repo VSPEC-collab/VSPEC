@@ -16,4 +16,5 @@ the ``main`` module, which manages the simulations and tracks the state of each 
    modules/waccm
    modules/gcm
    modules/config
+   modules/builtins
    

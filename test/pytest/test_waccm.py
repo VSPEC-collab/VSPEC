@@ -1,4 +1,12 @@
+"""
+Tests for WACCM support.
 
+If you are running this test locally, you will need to download the WACCM test dataset.
+You can download it by running ``VSPEC.builtins.download_waccm_test_data()``, for example:
+
+.. code-block:: bash
+    python -c "import VSPEC.builtins; VSPEC.builtins.download_waccm_test_data()"
+"""
 from os import chdir
 from pathlib import Path
 import pytest
@@ -7,20 +15,13 @@ import matplotlib.pyplot as plt
 
 import netCDF4 as nc
 
-    
 from VSPEC.waccm.read_nc import validate_variables, get_time_index, TIME_UNIT,get_shape
 import VSPEC.waccm.read_nc as rw
 import VSPEC.waccm.write_psg as wp
+from VSPEC.builtins import WACCM_PATH as DATA_PATH
 
 chdir(Path(__file__).parent)
 
-DATA_PATH = Path.home() / '.vspec' / 'data' / 'vspec_waccm_test.nc'
-
-DATA_URL = 'https://zenodo.org/records/10426886/files/vspec_waccm_test.nc?#mode=bytes'
-"""
-If you are testing locally, download the file in
-DATA_URL and put it in DATA_PATH.
-"""
 
 @pytest.mark.skipif(not DATA_PATH.exists(), reason="Data file not found")
 def test_validate_vars():
