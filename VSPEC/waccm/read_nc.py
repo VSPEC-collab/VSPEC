@@ -10,17 +10,42 @@ This code is based on PSG conversion scripts for exoCAM
 written by Geronimo Villanueva
 
 """
+import warnings
 from netCDF4 import Dataset
-from pathlib import Path
-import json
 from astropy import units as u
 import numpy as np
 
 from VSPEC.config import psg_pressure_unit, psg_aerosol_size_unit
 
-VAR_LIST = Path(__file__).parent / 'variables.json'
+TIME_UNIT = u.day
+ALBEDO_DEFAULT = 0.3
 
-time_unit = u.day
+REQUIRED_VARIABLES = [
+    "hyam",
+    "hybm",
+    "P0",
+    "PS",
+    "T",
+    "lat",
+    "lon",
+    "PS",
+    "time",
+    "time_bnds"
+]
+OPTIONAL_VARIABLES = [
+    "TS",
+    "ASDIR",
+    "U",
+    "V",
+]
+
+
+class VariableAssumptionWarning(UserWarning):
+    """
+    A warning raised when a variable
+    is not found in the netCDF file.
+    """
+
 
 def validate_variables(data:Dataset):
     """
@@ -33,19 +58,32 @@ def validate_variables(data:Dataset):
         The data to be checked
     """
     missing_vars = []
-    with open(VAR_LIST,'r',encoding='UTF-8') as file:
-        vars = json.loads(file.read())
-    for var in vars:
+    for var in REQUIRED_VARIABLES:
         try:
             data.variables[var]
         except KeyError:
             missing_vars.append(var)
     if len(missing_vars) == 0:
-        return None
+        pass
     else:
         raise KeyError(
             f'Dataset is missing required variables: {",".join(missing_vars)}'
         )
+    
+    missing_vars = []
+    for var in OPTIONAL_VARIABLES:
+        try:
+            data.variables[var]
+        except KeyError:
+            missing_vars.append(var)
+    if len(missing_vars) == 0:
+        pass
+    else:
+        warnings.warn(
+            f'Dataset is missing optional variables: {",".join(missing_vars)}',
+            VariableAssumptionWarning
+        )
+    
 def get_time_index(data:Dataset,time:u.Quantity):
     """
     Get the index `itime` given a time quantity.
@@ -62,7 +100,7 @@ def get_time_index(data:Dataset,time:u.Quantity):
     itime : int
         The time index of `time`.
     """
-    time_in_days = time.to_value(time_unit)
+    time_in_days = time.to_value(TIME_UNIT)
     time_left = data.variables['time_bnds'][:,0]
     time_right = data.variables['time_bnds'][:,1]
     itime = np.argwhere((time_in_days > time_left) & (time_in_days <= time_right))[0][0]
@@ -80,7 +118,7 @@ def get_shape(data:Dataset):
     Returns
     -------
     tuple
-        The shape of `data`
+        The shape of `data`, (N_time,N_layers,N_lat,N_lon)
     """
     N_time = data.variables['T'].shape[0]
     N_layers = data.variables['T'].shape[1]
@@ -164,8 +202,16 @@ def get_tsurf(data:Dataset,itime:int):
     tsurf : np.ndarray
         The surface temperature (N_lat,N_lon) in K
     """
-    tsurf = np.array(data.variables['TS'][itime,:,:])
-    return tsurf
+    try:
+        tsurf = np.array(data.variables['TS'][itime,:,:])
+        return tsurf
+    except KeyError:
+        msg = 'Surface Temperature not explicitly stated. '
+        msg += 'Using the value from the lowest layer.'
+        warnings.warn(msg,VariableAssumptionWarning)
+        temp = get_temperature(data,itime)
+        return temp[0,:,:]
+        
 
 def get_winds(data:Dataset,itime:int):
     """
@@ -185,8 +231,20 @@ def get_winds(data:Dataset,itime:int):
     V : np.ndarray
         The wind speed in the V direction (N_layers,N_lat,N_lon) in m/s
     """
-    U = np.flip(np.array(data.variables['U'][itime,:,:,:]),axis=0)
-    V = np.flip(np.array(data.variables['V'][itime,:,:,:]),axis=0)
+    try:
+        U = np.flip(np.array(data.variables['U'][itime,:,:,:]),axis=0)
+    except KeyError:
+        msg = 'Wind Speed U not explicitly stated. Assuming zero.'
+        warnings.warn(msg,VariableAssumptionWarning)
+        _, nlayers, nlat, nlon = get_shape(data)
+        U = np.zeros((nlayers,nlat,nlon))
+    try:
+        V = np.flip(np.array(data.variables['V'][itime,:,:,:]),axis=0)
+    except KeyError:
+        msg = 'Wind Speed V not explicitly stated. Assuming zero.'
+        warnings.warn(msg,VariableAssumptionWarning)
+        _, nlayers, nlat, nlon = get_shape(data)
+        V = np.zeros((nlayers,nlat,nlon))
     return U, V
 
 def get_coords(data:Dataset):
@@ -225,8 +283,14 @@ def get_albedo(data:Dataset,itime:int):
     albedo : np.ndarray
         The albedo (N_lat,N_lon)
     """
-    albedo = np.array(data.variables['ASDIR'][itime,:,:])
-    albedo = np.where((albedo>=0) & (albedo<=1.0) & (np.isfinite(albedo)), albedo, 0.3)
+    try:
+        albedo = np.array(data.variables['ASDIR'][itime,:,:])
+        albedo = np.where((albedo>=0) & (albedo<=1.0) & (np.isfinite(albedo)), albedo, 0.3)
+    except KeyError:
+        msg = f'Albedo not explicitly stated. Using {ALBEDO_DEFAULT}.'
+        warnings.warn(msg,VariableAssumptionWarning)
+        _, _, nlat, nlon = get_shape(data)
+        albedo = np.ones((nlat,nlon)) * ALBEDO_DEFAULT
     return albedo
 
 def get_aerosol(data:Dataset,itime:int,name:str,size:str):
