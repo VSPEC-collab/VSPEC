@@ -36,7 +36,7 @@ dependencies = [
     "requests",
     "pyyaml",
     "vspec-vsm==0.3.0",
-    "git+https://github.com/VSPEC-collab/GridPolator@releases/tag/v0.2.0",
+    "git+https://github.com/VSPEC-collab/GridPolator@v0.2.0",
 ]
 [project.optional-dependencies]
 plot = ["matplotlib","cartopy"]
