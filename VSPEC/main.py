@@ -28,10 +28,10 @@ import vspec_vsm as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
 from VSPEC import config
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import isclose, is_port_in_use, arrange_teff
+from VSPEC.helpers import isclose, arrange_teff
 from VSPEC.helpers import check_and_build_dir, get_filename
 from VSPEC.helpers import get_planet_indicies
-from VSPEC.psg_api import get_reflected, cfg_to_bytes
+from VSPEC.psg_api import get_reflected
 from VSPEC.psg_api import change_psg_parameters
 from VSPEC.params.read import InternalParameters
 from VSPEC.spectra import ForwardSpectra

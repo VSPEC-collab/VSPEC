@@ -2,9 +2,7 @@
 
 from astropy import units as u
 import numpy as np
-import pytest
 from pathlib import Path
-import pandas as pd
 
 from VSPEC import helpers
 

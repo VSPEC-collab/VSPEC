@@ -4,7 +4,6 @@ Tests for main.py
 
 import pytest
 from pathlib import Path
-import shutil
 from os import chdir
 from astropy import units as u
 import numpy as np

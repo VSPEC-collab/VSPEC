@@ -8,7 +8,6 @@ from pathlib import Path
 
 from VSPEC.gcm import planet as pl
 from VSPEC.gcm import structure as st
-from VSPEC.psg_api import call_api
 
 OUTFILE = Path(__file__).parent / 'config.txt'
 
@@ -143,4 +142,4 @@ def test_planet_content(default_planet:pl.Planet):
 
 
 if __name__ in '__main__':
-    test_planet_content()
+    pytest.main(args=[__file__])

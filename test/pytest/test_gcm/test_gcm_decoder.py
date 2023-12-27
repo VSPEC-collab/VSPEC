@@ -1,7 +1,5 @@
 import numpy as np
-import pytest
-from pathlib import Path
-from astropy import units as u
+
 
 from VSPEC.gcm.decoder import GCMdecoder
 

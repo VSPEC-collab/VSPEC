@@ -1,5 +1,6 @@
-import pytest
-from pathlib import Path
+"""
+Test for PSG parameters
+"""
 
 from VSPEC.params.gcm import psgParameters
 
