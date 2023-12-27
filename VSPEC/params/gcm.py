@@ -304,68 +304,6 @@ class gcmParameters(BaseParameters):
         }
 
 
-class APIkey(BaseParameters):
-    """
-    Class to store a PSG API key.
-    Do not commit your API key to a git repository!
-
-    Parameters
-    ----------
-    path : pathlib.Path, default = None
-        The path to the file containing the API key.
-    value : str, default = None
-        The API key value.
-
-    Attributes
-    ----------
-    value
-    path : pathlib.Path or None
-        The path to the file containing the API key.
-    _value : str or None
-        The API key value.
-
-    """
-
-    def __init__(
-        self,
-        path: Path = None,
-        value: str = None
-    ):
-        self.path = path
-        self._value = value
-
-    @property
-    def value(self):
-        """
-        Get the API key value.
-
-        Returns
-        -------
-        str
-            The API key value.
-
-        """
-
-        if self.path is None:
-            return self._value
-        else:
-            with open(self.path, 'rt', encoding='UTF-8') as file:
-                return file.read()
-
-    @classmethod
-    def _from_dict(cls, d: dict):
-        return cls(
-            path=None if d.get('path', None) is None else Path(
-                d.get('path', None)),
-            value=None if d.get('value', None) is None else str(
-                d.get('value', None))
-        )
-
-    @classmethod
-    def none(cls):
-        return cls(None, None)
-
-
 class psgParameters(BaseParameters):
     """
     Class to store parameters for the Planetary Spectrum Generator (PSG).
@@ -428,9 +366,7 @@ class psgParameters(BaseParameters):
         use_molecular_signatures: bool,
         nmax: int,
         lmax: int,
-        continuum: list,
-        url: str,
-        api_key: APIkey
+        continuum: list
     ):
         self.gcm_binning = gcm_binning
         self.phase_binning = phase_binning
@@ -438,8 +374,6 @@ class psgParameters(BaseParameters):
         self.nmax = nmax
         self.lmax=lmax
         self.continuum = continuum
-        self.url = url
-        self.api_key = api_key
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -450,10 +384,7 @@ class psgParameters(BaseParameters):
             nmax=int(d['nmax']),
             lmax=int(d['lmax']),
             continuum = list(d['continuum']),
-            url=str(d['url']),
-            api_key=APIkey.none() if d.get(
-                'api_key', None) is None else APIkey.from_dict(d['api_key'])
-        )
+            )
 
     def to_psg(self):
         """

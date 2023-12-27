@@ -20,6 +20,7 @@ from GridPolator import GridSpectra
 from GridPolator.binning import get_wavelengths
 
 import pypsg
+from pypsg import docker as psg_docker
 
 import vspec_vsm as vsm
 
@@ -212,10 +213,11 @@ class ObservationModel:
         -----
         This function applies the solid angle correction.
         """
+        teffs = np.atleast_1d(teff.to_value(config.teff_unit))
         return self.spec.evaluate(
-            self.wl.to_value(config.wl_unit),
-            teff.to_value(config.teff_unit)
-        )*self.params.flux_correction*config.flux_unit
+            params=(teffs,),
+            wl=np.array(self.wl.to_value(config.wl_unit))
+        )[0,:] * config.flux_unit * self.params.flux_correction
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
@@ -280,7 +282,7 @@ class ObservationModel:
 
     def check_psg(self):
         """
-        Check that PSG is running
+        Check that PSG is configured correctly.
 
         Raises
         ------
@@ -293,18 +295,24 @@ class ObservationModel:
         RuntimeWarning
             If calling the online PSG API, but no API key is specified.
         """
-        psg_url = self.params.psg.url
-        if 'localhost' in psg_url:
-            port = int(psg_url.split(':')[-1])
-            if not is_port_in_use(port):
-                raise RuntimeError('Local PSG is specified, but is not running.\n' +
-                                   'Type `docker start psg` in the command line.')
-        elif self.params.psg.api_key.value is None:
-            msg = 'PSG is being called without an API key. '
-            msg += 'After 100 API calls in a 24hr period you will need to get a key. '
-            msg += 'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook)'
-            warnings.warn(msg, RuntimeWarning)
-
+        if pypsg.settings.get_setting('url') == pypsg.settings.PSG_URL:
+            if pypsg.settings.get_setting('api_key') is None:
+                warnings.warn('PSG is being called without an API key. ' +
+                              'After 100 API calls in a 24hr period you will need to get a key. ' +
+                              'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook)',
+                              RuntimeWarning)
+        else:
+            if not psg_docker.is_psg_installed():
+                msg = 'PSG is not installed. '
+                msg += 'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook) '
+                msg += 'otherwise set the `pypsg` url setting to the online PSG url:\n'
+                msg += f'pypsg.settings.save_settings(url=\'{pypsg.settings.PSG_URL}\')'
+                raise RuntimeError(msg)
+            elif not psg_docker.is_psg_running():
+                raise RuntimeError('PSG is not running.\n' +
+                                   'Type `docker start psg` in the command line ' +
+                                   'or run `pypsg.docker.start_psg()`')
+                
     def upload_gcm(self, obstime: u.Quantity = 0*u.s, update=False):
         """
         Upload GCM file to PSG
@@ -328,7 +336,6 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd' if update else 'set',
             app='globes',
-            url=self.params.psg.url
         )
         _ = caller()
         if not update:
@@ -344,7 +351,6 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd',
             app='globes',
-            url=self.params.psg.url,
         )
         _ = caller()
 
@@ -395,7 +401,6 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd',
             app='globes',
-            url=self.params.psg.url
         )
         _ = caller()
 
@@ -446,7 +451,6 @@ class ObservationModel:
             cfg=tmp_cfg,
             output_type='all',
             app='globes',
-            url=self.params.psg.url
         )
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
