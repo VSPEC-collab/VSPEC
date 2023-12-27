@@ -7,10 +7,12 @@ from netCDF4 import Dataset
 from typing import Union
 import yaml
 
+from pypsg import PyConfig
+
 from VSPEC.config import psg_encoding, PRESET_PATH
 from VSPEC.params.base import BaseParameters
 from VSPEC.waccm.read_nc import get_time_index
-from VSPEC.waccm.write_psg import get_cfg_contents
+from VSPEC.waccm.write_psg import get_cfg_contents, get_pycfg as waccm_to_pycfg
 from VSPEC.gcm.planet import Planet
 
 
@@ -68,6 +70,12 @@ class binaryGCM(BaseParameters):
         else:
             with open(self.path, 'rb') as file:
                 return file.read()
+    
+    def to_pycfg(self) -> PyConfig:
+        """
+        Get a `PyConfig` object from the GCM.
+        """
+        return PyConfig.from_bytes(self.content())
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -155,6 +163,33 @@ class waccmGCM(BaseParameters):
                 background=self.background
             )
 
+    def to_pycfg(
+        self,
+        obs_time: u.Quantity
+    ):
+        """
+        Get a `pypsg.PyConfig` representation of the GCM.
+        
+        Parameters
+        ----------
+        obs_time : astropy.units.Quantity
+            The observation time.
+        
+        Returns
+        -------
+        pypsg.PyConfig
+            The PyConfig representation of the GCM.
+        """
+        with Dataset(self.path, 'r', format='NETCDF4') as data:
+            itime = get_time_index(data, obs_time + self.tstart)
+            return waccm_to_pycfg(
+                data=data,
+                itime=itime,
+                molecules=self.molecules,
+                aerosols=self.aerosols,
+                background=self.background
+            )
+    
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
@@ -202,7 +237,15 @@ class vspecGCM(BaseParameters):
             gcm = Planet.from_dict(d)
         )
     def content(self)->bytes:
+        """
+        Get bytes representation.
+        """
         return self.gcm.content
+    def to_pycfg(self):
+        """
+        Get `pypsg.PyConfig` representation.
+        """
+        return self.gcm.pycfg()
     @classmethod
     def earth(cls,**kwargs):
         path = PRESET_PATH / 'earth.yaml'
@@ -253,7 +296,20 @@ class gcmParameters(BaseParameters):
         self.mean_molec_weight = mean_molec_weight
 
     def content(self,**kwargs):
+        """
+        Get a bytes representation of the GCM.
+        """
         return self.gcm.content(**kwargs)
+    def to_pycfg(self,**kwargs):
+        """
+        Get `pypsg.PyConfig` representation of the GCM.
+        
+        Keyword Arguments
+        -----------------
+        obs_time : `astropy.time.Time`
+            The time of the observation. Necessary for a waccm GCM.
+        """
+        return self.gcm.to_pycfg(**kwargs)
     @property
     def is_staic(self)->bool:
         return self.gcm.static

@@ -330,8 +330,7 @@ class ObservationModel:
             kwargs = {'obs_time': obstime}
         else:
             kwargs = {}
-        content = self.params.gcm.content(**kwargs)
-        cfg = pypsg.PyConfig.from_bytes(content)
+        cfg = self.params.gcm.to_pycfg(**kwargs)
         caller = pypsg.APICall(
             cfg=cfg,
             output_type='upd' if update else 'set',
