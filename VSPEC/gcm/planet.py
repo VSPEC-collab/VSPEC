@@ -489,7 +489,7 @@ class Planet:
             atmosphere=pypsg.cfg.EquilibriumAtmosphere.from_cfg(self.psg_params),
             gcm=GCM(
                 header=self.psg_params['ATMOSPHERE-GCM-PARAMETERS'],
-                dat=self.flat.tobytes('C')
+                dat=self.flat
             )
         )
         

@@ -245,7 +245,7 @@ class vspecGCM(BaseParameters):
         """
         Get `pypsg.PyConfig` representation.
         """
-        return self.gcm.pycfg()
+        return self.gcm.pycfg
     @classmethod
     def earth(cls,**kwargs):
         path = PRESET_PATH / 'earth.yaml'
@@ -300,7 +300,7 @@ class gcmParameters(BaseParameters):
         Get a bytes representation of the GCM.
         """
         return self.gcm.content(**kwargs)
-    def to_pycfg(self,**kwargs):
+    def to_pycfg(self,**kwargs)->PyConfig:
         """
         Get `pypsg.PyConfig` representation of the GCM.
         

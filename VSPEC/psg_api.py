@@ -160,7 +160,7 @@ def change_psg_parameters(
     pl_sub_obs_lon:u.Quantity,
     pl_sub_obs_lat:u.Quantity,
     include_star:bool
-    )->dict:
+    )->pypsg.PyConfig:
     """
     Get the time-dependent PSG parameters
 
@@ -188,15 +188,16 @@ def change_psg_parameters(
     config : dict
         The PSG config in dictionary form.
     """
-    config = {}
-    config['OBJECT-STAR-TYPE'] = params.star.psg_star_template if include_star else '-'
-    config['OBJECT-SEASON'] = f'{phase.to_value(u.deg):.4f}'
-    config['OBJECT-STAR-DISTANCE'] = f'{(orbit_radius_coeff*params.planet.semimajor_axis).to_value(u.AU):.4f}'
-    config['OBJECT-SOLAR-LONGITUDE'] = f'{sub_stellar_lon.to_value(u.deg)}'
-    config['OBJECT-SOLAR-LATITUDE'] = f'{sub_stellar_lat.to_value(u.deg)}'
-    config['OBJECT-OBS-LONGITUDE'] = f'{pl_sub_obs_lon.to_value(u.deg)}'
-    config['OBJECT-OBS-LATITUDE'] = f'{pl_sub_obs_lat.to_value(u.deg)}'
-    return config
+    target = pypsg.cfg.Target(
+        star_type=params.star.psg_star_template if include_star else '-',
+        season=phase,
+        star_distance=orbit_radius_coeff*params.planet.semimajor_axis,
+        solar_longitude=sub_stellar_lon,
+        solar_latitude=sub_stellar_lat,
+        obs_longitude=pl_sub_obs_lon,
+        obs_latitude=pl_sub_obs_lat
+    )
+    return pypsg.PyConfig(target=target)
 
 
 

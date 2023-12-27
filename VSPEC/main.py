@@ -384,7 +384,7 @@ class ObservationModel:
         include_star : bool
             Whether to include the star in the simulation.
         """
-        params = change_psg_parameters(
+        cfg = change_psg_parameters(
             params=self.params,
             phase=phase,
             orbit_radius_coeff=orbit_radius_coeff,
@@ -394,8 +394,6 @@ class ObservationModel:
             pl_sub_obs_lat=pl_sub_obs_lat,
             include_star=include_star
         )
-        content = cfg_to_bytes(params)
-        cfg = pypsg.PyConfig.from_bytes(content)
         caller = pypsg.APICall(
             cfg=cfg,
             output_type='upd',
