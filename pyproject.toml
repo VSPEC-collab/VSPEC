@@ -1,5 +1,5 @@
 [project]
-dynamic = ["version"]
+version = "0.3.0"
 name = "VSPEC"
 authors = [
     { name = "Ted Johnson", email = "ted.johnson@unlv.edu" },
