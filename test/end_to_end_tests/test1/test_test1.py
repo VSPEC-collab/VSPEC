@@ -52,14 +52,6 @@ def make_fig(data:VSPEC.PhaseAnalyzer):
     fig.subplots_adjust(hspace=0.4,wspace=0.4)
     fig.savefig(FIG_PATH,facecolor='w')
 
-@pytest.fixture
-def data():
-    model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
-    model.build_planet()
-    model.build_spectra()
-    data = VSPEC.PhaseAnalyzer(model.directories['all_model'])
-    return data
-
 def read_data()->VSPEC.PhaseAnalyzer:
     model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
     return VSPEC.PhaseAnalyzer(model.directories['all_model'])
@@ -80,10 +72,10 @@ def noise():
     dat = np.load(path)
     return dat*u_flux
 
-def test_output(data:VSPEC.PhaseAnalyzer,thermal,total,noise):
-    assert np.all(data.thermal == thermal)
-    assert np.all(data.total == total)
-    assert np.all(data.noise == noise)
+def test_output(test1_data:VSPEC.PhaseAnalyzer,thermal,total,noise):
+    assert np.all(test1_data.thermal == thermal)
+    assert np.all(test1_data.total == total)
+    assert np.all(test1_data.noise == noise)
     
 
 def run():

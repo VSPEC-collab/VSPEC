@@ -36,8 +36,10 @@ jobs:
     - name: Test and get coverage report
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        PSG_KEY: ${{ secrets.PSG_API_KEY }}
       run: |
         conda install pytest
         pip install coveralls
-        coverage run --source=vspec_vsm -m pytest test/end_to_end_tests/test1/test_test1.py test/pytest
+        python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
+        coverage run --source=VSPEC -m pytest --test1 test/end_to_end_tests/test1/test_test1.py test/pytest
         coveralls
