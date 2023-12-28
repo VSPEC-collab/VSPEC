@@ -9,7 +9,6 @@ the ``main`` module, which manages the simulations and tracks the state of each 
 
    modules/main
    modules/geometry
-   modules/variable_star_model
    modules/spectra
    modules/psg_api
    modules/analysis
@@ -17,4 +16,5 @@ the ``main`` module, which manages the simulations and tracks the state of each 
    modules/waccm
    modules/gcm
    modules/config
+   modules/builtins
    

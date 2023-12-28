@@ -3,9 +3,6 @@ Base parameter class
 """
 import numpy as np
 import yaml
-from pathlib import Path
-
-from VSPEC.config import PRESET_PATH
 
 class BaseParameters:
     """

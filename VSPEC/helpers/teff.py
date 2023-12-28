@@ -25,7 +25,7 @@ def arrange_teff(minteff: u.Quantity, maxteff: u.Quantity):
 
     Returns
     -------
-    teffs : astropy.units.Quantity
+    teffs : list of int
         An array of Teff values, with steps of 100 K.
 
     Notes
@@ -38,7 +38,7 @@ def arrange_teff(minteff: u.Quantity, maxteff: u.Quantity):
     >>> minteff = 5000 * u.K
     >>> maxteff = 6000 * u.K
     >>> arrange_teff(minteff, maxteff)
-    <Quantity [5000., 5100., 5200., 5300., 5400., 5500., 5600., 5700., 5800., 5900., 6000.] K>
+    [5000, 5100, 5200, 5300, 5400, 5500, 5600, 5700, 5800, 5900, 6000]
     """
 
     step = 100*u.K
@@ -53,7 +53,7 @@ def arrange_teff(minteff: u.Quantity, maxteff: u.Quantity):
     number_of_steps = ((high-low)/step).to_value(u.dimensionless_unscaled)
     number_of_steps = int(round(number_of_steps))
     teffs = low + np.arange(number_of_steps+1)*step
-    return teffs
+    return np.array([int(round(teff.to_value(u.K))) for teff in teffs],dtype=int)
 
 
 def get_surrounding_teffs(Teff: u.Quantity):

@@ -16,8 +16,7 @@ star:
     preset: std
   granulation:
     preset: none
-  Nlat: 500
-  Nlon: 1000
+  grid_params: (500,1000)
 planet:
   name: Prox Cen b
   radius: 1 R_earth

@@ -6,6 +6,9 @@ from io import BytesIO
 import numpy as np
 from typing import List
 
+import pypsg
+from pypsg.cfg.globes import GCM
+
 from VSPEC.waccm.read_nc import get_shape,get_coords
 import VSPEC.waccm.read_nc as rw
 from VSPEC.config import atmosphere_type_dict as mtype, aerosol_type_dict as atype, aerosol_name_dict
@@ -39,8 +42,7 @@ def get_gcm_params(data:Dataset,molecules:list,aerosols:list):
     return coords + vars + molecs + aeros
 
 
-def get_cfg_params(data:Dataset,molecules:list,aerosols:list,
-                    nmax:int=2,lmax:int=2):
+def get_cfg_params(data:Dataset,molecules:list,aerosols:list):
     """
     Get parameters for a PSG config file
 
@@ -73,8 +75,6 @@ def get_cfg_params(data:Dataset,molecules:list,aerosols:list,
         'ATMOSPHERE-TYPE': ','.join(gas_types),
         'ATMOSPHERE-ABUN': ','.join(['1']*len(gases)),
         'ATMOSPHERE-UNIT': ','.join(['scl']*len(gases)),
-        'ATMOSPHERE-NMAX': f'{nmax}',
-        'ATMOSPHERE-LMAX': f'{lmax}',
         'ATMOSPHERE-NAERO': f'{len(aerosols)}',
         'ATMOSPHERE-AEROS': ','.join(aerosols),
         'ATMOSPHERE-ATYPE': ','.join(aerosol_types),
@@ -150,9 +150,40 @@ def get_cfg_contents(data:Dataset,itime:int,molecules:list,aerosols:list,backgro
     buffer.close()
     return contents
 
-
-
-
-
-
-
+def get_pycfg(
+    data:Dataset,
+    itime:int,
+    molecules:list,
+    aerosols:list,
+    background=None
+):
+    """
+    Get a PyConfig object.
+    
+    Parameters
+    ----------
+    data : netCDF4.Dataset
+        The GCM dataset.
+    itime : int
+        The time index.
+    molecules : list
+        The variable names of the molecules.
+    aerosols : list
+        The variable names of the aerosols.
+    
+    Returns
+    -------
+    pycfg : pypsg.PyConfig
+        The PyConfig object.
+    """
+    buffer,mol_list = get_binary_array(data,itime,molecules,aerosols,background)
+    params = get_cfg_params(data,mol_list,aerosols)
+    
+    return pypsg.PyConfig(
+        atmosphere=pypsg.cfg.EquilibriumAtmosphere.from_cfg(params),
+        gcm=GCM(
+            header=params['ATMOSPHERE-GCM-PARAMETERS'],
+            dat=buffer.getvalue()
+        )
+    )
+    

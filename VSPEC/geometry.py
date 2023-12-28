@@ -5,42 +5,10 @@ to simulate a `VSPEC` observation.
 """
 import numpy as np
 from astropy import units as u
-import pandas as pd
 from scipy.optimize import newton
+from astropy.table import QTable
 
 import matplotlib.pyplot as plt
-
-
-def plan_to_df(observation_plan: dict) -> pd.DataFrame:
-    """
-    Turn an observation plan dictionary into a pandas DataFrame.
-
-    Parameters
-    ----------
-    observation_plan : dict
-        A dictionary that contains arrays of geometric values at each epoch.
-        The keys are:\n
-        ``{'time', 'phase', 'sub_obs_lat', 'sub_obs_lon',
-        'sub_planet_lat', 'sub_planet_lon', 'sub_stellar_lon',
-        'sub_stellar_lat', 'planet_sub_obs_lon', 'planet_sub_obs_lat',
-        'orbit_radius'}``
-
-    Returns
-    -------
-    pandas.DataFrame
-        A dataframe containing the dictionary data.
-    """
-    obs_df = pd.DataFrame()
-    for key in observation_plan.keys():
-        try:
-            unit = observation_plan[key].unit
-            name = f'{key}[{str(unit)}]'
-            obs_df[name] = observation_plan[key].value
-        except AttributeError:
-            unit = ''
-            name = f'{key}[{str(unit)}]'
-            obs_df[name] = observation_plan[key]
-    return obs_df
 
 class SystemGeometry:
     """System Geometry
@@ -333,7 +301,7 @@ class SystemGeometry:
         time = newton(func, (guess/u.day).to(u.Unit(''))) * u.day
         return time.to(u.day)
 
-    def get_substellar_lon_at_periasteron(self) -> u.Quantity[u.deg]:
+    def get_substellar_lon_at_periasteron(self) -> u.Quantity:
         """
         Compute the sub-stellar longitude at the previous periasteron
         given the rotation period, orbital period, and initial
@@ -382,7 +350,7 @@ class SystemGeometry:
         # lon = self.planetary_init_substellar_lon + dphase - rotated
         return lon % (360.0*u.deg)
 
-    def get_substellar_lat(self, phase: u.Quantity[u.deg]) -> u.Quantity[u.deg]:
+    def get_substellar_lat(self, phase: u.Quantity) -> u.Quantity:
         """
         Calculate the sub-stellar latitude of the planet at a particular phase.
 
@@ -428,7 +396,7 @@ class SystemGeometry:
         lon = self.get_substellar_lon(time_since_periasteron) - phase
         return lon
 
-    def get_pl_sub_obs_lat(self, phase: u.Quantity[u.deg]) -> u.Quantity[u.deg]:
+    def get_pl_sub_obs_lat(self, phase: u.Quantity) -> u.Quantity:
         """
         Compute the sub-observer latitude of the planet.
 
@@ -475,40 +443,24 @@ class SystemGeometry:
         den = 1 + self.eccentricity*np.cos(true_anomaly)
         return (num/den).to_value(u.dimensionless_unscaled)
 
-    def get_observation_plan(self, phase0: u.quantity.Quantity,
-                             total_time: u.quantity.Quantity,
-                             time_step: u.quantity.Quantity = None,
-                             N_obs: int = 10) -> dict:
+    def get_observation_plan(self,start_times: u.quantity.Quantity,
+                             ) -> QTable:
         """
         Calculate information describing the state of the system
         for a series of observations.
 
         Parameters
         ----------
-        phase0 : astropy.units.Quantity [angle]
-            The initial phase of the planet.
-        total_time : astropy.units.Quantity [time]
-            The time over which the observation is carried out.
-        time_step : astropy.units.Quantity [time], default=None
-            The step between each epoch of observation.
-        N_obs : int, default=10
-            The number of epochs to observe
+        start_times : astropy.units.Quantity [time]
+            The time of each observation.
 
         Returns
         -------
-        dict
-            A dictionary of arrays describing the geometry at each
-            epoch. Each dict value is an astropy.units.Quantity array
+        QTable
+            The geometry of each observation.
         """
-        if isinstance(time_step, type(None)):
-            N_obs = int(N_obs)
-        else:
-            N_obs = int(total_time/time_step)
-        t0 = self.get_time_since_periasteron(phase0)
-        start_times = np.linspace(
-            t0.to_value(u.s),
-            (t0+total_time).to_value(u.s), N_obs, endpoint=True
-        )*u.s
+        start_times = start_times.to(u.s)
+        
         phases = []
         sub_obs_lats = []
         sub_obs_lons = []
@@ -520,7 +472,7 @@ class SystemGeometry:
         pl_sub_obs_lats = []
         orbit_radii = []
         u_angle = u.deg
-        for time in start_times:
+        for time in start_times + self.init_time_since_periasteron:
             phase = self.phase(time).to_value(u.deg)  # % (360*u.deg)
             phases.append(phase)
             sub_obs = self.sub_obs(time)
@@ -539,7 +491,7 @@ class SystemGeometry:
             pl_sub_obs_lats.append(pl_sub_obs_lat.to_value(u_angle))
             orbit_rad = self.get_radius_coeff(phase*u_angle)
             orbit_radii.append(orbit_rad)
-        return {'time': start_times,
+        return QTable(data={'time': start_times,
                 'phase': phases*u_angle,
                 'sub_obs_lat': sub_obs_lats*u_angle,
                 'sub_obs_lon': sub_obs_lons*u_angle,
@@ -549,7 +501,7 @@ class SystemGeometry:
                 'sub_stellar_lat': sub_stellar_lats*u_angle,
                 'planet_sub_obs_lon': pl_sub_obs_lons*u_angle,
                 'planet_sub_obs_lat': pl_sub_obs_lats*u_angle,
-                'orbit_radius': orbit_radii}
+                'orbit_radius': orbit_radii})
 
 
     def get_system_visual(self,phase:u.Quantity,ax=None) -> plt.Axes:

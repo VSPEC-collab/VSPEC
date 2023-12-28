@@ -1,8 +1,22 @@
 """
 Stellar Parameters
 """
+from typing import Union, Tuple
 from astropy import units as u
+import numpy as np
 import yaml
+
+from vspec_vsm import (
+    SpotGenerator,
+    FaculaGenerator,
+    FlareGenerator,
+    Granulation,
+    Star,
+    SpotCollection,
+    FaculaCollection,
+    CoordinateGrid
+)
+from vspec_vsm import config as vsm_config
 
 
 from VSPEC.config import MSH, PRESET_PATH
@@ -256,6 +270,46 @@ class SpotParameters(BaseParameters):
         Solar-style spots
         """
         return cls.from_preset('solar')
+    def to_generator(
+        self,
+        grid_params: Union[int,Tuple[int, int]] = (vsm_config.NLAT, vsm_config.NLON),
+        gridmaker: CoordinateGrid = None,
+        rng: np.random.Generator = np.random.default_rng()
+    )-> SpotGenerator:
+        """
+        Create a `vspec_vsm.SpotGenerator` instance from the class instance.
+        
+        Parameters
+        ----------
+        grid_params : Union[int, Tuple[int, int]], optional
+            If tuple, the number of grid points in the latitude and longitude directions.
+            If int, the number of total grid points for a sprial grid.
+            Defaults to (vsm_config.NLAT, vsm_config.NLON).
+        gridmaker : CoordinateGrid, optional
+            An instance of `vspec_vsm.CoordinateGrid` to use for the grid.
+            Defaults to None.
+        rng : np.random.Generator, optional
+            The random number generator to use. Defaults to np.random.default_rng().
+        
+        Returns
+        -------
+        vspec_vsm.SpotGenerator
+            The `vspec_vsm.SpotGenerator` instance.
+        """
+        return SpotGenerator(
+            dist_area_mean=self.area_mean,
+            dist_area_logsigma=self.area_logsigma,
+            umbra_teff=self.teff_umbra,
+            penumbra_teff=self.teff_penumbra,
+            growth_rate=self.growth_rate,
+            decay_rate=self.decay_rate,
+            init_area=vsm_config.starspot_initial_area,
+            distribution=self.distribution,
+            coverage=self.equillibrium_coverage,
+            grid_params=grid_params,
+            gridmaker=gridmaker,
+            rng=rng
+        )
 
 
 class FaculaParameters(BaseParameters):
@@ -414,6 +468,49 @@ class FaculaParameters(BaseParameters):
         for testing.
         """
         return cls.from_preset('std')
+    def to_generator(
+        self,
+        grid_params: Union[int,Tuple[int, int]] = (vsm_config.NLAT, vsm_config.NLON),
+        gridmaker: CoordinateGrid = None,
+        rng: np.random.Generator = np.random.default_rng()
+    )->FaculaGenerator:
+        """
+        Construct a `vspec_vsm.FaculaGenerator` instance from the class.
+        
+        Parameters
+        ----------
+        grid_params : Union[int,Tuple[int, int]]
+            If tuple, the number of grid points in the latitude and longitude
+            directions. If int, the number of total grid points for a sprial
+            grid. Defaults to (vsm_config.NLAT, vsm_config.NLON).
+        gridmaker : CoordinateGrid
+            An instance of `vspec_vsm.CoordinateGrid` to use for the grid.
+            Defaults to None.
+        rng : np.random.Generator
+            Random number generator. Defaults to np.random.default_rng().
+        
+        Returns
+        -------
+        vspec_vsm.FaculaGenerator
+            The `vspec_vsm.FaculaGenerator` instance.
+        """
+        return FaculaGenerator(
+            dist_r_peak=self.mean_radius,
+            dist_r_logsigma=self.logsigma_radius,
+            depth=self.depth,
+            dist_life_peak=self.mean_timescale,
+            dist_life_logsigma=self.logsigma_timescale,
+            floor_teff_slope=self.floor_teff_slope,
+            floor_teff_min_rad=self.floor_teff_min_rad,
+            floor_teff_base_dteff=self.floor_teff_base_dteff,
+            wall_teff_slope=self.wall_teff_slope,
+            wall_teff_intercept=self.wall_teff_intercept,
+            coverage=self.equillibrium_coverage,
+            dist=self.distribution,
+            grid_params=grid_params,
+            gridmaker=gridmaker,
+            rng=rng
+        )
 
 
 class FlareParameters(BaseParameters):
@@ -520,6 +617,34 @@ class FlareParameters(BaseParameters):
         A standard flare configuration for testing.
         """
         return cls.from_preset('std')
+    def to_generator(
+        self,
+        rng: np.random.Generator = np.random.default_rng()
+    )->FlareGenerator:
+        """
+        Create a `vspec_vsm.FlareGenerator` instance from the class instance.
+        
+        Parameters
+        ----------
+        rng : np.random.Generator, optional
+            The random number generator to use. Defaults to np.random.default_rng().
+        
+        Returns
+        -------
+        vspec_vsm.FlareGenerator
+            The `vspec_vsm.FlareGenerator` instance.
+        """
+        return FlareGenerator(
+            dist_teff_mean=self.dist_teff_mean,
+            dist_teff_sigma=self.dist_teff_sigma,
+            dist_fwhm_mean=self.dist_fwhm_mean,
+            dist_fwhm_logsigma=self.dist_fwhm_logsigma,
+            alpha=self.alpha,
+            beta=self.beta,
+            min_energy=self.min_energy,
+            cluster_size=self.cluster_size,
+            rng=rng
+        )
 
 
 class GranulationParameters(BaseParameters):
@@ -587,6 +712,30 @@ class GranulationParameters(BaseParameters):
     def none(cls):
         return cls(
             0.0, 0.00, 5*u.day, 200*u.K
+        )
+    def to_generator(
+        self,
+        seed: int=0
+    )->Granulation:
+        """
+        Create a `vspec_vsm.Granulation` instance from the class instance.
+        
+        Parameters
+        ----------
+        seed : int, optional
+            The seed for the random number generator. Defaults to 0.
+        
+        Returns
+        -------
+        vspec_vsm.Granulation
+            The `vspec_vsm.Granulation` instance.
+        """
+        return Granulation(
+            mean_coverage=self.mean,
+            amplitude=self.amp,
+            period=self.period,
+            dteff=self.dteff,
+            seed=seed
         )
 
 
@@ -671,8 +820,7 @@ class StarParameters(BaseParameters):
         faculae: FaculaParameters,
         flares: FlareParameters,
         granulation: GranulationParameters,
-        Nlat: int,
-        Nlon: int
+        grid_params: tuple,
     ):
         self.psg_star_template = psg_star_template
         self.teff = teff
@@ -686,8 +834,7 @@ class StarParameters(BaseParameters):
         self.faculae = faculae
         self.flares = flares
         self.granulation = granulation
-        self.Nlat = Nlat
-        self.Nlon = Nlon
+        self.grid_params = grid_params
     @classmethod
     def from_dict(cls, d: dict):
         """
@@ -705,6 +852,10 @@ class StarParameters(BaseParameters):
         return super().from_dict(d)
     @classmethod
     def _from_dict(cls, d: dict):
+        try:
+            grid_params = tuple(d['grid_params'])
+        except TypeError:
+            grid_params = int(d['grid_params'])
         return cls(
             psg_star_template=str(d['psg_star_template']),
             teff=u.Quantity(d['teff']),
@@ -718,8 +869,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.from_dict(d['faculae']),
             flares=FlareParameters.from_dict(d['flares']),
             granulation=GranulationParameters.from_dict(d['granulation']),
-            Nlat=int(d['Nlat']),
-            Nlon=int(d['Nlon'])
+            grid_params=grid_params,
         )
     def to_psg(self)->dict:
         """
@@ -755,7 +905,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
         )
 
     @classmethod
@@ -776,7 +926,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
         )
 
     @classmethod
@@ -797,7 +947,7 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.std(),
             granulation=GranulationParameters.none(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
         )
 
     @classmethod
@@ -818,5 +968,43 @@ class StarParameters(BaseParameters):
             faculae=FaculaParameters.none(),
             flares=FlareParameters.std(),
             granulation=GranulationParameters.std(),
-            Nlat=500, Nlon=1000
+            grid_params=(500, 1000),
+        )
+    def to_star(
+        self,
+        rng: np.random.Generator = np.random.default_rng(),
+        seed: int = 0
+    )->Star:
+        """
+        Create a `vspec_vsm.Star` instance from the class instance.
+        
+        Parameters
+        ----------
+        rng : np.random.Generator, optional
+            The random number generator to use. Defaults to np.random.default_rng().
+        seed : int, optional
+            The seed for the random number generator. Defaults to 0.
+        """
+        return Star(
+            radius=self.radius,
+            period=self.period,
+            teff=self.teff,
+            spots=SpotCollection(grid_params=self.grid_params),
+            faculae=FaculaCollection(grid_params=self.grid_params),
+            grid_params=self.grid_params,
+            flare_generator=self.flares.to_generator(rng=rng),
+            spot_generator=self.spots.to_generator(
+                grid_params=self.grid_params,
+                gridmaker=None,
+                rng=rng
+            ),
+            fac_generator=self.faculae.to_generator(
+                grid_params=self.grid_params,
+                gridmaker=None,
+                rng=rng
+            ),
+            granulation=self.granulation.to_generator(seed=seed),
+            u1=self.ld.u1,
+            u2=self.ld.u2,
+            rng=rng
         )

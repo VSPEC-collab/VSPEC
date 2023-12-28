@@ -57,7 +57,7 @@ star = params.StarParameters(
     spots=params.SpotParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    Nlat=500, Nlon=1000
+    grid_params=1000
 )
 
 planet = params.PlanetParameters.std(

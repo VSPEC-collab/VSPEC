@@ -8,10 +8,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from os import chdir
 from astropy import units as u
+import pypsg
 
 import VSPEC
 
 chdir(Path(__file__).parent)
+
+pypsg.docker.set_url_and_run()
 
 CFG_PATH = Path(__file__).parent / 'test4.yaml'
 FIG_PATH = Path(__file__).parent / 'out.png'
@@ -35,15 +38,15 @@ def make_fig(data:VSPEC.PhaseAnalyzer):
 
     spec = fig.add_subplot(gs[0,1])
     images = 0
-    spec.plot(data.wavelength,1e6*data.spectrum('thermal',images,False)/data.spectrum('total',images,False),c='xkcd:azure',label='True')
-    spec.errorbar(data.wavelength,1e6*data.spectrum('thermal',images,True)/data.spectrum('total',images,False),c='xkcd:rose pink',label='Observed',
+    spec.plot(data.wavelength,1e6*data.spectrum('reflected',images,False)/data.spectrum('total',images,False),c='xkcd:azure',label='True')
+    spec.errorbar(data.wavelength,1e6*data.spectrum('reflected',images,True)/data.spectrum('total',images,False),c='xkcd:rose pink',label='Observed',
                     yerr = 1e6*data.spectrum('noise',images,False)/data.spectrum('total',images,False),fmt='o',markersize=6)
     spec.set_ylabel('Flux (ppm)')
     spec.set_xlabel(f'Wavelength ({data.wavelength.unit})')
     spec.legend()
 
     lc = fig.add_subplot(gs[1,:])
-    for i in [0,20,40,80,145]:
+    for i in [0,20,40]:
         lc.plot(data.time,data.lightcurve('star',i,normalize=0),label=f'{data.wavelength[i]:.1f}')
     lc.set_ylabel('Flux (normalized)')
     lc.set_xlabel(f'Time ({data.time.unit})')

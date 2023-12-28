@@ -55,8 +55,7 @@ star:
     amp: 0.00
     period: 5 day
     dteff: 200 K
-  Nlat: 500
-  Nlon: 1000
+  grid_params: 1000000
 planet:
   name: Exoplanet
   radius: 1 R_earth
@@ -104,20 +103,19 @@ psg:
   use_molecular_signatures: True
   nmax: 0
   lmax: 0
-  continuum: [Rayleigh, Refraction, CIA_all]
-  url: http://localhost:3000
+  continuum: [Rayleigh, Refraction]
 gcm:
   mean_molec_weight: 28
   vspec:
     nlon: 30
     nlat : 20
-    nlayer: 10
+    nlayer: 20
     epsilon: 0.01
     gamma: 1.4
     albedo: 0.3
     emissivity: 1.0
     psurf: 1 bar
-    ptop: 1e-5 bar
+    ptop: 1e-8 bar
     wind:
       U: 0 m/s
       V: 0 m/s

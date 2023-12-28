@@ -4,16 +4,17 @@ This module is designed to allow a user to easily handle
 `VSPEC` outputs.
 """
 
-import re
+from typing import Dict
 from copy import deepcopy
 from pathlib import Path
 import warnings
 import numpy as np
-import pandas as pd
 from astropy import units as u
 from astropy.io import fits
 from datetime import datetime
 import json
+from astropy.table import QTable
+from pypsg import PyLyr
 
 from VSPEC.config import N_ZFILL, MOLEC_DATA_PATH
 
@@ -66,10 +67,10 @@ class PhaseAnalyzer:
     def __init__(self, path, fluxunit=u.Unit('W m-2 um-1')):
         if not isinstance(path, Path):
             path = Path(path)
-        self.observation_data = pd.read_csv(path / 'observation_info.csv')
+        self.observation_data: QTable = QTable.read(path / 'observation_info.fits')
         self.N_images = len(self.observation_data)
-        self.time = self.observation_data['time[s]'].values * u.s
-        self.phase = self.observation_data['phase[deg]'].values * u.deg
+        self.time = self.observation_data['time']
+        self.phase = self.observation_data['phase']
         self.unique_phase = deepcopy(self.phase)
         for i in range(len(self.unique_phase) - 1):
             while self.unique_phase[i] > self.unique_phase[i+1]:
@@ -81,34 +82,27 @@ class PhaseAnalyzer:
         total = []
         noise = []
         for i in range(self.N_images):
-            filename = path / f'phase{str(i).zfill(N_ZFILL)}.csv'
-            spectra = pd.read_csv(filename)
-            cols = pd.Series(spectra.columns)
+            filename = path / f'phase{str(i).zfill(N_ZFILL)}.fits'
+            spectra: QTable = QTable.read(filename)
             if i == 0:  # only do once
                 # wavelength
-                col = cols[cols.str.contains('wavelength')]
-                unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col[0])[0])
-                self.wavelength = spectra[col].values.T[0] * unit
+                col = 'wavelength'
+                self.wavelength = spectra[col]
             # star
-            col = cols[cols.str.contains(r'star\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            star.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'star'
+            star.append((spectra[col]).to_value(fluxunit))
             # reflected
-            col = cols[cols.str.contains(r'reflected\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            reflected.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'reflected'
+            reflected.append((spectra[col]).to_value(fluxunit))
             # reflected
-            col = cols[cols.str.contains(r'planet_thermal\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            thermal.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'planet_thermal'
+            thermal.append((spectra[col]).to_value(fluxunit))
             # total
-            col = cols[cols.str.contains(r'total\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            total.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'total'
+            total.append((spectra[col]).to_value(fluxunit))
             # noise
-            col = cols[cols.str.contains(r'noise\[')].values[0]
-            unit = u.Unit(re.findall(r'\[([\w\d\/ \(\)]+)\]', col)[0])
-            noise.append((spectra[col].values * unit).to_value(fluxunit))
+            col = 'noise'
+            noise.append((spectra[col]).to_value(fluxunit))
         self.star = np.asarray(star).T * fluxunit
         self.reflected = np.asarray(reflected).T * fluxunit
         self.thermal = np.asarray(thermal).T * fluxunit
@@ -116,34 +110,23 @@ class PhaseAnalyzer:
         self.noise = np.asarray(noise).T * fluxunit
 
         try:
-            layers = []
-            first = True
+            first_lyr:QTable = PyLyr.from_fits(path / f'layer{str(0).zfill(N_ZFILL)}.fits').prof
+            colnames = first_lyr.colnames
+            vartables: Dict[str, QTable] = {}
+            for name in colnames:
+                tab = QTable()
+                vartables[name] = tab
+            
             for i in range(self.N_images):
-                filename = path / f'layer{str(i).zfill(N_ZFILL)}.csv'
-                dat = pd.read_csv(filename)
-                if not first:
-                    assert np.all(dat.columns == cols)
-                else:
-                    first = False
-                cols = dat.columns
-                layers.append(dat.values)
-            layer_data = np.array(layers)
-            hdus = []
-            for i, var in enumerate(cols):
-                dat = layer_data[:, :, i]
-                if '[' in var:
-                    unit = u.Unit(var.split('[')[1].replace(']', ''))
-                    var = var.split('[')[0]
-                else:
-                    unit = u.dimensionless_unscaled
-                image = fits.ImageHDU(dat)
-                image.header['AXIS0'] = 'PHASE'
-                image.header['AXIS1'] = 'LAYER'
-                image.header['VAR'] = var
-                image.header['UNIT'] = str(unit)
-                image.name = var
-                hdus.append(image)
-            self.layers = fits.HDUList(hdus)
+                filename = path / f'layer{str(i).zfill(N_ZFILL)}.fits'
+                dat:QTable = PyLyr.from_fits(filename).prof
+                for name in colnames:
+                    val = dat[name].value
+                    unit = dat[name].unit
+                    colname=f'col{i}'
+                    vartables[name].add_column(val*unit, name=colname)
+            
+            self.layers = vartables
         except FileNotFoundError:
             warnings.warn(
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
@@ -193,9 +176,12 @@ class PhaseAnalyzer:
             raise KeyError('`self.layers` does not contain any data')
         if var == 'MEAN_MASS':
             return self.get_mean_molecular_mass()
-        hdu = self.layers[var]
-        unit = u.Unit(hdu.header['UNIT'])
-        return hdu.data*unit
+        tab: QTable = self.layers[var]
+        cols = tab.colnames
+        unit = tab[cols[0]].unit
+        return np.array(
+            [tab[col].to_value(unit) for col in cols],
+        )*unit
 
     def lightcurve(self, source, pixel, normalize='none', noise=False):
         """
@@ -237,7 +223,7 @@ class PhaseAnalyzer:
         """
         if isinstance(pixel, tuple):
             pixel = slice(*pixel)
-        flux = getattr(self, source)[pixel, :]
+        flux:np.ndarray = getattr(self, source)[pixel, :]
         if isinstance(noise, bool):
             if noise:
                 flux = flux + \
@@ -346,7 +332,7 @@ class PhaseAnalyzer:
         primary.header['N_images'] = self.N_images
 
         cols = []
-        for col in self.observation_data.columns:
+        for col in self.observation_data.colnames:
             cols.append(fits.Column(
                 name=col, array=self.observation_data[col].values, format='D'))
         obs_tab = fits.BinTableHDU.from_columns(cols)

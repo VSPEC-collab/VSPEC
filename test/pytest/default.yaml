@@ -104,7 +104,6 @@ psg:
   lmax: 0
   continuum: [Rayleigh, Refraction, CIA_all]
   use_molecular_signatures: True
-  url: http://localhost:3000
 gcm:
   mean_molec_weight: 28
   vspec:

@@ -47,7 +47,7 @@ star = params.StarParameters(
         period=6*u.hr,
         dteff=300*u.K
     ),
-    Nlat=500,Nlon=1000
+    grid_params=(500, 1000)
 )
 planet = params.PlanetParameters.std(init_phase=180*u.deg,init_substellar_lon=0*u.deg)
 system = params.SystemParameters(

@@ -9,7 +9,10 @@ enough to simulate observations over a wide range of conditions.
 VSPEC utilizes the Planetary Spectrum Generator (PSG, psg.gsfc.nasa.gov)
 to perform radiative transfer calculations
 """
+
+
+__author__ = 'Cameron Kelahan, Ted Johnson'
+__version__ = '0.2.0'
+
 from VSPEC.main import ObservationModel
 from VSPEC.analysis import PhaseAnalyzer
-
-import VSPEC.variable_star_model

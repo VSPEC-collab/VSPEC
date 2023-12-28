@@ -6,9 +6,12 @@ import numpy as np
 from typing import Tuple
 from astropy import units as u
 
+import pypsg
+from pypsg.cfg.globes import GCM
+
 from VSPEC.gcm.structure import Wind, Molecule, Aerosol, AerosolSize
 from VSPEC.gcm import structure as st
-from VSPEC.config import atmosphere_type_dict as mtype, aerosol_type_dict as atype, aerosol_name_dict
+from VSPEC.config import atmosphere_type_dict as mtype, aerosol_type_dict as atype
 
 class Winds:
     """
@@ -49,6 +52,7 @@ class Winds:
         np.ndarray
             The flattened array.
         """
+        # pylint: disable-next:unexpected-keyword-arg
         return np.concatenate([self.wind_u.flat,self.wind_v.flat],dtype='float32')
 
 class Molecules:
@@ -80,6 +84,7 @@ class Molecules:
         np.ndarray
             The flattened data.
         """
+        # pylint: disable-next:unexpected-keyword-arg
         return np.concatenate([mol.flat for mol in self.molecules],dtype='float32')
     @classmethod
     def _from_dict(cls,d:dict,shape:tuple):
@@ -145,6 +150,7 @@ class Aerosols:
         np.ndarray
             The flattened array.
         """
+        # pylint: disable-next:unexpected-keyword-arg
         return np.concatenate([aero.flat for aero in self.aerosols]+[size.flat for size in self.sizes],dtype='float32')
     @classmethod
     def _from_dict(cls,d:dict,shape:tuple):
@@ -404,6 +410,7 @@ class Planet:
         flat_data : np.ndarray
             A flattened representation of the planet's data.
         """
+        # pylint: disable-next:unexpected-keyword-arg
         return np.concatenate([
             [] if self.wind is None else self.wind.flat,
             [] if self.tsurf is None else self.tsurf.flat,
@@ -473,6 +480,19 @@ class Planet:
         content = bytes(config,encoding='UTF-8')
         dat = self.flat.tobytes('C')
         return content + b'\n<BINARY>' + dat + b'</BINARY>'
+    @property
+    def pycfg(self)->pypsg.PyConfig:
+        """
+        Get a `pypsg.PyConfig` object representing the planet.
+        """
+        return pypsg.PyConfig(
+            atmosphere=pypsg.cfg.EquilibriumAtmosphere.from_cfg(self.psg_params),
+            gcm=GCM(
+                header=self.psg_params['ATMOSPHERE-GCM-PARAMETERS'],
+                dat=self.flat
+            )
+        )
+        
     @classmethod
     def from_dict(cls,d:dict):
         """

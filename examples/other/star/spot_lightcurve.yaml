@@ -36,8 +36,7 @@ star:
     amp: 0.00
     period: 5 day
     dteff: 200 K
-  Nlat: 500
-  Nlon: 1000
+  grid_params: [500,1000]
 planet:
   name: Exoplanet
   radius: 1 R_earth
@@ -82,7 +81,7 @@ inst:
 psg:
   gcm_binning: 200
   phase_binning: 4
-  use_molecular_signatures: True
+  use_molecular_signatures: False
   nmax: 0
   lmax: 0
   continuum: [Rayleigh, Refraction, CIA_all]

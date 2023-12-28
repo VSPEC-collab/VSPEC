@@ -55,7 +55,7 @@ planet_rad = 2.742*u.R_earth
 orbit_rad = 0.01490*u.AU
 orbit_period = 1.58040433*u.day
 planet_rot_period = orbit_period
-star_rot_period = 50 * u.day
+star_rot_period = 120 * u.day
 planet_mass = 8.17*u.M_earth
 star_mass = 0.178*u.M_sun
 inclination = 88.7*u.deg
@@ -122,7 +122,7 @@ star_kwargs = dict(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    Nlat=500,Nlon=1000
+    grid_params=(500,1000)
 )
 
 quiet_star = params.StarParameters(

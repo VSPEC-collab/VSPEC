@@ -4,7 +4,6 @@ Tests for main.py
 
 import pytest
 from pathlib import Path
-import shutil
 from os import chdir
 from astropy import units as u
 import numpy as np
@@ -59,7 +58,7 @@ def test_get_observation_plan(observation_model:ObservationModel):
     # create observation plan for planet
     observation_plan = observation_model.get_observation_plan(observation_parameters,planet=True)
     expected_N_obs = int((observation_model.params.obs.observation_time / observation_model.params.obs.integration_time \
-        / observation_model.params.psg.phase_binning))
+        / observation_model.params.psg.phase_binning)) + 1
     assert len(observation_plan['time']) == expected_N_obs
 
     # create observation plan for star
