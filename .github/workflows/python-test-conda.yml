@@ -39,5 +39,5 @@ jobs:
       run: |
         conda install pytest
         pip install coveralls
-        coverage run --source=vspec_vsm -m pytest test/pytest test/end_to_end_tests/test1/test_test1.py
+        coverage run --source=vspec_vsm -m pytest test/end_to_end_tests/test1/test_test1.py test/pytest
         coveralls
