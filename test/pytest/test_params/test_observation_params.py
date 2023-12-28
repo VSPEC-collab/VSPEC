@@ -5,7 +5,7 @@ import numpy as np
 from VSPEC.config import flux_unit as default_flux_unit
 from VSPEC.params.base import PSGtable
 from VSPEC.params.observation import BandpassParameters, ObservationParameters,ccdParameters,DetectorParameters,InstrumentParameters
-from VSPEC.params.observation import TelescopeParameters, SingleDishParameters, CoronagraphParameters
+from VSPEC.params.observation import SingleDishParameters, CoronagraphParameters
 
 def test_ObservationParameters_init():
     # Create ObservationParameters with valid values

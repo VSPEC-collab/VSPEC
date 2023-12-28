@@ -6,55 +6,6 @@ from astropy import units as u
 import numpy as np
 
 
-def get_transit_radius(
-    system_distance: u.Quantity,
-    stellar_radius: u.Quantity,
-    semimajor_axis: u.Quantity,
-    planet_radius: u.Quantity
-) -> u.Quantity:
-    """
-    Get the phase radius of a planetary transit.
-
-    Calculate the radius from mid-transit where there is
-    some overlap between the planetary and stellar disk.
-    This is an approximation that asumes a circular orbit
-    and i=90 deg.
-
-    Parameters
-    ----------
-    system_distance : astropy.units.Quantity
-        Heliocentric distance to the host star.
-    stellar_radius : astropy.units.Quantity
-        Radius of the host star.
-    semimajor-axis : astropy.units.Quantity
-        Semimajor axis of the planet's orbit.
-    planet_radius : astropy.units.Quantity
-        Radius of the planet
-
-    Returns
-    -------
-    astropy.units.Quantity
-        The maximum radius from mid-transit where
-        there is stellar and planetary disk overlap
-
-
-    .. deprecated:: 0.1
-        This function is no longer used.
-
-    .. warning::
-        This math is not validated.
-    """
-    radius_over_semimajor_axis = (
-        stellar_radius/semimajor_axis).to_value(u.dimensionless_unscaled)
-    radius_over_distance = (
-        stellar_radius/system_distance).to_value(u.dimensionless_unscaled)
-    angle_point_planet = np.arcsin(radius_over_semimajor_axis*np.cos(
-        radius_over_distance)) - radius_over_distance  # float in radians
-    planet_radius_angle = (
-        planet_radius/(2*np.pi*semimajor_axis)).to_value(u.dimensionless_unscaled)
-    return (angle_point_planet+planet_radius_angle)*u.rad
-
-
 def get_planet_indicies(
     planet_times: u.Quantity,
     tindex: u.Quantity

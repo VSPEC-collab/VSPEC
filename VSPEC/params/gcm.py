@@ -7,10 +7,12 @@ from netCDF4 import Dataset
 from typing import Union
 import yaml
 
+from pypsg import PyConfig
+
 from VSPEC.config import psg_encoding, PRESET_PATH
 from VSPEC.params.base import BaseParameters
 from VSPEC.waccm.read_nc import get_time_index
-from VSPEC.waccm.write_psg import get_cfg_contents
+from VSPEC.waccm.write_psg import get_cfg_contents, get_pycfg as waccm_to_pycfg
 from VSPEC.gcm.planet import Planet
 
 
@@ -68,6 +70,12 @@ class binaryGCM(BaseParameters):
         else:
             with open(self.path, 'rb') as file:
                 return file.read()
+    
+    def to_pycfg(self) -> PyConfig:
+        """
+        Get a `PyConfig` object from the GCM.
+        """
+        return PyConfig.from_bytes(self.content())
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -155,6 +163,33 @@ class waccmGCM(BaseParameters):
                 background=self.background
             )
 
+    def to_pycfg(
+        self,
+        obs_time: u.Quantity
+    ):
+        """
+        Get a `pypsg.PyConfig` representation of the GCM.
+        
+        Parameters
+        ----------
+        obs_time : astropy.units.Quantity
+            The observation time.
+        
+        Returns
+        -------
+        pypsg.PyConfig
+            The PyConfig representation of the GCM.
+        """
+        with Dataset(self.path, 'r', format='NETCDF4') as data:
+            itime = get_time_index(data, obs_time + self.tstart)
+            return waccm_to_pycfg(
+                data=data,
+                itime=itime,
+                molecules=self.molecules,
+                aerosols=self.aerosols,
+                background=self.background
+            )
+    
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
@@ -202,7 +237,15 @@ class vspecGCM(BaseParameters):
             gcm = Planet.from_dict(d)
         )
     def content(self)->bytes:
+        """
+        Get bytes representation.
+        """
         return self.gcm.content
+    def to_pycfg(self):
+        """
+        Get `pypsg.PyConfig` representation.
+        """
+        return self.gcm.pycfg
     @classmethod
     def earth(cls,**kwargs):
         path = PRESET_PATH / 'earth.yaml'
@@ -253,7 +296,20 @@ class gcmParameters(BaseParameters):
         self.mean_molec_weight = mean_molec_weight
 
     def content(self,**kwargs):
+        """
+        Get a bytes representation of the GCM.
+        """
         return self.gcm.content(**kwargs)
+    def to_pycfg(self,**kwargs)->PyConfig:
+        """
+        Get `pypsg.PyConfig` representation of the GCM.
+        
+        Keyword Arguments
+        -----------------
+        obs_time : `astropy.time.Time`
+            The time of the observation. Necessary for a waccm GCM.
+        """
+        return self.gcm.to_pycfg(**kwargs)
     @property
     def is_staic(self)->bool:
         return self.gcm.static
@@ -302,68 +358,6 @@ class gcmParameters(BaseParameters):
         return {
             'ATMOSPHERE-WEIGHT': f'{self.mean_molec_weight:.1f}'
         }
-
-
-class APIkey(BaseParameters):
-    """
-    Class to store a PSG API key.
-    Do not commit your API key to a git repository!
-
-    Parameters
-    ----------
-    path : pathlib.Path, default = None
-        The path to the file containing the API key.
-    value : str, default = None
-        The API key value.
-
-    Attributes
-    ----------
-    value
-    path : pathlib.Path or None
-        The path to the file containing the API key.
-    _value : str or None
-        The API key value.
-
-    """
-
-    def __init__(
-        self,
-        path: Path = None,
-        value: str = None
-    ):
-        self.path = path
-        self._value = value
-
-    @property
-    def value(self):
-        """
-        Get the API key value.
-
-        Returns
-        -------
-        str
-            The API key value.
-
-        """
-
-        if self.path is None:
-            return self._value
-        else:
-            with open(self.path, 'rt', encoding='UTF-8') as file:
-                return file.read()
-
-    @classmethod
-    def _from_dict(cls, d: dict):
-        return cls(
-            path=None if d.get('path', None) is None else Path(
-                d.get('path', None)),
-            value=None if d.get('value', None) is None else str(
-                d.get('value', None))
-        )
-
-    @classmethod
-    def none(cls):
-        return cls(None, None)
 
 
 class psgParameters(BaseParameters):
@@ -428,9 +422,7 @@ class psgParameters(BaseParameters):
         use_molecular_signatures: bool,
         nmax: int,
         lmax: int,
-        continuum: list,
-        url: str,
-        api_key: APIkey
+        continuum: list
     ):
         self.gcm_binning = gcm_binning
         self.phase_binning = phase_binning
@@ -438,8 +430,6 @@ class psgParameters(BaseParameters):
         self.nmax = nmax
         self.lmax=lmax
         self.continuum = continuum
-        self.url = url
-        self.api_key = api_key
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -450,10 +440,7 @@ class psgParameters(BaseParameters):
             nmax=int(d['nmax']),
             lmax=int(d['lmax']),
             continuum = list(d['continuum']),
-            url=str(d['url']),
-            api_key=APIkey.none() if d.get(
-                'api_key', None) is None else APIkey.from_dict(d['api_key'])
-        )
+            )
 
     def to_psg(self):
         """

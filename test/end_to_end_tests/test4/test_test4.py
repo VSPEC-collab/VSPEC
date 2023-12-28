@@ -8,10 +8,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from os import chdir
 from astropy import units as u
+import pypsg
 
 import VSPEC
 
 chdir(Path(__file__).parent)
+
+pypsg.docker.set_url_and_run()
 
 CFG_PATH = Path(__file__).parent / 'test4.yaml'
 FIG_PATH = Path(__file__).parent / 'out.png'

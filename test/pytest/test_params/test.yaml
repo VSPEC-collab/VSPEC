@@ -100,12 +100,9 @@ psg:
   gcm_binning: 3
   phase_binning: 1
   use_molecular_signatures: True
-  url: https://psg.gsfc.nasa.gov
   continuum: [Rayleigh, Refraction, CIA_all]
   nmax: 0
   lmax: 0
-  api_key:
-    path: ~/psg_key.txt
 gcm:
   mean_molec_weight: 28
   binary:
