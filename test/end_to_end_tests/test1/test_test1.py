@@ -6,13 +6,12 @@ The most basic test.
 
 from pathlib import Path
 import matplotlib.pyplot as plt
-from os import chdir
 from astropy import units as u
+import numpy as np
 import pypsg
+import pytest
 
 import VSPEC
-
-chdir(Path(__file__).parent)
 
 pypsg.docker.set_url_and_run()
 
@@ -53,7 +52,41 @@ def make_fig(data:VSPEC.PhaseAnalyzer):
     fig.subplots_adjust(hspace=0.4,wspace=0.4)
     fig.savefig(FIG_PATH,facecolor='w')
 
-def test_run():
+@pytest.fixture
+def data():
+    model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
+    model.build_planet()
+    model.build_spectra()
+    data = VSPEC.PhaseAnalyzer(model.directories['all_model'])
+    return data
+
+def read_data()->VSPEC.PhaseAnalyzer:
+    model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
+    return VSPEC.PhaseAnalyzer(model.directories['all_model'])
+
+@pytest.fixture
+def thermal():
+    path = Path(__file__).parent / 'thermal.npy'
+    dat = np.load(path)
+    return dat*u_flux
+@pytest.fixture
+def total():
+    path = Path(__file__).parent / 'total.npy'
+    dat = np.load(path)
+    return dat*u_flux
+@pytest.fixture
+def noise():
+    path = Path(__file__).parent / 'noise.npy'
+    dat = np.load(path)
+    return dat*u_flux
+
+def test_output(data:VSPEC.PhaseAnalyzer,thermal,total,noise):
+    assert np.all(data.thermal == thermal)
+    assert np.all(data.total == total)
+    assert np.all(data.noise == noise)
+    
+
+def run():
     model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
     model.build_planet()
     model.build_spectra()
@@ -62,4 +95,6 @@ def test_run():
     make_fig(data)
 
 if __name__ in '__main__':
-    test_run()
+    pytest.main(args=[Path(__file__)])
+    data = read_data()
+    make_fig(data)
