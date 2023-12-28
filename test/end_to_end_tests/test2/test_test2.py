@@ -9,8 +9,11 @@ import matplotlib.pyplot as plt
 from os import chdir
 from astropy import units as u
 import numpy as np
+import pypsg
 
 import VSPEC
+
+pypsg.docker.set_url_and_run()
 
 chdir(Path(__file__).parent)
 
