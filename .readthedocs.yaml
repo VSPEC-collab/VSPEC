@@ -4,6 +4,7 @@ build:
   os: ubuntu-22.04
   tools:
     python: "miniconda3-4.7"
+    rust: stable
   jobs:
     post_install:
       - python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
