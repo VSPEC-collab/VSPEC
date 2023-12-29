@@ -109,12 +109,6 @@ Options that are specific to the opperation of PSG/GlobES
 
     psgParameters
 
-.. autosummary::
-    :toctree: ../api
-    :template: custom_template.rst
-
-    APIkey
-
 
 Observation Parameters
 ----------------------
