@@ -6,7 +6,7 @@ build:
     python: "miniconda3-4.7"
   jobs:
     post_install:
-      python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
+      - python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
 
 conda:
   environment: environment-rtd.yml
