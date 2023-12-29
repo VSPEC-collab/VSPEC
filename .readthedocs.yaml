@@ -8,6 +8,6 @@ build:
     - ls
     - wget --no-check-certificate "https://drive.google.com/uc?export=download&id=129Zc3vNmsMrgdDv-Xm2j6-qxYp7xdmMv" -O _readthedocs/0.3.0.zip
     - ls _readthedocs/
-    - unzip _readthedocs/0.3.0.zip -d _readthedocs/html/
+    - unzip _readthedocs/0.3.0.zip -d _readthedocs/
     - ls _readthedocs/
     - ls _readthedocs/html/
