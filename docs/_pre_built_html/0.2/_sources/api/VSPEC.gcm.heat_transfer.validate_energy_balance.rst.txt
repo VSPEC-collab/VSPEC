@@ -1,7 +1,0 @@
-﻿validate_energy_balance
-===============================================
-
-.. currentmodule:: VSPEC.gcm.heat_transfer
-
-.. autofunction:: validate_energy_balance
-

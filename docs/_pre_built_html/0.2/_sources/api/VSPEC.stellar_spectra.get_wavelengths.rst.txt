@@ -1,6 +1,0 @@
-get_wavelengths
-===============
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: get_wavelengths

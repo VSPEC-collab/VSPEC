@@ -1,6 +1,0 @@
-blackbody
-=========
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: blackbody

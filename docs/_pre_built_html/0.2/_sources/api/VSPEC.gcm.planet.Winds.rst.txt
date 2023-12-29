@@ -1,9 +1,0 @@
-﻿Winds
-======================
-
-.. currentmodule:: VSPEC.gcm.planet
-
-.. autoclass:: Winds
-    :show-inheritance:
-    :members:
-

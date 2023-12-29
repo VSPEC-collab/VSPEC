@@ -1,6 +1,0 @@
-get_molecule_suite
-==================
-
-.. currentmodule:: VSPEC.waccm.read_nc
-
-.. autofunction:: get_molecule_suite

@@ -1,7 +1,0 @@
-﻿VSPEC.params.CoronagraphParameters
-==================================
-
-.. autoclass :: VSPEC.params.CoronagraphParameters
-    :show-inheritance:
-    :members:
-

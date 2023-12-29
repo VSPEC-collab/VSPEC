@@ -1,6 +1,0 @@
-BINNED_PHOENIX_PATH
-===================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: BINNED_PHOENIX_PATH

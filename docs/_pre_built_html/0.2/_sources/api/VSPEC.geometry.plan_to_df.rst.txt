@@ -1,6 +1,0 @@
-plan_to_df
-==========
-
-.. currentmodule:: VSPEC.geometry
-
-.. autofunction:: plan_to_df

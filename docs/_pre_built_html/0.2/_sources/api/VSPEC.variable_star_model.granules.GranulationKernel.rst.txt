@@ -1,9 +1,0 @@
-﻿GranulationKernel
-====================================================
-
-.. currentmodule:: VSPEC.variable_star_model.granules
-
-.. autoclass:: GranulationKernel
-    :show-inheritance:
-    :members:
-

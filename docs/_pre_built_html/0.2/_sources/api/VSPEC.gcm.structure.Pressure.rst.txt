@@ -1,9 +1,0 @@
-﻿Pressure
-============================
-
-.. currentmodule:: VSPEC.gcm.structure
-
-.. autoclass:: Pressure
-    :show-inheritance:
-    :members:
-

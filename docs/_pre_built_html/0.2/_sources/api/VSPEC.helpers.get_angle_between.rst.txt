@@ -1,6 +1,0 @@
-get_angle_between
-=================
-
-.. currentmodule:: VSPEC.helpers
-
-.. autofunction:: get_angle_between

@@ -1,6 +1,0 @@
-get_tsurf
-=========
-
-.. currentmodule:: VSPEC.waccm.read_nc
-
-.. autofunction:: get_tsurf

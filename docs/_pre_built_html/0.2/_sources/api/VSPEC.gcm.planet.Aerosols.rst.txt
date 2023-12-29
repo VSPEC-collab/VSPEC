@@ -1,9 +1,0 @@
-﻿Aerosols
-=========================
-
-.. currentmodule:: VSPEC.gcm.planet
-
-.. autoclass:: Aerosols
-    :show-inheritance:
-    :members:
-

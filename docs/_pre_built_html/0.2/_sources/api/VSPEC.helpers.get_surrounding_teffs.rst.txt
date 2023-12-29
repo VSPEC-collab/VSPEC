@@ -1,6 +1,0 @@
-get_surrounding_teffs
-=====================
-
-.. currentmodule:: VSPEC.helpers
-
-.. autofunction:: get_surrounding_teffs

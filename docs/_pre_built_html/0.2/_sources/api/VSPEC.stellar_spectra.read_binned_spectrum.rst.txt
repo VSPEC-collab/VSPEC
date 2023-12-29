@@ -1,6 +1,0 @@
-read_binned_spectrum
-====================
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: read_binned_spectrum

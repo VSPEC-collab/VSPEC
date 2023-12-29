@@ -1,6 +1,0 @@
-call_api_from_file
-==================
-
-.. currentmodule:: VSPEC.psg_api
-
-.. autofunction:: call_api_from_file

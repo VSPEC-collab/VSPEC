@@ -1,9 +1,0 @@
-﻿BaseParameters
-================================
-
-.. currentmodule:: VSPEC.params.base
-
-.. autoclass:: BaseParameters
-    :show-inheritance:
-    :members:
-

@@ -1,6 +1,0 @@
-nlon
-====
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: nlon

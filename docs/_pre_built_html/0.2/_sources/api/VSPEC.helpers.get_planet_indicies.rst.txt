@@ -1,6 +1,0 @@
-get_planet_indicies
-===================
-
-.. currentmodule:: VSPEC.helpers
-
-.. autofunction:: get_planet_indicies

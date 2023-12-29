@@ -1,9 +1,0 @@
-﻿DetectorParameters
-===========================================
-
-.. currentmodule:: VSPEC.params.observation
-
-.. autoclass:: DetectorParameters
-    :show-inheritance:
-    :members:
-

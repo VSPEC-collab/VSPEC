@@ -1,9 +1,0 @@
-﻿FlareCollection
-================================================
-
-.. currentmodule:: VSPEC.variable_star_model.flares
-
-.. autoclass:: FlareCollection
-    :show-inheritance:
-    :members:
-

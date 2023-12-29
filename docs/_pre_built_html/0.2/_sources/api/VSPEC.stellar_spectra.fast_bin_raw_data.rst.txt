@@ -1,6 +1,0 @@
-fast_bin_raw_data
-=================
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: fast_bin_raw_data

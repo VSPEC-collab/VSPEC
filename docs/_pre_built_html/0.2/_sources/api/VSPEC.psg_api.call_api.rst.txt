@@ -1,6 +1,0 @@
-call_api
-========
-
-.. currentmodule:: VSPEC.psg_api
-
-.. autofunction:: call_api

@@ -1,6 +1,0 @@
-get_cfg_params
-==============
-
-.. currentmodule:: VSPEC.waccm.write_psg
-
-.. autofunction:: get_cfg_params

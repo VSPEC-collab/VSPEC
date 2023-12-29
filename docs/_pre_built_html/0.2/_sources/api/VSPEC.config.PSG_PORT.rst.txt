@@ -1,6 +1,0 @@
-PSG_PORT
-========
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: PSG_PORT

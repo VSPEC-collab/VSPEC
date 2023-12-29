@@ -1,7 +1,0 @@
-﻿parse_table
-=============================
-
-.. currentmodule:: VSPEC.params.base
-
-.. autofunction:: parse_table
-

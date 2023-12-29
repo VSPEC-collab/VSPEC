@@ -1,7 +1,0 @@
-﻿VSPEC.params.LimbDarkeningParameters
-====================================
-
-.. autoclass :: VSPEC.params.LimbDarkeningParameters
-    :show-inheritance:
-    :members:
-

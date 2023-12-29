@@ -1,7 +1,0 @@
-﻿VSPEC.params.SingleDishParameters
-=================================
-
-.. autoclass :: VSPEC.params.SingleDishParameters
-    :show-inheritance:
-    :members:
-

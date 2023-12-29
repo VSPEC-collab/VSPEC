@@ -1,6 +1,0 @@
-aerosol_name_dict
-=================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: aerosol_name_dict

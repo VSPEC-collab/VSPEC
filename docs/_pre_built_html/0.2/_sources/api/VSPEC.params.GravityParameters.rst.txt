@@ -1,7 +1,0 @@
-﻿VSPEC.params.GravityParameters
-==============================
-
-.. autoclass :: VSPEC.params.GravityParameters
-    :show-inheritance:
-    :members:
-

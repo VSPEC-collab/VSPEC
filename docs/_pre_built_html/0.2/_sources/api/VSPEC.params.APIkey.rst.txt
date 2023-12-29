@@ -1,7 +1,0 @@
-﻿VSPEC.params.APIkey
-===================
-
-.. autoclass :: VSPEC.params.APIkey
-    :show-inheritance:
-    :members:
-

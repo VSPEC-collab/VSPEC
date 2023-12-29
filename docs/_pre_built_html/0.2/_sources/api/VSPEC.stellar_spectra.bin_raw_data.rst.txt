@@ -1,6 +1,0 @@
-bin_raw_data
-============
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: bin_raw_data

@@ -1,6 +1,0 @@
-psg_pressure_unit
-=================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: psg_pressure_unit

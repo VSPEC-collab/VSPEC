@@ -1,6 +1,0 @@
-read_phoenix
-============
-
-.. currentmodule:: VSPEC.spectra
-
-.. autofunction:: read_phoenix

@@ -1,6 +1,0 @@
-atmosphere_type_dict
-====================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: atmosphere_type_dict

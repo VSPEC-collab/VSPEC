@@ -1,6 +1,0 @@
-nlat
-====
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: nlat

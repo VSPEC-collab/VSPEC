@@ -1,7 +1,0 @@
-﻿VSPEC.params.psgParameters
-==========================
-
-.. autoclass :: VSPEC.params.psgParameters
-    :show-inheritance:
-    :members:
-

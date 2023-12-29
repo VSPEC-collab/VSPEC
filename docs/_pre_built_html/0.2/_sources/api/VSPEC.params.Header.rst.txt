@@ -1,7 +1,0 @@
-﻿VSPEC.params.Header
-===================
-
-.. autoclass :: VSPEC.params.Header
-    :show-inheritance:
-    :members:
-

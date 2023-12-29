@@ -1,6 +1,0 @@
-stellar_area_unit
-=================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: stellar_area_unit

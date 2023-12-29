@@ -1,7 +1,0 @@
-﻿get_t0
-==============================
-
-.. currentmodule:: VSPEC.gcm.heat_transfer
-
-.. autofunction:: get_t0
-

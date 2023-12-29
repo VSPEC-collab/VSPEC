@@ -1,9 +1,0 @@
-﻿CoronagraphParameters
-==============================================
-
-.. currentmodule:: VSPEC.params.observation
-
-.. autoclass:: CoronagraphParameters
-    :show-inheritance:
-    :members:
-

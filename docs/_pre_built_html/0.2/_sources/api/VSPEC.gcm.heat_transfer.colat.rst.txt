@@ -1,7 +1,0 @@
-﻿colat
-=============================
-
-.. currentmodule:: VSPEC.gcm.heat_transfer
-
-.. autofunction:: colat
-

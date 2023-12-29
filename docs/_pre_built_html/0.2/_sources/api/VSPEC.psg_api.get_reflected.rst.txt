@@ -1,6 +1,0 @@
-get_reflected
-=============
-
-.. currentmodule:: VSPEC.psg_api
-
-.. autofunction:: get_reflected
