@@ -5,5 +5,5 @@ build:
   commands:
     - mkdir --parents _readthedocs/
     - cd _readthedocs/
-    - wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=129Zc3vNmsMrgdDv-Xm2j6-qxYp7xdmMv' -O 0.3.0.zip
+    - wget --no-check-certificate "https://drive.google.com/uc?export=download&id=129Zc3vNmsMrgdDv-Xm2j6-qxYp7xdmMv" -O 0.3.0.zip
     - unzip 0.3.0.zip
