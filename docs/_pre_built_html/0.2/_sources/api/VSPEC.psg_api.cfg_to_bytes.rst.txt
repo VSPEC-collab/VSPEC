@@ -1,6 +1,0 @@
-cfg_to_bytes
-============
-
-.. currentmodule:: VSPEC.psg_api
-
-.. autofunction:: cfg_to_bytes

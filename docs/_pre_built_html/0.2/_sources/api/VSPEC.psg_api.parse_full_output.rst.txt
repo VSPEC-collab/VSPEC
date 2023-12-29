@@ -1,6 +1,0 @@
-parse_full_output
-=================
-
-.. currentmodule:: VSPEC.psg_api
-
-.. autofunction:: parse_full_output

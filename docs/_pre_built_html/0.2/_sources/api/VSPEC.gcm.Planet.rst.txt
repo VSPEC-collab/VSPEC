@@ -1,9 +1,0 @@
-﻿Planet
-================
-
-.. currentmodule:: VSPEC.gcm
-
-.. autoclass:: Planet
-    :show-inheritance:
-    :members:
-

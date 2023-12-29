@@ -1,6 +1,0 @@
-validate_variables
-==================
-
-.. currentmodule:: VSPEC.waccm.read_nc
-
-.. autofunction:: validate_variables

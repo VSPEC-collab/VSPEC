@@ -1,26 +1,15 @@
-# .readthedocs.yaml
-# Read the Docs configuration file
-# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-##########
-# Because VSPEC requires PSG installed via docker, the examples use cartopy, among other things,
-# it is much easier to build the docs locally, then upload them to readthedocs. This file does
-# just that for the docs that are saved in docs/_pre_built_html/X/ where X is the verison below.
-#
-# The docs must be placed there manually from docs/build/html/
-# Please only do this for new releases. VSPEC already takes up so much storage.
-#
-# -- Ted Johnson, July 7 2023
-##########
-
-# Required
 version: 2
 
-# Set the version of Python and other tools you might need
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.9"
-  commands:
-    - mkdir --parents _readthedocs/html/
-    - cp --recursive docs/_pre_built_html/0.2/* _readthedocs/html/
+    python: "miniconda3-4.7"
+  jobs:
+    post_install:
+      python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
+
+conda:
+  environment: environment-rtd.yml
+
+sphinx:
+  configuration: docs/source/conf.py

@@ -1,6 +1,0 @@
-build_directories
-=================
-
-.. currentmodule:: VSPEC.files
-
-.. autofunction:: build_directories

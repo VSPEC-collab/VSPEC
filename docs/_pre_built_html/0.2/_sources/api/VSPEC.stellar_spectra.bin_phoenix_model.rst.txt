@@ -1,6 +1,0 @@
-bin_phoenix_model
-=================
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: bin_phoenix_model

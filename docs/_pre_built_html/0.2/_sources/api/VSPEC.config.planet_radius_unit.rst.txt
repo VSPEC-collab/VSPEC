@@ -1,6 +1,0 @@
-planet_radius_unit
-==================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: planet_radius_unit

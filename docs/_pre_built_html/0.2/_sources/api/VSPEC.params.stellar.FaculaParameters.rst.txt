@@ -1,9 +1,0 @@
-﻿FaculaParameters
-=====================================
-
-.. currentmodule:: VSPEC.params.stellar
-
-.. autoclass:: FaculaParameters
-    :show-inheritance:
-    :members:
-

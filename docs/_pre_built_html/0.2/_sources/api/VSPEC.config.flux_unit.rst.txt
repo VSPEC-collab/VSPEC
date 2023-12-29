@@ -1,6 +1,0 @@
-flux_unit
-=========
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: flux_unit

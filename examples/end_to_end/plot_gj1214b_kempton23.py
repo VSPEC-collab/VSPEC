@@ -8,13 +8,13 @@ A phase curve with a long enough baseline can be contaminated by
 stellar variability. We take the phase curve of GJ1214 b, analyzed by :cite:t:`kempton+23`
 using JWST MIRI-LRS, as an example.
 """
-
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from astropy import units as u
-from pathlib import Path
 from cartopy import crs as ccrs
+import pypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC.gcm import GCMdecoder
@@ -22,6 +22,7 @@ from VSPEC import params
 from VSPEC.config import MSH
 
 SEED = 1214
+pypsg.docker.set_url_and_run()
 
 # %%
 # Create the configurations
@@ -43,8 +44,6 @@ psg_params = params.psgParameters(
     nmax=0,
     lmax=0,
     continuum=['Rayleigh', 'Refraction', 'CIA_all'],
-    url='http://localhost:3000',
-    api_key=params.APIkey.none(),
     use_molecular_signatures=True
 )
 

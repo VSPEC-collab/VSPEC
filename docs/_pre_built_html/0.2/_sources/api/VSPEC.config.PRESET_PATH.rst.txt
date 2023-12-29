@@ -1,6 +1,0 @@
-PRESET_PATH
-===========
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: PRESET_PATH

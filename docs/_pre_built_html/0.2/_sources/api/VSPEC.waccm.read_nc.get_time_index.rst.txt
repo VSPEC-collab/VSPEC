@@ -1,6 +1,0 @@
-get_time_index
-==============
-
-.. currentmodule:: VSPEC.waccm.read_nc
-
-.. autofunction:: get_time_index

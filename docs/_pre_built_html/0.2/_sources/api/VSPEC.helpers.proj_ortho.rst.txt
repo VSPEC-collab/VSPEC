@@ -1,6 +1,0 @@
-proj_ortho
-==========
-
-.. currentmodule:: VSPEC.helpers
-
-.. autofunction:: proj_ortho

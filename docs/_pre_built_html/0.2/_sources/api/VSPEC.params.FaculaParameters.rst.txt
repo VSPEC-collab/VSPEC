@@ -1,7 +1,0 @@
-﻿VSPEC.params.FaculaParameters
-=============================
-
-.. autoclass :: VSPEC.params.FaculaParameters
-    :show-inheritance:
-    :members:
-

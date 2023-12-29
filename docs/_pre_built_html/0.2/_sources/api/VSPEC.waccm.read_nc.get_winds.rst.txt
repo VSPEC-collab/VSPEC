@@ -1,6 +1,0 @@
-get_winds
-=========
-
-.. currentmodule:: VSPEC.waccm.read_nc
-
-.. autofunction:: get_winds

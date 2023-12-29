@@ -1,6 +1,0 @@
-get_phoenix_path
-================
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: get_phoenix_path

@@ -1,7 +1,0 @@
-﻿get_equator_curve
-=========================================
-
-.. currentmodule:: VSPEC.gcm.heat_transfer
-
-.. autofunction:: get_equator_curve
-

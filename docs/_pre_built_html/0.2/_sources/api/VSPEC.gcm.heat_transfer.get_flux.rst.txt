@@ -1,7 +1,0 @@
-﻿get_flux
-================================
-
-.. currentmodule:: VSPEC.gcm.heat_transfer
-
-.. autofunction:: get_flux
-

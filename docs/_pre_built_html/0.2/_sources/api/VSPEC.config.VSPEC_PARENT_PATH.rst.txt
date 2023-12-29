@@ -1,6 +1,0 @@
-VSPEC_PARENT_PATH
-=================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: VSPEC_PARENT_PATH

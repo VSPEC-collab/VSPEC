@@ -1,9 +1,0 @@
-﻿SystemParameters
-====================================
-
-.. currentmodule:: VSPEC.params.planet
-
-.. autoclass:: SystemParameters
-    :show-inheritance:
-    :members:
-

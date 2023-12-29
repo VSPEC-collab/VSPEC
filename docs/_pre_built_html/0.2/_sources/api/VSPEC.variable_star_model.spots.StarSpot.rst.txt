@@ -1,9 +1,0 @@
-﻿StarSpot
-========================================
-
-.. currentmodule:: VSPEC.variable_star_model.spots
-
-.. autoclass:: StarSpot
-    :show-inheritance:
-    :members:
-

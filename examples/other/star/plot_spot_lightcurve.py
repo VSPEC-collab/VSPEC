@@ -6,9 +6,9 @@ This example plots the lightcurve caused by a
 spotted photosphere.
 """
 from pathlib import Path
-
 from astropy import units as u
 import matplotlib.pyplot as plt
+import pypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 
@@ -16,6 +16,8 @@ try:
     CFG_PATH = Path(__file__).parent / 'spot_lightcurve.yaml'
 except NameError:
     CFG_PATH = 'spot_lightcurve.yaml'
+
+pypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run

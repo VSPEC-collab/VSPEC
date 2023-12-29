@@ -1,6 +1,0 @@
-MOLEC_DATA_PATH
-===============
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: MOLEC_DATA_PATH

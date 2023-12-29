@@ -1,6 +1,0 @@
-PSG_EXT_URL
-===========
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: PSG_EXT_URL

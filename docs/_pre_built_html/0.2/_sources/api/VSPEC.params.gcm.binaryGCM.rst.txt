@@ -1,9 +1,0 @@
-﻿binaryGCM
-==========================
-
-.. currentmodule:: VSPEC.params.gcm
-
-.. autoclass:: binaryGCM
-    :show-inheritance:
-    :members:
-

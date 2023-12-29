@@ -1,7 +1,0 @@
-﻿VSPEC.params.SystemParameters
-=============================
-
-.. autoclass :: VSPEC.params.SystemParameters
-    :show-inheritance:
-    :members:
-

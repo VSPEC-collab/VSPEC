@@ -1,9 +1,0 @@
-﻿Header
-========================
-
-.. currentmodule:: VSPEC.params.read
-
-.. autoclass:: Header
-    :show-inheritance:
-    :members:
-

@@ -1,6 +1,0 @@
-bin_spectra
-===========
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: bin_spectra

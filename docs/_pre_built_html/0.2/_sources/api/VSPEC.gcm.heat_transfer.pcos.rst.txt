@@ -1,7 +1,0 @@
-﻿pcos
-============================
-
-.. currentmodule:: VSPEC.gcm.heat_transfer
-
-.. autofunction:: pcos
-

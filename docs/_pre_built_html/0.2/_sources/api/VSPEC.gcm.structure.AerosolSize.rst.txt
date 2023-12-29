@@ -1,9 +1,0 @@
-﻿AerosolSize
-===============================
-
-.. currentmodule:: VSPEC.gcm.structure
-
-.. autoclass:: AerosolSize
-    :show-inheritance:
-    :members:
-

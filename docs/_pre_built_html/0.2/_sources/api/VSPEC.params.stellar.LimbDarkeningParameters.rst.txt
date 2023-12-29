@@ -1,9 +1,0 @@
-﻿LimbDarkeningParameters
-============================================
-
-.. currentmodule:: VSPEC.params.stellar
-
-.. autoclass:: LimbDarkeningParameters
-    :show-inheritance:
-    :members:
-

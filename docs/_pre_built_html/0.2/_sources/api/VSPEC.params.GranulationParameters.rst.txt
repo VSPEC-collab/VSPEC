@@ -1,7 +1,0 @@
-﻿VSPEC.params.GranulationParameters
-==================================
-
-.. autoclass :: VSPEC.params.GranulationParameters
-    :show-inheritance:
-    :members:
-

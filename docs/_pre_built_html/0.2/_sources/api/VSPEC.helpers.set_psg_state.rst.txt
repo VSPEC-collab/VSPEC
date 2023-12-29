@@ -1,6 +1,0 @@
-set_psg_state
-=============
-
-.. currentmodule:: VSPEC.helpers
-
-.. autofunction:: set_psg_state

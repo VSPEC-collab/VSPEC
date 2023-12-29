@@ -1,9 +1,0 @@
-﻿SurfaceTemperature
-======================================
-
-.. currentmodule:: VSPEC.gcm.structure
-
-.. autoclass:: SurfaceTemperature
-    :show-inheritance:
-    :members:
-

@@ -1,6 +1,0 @@
-bin_cached_model
-================
-
-.. currentmodule:: VSPEC.stellar_spectra
-
-.. autofunction:: bin_cached_model

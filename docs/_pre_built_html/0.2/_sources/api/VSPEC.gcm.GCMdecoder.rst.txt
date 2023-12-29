@@ -1,9 +1,0 @@
-﻿GCMdecoder
-====================
-
-.. currentmodule:: VSPEC.gcm
-
-.. autoclass:: GCMdecoder
-    :show-inheritance:
-    :members:
-

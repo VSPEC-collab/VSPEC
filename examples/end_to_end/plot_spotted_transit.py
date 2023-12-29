@@ -8,11 +8,11 @@ A transit can change the spot coverage of a star and produce a signal
 that is difficult to distinguish from atmospheric absorption. We aim to simulate
 data from :cite:t:`2023ApJ...948L..11M`.
 """
-
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
-from pathlib import Path
+import pypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
@@ -21,6 +21,7 @@ from VSPEC.config import MSH
 SEED = 10
 PRE_TRANSIT = 8
 IN_TRANSIT = 13
+pypsg.docker.set_url_and_run()
 
 
 
@@ -71,8 +72,6 @@ psg_kwargs = dict(
     nmax=0,
     lmax=0,
     continuum=['Rayleigh', 'Refraction'],
-    url='http://localhost:3000',
-    api_key=params.APIkey.none()
 )
 psg_params = params.psgParameters(
     use_molecular_signatures=True,

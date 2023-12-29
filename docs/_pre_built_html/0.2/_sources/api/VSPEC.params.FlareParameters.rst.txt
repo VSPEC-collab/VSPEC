@@ -1,7 +1,0 @@
-﻿VSPEC.params.FlareParameters
-============================
-
-.. autoclass :: VSPEC.params.FlareParameters
-    :show-inheritance:
-    :members:
-

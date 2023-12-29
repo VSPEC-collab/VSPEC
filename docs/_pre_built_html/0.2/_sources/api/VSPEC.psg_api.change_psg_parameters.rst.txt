@@ -1,6 +1,0 @@
-change_psg_parameters
-=====================
-
-.. currentmodule:: VSPEC.psg_api
-
-.. autofunction:: change_psg_parameters

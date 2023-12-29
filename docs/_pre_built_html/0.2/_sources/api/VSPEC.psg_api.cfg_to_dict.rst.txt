@@ -1,6 +1,0 @@
-cfg_to_dict
-===========
-
-.. currentmodule:: VSPEC.psg_api
-
-.. autofunction:: cfg_to_dict

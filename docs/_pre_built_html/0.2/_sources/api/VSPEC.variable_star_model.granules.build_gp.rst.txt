@@ -1,6 +1,0 @@
-build_gp
-========
-
-.. currentmodule:: VSPEC.variable_star_model.granules
-
-.. autofunction:: build_gp

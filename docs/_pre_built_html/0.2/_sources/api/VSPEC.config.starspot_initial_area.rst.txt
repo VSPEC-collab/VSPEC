@@ -1,6 +1,0 @@
-starspot_initial_area
-=====================
-
-.. currentmodule:: VSPEC.config
-
-.. autodata:: starspot_initial_area
