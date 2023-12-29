@@ -7,7 +7,7 @@ build:
     rust: "1.70"
   jobs:
     post_install:
-      - python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
+      - python -c "import pypsg; import os; pypsg.settings.save_settings(api_key=os.environ.get('PSG_KEY'))"
 
 conda:
   environment: environment-rtd.yml
