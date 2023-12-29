@@ -1,3 +1,7 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools", "wheel"]  # PEP 508 specifications.
+
 [project]
 version = "0.3.0"
 name = "VSPEC"
@@ -64,3 +68,6 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "plot: marks tests as requiring plotting (deselect with '-m \"not plot\"')",
 ]
+
+[tool.setuptools.package-data]
+"*" = ["*.json","*.yaml"]
