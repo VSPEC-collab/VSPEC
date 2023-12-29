@@ -45,7 +45,7 @@ dev = [
 "pytest",
 "pep8",
 "furo==2023.9.10",
-"imagio",
+"imageio",
 "numpydoc",
 "sphinx",
 "sphinx-automodapi",
