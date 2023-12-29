@@ -1,16 +1,9 @@
-version: 2
-
 build:
   os: ubuntu-22.04
   tools:
-    python: "miniconda3-4.7"
-    rust: "1.70"
-  jobs:
-    post_install:
-      - python rtd_setup.py
-
-conda:
-  environment: environment-rtd.yml
-
-sphinx:
-  configuration: docs/source/conf.py
+    python: "3.9"
+  commands:
+    - mkdir --parents _readthedocs/
+    - cd _readthedocs/
+    - wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=129Zc3vNmsMrgdDv-Xm2j6-qxYp7xdmMv' -O 0.3.0.zip
+    - unzip 0.3.0.zip
