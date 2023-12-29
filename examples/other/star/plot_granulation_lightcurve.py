@@ -6,14 +6,16 @@ This example plots the lightcurve effects caused by granulation
 on the surface of a star.
 """
 
+from pathlib import Path
 from astropy import units as u
 import matplotlib.pyplot as plt
-from pathlib import Path
+import pypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 
 SEED = 32
+pypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run parameters
@@ -66,8 +68,6 @@ psg_params = params.psgParameters(
     nmax=0,
     lmax=0,
     continuum=['Rayleigh', 'Refraction', 'CIA_all'],
-    url='http://localhost:3000',
-    api_key=params.APIkey.none()
 )
 instrument = params.InstrumentParameters.niriss_soss()
 

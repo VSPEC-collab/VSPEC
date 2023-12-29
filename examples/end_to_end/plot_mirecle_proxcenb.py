@@ -5,16 +5,17 @@ Observe the MIRECLE Phase Curve of Proxima Centauri b
 This example observes the closest exoplanet with the Mid-Infrared
 Exoplanet CLimate Explorer.
 """
-
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
-from pathlib import Path
+import pypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 
 SEED = 10
+pypsg.docker.set_url_and_run()
 
 
 # %%
@@ -41,9 +42,7 @@ psg_params = params.psgParameters(
     nmax=0,
     lmax=0,
     continuum=['Rayleigh', 'Refraction','CIA_all'],
-    url='http://localhost:3000',
-    api_key=params.APIkey.none()
-)
+    )
 # Star and Planet
 
 star_teff = 2900*u.K

@@ -4,16 +4,19 @@ Plot the spectrum of a transiting planet
 
 This example runs VSPEC with a transiting planet scenario.
 """
-
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-# from os import chdir
-# from pathlib import Path
-# chdir(Path(__file__).parent)
+import pypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 
-CFG_PATH = 'transit_spectrum.yaml'
+try:
+    CFG_PATH = Path(__file__).parent / 'transit_spectrum.yaml'
+except NameError:
+    CFG_PATH = Path('transit_spectrum.yaml')
+
+pypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run

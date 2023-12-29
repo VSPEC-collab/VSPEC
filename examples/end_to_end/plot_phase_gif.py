@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from astropy import units as u
 from imageio.v2 import imread, mimsave
 from cartopy import crs as ccrs
+import pypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC.geometry import SystemGeometry
@@ -20,6 +21,8 @@ try:
     CONFIG_PATH = Path(__file__).parent / 'phase_gif.yaml'
 except NameError:
     CONFIG_PATH = Path('phase_gif.yaml')
+
+pypsg.docker.set_url_and_run()
 
 
 #%%
