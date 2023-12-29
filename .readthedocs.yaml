@@ -3,7 +3,11 @@ build:
   tools:
     python: "3.9"
   commands:
-    - mkdir --parents _readthedocs/
+    - mkdir _readthedocs/
     - cd _readthedocs/
+    - pwd
+    - ls
     - wget --no-check-certificate "https://drive.google.com/uc?export=download&id=129Zc3vNmsMrgdDv-Xm2j6-qxYp7xdmMv" -O 0.3.0.zip
-    - unzip 0.3.0.zip
+    - ls
+    - unzip 0.3.0.zip -d html/
+    - ls
