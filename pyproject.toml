@@ -47,6 +47,7 @@ dependencies = [
 plot = ["matplotlib","cartopy"]
 dev = [
 "pytest",
+"pytest-timeout",
 "pep8",
 "furo==2023.9.10",
 "imageio",
