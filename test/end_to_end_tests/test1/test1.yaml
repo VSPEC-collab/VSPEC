@@ -57,7 +57,7 @@ star:
     dteff: 0 K
   grid_params: 1000
 planet:
-  name: Exoplanet
+  name: prox cen b
   radius: 1 R_earth
   gravity:
     mode: kg

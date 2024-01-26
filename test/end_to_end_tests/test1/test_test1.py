@@ -88,5 +88,4 @@ def run():
 
 if __name__ in '__main__':
     pytest.main(args=[Path(__file__)])
-    data = read_data()
-    make_fig(data)
+    run()
