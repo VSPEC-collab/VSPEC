@@ -964,13 +964,20 @@ class ObservationModel:
         thermal = []
 
         for psg_thermal_path in [psg_thermal_path1, psg_thermal_path2]:
-            thermal_rad = pypsg.PyRad.read(psg_thermal_path, format='fits')
+            thermal_rad: pypsg.PyRad = pypsg.PyRad.read(psg_thermal_path, format='fits')
 
             wavelength.append(thermal_rad.wl)
             try:
-                thermal.append(thermal_rad[self.params.planet.name])
+                planet_name = self.params.planet.name.replace(' ', '-')
+                thermal.append(thermal_rad[planet_name])
             except KeyError:
-                thermal.append(thermal_rad['Thermal'])
+                try:
+                    thermal.append(thermal_rad['Thermal'])
+                except KeyError as err2: # There is something wrong with the planet name. See issue #25
+                    msg = f'Neither "{planet_name}" nor "Thermal" were found in {thermal_rad.colnames}. '
+                    new_issue_url = 'https://github.com/VSPEC-collab/VSPEC/issues/new'
+                    msg += f'If this is a valid planet name, please report this bug at {new_issue_url}'
+                    raise RuntimeError(msg) from err2
 
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
