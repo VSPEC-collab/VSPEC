@@ -71,7 +71,7 @@ class ObservationModel:
         self.verbose = params.header.verbose
         self.build_directories()
         self.rng = np.random.default_rng(self.params.header.seed)
-        self.spec = self.load_spectra()
+        self.spec = None # Load later when needed.
         self.star:vsm.Star = None
         self.bb = ForwardSpectra.blackbody()
 
@@ -214,6 +214,8 @@ class ObservationModel:
         This function applies the solid angle correction.
         """
         teffs = np.atleast_1d(teff.to_value(config.teff_unit))
+        if self.spec is None:
+            self.spec = self.load_spectra()
         return self.spec.evaluate(
             params=(teffs,),
             wl=np.array(self.wl.to_value(config.wl_unit))
