@@ -87,6 +87,6 @@ def run():
     make_fig(data)
 
 if __name__ in '__main__':
-    pytest.main(args=[Path(__file__)])
+    pytest.main(args=[Path(__file__), '--test1'])
     data = read_data()
     make_fig(data)

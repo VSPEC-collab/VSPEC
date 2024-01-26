@@ -40,13 +40,14 @@ dependencies = [
     "requests",
     "pyyaml",
     "pypsg==0.1.2",
-    "vspec-vsm==0.3.3",
+    "vspec-vsm==0.3.5",
     "GridPolator==0.3.2",
 ]
 [project.optional-dependencies]
 plot = ["matplotlib","cartopy"]
 dev = [
 "pytest",
+"pytest-timeout",
 "pep8",
 "furo==2023.9.10",
 "imageio",

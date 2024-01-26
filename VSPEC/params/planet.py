@@ -132,7 +132,9 @@ class PlanetParameters(BaseParameters):
     Parameters
     ----------
     name : str
-        The name of the planet.
+        The name of the planet. Any characters are allowed.
+        If you find that PSG is changing the name internally
+        please submit an issue.
     radius : astropy.units.Quantity
         The radius of the planet.
     gravity : GravityParameters
