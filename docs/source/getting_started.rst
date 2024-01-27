@@ -4,6 +4,9 @@ Getting Started
 .. role:: python(code)
    :language: python
 
+.. role:: bash(code)
+   :language: bash
+
 Most use cases for VSPEC involve this simple workflow:
 
 #. Write a configuration file. For example: ``my_config.yaml``
@@ -14,12 +17,26 @@ Most use cases for VSPEC involve this simple workflow:
     * :python:`>>> model.build_spectra()`
 #. Read the data and analyze.
 
+.. note::
+    ``VSPEC`` must have some way to call the PSG API. We interface with PSG using the
+    ``pypsg`` package. The easiest thing you can do is add to the top of your script
+    :python:`import pypsg; pypsg.docker.set_url_and_run()`. This will check if PSG
+    is installed, start the container if necessary, and set the URL appropriately.
+
+.. note::
+    If you have an API key for PSG you can set it using the ``pypsg`` package. In a terminal type
+    :bash:`$ python -c "import pypsg;pypsg.save_settings(api_key='YOUR_API_KEY')"`. This will save
+    you key to `~/.pypsg/settings.json` where it can be read safely in the future.
+    
+    .. warning::
+        Never commit your API key to a public repository.
+
 Configuration Files
 -------------------
 
 Because the model running portion is so straightforward, most of the 'work' comes from
-writing a good configuration file. These files are usefull because they allow all the
-paramters of a model to be set statically together, but they are nothing more than a YAML
+writing a good configuration file. These files are useful because they allow all the
+paramaters of a model to be set statically together, but they are nothing more than a YAML
 representation of a ``VSPEC.params.InternalParameters`` object. See the :doc:`modules/params`
 page for descriptions of every ``VSPEC`` parameter.
 
@@ -62,9 +79,11 @@ As shown above, running a configured model is very easy.
 
 .. code-block:: python
 
+    import pypsg
+    pypsg.docker.set_url_and_run()
+    
     from VSPEC import ObservationModel
-    from pathlib import Path
-    path = Path('my_config.yaml')
+    path = 'my_config.yaml'
     model = ObservationModel.from_yaml(path)
     # run the model
     model.build_planet()

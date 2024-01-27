@@ -23,44 +23,22 @@ thermal, and transmission spectroscopy as well as the use of a coronagraph for d
 Installation
 ************
 
-``VSPEC`` can be installed via pip from our github repository. In the future,
-stable versions will be on PyPI.
+``VSPEC`` can be installed via pip.
 
 .. code-block:: shell
 
-    pip install git+https://github.com/VSPEC-collab/VSPEC.git@main
+    pip install vspec
 
 
-You can also clone our repository. If you are interested in contributing, please reach out. 
+You can also clone our repository. This would be great if you are interested in contributing. 
 
 .. code-block:: shell
     
     git clone https://github.com/VSPEC-collab/VSPEC.git
     cd VSPEC
-    pip install -e .
+    pip install -e .[dev,plot]
 
-Required dependanceies of ``VSPEC`` include ``numpy``, ``pandas``, ``matplotlib``, ``scipy``,
-``astropy``, ``tqdm``, ``h5py``, and ``xoflares``.
-
-The ``cartopy`` package is optional, but is necessary for some built-in plotting funcitonality.
-
-``xoflares`` is the only non-standard python package that ``VSPEC`` requires, and there are a
-number of ways to install it depending on your python version. One option is to clone it to your
-local machine:
-
-.. code-block:: shell
-    
-    git clone https://github.com/mrtommyb/xoflares.git@master
-    cd xoflares
-    pip install -e .
-
-However, since we only utilize a small portion of ``xoflares`` (which is designed to integrate
-into the ``exoplanet`` package), it is also possible to install a stripped-down
-branch that only contains the imports and functions that ``VSPEC`` requires:
-
-.. code-block:: shell
-
-    pip install git+https://github.com/tedjohnson12/xoflares.git@numpy-only
+Note that adding ``[dev,plot]`` will install additional dependecies for development and plotting.
 
 
 Running PSG
@@ -99,8 +77,3 @@ though local port ``3000``.
 .. note::
     Users who wish to run simulations with resolving powers higher than ``R=500`` must
     install the CORRKMEDMAIN package (up to ``R=5000``).
-
-.. warning::
-    Recent updates to the Docker engine required the PSG binaries to be split into hardware-dependent
-    versions. ``VSPEC`` has been tested almost completely using an Apple M1/M2 chip, but it is expected to
-    work on Windows/Linux machines using AMD.
