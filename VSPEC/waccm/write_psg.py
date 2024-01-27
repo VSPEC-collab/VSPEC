@@ -183,7 +183,7 @@ def get_pycfg(
         atmosphere=pypsg.cfg.EquilibriumAtmosphere.from_cfg(params),
         gcm=GCM(
             header=params['ATMOSPHERE-GCM-PARAMETERS'],
-            dat=buffer.getvalue()
+            dat=np.frombuffer(buffer.getvalue(),dtype='float32'),
         )
     )
     

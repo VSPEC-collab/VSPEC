@@ -124,6 +124,11 @@ def get_t0(
     """
     return (star_teff * (1-albedo)**0.25 * np.sqrt(r_star/r_orbit)).to(u.K)
 
+class EquatorSolverWarning(RuntimeWarning):
+    """
+    Warning to tell the user to use a different solver.
+    """
+
 
 def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
     """
@@ -171,13 +176,15 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
     def get_lons(n):
         return np.linspace(-np.pi,np.pi,n)
     def func(phi,T):
-        return (pcos(phi) - T**4)/epsilon
+        with np.errstate(over='ignore'):
+            return (pcos(phi) - T**4)/epsilon
     def minus_func(phi,T):
-        return -(pcos(phi) - T**4)/epsilon
+        with np.errstate(over='ignore'):
+            return -(pcos(phi) - T**4)/epsilon
     if mode == 'ivp_reflect':
         if epsilon > 1:
             msg = 'Using method `ivp_reflect` with `epsilon` > 1. Energy balance may be invalid.'
-            warnings.warn(msg,RuntimeWarning)
+            warnings.warn(msg,EquatorSolverWarning)
         lons = get_lons(n_points)
         y0 = np.atleast_1d(1)
         result = solve_ivp(minus_func,(np.pi,-np.pi),y0=y0)
@@ -190,7 +197,7 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
     elif mode == 'bvp':
         if epsilon < 1:
             msg = 'Using method `bvp` with `epsilon` < 1. Energy balance may be invalid.'
-            warnings.warn(msg,RuntimeWarning)
+            warnings.warn(msg,EquatorSolverWarning)
         lons = get_lons(n_points)
         def bfunc(phi,T):
             return np.vstack((func(phi,T)))
@@ -202,7 +209,7 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
     elif mode == 'ivp_iterate':
         if epsilon > 0.5:
             msg = 'Using method `ivp_iterate` with `epsilon` > 0.5. Energy balance may be invalid.'
-            warnings.warn(msg,RuntimeWarning)
+            warnings.warn(msg,EquatorSolverWarning)
         lons = get_lons(n_points)
         y0 = np.atleast_1d(0.5)
         for _ in range(10):
@@ -215,7 +222,7 @@ def get_equator_curve(epsilon:float,n_points:int,mode:str='ivp_reflect'):
     elif mode == 'analytic':
         if epsilon < 10:
             msg = 'Using method `analytic` with `epsilon` < 10. Energy balance may be invalid.'
-            warnings.warn(msg,RuntimeWarning)
+            warnings.warn(msg,EquatorSolverWarning)
         lons = get_lons(n_points)
         lon_prime = np.where(lons<-np.pi/2,lons+2*np.pi,lons)
         T_tild0 = np.pi**(-0.25)
@@ -264,7 +271,8 @@ class TemperatureMap:
     def eval(
         self,
         lon:u.Quantity,
-        lat:u.Quantity
+        lat:u.Quantity,
+        alpha: float
     )->u.Quantity:
         """
         Evaluate the temperature map at a point of points.
@@ -275,15 +283,75 @@ class TemperatureMap:
             The longitude of the points to evaluate.
         lat : astropy.units.Quantity
             The latitude of the points to evaluate.
+        alpha : float
+            The temperature ratio between the pole and the equator
 
         Returns
         -------
         astropy.units.Quantity
             The surface temperature at the desired points.
+        
+        Notes
+        -----
+        The following math was done by Ted Johnson on 2024-01-26.
+        The goal is to add a parameter in to account for latitudinal
+        mixing. Here is my setup for the problem:
+        
+        .. math::
+            f(x,\\alpha) ~\\text{is the temperature as a function of latitude}
+        
+        Where :math:`\\alpha` is defined such that :math:`f(\\pi/2,\\alpha) = \\alpha f(0,\\alpha)`.
+        
+        The flux at the surface is then :math:`(f(x,\\alpha))^4`. Due to the polar coordinate
+        system the relative area is :math:`\\cos{x}`
+        
+        We can then say that because of the Stephan-Boltzmann law, the following
+        quantity is invarient:
+        
+        .. math::
+            I = \\int_{0}^{\\pi/2} (f(x,\\alpha) \\cos{x})^4 dx
+        
+        We also know that in the case of no latitudinal mixing, the temperature is:
+        
+        .. math::
+            f(x,0) = \\cos(x)^{1/4}
+        
+        We can plug this in to the integral to see
+        
+        .. math::
+            I = \\int_{0}^{\\pi/2} (\\cos(x)^{1/4} \\cos{x})^4 dx \\\\
+                = \\int_{0}^{\\pi/2} (\\cos{x})^5 dx \\\\
+                = \\frac{8}{15}
+        
+        We can then look at the other limit. Let :math:`T_0` be the temperature
+        at which the equator and pole are equal. Then the temperature is
+        
+        .. math::
+            f(x,1) = T_0
+        
+        And the integral is
+        
+        .. math::
+            I = \\int_{0}^{\\pi/2} (T_0 \\cos{x})^4 dx = \\frac{8}{15}
+        
+        With the knowledge that :math:`\\int_{0}^{\\pi/2} (\\cos{x})^4 dx = \\frac{3\\pi}{16}`
+        we find that:
+        
+        .. math::
+            T_0 = \\left(\\frac{2^7}{45\\pi}\\right)^{1/4} \\\\
+                = 0.9754654591261265
+        
+        We then can create a general equation for the temperature:
+        
+        .. math::
+            f(x,\\alpha) = T_0 \\alpha + (1-\\alpha) \\cos(x)^{1/4}
         """
         if isinstance(lon,u.Quantity):
             lon = get_psi(lon)
-        tmap = self.equator(lon)*np.cos(lat)**0.25 * self.t0
+        if alpha < 0 or alpha > 1:
+            raise ValueError(f'alpha must be between 0 and 1, got {alpha}')
+        T_0 = (2**7/45/np.pi)**0.25 # see docstring
+        tmap = self.t0*self.equator(lon)*(T_0*alpha + (1-alpha)*np.cos(lat)**0.25)
         tmap:u.Quantity = np.where(tmap > self.min_temp,tmap,self.min_temp)
         return tmap
     @classmethod
@@ -315,7 +383,7 @@ class TemperatureMap:
         t0 = get_t0(star_teff,albedo,r_star,r_orbit)
         return cls(epsilon,t0)
 
-def validate_energy_balance(
+def energy_balance_error(
     tmap:u.Quantity,
     lons:np.ndarray,
     lats:np.ndarray,
@@ -323,7 +391,7 @@ def validate_energy_balance(
     albedo:float,
     r_star:u.Quantity,
     r_orbit:u.Quantity
-)->bool:
+)->float:
     """
     Validate the energy balance.
 
@@ -346,8 +414,8 @@ def validate_energy_balance(
 
     Returns
     -------
-    bool
-        True if the energy is balanced to within 1%.
+    float
+        The fractional error of the energy balance.
     """
     r_planet = 1*u.R_earth # for units. This will divide out later.
     incident_flux = get_flux(star_teff,r_star,r_orbit) # W/m2
@@ -364,7 +432,4 @@ def validate_energy_balance(
     integrand = tmap**4 * jacobian
     outbound_flux = (c.sigma_sb * dlon * dlat * np.sum(integrand)).to(u.Unit('W m-2'))
     eq_outbound_flux = np.sum(c.sigma_sb * mean_T**4 * jacobian * dlon*dlat)
-    if np.abs(eq_outbound_flux-outbound_flux)/eq_outbound_flux < 1e-2:
-        return True
-    else:
-        return False
+    return (eq_outbound_flux-outbound_flux)/eq_outbound_flux

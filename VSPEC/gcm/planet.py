@@ -520,7 +520,8 @@ class Planet:
             star_teff=u.Quantity(d['planet']['teff_star']),
             albedo=float(d['planet']['albedo']),
             r_star=u.Quantity(d['planet']['r_star']),
-            r_orbit=u.Quantity(d['planet']['r_orbit'])
+            r_orbit=u.Quantity(d['planet']['r_orbit']),
+            lat_redistribution=float(d['planet']['lat_redistribution'])
         )
         pressure = st.Pressure.from_limits(
             high=u.Quantity(d['planet']['pressure']['psurf']),

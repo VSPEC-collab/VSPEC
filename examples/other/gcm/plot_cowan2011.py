@@ -37,7 +37,7 @@ lons = np.linspace(-180,180,90,endpoint=False)*u.deg
 lats = np.linspace(-90,90,46,endpoint=True)*u.deg
 
 longrid,latgrid = np.meshgrid(lons,lats)
-data = tmap.eval(lon=longrid,lat=latgrid)
+data = tmap.eval(lon=longrid,lat=latgrid,alpha=0)
 
 fig = plt.figure()
 proj = ccrs.Robinson(central_longitude=0)

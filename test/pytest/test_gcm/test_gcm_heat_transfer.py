@@ -1,7 +1,7 @@
 """
 
 """
-
+import warnings
 from pathlib import Path
 from astropy import units as u
 import numpy as np
@@ -46,7 +46,9 @@ def test_equation_curve():
     epsilons = [0.1,2,0.1,30]
     n_steps = 30
     for mode,eps in zip(modes,epsilons):
-        lon,temp = ht.get_equator_curve(eps,n_steps,mode)
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore',category=ht.EquatorSolverWarning)
+            lon,temp = ht.get_equator_curve(eps,n_steps,mode)
         assert lon[0] == pytest.approx(-np.pi,abs=1e-6)
         assert lon[-1] == pytest.approx(np.pi,abs=1e-6)
         assert len(lon) == len(temp), f'mismatched steps for mode {mode}'
@@ -67,7 +69,9 @@ def test_equation_diagnostic():
         dat = []
         for e in eps:
             try:
-                lon,temp = ht.get_equator_curve(e,180,mode)
+                with warnings.catch_warnings():
+                    warnings.filterwarnings('ignore')
+                    lon,temp = ht.get_equator_curve(e,180,mode)
                 avg = np.mean(temp**4)**0.25
                 dat.append(avg)
             except RuntimeError:
@@ -92,7 +96,7 @@ def test_temp_map():
     lats = np.linspace(-np.pi/2,np.pi/2,20)
     0
     llons,llats = np.meshgrid(lons,lats)
-    t = tmap.eval(llons,llats)
+    t = tmap.eval(llons,llats,0.01)
     plt.pcolormesh(lons,lats,t.value)
     0
     eps = 6
@@ -103,7 +107,7 @@ def test_temp_map():
     tmap = ht.TemperatureMap.from_planet(
         eps,star_teff,albedo,r_star,r_orbit
     )
-    t = tmap.eval(llons,llats)
+    t = tmap.eval(llons,llats,0.99)
     plt.pcolormesh(lons,lats,t.value)
     0
 if __name__ in '__main__':

@@ -224,6 +224,7 @@ class vspecGCM(BaseParameters):
                 'r_star': star_dict['radius'],
                 'r_orbit': planet_dict['semimajor_axis'],
                 'gamma': gcm_dict['gamma'],
+                'lat_redistribution': gcm_dict['lat_redistribution'],
                 'pressure':{
                     'psurf': gcm_dict['psurf'],
                     'ptop': gcm_dict['ptop']

@@ -1,11 +1,12 @@
 """
 VSPEC GCM structure
 """
+import warnings
 from astropy import units as u
 
 import numpy as np
 
-from VSPEC.gcm.heat_transfer import TemperatureMap, validate_energy_balance
+from VSPEC.gcm.heat_transfer import TemperatureMap, energy_balance_error
 
 
 class Variable:
@@ -329,7 +330,8 @@ class SurfaceTemperature(Variable):
         star_teff:u.Quantity,
         albedo:float,
         r_star:u.Quantity,
-        r_orbit:u.Quantity
+        r_orbit:u.Quantity,
+        lat_redistribution: float
     ):
         """
         Creates a SurfaceTemperature object from a temperature map.
@@ -348,11 +350,19 @@ class SurfaceTemperature(Variable):
             The radius of the star.
         r_orbit : astropy.units.Quantity
             The orbital radius of the planet.
+        lat_redistribution : float
+            The latitudinal redistribution factor. This number is the
+            ratio between the polar and equitorial temperature.
 
         Returns
         -------
         SurfaceTemperature
             A `SurfaceTemperature` object with the surface temperature values generated from the temperature map.
+        
+        Warns
+        -----
+        RuntimeWarning
+            If the energy balance of the temperature map is off by more than 1%
         
         Notes
         -----
@@ -370,13 +380,14 @@ class SurfaceTemperature(Variable):
         lons = np.linspace(-np.pi,np.pi,nlon,endpoint=False)
         lats = np.linspace(-np.pi/2,np.pi/2,nlat,endpoint=True)
         llats,llons = np.meshgrid(lats,lons)
-        dat = tmap.eval(llons,llats)
+        dat = tmap.eval(llons,llats,lat_redistribution)
 
-        is_valid = validate_energy_balance(
+        balance_err = energy_balance_error(
             dat,lons,lats,star_teff,albedo,r_star,r_orbit
         )
-        if not is_valid:
-            raise ValueError('Energy balance off by more than 1%. Generally, this is caused by low spatial sampling')
+        if np.abs(balance_err) > 0.01:
+            msg = f'Energy balance off by {100*balance_err:.1f} %. eps = {epsilon}, T0 = {lat_redistribution}'
+            warnings.warn(msg,RuntimeWarning)
 
         return cls(dat)
 

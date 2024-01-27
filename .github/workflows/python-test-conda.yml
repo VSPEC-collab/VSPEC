@@ -39,7 +39,8 @@ jobs:
         PSG_KEY: ${{ secrets.PSG_API_KEY }}
       run: |
         conda install pytest
+        pip install pytest-timeout
         pip install coveralls
         python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
-        coverage run --source=VSPEC -m pytest --test1 test/end_to_end_tests/test1/test_test1.py test/pytest
+        coverage run --source=VSPEC -m pytest --timeout=1000 --test1 test/end_to_end_tests/test1/test_test1.py test/pytest
         coveralls

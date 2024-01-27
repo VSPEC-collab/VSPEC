@@ -96,6 +96,7 @@ gcm_dict = {
     'epsilon': 6,
     'albedo': 0.3,
     'emissivity': 1.0,
+    'lat_redistribution': 0.1,
     'gamma': 1.4,
     'psurf': 1*u.bar,
     'ptop': 1e-5*u.bar,
@@ -250,7 +251,7 @@ def plot_lc(data:PhaseAnalyzer):
     t = (data.time-data.time[0]).to_value(u.hr)
 
     n_steps = 10
-    colors = mpl.cm.viridis
+    colors = plt.get_cmap('viridis')
     indices = np.arange(start=0,stop=data.N_images,step=data.N_images//n_steps)
 
     for index in indices:
