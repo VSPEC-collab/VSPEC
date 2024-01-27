@@ -3,7 +3,7 @@
 requires = ["setuptools", "wheel"]  # PEP 508 specifications.
 
 [project]
-version = "0.3.0"
+version = "0.4.0"
 name = "VSPEC"
 authors = [
     { name = "Ted Johnson", email = "ted.johnson@unlv.edu" },
