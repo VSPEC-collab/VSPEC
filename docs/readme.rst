@@ -11,6 +11,10 @@
 .. |MIT license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://lbesson.mit-license.org/
 
+.. image:: https://coveralls.io/repos/github/VSPEC-collab/VSPEC/badge.svg?branch=main
+   :target: https://coveralls.io/github/VSPEC-collab/VSPEC?branch=main
+
+
 
 VSPEC: Variable Star PhasE Curve
 ================================
