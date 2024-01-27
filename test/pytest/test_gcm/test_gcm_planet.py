@@ -39,7 +39,7 @@ def test_aerosols():
 def default_planet():
     shape3d = (10,30,20)
     shape2d = (30,20)
-    tsurf = st.SurfaceTemperature.from_map(shape2d,0.001,5800*u.K,0.3,1*u.R_sun,1*u.AU)
+    tsurf = st.SurfaceTemperature.from_map(shape2d,0.001,5800*u.K,0.3,1*u.R_sun,1*u.AU,0)
     press = st.Pressure.from_limits(1*u.bar,1e-5*u.bar,shape3d)
     planet = pl.Planet(
         wind = pl.Winds(
@@ -66,7 +66,7 @@ def default_planet():
 def test_planet():
     shape3d = (10,30,20)
     shape2d = (30,20)
-    tsurf = st.SurfaceTemperature.from_map(shape2d,6,5800*u.K,0.3,1*u.R_sun,1*u.AU)
+    tsurf = st.SurfaceTemperature.from_map(shape2d,6,5800*u.K,0.3,1*u.R_sun,1*u.AU,1)
     press = st.Pressure.from_limits(1*u.bar,1e-5*u.bar,shape3d)
     planet = pl.Planet(
         wind = pl.Winds(
@@ -104,6 +104,7 @@ def test_planet_from_dict():
             'r_star': '1 R_sun',
             'r_orbit': '1 AU',
             'gamma': '1.4',
+            'lat_redistribution': '0.1',
             'pressure':{
                 'psurf': '1 bar',
                 'ptop': '1e-5 bar'

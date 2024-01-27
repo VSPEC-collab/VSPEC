@@ -62,7 +62,8 @@ def test_surface_temperature():
         star_teff=star_teff,
         albedo = albedo,
         r_star=r_star,
-        r_orbit=r_orbit
+        r_orbit=r_orbit,
+        lat_redistribution=0.9
     )
     assert tsurf.dat.shape==shape
     plt.imshow(tsurf.dat.value)
@@ -82,7 +83,8 @@ def test_temperature():
         star_teff=star_teff,
         albedo = albedo,
         r_star=r_star,
-        r_orbit=r_orbit
+        r_orbit=r_orbit,
+        lat_redistribution=0.5
     )
     pressure = st.Pressure.from_limits(1*u.bar,1e-5*u.bar,shape=(50,300,200))
     gamma = 1.4

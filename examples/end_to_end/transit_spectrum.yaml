@@ -98,6 +98,7 @@ gcm:
     gamma: 1.4
     albedo: 0.3
     emissivity: 1.0
+    lat_redistribution: 0.7
     psurf: 1 bar
     ptop: 1e-7 bar
     wind:
