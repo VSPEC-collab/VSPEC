@@ -132,10 +132,6 @@ psg_encoding = 'UTF-8'
 Default encoding for files from PSG.
 
 :type: str
-
-.. depricated::
-    This may not be needed now that we recieve data from PSG as bytes.
-    I should check.
 """
 
 PSG_PORT = 3000

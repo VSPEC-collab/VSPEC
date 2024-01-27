@@ -86,4 +86,4 @@ data products, which already live in the directory ``model.dirs['all_model']``.
     from VSPEC import PhaseAnalyzer
     data = PhaseAnalyzer(model.directories['all_model'])
 
-See the :doc:`auto_examples/index` page for real use cases.
+See the :doc:`auto_examples/end_to_end/index` page for real use cases.

@@ -2,6 +2,7 @@
 VSPEC GCM structure
 """
 import warnings
+from typing import Tuple
 from astropy import units as u
 
 import numpy as np
@@ -54,7 +55,7 @@ class Variable:
         self.psg_unit = psg_unit
         self.dat = dat
     @property
-    def flat(self)->np.array:
+    def flat(self)->np.ndarray:
         """
         Get a flattened version of the array.
         
@@ -65,7 +66,7 @@ class Variable:
 
         Returns
         -------
-        np.array
+        numpy.ndarray
             The flattened array.
         """
         if self.dat.ndim == 1:
@@ -76,7 +77,7 @@ class Variable:
             axes = (1,2)
         return np.swapaxes(self.dat.to_value(self.psg_unit).astype('float32'),*axes).flatten('C')
     @property
-    def shape(self)->tuple:
+    def shape(self)->Tuple[int,...]:
         """
         Get the shape of the data.
 

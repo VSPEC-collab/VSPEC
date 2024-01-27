@@ -305,9 +305,9 @@ class gcmParameters(BaseParameters):
         """
         Get `pypsg.PyConfig` representation of the GCM.
         
-        Keyword Arguments
-        -----------------
-        obs_time : `astropy.time.Time`
+        Parameters
+        ----------
+        obs_time : astropy.time.Time, optional
             The time of the observation. Necessary for a waccm GCM.
         """
         return self.gcm.to_pycfg(**kwargs)

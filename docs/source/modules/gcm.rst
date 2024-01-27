@@ -35,7 +35,7 @@ Energy Balance and Heat Transport
     colat
     get_t0
     get_equator_curve
-    validate_energy_balance
+    energy_balance_error
 
 
 

@@ -329,7 +329,7 @@ class FaculaParameters(BaseParameters):
     mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
     logsigma_radius : float
-        The standard deviation of :math:`\\log{r_{0}}.
+        The standard deviation of :math:`\\log{r_{0}}`.
     depth : astropy.units.Quantity
         The depth of the facula depression.
     mean_timescale : astropy.units.Quantity
@@ -360,7 +360,7 @@ class FaculaParameters(BaseParameters):
     mean_radius : astropy.units.Quantity
         The mean radius of the faculae.
     logsigma_radius : float
-        The standard deviation of :math:`\\log{r_{0}}.
+        The standard deviation of :math:`\\log{r_{0}}`.
     depth : astropy.units.Quantity
         The depth of the facula depression.
     mean_timescale : astropy.units.Quantity
