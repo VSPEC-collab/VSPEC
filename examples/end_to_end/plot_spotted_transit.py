@@ -157,6 +157,7 @@ gcm_dict = {
     'epsilon': 100,
     'albedo': 0.3,
     'emissivity': 1.0,
+    'lat_redistribution': 0.0,
     'gamma': 1.0,
     'psurf': 1*u.bar,
     'ptop': 1e-10*u.bar,

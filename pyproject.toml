@@ -48,6 +48,7 @@ plot = ["matplotlib","cartopy"]
 dev = [
 "pytest",
 "pytest-timeout",
+"pandas",
 "pep8",
 "furo==2023.9.10",
 "imageio",
