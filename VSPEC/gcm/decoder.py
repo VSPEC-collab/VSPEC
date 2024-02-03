@@ -47,11 +47,31 @@ def sep_header(header):
     return coords,var
 
 class GCMdecoder:
+    """
+    A python object to make sense of the PSG GCM format.
+    
+    Parameters
+    ----------
+    header : str
+        The value of the 'ATMOSPHERE-GCM-PARAMETERS' field.
+    dat : np.ndarray
+        The data between '<BINARY></BINARY>' tags.
+    
+    Notes
+    -----
+    In most GCMs, this class can compute the mean molecular mass at each point.
+    However, there are cases where perhapse a background gas is assumed by PSG,
+    so it is not explicitly stated in the GCM. In this case, it is necessary
+    to set the molecular mass manually. You can do this by setting the 
+    ``_mean_molec_mass`` attribute after initialization. It expects a float. 
+    
+    """
     DOUBLE = ['Winds']
     FLAT = ['Tsurf','Psurf','Albedo','Emissivity']
     def __init__(self,header,dat):
         self.header=header
         self.dat=dat
+        self._mean_molec_mass = None
     @classmethod
     def from_psg(cls,config:str or Path or bytes):
         """
@@ -263,9 +283,12 @@ class GCMdecoder:
         """
         Get the mean molecular mass at every point on the GCM
         """
+        Nlon,Nlat,Nlayer = self.get_shape()
+        if self._mean_molec_mass is not None:
+            return np.ones(shape=(Nlayer,Nlat,Nlon))*self._mean_molec_mass * u.g/u.mol
         with open(MOLEC_DATA_PATH, 'rt',encoding='UTF-8') as file:
             molec_data = json.loads(file.read())
-        Nlon,Nlat,Nlayer = self.get_shape()
+        
         mean_molec_mass = np.zeros(shape=(Nlayer,Nlat,Nlon))*u.g/u.mol
         for mol, dat in molec_data.items():
             mass = dat['mass']
