@@ -71,7 +71,7 @@ class ObservationModel:
         self.verbose = params.header.verbose
         self.build_directories()
         self.rng = np.random.default_rng(self.params.header.seed)
-        self.spec = None # Load later when needed.
+        self.spec:GridSpectra | ForwardSpectra = None # Load later when needed.
         self.star:vsm.Star = None
         self.bb = ForwardSpectra.blackbody()
 
@@ -167,17 +167,20 @@ class ObservationModel:
         VSPEC.spectra.GridSpec
             The spectal grid object to draw stellar spectra from.
         """
-        teffs = arrange_teff(
-            self.params.header.teff_min,
-            self.params.header.teff_max
-        )
-        spec = GridSpectra.from_vspec(
-            w1=self.params.inst.bandpass.wl_blue,
-            w2=self.params.inst.bandpass.wl_red,
-            resolving_power=self.params.inst.bandpass.resolving_power,
-            teffs=teffs
-        )
-        return spec
+        if self.params.star.spectral_grid == 'default':
+            teffs = arrange_teff(
+                self.params.header.teff_min,
+                self.params.header.teff_max
+            )
+            spec = GridSpectra.from_vspec(
+                w1=self.params.inst.bandpass.wl_blue,
+                w2=self.params.inst.bandpass.wl_red,
+                resolving_power=self.params.inst.bandpass.resolving_power,
+                teffs=teffs
+            )
+            return spec
+        elif self.params.star.spectral_grid == 'bb':
+            return ForwardSpectra.blackbody()
 
     @property
     def wl(self):
@@ -213,13 +216,19 @@ class ObservationModel:
         -----
         This function applies the solid angle correction.
         """
-        teffs = np.atleast_1d(teff.to_value(config.teff_unit))
         if self.spec is None:
             self.spec = self.load_spectra()
-        return self.spec.evaluate(
-            params=(teffs,),
-            wl=np.array(self.wl.to_value(config.wl_unit))
-        )[0,:] * config.flux_unit * self.params.flux_correction
+        
+        match self.params.star.spectral_grid:
+            case 'default':
+                teffs = np.atleast_1d(teff.to_value(config.teff_unit))
+                return self.spec.evaluate(
+                    params=(teffs,),
+                    wl=np.array(self.wl.to_value(config.wl_unit))
+                )[0,:] * config.flux_unit * self.params.flux_correction
+            case 'bb':
+                self.spec: ForwardSpectra
+                return self.spec.evaluate(self.wl, teff) * self.params.flux_correction
 
     def get_observation_parameters(self) -> SystemGeometry:
         """

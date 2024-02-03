@@ -6,7 +6,6 @@ import pytest
 from pathlib import Path
 from os import chdir
 from astropy import units as u
-import numpy as np
 
 from VSPEC.main import ObservationModel
 from VSPEC.params.read import InternalParameters

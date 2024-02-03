@@ -769,10 +769,16 @@ class StarParameters(BaseParameters):
         The parameters of the flares on the star.
     granulation : GranulationParameters
         The parameters of the granulation on the star.
-    Nlat : int
-        Number of latitudes in the stellar surface.
-    Nlon : int
-        Number of longitudes in the stellar surface.
+    grid_params : tuple or int
+        The parameters for the grid. If tuple, we use a rectangular
+        grid (Nlat, Nlon). If int, we use a spiral grid with
+        `grid_params` points evenly spaced.
+    spectral_grid : str
+        The grid of stellar spectra to use. Currently only
+        ``default`` and ``bb`` are supported. Use ``default``
+        in general, but if you want efficiency and only care about
+        the absolute spectrum of the planet, ``bb`` is recommended
+        as it can cut the runtime in half.
     
     Attributes
     ----------
@@ -800,10 +806,10 @@ class StarParameters(BaseParameters):
         The parameters of the flares on the star.
     granulation : GranulationParameters
         The parameters of the granulation on the star.
-    Nlat : int
-        Number of latitudes in the stellar surface.
-    Nlon : int
-        Number of longitudes in the stellar surface.
+    grid_params : tuple or int
+        The parameters for the grid.
+    spectral_grid : str
+        The grid of stellar spectra to use.
     """
 
     def __init__(
@@ -821,6 +827,7 @@ class StarParameters(BaseParameters):
         flares: FlareParameters,
         granulation: GranulationParameters,
         grid_params: tuple,
+        spectral_grid: str
     ):
         self.psg_star_template = psg_star_template
         self.teff = teff
@@ -835,6 +842,7 @@ class StarParameters(BaseParameters):
         self.flares = flares
         self.granulation = granulation
         self.grid_params = grid_params
+        self.spectral_grid = spectral_grid
     @classmethod
     def from_dict(cls, d: dict):
         """
@@ -870,6 +878,7 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.from_dict(d['flares']),
             granulation=GranulationParameters.from_dict(d['granulation']),
             grid_params=grid_params,
+            spectral_grid=str(d['spectral_grid'])
         )
     def to_psg(self)->dict:
         """
@@ -906,6 +915,7 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
             grid_params=(500, 1000),
+            spectral_grid='default'
         )
 
     @classmethod
@@ -927,6 +937,7 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
             grid_params=(500, 1000),
+            spectral_grid='default'
         )
 
     @classmethod
@@ -948,6 +959,7 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.std(),
             granulation=GranulationParameters.none(),
             grid_params=(500, 1000),
+            spectral_grid='default'
         )
 
     @classmethod
@@ -969,6 +981,7 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.std(),
             granulation=GranulationParameters.std(),
             grid_params=(500, 1000),
+            spectral_grid='default'
         )
     def to_star(
         self,
