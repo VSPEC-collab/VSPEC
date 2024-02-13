@@ -37,7 +37,8 @@ def test_custom_values():
         faculae=FaculaParameters.none(),
         flares=FlareParameters.std(),
         granulation=GranulationParameters.none(),
-        grid_params=(200,400)
+        grid_params=(200,400),
+        spectral_grid='bb'
     )
     assert params.psg_star_template == 'K'
     assert params.mass == 0.8 * u.M_sun
@@ -61,7 +62,8 @@ def test_custom_from_dict():
         'faculae': {'preset':'none'},
         'flares': {'preset':'none'},
         'granulation': {'preset':'none'},
-        'grid_params': (200,400)
+        'grid_params': (200,400),
+        'spectral_grid': 'default'
     }
     params = StarParameters.from_dict(params_dict)
     assert params.psg_star_template == 'G'
