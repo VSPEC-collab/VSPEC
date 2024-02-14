@@ -7,7 +7,7 @@ from typing import Tuple
 from astropy import units as u
 
 import pypsg
-from pypsg.cfg.globes import GCM
+from pypsg.globes import PyGCM
 
 from VSPEC.gcm.structure import Wind, Molecule, Aerosol, AerosolSize
 from VSPEC.gcm import structure as st
@@ -53,7 +53,10 @@ class Winds:
             The flattened array.
         """
         # pylint: disable-next:unexpected-keyword-arg
-        return np.concatenate([self.wind_u.flat,self.wind_v.flat],dtype='float32')
+        return np.concatenate([
+                self.wind_u.flat.astype('float32'),
+                self.wind_v.flat.astype('float32')
+            ])
 
 class Molecules:
     """
@@ -85,7 +88,11 @@ class Molecules:
             The flattened data.
         """
         # pylint: disable-next:unexpected-keyword-arg
-        return np.concatenate([mol.flat for mol in self.molecules],dtype='float32')
+        return np.concatenate(
+            [
+                mol.flat.astype('float32') for mol in self.molecules
+            ]
+        )
     @classmethod
     def _from_dict(cls,d:dict,shape:tuple):
         """
@@ -151,7 +158,10 @@ class Aerosols:
             The flattened array.
         """
         # pylint: disable-next:unexpected-keyword-arg
-        return np.concatenate([aero.flat for aero in self.aerosols]+[size.flat for size in self.sizes],dtype='float32')
+        return np.concatenate(
+            [aero.flat.astype('float32') for aero in self.aerosols] \
+            + [size.flat.astype('float32') for size in self.sizes]
+        )
     @classmethod
     def _from_dict(cls,d:dict,shape:tuple):
         """
@@ -412,16 +422,16 @@ class Planet:
         """
         # pylint: disable-next:unexpected-keyword-arg
         return np.concatenate([
-            [] if self.wind is None else self.wind.flat,
-            [] if self.tsurf is None else self.tsurf.flat,
-            self.psurf.flat,
-            [] if self.albedo is None else self.albedo.flat,
-            [] if self.emissivity is None else self.emissivity.flat,
-            [] if self.temperature is None else self.temperature.flat,
-            self.pressure.flat,
-            [] if self.molecules is None else self.molecules.flat,
-            [] if self.aerosols is None else self.aerosols.flat
-        ],dtype='float32')
+            [] if self.wind is None else self.wind.flat.astype('float32'),
+            [] if self.tsurf is None else self.tsurf.flat.astype('float32'),
+            self.psurf.flat.astype('float32'),
+            [] if self.albedo is None else self.albedo.flat.astype('float32'),
+            [] if self.emissivity is None else self.emissivity.flat.astype('float32'),
+            [] if self.temperature is None else self.temperature.flat.astype('float32'),
+            self.pressure.flat.astype('float32'),
+            [] if self.molecules is None else self.molecules.flat.astype('float32'),
+            [] if self.aerosols is None else self.aerosols.flat.astype('float32')
+        ]).astype('float32')
     
     @property
     def psg_params(self)->dict:
@@ -487,9 +497,9 @@ class Planet:
         """
         return pypsg.PyConfig(
             atmosphere=pypsg.cfg.EquilibriumAtmosphere.from_cfg(self.psg_params),
-            gcm=GCM(
+            gcm=PyGCM.from_bytes(
                 header=self.psg_params['ATMOSPHERE-GCM-PARAMETERS'],
-                dat=self.flat
+                binary=self.flat.tobytes(order='C')
             )
         )
         

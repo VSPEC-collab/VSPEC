@@ -7,7 +7,7 @@ import numpy as np
 from typing import List
 
 import pypsg
-from pypsg.cfg.globes import GCM
+from pypsg.globes import PyGCM
 
 from VSPEC.waccm.read_nc import get_shape,get_coords
 import VSPEC.waccm.read_nc as rw
@@ -181,9 +181,9 @@ def get_pycfg(
     
     return pypsg.PyConfig(
         atmosphere=pypsg.cfg.EquilibriumAtmosphere.from_cfg(params),
-        gcm=GCM(
+        gcm=PyGCM.from_bytes(
             header=params['ATMOSPHERE-GCM-PARAMETERS'],
-            dat=np.frombuffer(buffer.getvalue(),dtype='float32'),
+            binary=buffer.getvalue(),
         )
     )
     
