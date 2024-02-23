@@ -106,19 +106,8 @@ psg:
   continuum: [Rayleigh, Refraction]
 gcm:
   mean_molec_weight: 28
-  vspec:
-    nlon: 30
-    nlat : 20
-    nlayer: 20
-    epsilon: 0.01
-    gamma: 1.4
-    albedo: 0.3
-    emissivity: 1.0
-    lat_redistribution: 0.0
-    psurf: 1 bar
-    ptop: 1e-8 bar
-    wind:
-      U: 0 m/s
-      V: 0 m/s
-    molecules:
-      CO2: 1e-4
+  waccm:
+    path: ~/.pypsg/data/waccm_test.nc
+    tstart: 4621.01 day
+    molecules: CO2, O3, H2O
+    background: N2

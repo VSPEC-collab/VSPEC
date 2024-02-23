@@ -12,12 +12,12 @@
 
 .. automodapi:: VSPEC.main
     :no-heading:
-    :skip: Parameters,partial
+    :skip: partial
     :skip: Path
     :skip: SystemGeometry
     :skip: tqdm
-    :skip: PSGrad
     :skip: ForwardSpectra
     :skip: GridSpectra
     :skip: InternalParameters
+    :skip: QTable
     :no-inheritance-diagram:

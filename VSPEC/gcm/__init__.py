@@ -2,5 +2,4 @@
 This is the VSPEC default GCM Module
 """
 
-from VSPEC.gcm.planet import Planet
-from VSPEC.gcm.decoder import GCMdecoder
+from .heat_transfer import to_pygcm as vspec_to_pygcm

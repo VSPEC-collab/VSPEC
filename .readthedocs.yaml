@@ -6,8 +6,8 @@ build:
     - mkdir _readthedocs/
     - pwd
     - ls
-    - wget --no-check-certificate "https://drive.google.com/uc?export=download&id=129Zc3vNmsMrgdDv-Xm2j6-qxYp7xdmMv" -O _readthedocs/0.3.0.zip
+    - wget --no-check-certificate "https://drive.google.com/uc?export=download&id=1UoiuQ1TYrT67PyuGI4ZiRij8JAxL2YQ4" -O _readthedocs/0.4.0.zip
     - ls _readthedocs/
-    - unzip _readthedocs/0.3.0.zip -d _readthedocs/
+    - unzip _readthedocs/0.4.0.zip -d _readthedocs/
     - ls _readthedocs/
     - ls _readthedocs/html/
