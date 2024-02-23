@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**24:54.052** total execution time for 11 files **from all galleries**:
+**00:05.672** total execution time for 11 files **from all galleries**:
 
 .. container::
 
@@ -32,36 +32,36 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_other_gcm_plot_cowan2011.py` (``../../examples/other/gcm/plot_cowan2011.py``)
+     - 00:05.672
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_gj1214b_kempton23.py` (``../../examples/end_to_end/plot_gj1214b_kempton23.py``)
-     - 04:36.339
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_other_star_plot_granulation_lightcurve.py` (``../../examples/other/star/plot_granulation_lightcurve.py``)
-     - 03:38.905
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_other_star_plot_flare_lightcurve.py` (``../../examples/other/star/plot_flare_lightcurve.py``)
-     - 03:30.565
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_other_star_plot_faculae_lightcurve.py` (``../../examples/other/star/plot_faculae_lightcurve.py``)
-     - 03:30.482
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_end_to_end_plot_transit_spectrum.py` (``../../examples/end_to_end/plot_transit_spectrum.py``)
-     - 02:42.557
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_other_star_plot_spot_lightcurve.py` (``../../examples/other/star/plot_spot_lightcurve.py``)
-     - 02:40.532
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_end_to_end_plot_phase_gif.py` (``../../examples/end_to_end/plot_phase_gif.py``)
-     - 01:34.009
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_end_to_end_plot_spotted_transit.py` (``../../examples/end_to_end/plot_spotted_transit.py``)
-     - 01:12.059
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_other_star_plot_flare_spot_lightcurve.py` (``../../examples/other/star/plot_flare_spot_lightcurve.py``)
-     - 00:49.929
+     - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_mirecle_proxcenb.py` (``../../examples/end_to_end/plot_mirecle_proxcenb.py``)
-     - 00:32.945
+     - 00:00.000
      - 0.0
-   * - :ref:`sphx_glr_auto_examples_other_gcm_plot_cowan2011.py` (``../../examples/other/gcm/plot_cowan2011.py``)
-     - 00:05.729
+   * - :ref:`sphx_glr_auto_examples_end_to_end_plot_phase_gif.py` (``../../examples/end_to_end/plot_phase_gif.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_end_to_end_plot_spotted_transit.py` (``../../examples/end_to_end/plot_spotted_transit.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_end_to_end_plot_transit_spectrum.py` (``../../examples/end_to_end/plot_transit_spectrum.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_other_star_plot_faculae_lightcurve.py` (``../../examples/other/star/plot_faculae_lightcurve.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_other_star_plot_flare_lightcurve.py` (``../../examples/other/star/plot_flare_lightcurve.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_other_star_plot_flare_spot_lightcurve.py` (``../../examples/other/star/plot_flare_spot_lightcurve.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_other_star_plot_granulation_lightcurve.py` (``../../examples/other/star/plot_granulation_lightcurve.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_other_star_plot_spot_lightcurve.py` (``../../examples/other/star/plot_spot_lightcurve.py``)
+     - 00:00.000
      - 0.0

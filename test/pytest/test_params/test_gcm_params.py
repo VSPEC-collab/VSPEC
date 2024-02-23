@@ -1,8 +1,19 @@
-import pytest
+"""
+Tests for GCM parameters
+"""
 from pathlib import Path
+import pytest
 from astropy import units as u
 
+from pypsg.globes.waccm.waccm import TEST_PATH,download_test_data
+
 from VSPEC.params.gcm import binaryGCM, waccmGCM, gcmParameters
+
+@pytest.fixture
+def waccm_path():
+    if not TEST_PATH.exists():
+        download_test_data()
+    return TEST_PATH
 
 def test_binaryGCM_with_path():
     # Create a temporary GCM file
@@ -50,29 +61,24 @@ def test_binaryGCM_from_dict():
     assert gcm.path == None
     assert gcm.content() == b"This is a test GCM."
 
-@pytest.mark.skip() # I don't have a NetCDF file that I can use for testing yet.
-def test_waccmGCM_content():
-    # Create a temporary netCDF file
-    nc_path = Path("test.nc")
+def test_waccmGCM_content(waccm_path):
+    """
+    Test creation from a WACCM file
+    """
 
-    # Define the parameters for the waccmGCM instance
-    path = nc_path
-    tstart = 1 * u.year
-    molecules = 'O2, CO2'
-    aerosols = 'Water'
+    tstart = 4621*u.day
+    molecules = ['O2', 'CO2']
     background = 'N2'
 
     # Instantiate waccmGCM
-    waccm = waccmGCM(path, tstart, molecules, aerosols, background)
+    waccm = waccmGCM(waccm_path, tstart, molecules, None, background)
 
     # Define the observation time
-    obs_time = 10 * u.year
+    obs_time = 3*u.day
 
     # Get the content of the GCM for the specified observation time
     content = waccm.content(obs_time)
-
-    # Clean up the temporary file
-    nc_path.unlink()
+    assert b'<ATMOSPHERE-NGAS>3' in content
 
 def test_waccmGCM_from_dict():
     # Create a dictionary representation of waccmGCM
@@ -199,3 +205,6 @@ def test_gcmParameters_from_dict_invalid():
     # Test that KeyError is raised when constructing gcmParameters from the invalid dictionary
     with pytest.raises(KeyError):
         gcmParameters.from_dict(gcm_dict)
+
+if __name__ == "__main__":
+    pytest.main(args=[Path(__file__)])

@@ -21,70 +21,113 @@ u_flux = u.Unit('W m-2 um-1')
 u_time = u.day
 u_wl = u.um
 
-def make_fig(data:VSPEC.PhaseAnalyzer):
-    fig = plt.figure()
-    gs = fig.add_gridspec(2,2)
 
-    therm = fig.add_subplot(gs[0,0])
+def make_fig(_data: VSPEC.PhaseAnalyzer):
+    """
+    Make a figure.
+    """
+    fig = plt.figure()
+    gs = fig.add_gridspec(2, 2)
+
+    therm = fig.add_subplot(gs[0, 0])
     im = therm.pcolormesh(
-        data.time.to_value(u_time),
-        data.wavelength.to_value(u_wl),
-        data.thermal.to_value(u_flux)
+        _data.time.to_value(u_time),
+        _data.wavelength.to_value(u_wl),
+        _data.thermal.to_value(u_flux)
     )
-    fig.colorbar(im,ax=therm,label=f'Flux {data.thermal.unit}')
+    fig.colorbar(im, ax=therm, label=f'Flux {_data.thermal.unit}')
     therm.set_xlabel(f'Time ({u_time})')
     therm.set_ylabel(f'Wavelength ({u_wl})')
 
-    spec = fig.add_subplot(gs[0,1])
+    spec = fig.add_subplot(gs[0, 1])
     images = 0
-    spec.plot(data.wavelength,1e6*data.spectrum('thermal',images,False)/data.spectrum('total',images,False),c='xkcd:azure',label='True')
-    spec.errorbar(data.wavelength,1e6*data.spectrum('thermal',images,True)/data.spectrum('total',images,False),c='xkcd:rose pink',label='Observed',
-                    yerr = 1e6*data.spectrum('noise',images,False)/data.spectrum('total',images,False),fmt='o',markersize=6)
+    spec.plot(_data.wavelength, 1e6*_data.spectrum('thermal', images, False) /
+              _data.spectrum('total', images, False), c='xkcd:azure', label='True')
+    spec.errorbar(_data.wavelength, 1e6*_data.spectrum('thermal', images, True)/_data.spectrum('total', images, False), c='xkcd:rose pink', label='Observed',
+                  yerr=1e6*_data.spectrum('noise', images, False)/_data.spectrum('total', images, False), fmt='o', markersize=6)
     spec.set_ylabel('Flux (ppm)')
-    spec.set_xlabel(f'Wavelength ({data.wavelength.unit})')
+    spec.set_xlabel(f'Wavelength ({_data.wavelength.unit})')
     spec.legend()
 
-    lc = fig.add_subplot(gs[1,:])
-    for i in [0,20,40,80,145]:
-        lc.plot(data.time,data.lightcurve('star',i,normalize=0),label=f'{data.wavelength[i]:.1f}')
+    lc = fig.add_subplot(gs[1, :])
+    for i in [0, 20, 40, 80, 145]:
+        lc.plot(_data.time, _data.lightcurve('star', i, normalize=0),
+                label=f'{_data.wavelength[i]:.1f}')
     lc.set_ylabel('Flux (normalized)')
-    lc.set_xlabel(f'Time ({data.time.unit})')
-    fig.subplots_adjust(hspace=0.4,wspace=0.4)
-    fig.savefig(FIG_PATH,facecolor='w')
+    lc.set_xlabel(f'Time ({_data.time.unit})')
+    fig.subplots_adjust(hspace=0.4, wspace=0.4)
+    fig.savefig(FIG_PATH, facecolor='w')
 
-def read_data()->VSPEC.PhaseAnalyzer:
+
+def read_data() -> VSPEC.PhaseAnalyzer:
+    """
+    Read the data from disk.
+    """
     model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
     return VSPEC.PhaseAnalyzer(model.directories['all_model'])
 
+
 @pytest.fixture
-def thermal():
+def _thermal():
+    """
+    The saved thermal data.
+    """
     path = Path(__file__).parent / 'thermal.npy'
     dat = np.load(path)
     return dat*u_flux
+
+
 @pytest.fixture
-def total():
+def _total():
+    """
+    The saved total data.
+    """
     path = Path(__file__).parent / 'total.npy'
     dat = np.load(path)
     return dat*u_flux
+
+
 @pytest.fixture
-def noise():
+def _noise():
+    """
+    The saved noise data.
+    """
     path = Path(__file__).parent / 'noise.npy'
     dat = np.load(path)
     return dat*u_flux
 
-def test_output(test1_data:VSPEC.PhaseAnalyzer,thermal,total,noise):
-    assert np.all(test1_data.thermal == thermal)
-    assert np.all(test1_data.total == total)
-    assert np.all(test1_data.noise == noise)
-    
+
+def test_output(test1_data: VSPEC.PhaseAnalyzer, _thermal, _total, _noise):
+    """
+    Compare this run to the saved data.
+    """
+    assert np.all(test1_data.thermal ==
+                  _thermal), f'Thermal different by {np.max((test1_data.thermal - _thermal)/_thermal)*100:.1f}%'
+    assert np.all(test1_data.total ==
+                  _total), f'Total different by {np.max((test1_data.total - _total)/_total*100):.1f}%'
+    assert np.all(test1_data.noise ==
+                  _noise), f'Noise different by {np.max((test1_data.noise - _noise)/_noise*100):.1f}%'
+
+def save_data(data: VSPEC.PhaseAnalyzer):
+    """
+    Save the data to disk.
+    """
+    np.save(Path(__file__).parent / 'thermal.npy', data.thermal.to_value(u_flux))
+    np.save(Path(__file__).parent / 'total.npy', data.total.to_value(u_flux))
+    np.save(Path(__file__).parent / 'noise.npy', data.noise.to_value(u_flux))
+
 
 def run():
+    """
+    Run the model.
+    """
     model = VSPEC.ObservationModel.from_yaml(CFG_PATH)
     model.build_planet()
     model.build_spectra()
 
-    data = VSPEC.PhaseAnalyzer(model.directories['all_model'])
-    make_fig(data)
+    _data = VSPEC.PhaseAnalyzer(model.directories['all_model'])
+    make_fig(_data)
+
 
 if __name__ in '__main__':
     pytest.main(args=[Path(__file__), '--test1'])

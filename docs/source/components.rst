@@ -13,7 +13,6 @@ the ``main`` module, which manages the simulations and tracks the state of each 
    modules/psg_api
    modules/analysis
    modules/helpers
-   modules/waccm
    modules/gcm
    modules/config
    modules/builtins

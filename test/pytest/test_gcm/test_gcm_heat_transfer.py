@@ -9,6 +9,9 @@ import pytest
 import matplotlib.pyplot as plt
 from time import time
 
+from pypsg.globes import PyGCM
+from pypsg import PyConfig, APICall
+
 from VSPEC.gcm.heat_transfer import get_flux
 import VSPEC.gcm.heat_transfer as ht
 
@@ -110,5 +113,64 @@ def test_temp_map():
     t = tmap.eval(llons,llats,0.99)
     plt.pcolormesh(lons,lats,t.value)
     0
+
+def test_write_cfg_params():
+    gcm = ht.to_pygcm(
+        (10,30,20),
+        epsilon=1,
+        star_teff=3300*u.K,
+        r_star=0.15*u.R_sun,
+        r_orbit=0.05*u.AU,
+        lat_redistribution=1,
+        p_surf=1*u.bar,
+        p_stop=1e-5*u.bar,
+        wind_u=0*u.m/u.s,
+        wind_v=1*u.m/u.s,
+        albedo=0.3*u.dimensionless_unscaled,
+        emissivity=0.95*u.dimensionless_unscaled,
+        gamma=1.2,
+        molecules={'H2O':1e-3}
+    )
+    assert isinstance(gcm,PyGCM)
+    atmosphere = gcm.update_params(None)
+    assert atmosphere.description.value is not None
+    assert atmosphere.molecules._ngas == 1
+    assert atmosphere.molecules._value[0].name == 'H2O'
+    cfg = atmosphere.content
+    assert cfg != b''
+    # assert b'<ATMOSPHERE-LAYERS>' + str(nlayers).encode('utf-8') in cfg
+    assert b'<ATMOSPHERE-NAERO>' not in cfg
+    assert b'<ATMOSPHERE-GAS>H2O' in cfg
+    assert b'<ATMOSPHERE-NGAS>1' in cfg
+    
+    pycfg = PyConfig(gcm=gcm)
+    content = pycfg.content
+    assert b'<ATMOSPHERE-NAERO>' not in content
+    assert b'<ATMOSPHERE-GAS>H2O' in content
+    assert b'<ATMOSPHERE-NGAS>1' in content
+
+def test_call_psg():
+    gcm = ht.to_pygcm(
+        (10,30,20),
+        epsilon=1,
+        star_teff=3300*u.K,
+        r_star=0.15*u.R_sun,
+        r_orbit=0.05*u.AU,
+        lat_redistribution=0,
+        p_surf=1*u.bar,
+        p_stop=1e-5*u.bar,
+        wind_u=0*u.m/u.s,
+        wind_v=1*u.m/u.s,
+        albedo=0.3*u.dimensionless_unscaled,
+        emissivity=0.95*u.dimensionless_unscaled,
+        gamma=1.2,
+        molecules={'H2O':1e-3}
+    )
+    cfg = PyConfig(gcm=gcm)
+    psg = APICall(cfg,'all','globes')
+    response = psg()
+    assert not np.any(np.isnan(response.lyr.prof['H2O']))
+
+
 if __name__ in '__main__':
     pytest.main(args=[Path(__file__)])

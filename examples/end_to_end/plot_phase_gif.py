@@ -12,10 +12,10 @@ from astropy import units as u
 from imageio.v2 import imread, mimsave
 from cartopy import crs as ccrs
 import pypsg
+from pypsg.globes import GCMdecoder, PyGCM
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC.geometry import SystemGeometry
-from VSPEC.gcm import GCMdecoder
 
 try:
     CONFIG_PATH = Path(__file__).parent / 'phase_gif.yaml'
@@ -41,7 +41,7 @@ model.build_spectra()
 #
 # So we can make a GIF later.
 
-def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:GCMdecoder,s:tuple):
+def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:PyGCM,s:tuple):
     """
     data is the simulation data
     s is the phase index (start, stop)
@@ -100,10 +100,10 @@ def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:GCMdecoder,s:tuple):
     cbarax = spec_ax.inset_axes([0.5,0.5,0.1,0.4],projection=ccrs.PlateCarree())
     cbarax.set_axis_off()
 
-    tsurf = gcm['Tsurf']
-    lats = gcm.get_lats()
-    lons = gcm.get_lons()
-    im = mapax.pcolormesh(lons,lats,tsurf,cmap='gist_heat',transform=ccrs.PlateCarree())
+    tsurf = gcm.tsurf.dat.to_value(u.K)
+    lats = gcm.lats
+    lons = gcm.lons
+    im = mapax.pcolormesh(lons,lats,tsurf.T,cmap='gist_heat',transform=ccrs.PlateCarree())
     fig.colorbar(im,ax=cbarax,label='$T_{\\rm surf}$ (K)')
     return fig
 
@@ -113,7 +113,8 @@ def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:GCMdecoder,s:tuple):
 
 data = PhaseAnalyzer(model.directories['all_model'])
 geometry = model.get_observation_parameters()
-gcm = GCMdecoder.from_psg(model.params.gcm.content())
+gcm = model.params.gcm.gcm.gcm
+# gcm = GCMdecoder.from_psg(model.params.gcm.content())
 
 #%%
 # Display one frame
