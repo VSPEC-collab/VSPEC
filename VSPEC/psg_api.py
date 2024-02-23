@@ -4,12 +4,9 @@ This module communucates between `VSPEC` and
 and the Planetary Spectrum Generator via the API.
 """
 
-import re
 import warnings
 from astropy import units as u
 import numpy as np
-import requests
-from typing import Union
 
 import pypsg
 
@@ -30,7 +27,12 @@ def cfg_to_bytes(config:dict)->bytes:
     -------
     bytes
         A bytes object containing the file content.
+    
+    .. deprecated:: 0.4.0
+        Functionality moved to ``pypsg``.
     """
+    msg = 'Functionality moved to `pypsg`.'
+    warnings.warn(msg, DeprecationWarning)
     s = b''
     for key,value in config.items():
         s += bytes(f'<{key}>{value}\n',encoding='UTF-8')
@@ -39,7 +41,12 @@ def cfg_to_bytes(config:dict)->bytes:
 def cfg_to_dict(config:str)->dict:
     """
     Convert a PSG config file into a dictionary.
+    
+    .. deprecated:: 0.4.0
+        Functionality moved to ``pypsg``.
     """
+    msg = 'Functionality moved to `pypsg`.'
+    warnings.warn(msg, DeprecationWarning)
     cfg = {}
     for line in config.split('\n'):
         key,value = line.replace('<','').split('>')

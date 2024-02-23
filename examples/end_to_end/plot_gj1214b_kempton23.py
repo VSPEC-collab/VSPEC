@@ -11,13 +11,12 @@ using JWST MIRI-LRS, as an example.
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 from astropy import units as u
 from cartopy import crs as ccrs
 import pypsg
+from pypsg.globes import PyGCM
 
 from VSPEC import ObservationModel,PhaseAnalyzer
-from VSPEC.gcm import GCMdecoder
 from VSPEC import params
 from VSPEC.config import MSH
 
@@ -181,17 +180,18 @@ params_spotted = params.InternalParameters(
 # Before we run ``VSPEC``, let's look at the planet.
 # 
 
-gcm_data = GCMdecoder.from_psg(config=gcm.content())
+gcm_data:PyGCM = gcm.gcm.gcm
 
-tsurf = gcm_data['Tsurf']
+tsurf = gcm_data.tsurf.dat.to_value(u.K)
 
 fig = plt.figure()
 proj = ccrs.Robinson(central_longitude=0)
 ax = fig.add_subplot(projection=proj)
 
-lats,lons = gcm_data.get_lats(),gcm_data.get_lons()
+lats = gcm_data.lat_start + np.arange(gcm_data.shape[2]+1) * gcm_data.dlat.to_value(u.deg)
+lons = gcm_data.lon_start + np.arange(gcm_data.shape[1]+1) * gcm_data.dlon.to_value(u.deg)
 
-im = ax.pcolormesh(lons,lats,tsurf,cmap='gist_heat',transform=ccrs.PlateCarree())
+im = ax.pcolor(lons,lats,tsurf.T,cmap='gist_heat',transform=ccrs.PlateCarree())
 gl = ax.gridlines(crs=ccrs.PlateCarree(),draw_labels=True,
     color='grey', alpha=0.8, linestyle='--')
 gl.top_xlabels = False

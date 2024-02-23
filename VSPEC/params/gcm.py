@@ -1,19 +1,19 @@
 """
 GCM parameters module
 """
+from typing import Union
 from pathlib import Path
 from astropy import units as u
 from netCDF4 import Dataset
-from typing import Union
 import yaml
 
 from pypsg import PyConfig
+from pypsg.globes.waccm.waccm import get_time_index
+from pypsg.globes import waccm_to_pygcm, PyGCM
 
 from VSPEC.config import psg_encoding, PRESET_PATH
 from VSPEC.params.base import BaseParameters
-from VSPEC.waccm.read_nc import get_time_index
-from VSPEC.waccm.write_psg import get_cfg_contents, get_pycfg as waccm_to_pycfg
-from VSPEC.gcm.planet import Planet
+from VSPEC.gcm.heat_transfer import to_pygcm as vspec_to_pygcm
 
 
 class binaryGCM(BaseParameters):
@@ -49,10 +49,11 @@ class binaryGCM(BaseParameters):
 
     """
     static = True
+
     def __init__(self, path: Path = None, data: bytes = None):
         if path is None and data is None:
             raise ValueError('Must provide some way to access the data!')
-        self.path = path
+        self.path = path if path is None else path.expanduser()
         self.data = data
 
     def content(self) -> bytes:
@@ -70,7 +71,7 @@ class binaryGCM(BaseParameters):
         else:
             with open(self.path, 'rb') as file:
                 return file.read()
-    
+
     def to_pycfg(self) -> PyConfig:
         """
         Get a `PyConfig` object from the GCM.
@@ -129,7 +130,7 @@ class waccmGCM(BaseParameters):
 
     """
 
-    def __init__(self, path: Path, tstart: u.Quantity, molecules: list, aerosols: list, background: str = None,static:bool=False):
+    def __init__(self, path: Path, tstart: u.Quantity, molecules: list, aerosols: list, background: str = None, static: bool = False):
         self.path = path
         self.tstart = tstart
         self.molecules = molecules
@@ -155,13 +156,18 @@ class waccmGCM(BaseParameters):
 
         with Dataset(self.path, 'r', format='NETCDF4') as data:
             itime = get_time_index(data, obs_time + self.tstart)
-            return get_cfg_contents(
+
+            gcm = waccm_to_pygcm(
                 data=data,
                 itime=itime,
                 molecules=self.molecules,
                 aerosols=self.aerosols,
-                background=self.background
+                background=self.background,
             )
+            return PyConfig(
+                atmosphere=gcm.update_params(),
+                gcm=gcm
+            ).content
 
     def to_pycfg(
         self,
@@ -169,12 +175,12 @@ class waccmGCM(BaseParameters):
     ):
         """
         Get a `pypsg.PyConfig` representation of the GCM.
-        
+
         Parameters
         ----------
         obs_time : astropy.units.Quantity
             The observation time.
-        
+
         Returns
         -------
         pypsg.PyConfig
@@ -182,79 +188,94 @@ class waccmGCM(BaseParameters):
         """
         with Dataset(self.path, 'r', format='NETCDF4') as data:
             itime = get_time_index(data, obs_time + self.tstart)
-            return waccm_to_pycfg(
+
+            pygcm = waccm_to_pygcm(
                 data=data,
                 itime=itime,
                 molecules=self.molecules,
                 aerosols=self.aerosols,
-                background=self.background
+                background=self.background,
             )
-    
+
+            atmosphere = pygcm.update_params()
+            return PyConfig(
+                atmosphere=atmosphere,
+                gcm=pygcm
+            )
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            path=Path(d['path']),
+            path=Path(d['path']).expanduser(),
             tstart=u.Quantity(d['tstart']),
-            molecules=list(d['molecules'].replace(' ','').split(',')),
-            aerosols=list(d['aerosols'].replace(' ','').split(',')),
+            molecules=list(d['molecules'].replace(
+                ' ', '').split(',')) if 'molecules' in d else [],
+            aerosols=list(d['aerosols'].replace(' ', '').split(
+                ',')) if 'aerosols' in d else [],
             background=None if d.get('background', None) is None else str(
                 d.get('background', None))
         )
 
+
 class vspecGCM(BaseParameters):
     static = True
+
     def __init__(
         self,
-        gcm:Planet
+        gcm: PyGCM
     ):
         self.gcm = gcm
+
     @classmethod
-    def _from_dict(cls, gcm_dict:dict,star_dict:dict,planet_dict:dict):
-        d = {
-            'shape':{
-                'nlayer':gcm_dict['nlayer'],
-                'nlon':gcm_dict['nlon'],
-                'nlat':gcm_dict['nlon']
-            },
-            'planet':{
-                'epsilon':gcm_dict['epsilon'],
-                'teff_star': star_dict['teff'],
-                'albedo': gcm_dict['albedo'],
-                'emissivity':gcm_dict['emissivity'],
-                'r_star': star_dict['radius'],
-                'r_orbit': planet_dict['semimajor_axis'],
-                'gamma': gcm_dict['gamma'],
-                'lat_redistribution': gcm_dict['lat_redistribution'],
-                'pressure':{
-                    'psurf': gcm_dict['psurf'],
-                    'ptop': gcm_dict['ptop']
-                },
-                'wind':gcm_dict['wind'],
-            },
-            'molecules':gcm_dict['molecules'],
-            'aerosols':gcm_dict.get('aerosols',None)
-        }
+    def _from_dict(cls, gcm_dict: dict, star_dict: dict, planet_dict: dict):
+
         return cls(
-            gcm = Planet.from_dict(d)
+            vspec_to_pygcm(
+                shape=(
+                    int(gcm_dict['nlayer']),
+                    int(gcm_dict['nlon']),
+                    int(gcm_dict['nlat'])
+                ),
+                epsilon=float(gcm_dict['epsilon']),
+                star_teff=u.Quantity(star_dict['teff']),
+                r_star=u.Quantity(star_dict['radius']),
+                r_orbit=u.Quantity(planet_dict['semimajor_axis']),
+                lat_redistribution=float(gcm_dict['lat_redistribution']),
+                p_surf=u.Quantity(gcm_dict['psurf']),
+                p_stop=u.Quantity(gcm_dict['ptop']),
+                wind_u=u.Quantity(gcm_dict['wind']['U']),
+                wind_v=u.Quantity(gcm_dict['wind']['V']),
+                gamma=float(gcm_dict['gamma']),
+                albedo=u.Quantity(gcm_dict['albedo']),
+                emissivity=u.Quantity(gcm_dict['emissivity']),
+                molecules=gcm_dict['molecules'],
+            )
         )
-    def content(self)->bytes:
+
+    def content(self) -> bytes:
         """
         Get bytes representation.
         """
         return self.gcm.content
+
     def to_pycfg(self):
         """
         Get `pypsg.PyConfig` representation.
         """
-        return self.gcm.pycfg
+        atmosphere = self.gcm.update_params()
+        return PyConfig(
+            atmosphere=atmosphere,
+            gcm=self.gcm
+        )
+
     @classmethod
-    def earth(cls,**kwargs):
+    def earth(cls, **kwargs):
         path = PRESET_PATH / 'earth.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
-            gcm_dict:dict=data['gcm']
-            star_dict=data['star']
-            planet_dict=data['planet']
+            gcm_dict: dict = data['gcm']
+            star_dict = data['star']
+            planet_dict = data['planet']
             gcm_dict.update(**kwargs)
 
             return cls._from_dict(
@@ -290,40 +311,44 @@ class gcmParameters(BaseParameters):
 
     def __init__(
         self,
-        gcm:Union[binaryGCM,Union[vspecGCM,waccmGCM]],
+        gcm: Union[binaryGCM, Union[vspecGCM, waccmGCM]],
         mean_molec_weight: float
     ):
         self.gcm = gcm
         self.mean_molec_weight = mean_molec_weight
 
-    def content(self,**kwargs):
+    def content(self, **kwargs):
         """
         Get a bytes representation of the GCM.
         """
         return self.gcm.content(**kwargs)
-    def to_pycfg(self,**kwargs)->PyConfig:
+
+    def to_pycfg(self, **kwargs) -> PyConfig:
         """
         Get `pypsg.PyConfig` representation of the GCM.
-        
+
         Parameters
         ----------
         obs_time : astropy.time.Time, optional
             The time of the observation. Necessary for a waccm GCM.
         """
         return self.gcm.to_pycfg(**kwargs)
+
     @property
-    def is_staic(self)->bool:
+    def is_staic(self) -> bool:
         return self.gcm.static
+
     @property
-    def gcmtype(self)->str:
-        if isinstance(self.gcm,binaryGCM):
+    def gcmtype(self) -> str:
+        if isinstance(self.gcm, binaryGCM):
             return 'binary'
-        elif isinstance(self.gcm,waccmGCM):
+        elif isinstance(self.gcm, waccmGCM):
             return 'waccm'
-        elif isinstance(self.gcm,vspecGCM):
+        elif isinstance(self.gcm, vspecGCM):
             return 'vspec'
         else:
             raise TypeError('Unknown GCM type')
+
     @classmethod
     def _from_dict(cls, d: dict):
         gcm_dict = d['gcm']
@@ -342,12 +367,15 @@ class gcmParameters(BaseParameters):
             )
         elif 'vspec' in gcm_dict:
             return cls(
-                gcm=vspecGCM.from_dict(gcm_dict['vspec'],star_dict,planet_dict),
+                gcm=vspecGCM.from_dict(
+                    gcm_dict['vspec'], star_dict, planet_dict),
                 mean_molec_weight=mean_molec_weight
             )
         else:
-            raise KeyError(f'`binary`, `waccm`, or `vspec` not in {list(d.keys())}')
-    def to_psg(self)->dict:
+            raise KeyError(
+                f'`binary`, `waccm`, or `vspec` not in {list(d.keys())}')
+
+    def to_psg(self) -> dict:
         """
         Write parameters to the PSG format.
 
@@ -429,7 +457,7 @@ class psgParameters(BaseParameters):
         self.phase_binning = phase_binning
         self.use_molecular_signatures = use_molecular_signatures
         self.nmax = nmax
-        self.lmax=lmax
+        self.lmax = lmax
         self.continuum = continuum
 
     @classmethod
@@ -440,8 +468,8 @@ class psgParameters(BaseParameters):
             use_molecular_signatures=bool(d['use_molecular_signatures']),
             nmax=int(d['nmax']),
             lmax=int(d['lmax']),
-            continuum = list(d['continuum']),
-            )
+            continuum=list(d['continuum']),
+        )
 
     def to_psg(self):
         """

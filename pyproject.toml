@@ -3,7 +3,7 @@
 requires = ["setuptools", "wheel"]  # PEP 508 specifications.
 
 [project]
-version = "0.4.0"
+version = "0.4.1"
 name = "VSPEC"
 authors = [
     { name = "Ted Johnson", email = "ted.johnson@unlv.edu" },
@@ -39,7 +39,7 @@ dependencies = [
     "netCDF4",
     "requests",
     "pyyaml",
-    "pypsg==0.1.2",
+    "pypsg==0.2.1",
     "vspec-vsm==0.3.5",
     "GridPolator==0.3.2",
 ]
