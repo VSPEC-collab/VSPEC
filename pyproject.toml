@@ -39,7 +39,7 @@ dependencies = [
     "netCDF4",
     "requests",
     "pyyaml",
-    "pypsg==0.2.1",
+    "pypsg==0.3.0",
     "vspec-vsm==0.3.5",
     "GridPolator==0.3.2",
 ]
