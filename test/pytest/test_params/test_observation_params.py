@@ -1,6 +1,7 @@
 import pytest
 from astropy import units as u
 import numpy as np
+from pypsg.cfg.base import Table
 
 from VSPEC.config import flux_unit as default_flux_unit
 from VSPEC.params.base import PSGtable
@@ -160,7 +161,7 @@ def test_ccdParameters_mirecle():
 
 def test_ccdParameters_miri_lrs():
     ccd_params = ccdParameters.miri_lrs()
-    assert isinstance(ccd_params.pixel_sampling, PSGtable)
+    assert isinstance(ccd_params.pixel_sampling, Table)
 
 
 def test_DetectorParameters_init():
@@ -237,10 +238,10 @@ def test_DetectorParameters_miri_lrs():
     # Perform assertions on the instance attributes
     assert detector_params.beam_width == 5 * u.arcsec
     assert detector_params.integration_time == 0.5 * u.s
-    assert isinstance(detector_params.ccd.pixel_sampling, PSGtable)
+    assert isinstance(detector_params.ccd.pixel_sampling, Table)
     assert detector_params.ccd.read_noise == 32 * u.electron
     assert detector_params.ccd.dark_current == 0.2 * u.electron / u.s
-    assert isinstance(detector_params.ccd.throughput, PSGtable)
+    assert isinstance(detector_params.ccd.throughput, Table)
     assert detector_params.ccd.emissivity == 0.1
     assert detector_params.ccd.temperature == 50 * u.K
 
@@ -289,10 +290,9 @@ def test_coronagraph_parameters(coronagraph_parameters: CoronagraphParameters):
     assert coronagraph_parameters.zodi == 5.0
     assert coronagraph_parameters.contrast == 1e-6
     assert isinstance(coronagraph_parameters.iwa, PSGtable)
-    assert np.array_equal(coronagraph_parameters.iwa.x,
-                          np.array([1.0, 2.0, 3.0], dtype='float32'))
-    assert np.array_equal(coronagraph_parameters.iwa.y,
-                          np.array([0.1, 0.2, 0.3], dtype='float32'))
+    assert np.all(coronagraph_parameters.iwa.x == np.array([1.0, 2.0, 3.0])*u.dimensionless_unscaled)
+    assert np.all(coronagraph_parameters.iwa.y == np.array([0.1, 0.2, 0.3])*u.dimensionless_unscaled)
+    
 
 
 def test_from_dict_single_dish_parameters():
@@ -312,6 +312,7 @@ def test_from_dict_coronagraph_parameters():
         'contrast': '1e-6',
         'iwa': {'table': {
             'x': [1., 2., 3.],
+            'xunit': u.um,
             'y': [0.1, 0.2, 0.3]
         }}
     }
@@ -319,10 +320,8 @@ def test_from_dict_coronagraph_parameters():
     assert parameters.aperture == 8 * u.m
     assert parameters.zodi == 5.0
     assert parameters.contrast == 1e-6
-    assert np.array_equal(parameters.iwa.x, np.array(
-        [1.0, 2.0, 3.0], dtype='float32'))
-    assert np.array_equal(parameters.iwa.y, np.array(
-        [0.1, 0.2, 0.3], dtype='float32'))
+    assert np.all(parameters.iwa.x == np.array([1.0, 2.0, 3.0])*u.um)
+    assert np.all(parameters.iwa.y == np.array([0.1, 0.2, 0.3])*u.dimensionless_unscaled)
 
 
 def test_InstrumentParameters_init():
@@ -404,10 +403,10 @@ def test_InstrumentParameters_miri_lrs():
     assert isinstance(instrument_params.detector, DetectorParameters)
     assert instrument_params.detector.beam_width == 5 * u.arcsec
     assert instrument_params.detector.integration_time == 0.5 * u.s
-    assert isinstance(instrument_params.detector.ccd.pixel_sampling, PSGtable)
+    assert isinstance(instrument_params.detector.ccd.pixel_sampling, Table)
     assert instrument_params.detector.ccd.read_noise == 32 * u.electron
     assert instrument_params.detector.ccd.dark_current == 0.2 * u.electron / u.s
-    assert isinstance(instrument_params.detector.ccd.throughput, PSGtable)
+    assert isinstance(instrument_params.detector.ccd.throughput, Table)
     assert instrument_params.detector.ccd.emissivity == 0.1
     assert instrument_params.detector.ccd.temperature == 50 * u.K
 
