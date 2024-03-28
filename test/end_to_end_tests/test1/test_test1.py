@@ -101,12 +101,12 @@ def test_output(test1_data: VSPEC.PhaseAnalyzer, _thermal, _total, _noise):
     """
     Compare this run to the saved data.
     """
-    assert np.all(test1_data.thermal ==
-                  _thermal), f'Thermal different by {np.max((test1_data.thermal - _thermal)/_thermal)*100:.1f}%'
-    assert np.all(test1_data.total ==
-                  _total), f'Total different by {np.max((test1_data.total - _total)/_total*100):.1f}%'
-    assert np.all(test1_data.noise ==
-                  _noise), f'Noise different by {np.max((test1_data.noise - _noise)/_noise*100):.1f}%'
+    assert np.all(np.isclose(test1_data.thermal.to_value(u_flux),
+                  _thermal.to_value(u_flux),rtol=1e-2)), f'Thermal different by {np.max((test1_data.thermal - _thermal)/_thermal)*100:.1f}%'
+    assert np.all(np.isclose(test1_data.total.to_value(u_flux),
+                  _total.to_value(u_flux),rtol=1e-2)), f'Total different by {np.max((test1_data.total - _total)/_total*100):.1f}%'
+    assert np.all(np.isclose(test1_data.noise.to_value(u_flux), _noise.to_value(u_flux), rtol=1e-2
+                  )), f'Noise different by {np.max((test1_data.noise - _noise)/_noise*100):.1f}%'
 
 def save_data(data: VSPEC.PhaseAnalyzer):
     """

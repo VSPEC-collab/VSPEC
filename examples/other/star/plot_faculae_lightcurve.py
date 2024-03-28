@@ -12,6 +12,7 @@ import pypsg
 
 from VSPEC import ObservationModel, PhaseAnalyzer
 from VSPEC import params
+from VSPEC.params.gcm import vspec_to_pygcm
 
 SEED = 24
 pypsg.docker.set_url_and_run()
@@ -57,7 +58,8 @@ star = params.StarParameters(
     spots=params.SpotParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    grid_params=10000
+    grid_params=10000,
+    spectral_grid='default'
 )
 
 planet = params.PlanetParameters.std(
@@ -81,9 +83,28 @@ psg_params = params.psgParameters(
 )
 instrument = params.InstrumentParameters.niriss_soss()
 
+def gcm_getter():
+    return vspec_to_pygcm(
+        shape=(30,30,30),
+        epsilon=7,
+        star_teff=3800*u.K,
+        r_star=0.2*u.R_sun,
+        r_orbit=0.05*u.AU,
+        lat_redistribution=0.0,
+        p_surf=1*u.bar,
+        p_stop=1e-5*u.bar,
+        wind_u=0*u.km/u.s,
+        wind_v=0*u.km/u.s,
+        albedo=0.3,
+        emissivity=1.0,
+        gamma=1.4,
+        molecules={'CO2':1e-4}
+    )
 gcm = params.gcmParameters(
-    gcm=params.vspecGCM.earth(molecules={'CO2': 1e-4}),
-    mean_molec_weight=28
+    gcm_getter=gcm_getter,
+    mean_molec_weight=28,
+    gcmtype='vspec',
+    is_static=True
 )
 
 

@@ -1,8 +1,9 @@
 """
 Base parameter class
 """
-import numpy as np
 import yaml
+from astropy import units as u
+from pypsg.cfg.base import Table
 
 class BaseParameters:
     """
@@ -68,9 +69,13 @@ class PSGtable(BaseParameters):
     """
     Class to store Table data for PSG
     """
-    def __init__(self,x:np.ndarray,y:np.ndarray):
-        self.x = np.array(x,dtype='float32')
-        self.y = np.array(y,dtype='float32')
+    def __init__(
+        self,
+        x:u.Quantity,
+        y:u.Quantity
+    ):
+        self.x = x
+        self.y = y
     def __str__(self):
         pairs = []
         for x,y in zip(self.x,self.y):
@@ -79,8 +84,8 @@ class PSGtable(BaseParameters):
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            x = d['x'],
-            y = d['y']
+            x = d['x']*u.Unit(d.get('xunit','')),
+            y = d['y']*u.Unit(d.get('yunit',''))
         )
     @classmethod
     def from_dict(cls, d: dict, *args):
@@ -101,18 +106,12 @@ class PSGtable(BaseParameters):
         return super().from_dict(d, *args)
     def to_psg(self):
         """
-        Create a PSG-readable representation of the class.
-
-        Returns
-        -------
-        str
-            The data in the table.
-        
-        Notes
-        -----
-        PSG expects the format ``y1@x1,y2@x2,...``.
+        Convert to pypsg table
         """
-        return self.__str__()
+        return Table(
+            x = self.x.to_value(u.dimensionless_unscaled) if self.x.unit is u.dimensionless_unscaled else self.x,
+            y = self.y.to_value(u.dimensionless_unscaled) if self.y.unit is u.dimensionless_unscaled else self.y
+        )
 
 def parse_table(val,cls):
     """
@@ -134,6 +133,6 @@ def parse_table(val,cls):
         The parsed input.
     """
     if isinstance(val,dict):
-        return PSGtable.from_dict(val['table'])
+        return PSGtable.from_dict(val['table']).to_psg()
     else:
         return cls(val)

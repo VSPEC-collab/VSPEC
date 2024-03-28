@@ -518,7 +518,7 @@ def to_pygcm(
         The PyGCM object.
     """
     pressure = structure.Pressure.from_limits(p_surf, p_stop, shape)
-
+    albedo = albedo if isinstance(albedo, u.Quantity) else albedo * u.dimensionless_unscaled
     tmap = TemperatureMap.from_planet(
         epsilon=epsilon,
         star_teff=star_teff,
@@ -544,7 +544,7 @@ def to_pygcm(
 
     psurf = structure.SurfacePressure.from_pressure(pressure)
     _albedo = structure.Albedo.constant(albedo, shape[1:])
-    _emissivity = structure.Emissivity.constant(emissivity, shape[1:])
+    _emissivity = structure.Emissivity.constant(emissivity*u.dimensionless_unscaled, shape[1:])
     temperature = structure.Temperature.from_adiabat(gamma, tsurf, pressure)
     _molecules = tuple(structure.Molecule.constant(
         name, float(abn), shape) for name, abn in molecules.items())

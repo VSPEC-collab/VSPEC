@@ -49,7 +49,7 @@ class LimbDarkeningParameters(BaseParameters):
     .. math::
 
         \\frac{I(\\mu)}{I(1)} = 1 - u_1 (1-\\mu) - u_2 (1-\\mu)^2
-    
+
     Examples
     --------
     >>> params_dict = {'preset': 'solar'}
@@ -170,12 +170,13 @@ class SpotParameters(BaseParameters):
         The rate at which existing spots decay.
     initial_area : astropy.units.Quantity
         The initial area of newly created spots.
-    
+
     """
     _PRESET_PATH = PRESET_PATH / 'spots.yaml'
     """
     The path to the preset file.
     """
+
     def __init__(
         self,
         distribution: str,
@@ -231,8 +232,9 @@ class SpotParameters(BaseParameters):
             decay_rate=u.Quantity(d['decay_rate']),
             initial_area=u.Quantity(d['initial_area'])
         )
+
     @classmethod
-    def from_preset(cls,name):
+    def from_preset(cls, name):
         """
         Load a ``SpotParameters`` instance from a preset file.
 
@@ -240,13 +242,13 @@ class SpotParameters(BaseParameters):
         ----------
         name : str
             The name of the preset to load.
-        
+
         Returns
         -------
         SpotParameters
             The class instance loaded from a preset.
         """
-        with open(cls._PRESET_PATH, 'r',encoding='UTF-8') as file:
+        with open(cls._PRESET_PATH, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data[name])
 
@@ -270,15 +272,17 @@ class SpotParameters(BaseParameters):
         Solar-style spots
         """
         return cls.from_preset('solar')
+
     def to_generator(
         self,
-        grid_params: Union[int,Tuple[int, int]] = (vsm_config.NLAT, vsm_config.NLON),
+        grid_params: Union[int, Tuple[int, int]] = (
+            vsm_config.NLAT, vsm_config.NLON),
         gridmaker: CoordinateGrid = None,
         rng: np.random.Generator = np.random.default_rng()
-    )-> SpotGenerator:
+    ) -> SpotGenerator:
         """
         Create a `vspec_vsm.SpotGenerator` instance from the class instance.
-        
+
         Parameters
         ----------
         grid_params : Union[int, Tuple[int, int]], optional
@@ -290,7 +294,7 @@ class SpotParameters(BaseParameters):
             Defaults to None.
         rng : np.random.Generator, optional
             The random number generator to use. Defaults to np.random.default_rng().
-        
+
         Returns
         -------
         vspec_vsm.SpotGenerator
@@ -380,6 +384,7 @@ class FaculaParameters(BaseParameters):
         The Teff of the wall when :math:`R = 0`.
     """
     _PRESET_PATH = PRESET_PATH / 'faculae.yaml'
+
     def __init__(
         self,
         distribution: str,
@@ -389,7 +394,7 @@ class FaculaParameters(BaseParameters):
         logsigma_radius: float,
         depth: u.Quantity,
         mean_timescale: u.Quantity,
-        logsigma_timescale:float,
+        logsigma_timescale: float,
         floor_teff_slope: u.Quantity,
         floor_teff_min_rad: u.Quantity,
         floor_teff_base_dteff: u.Quantity,
@@ -438,6 +443,7 @@ class FaculaParameters(BaseParameters):
             wall_teff_slope=u.Quantity(d['wall_teff_slope']),
             wall_teff_intercept=u.Quantity(d['wall_teff_intercept'])
         )
+
     @classmethod
     def from_preset(cls, name):
         """
@@ -447,13 +453,14 @@ class FaculaParameters(BaseParameters):
         ----------
         name : str
             The name of the preset to load.
-        
+
         Returns
         -------
         FaculaParameters
             The class instance loaded from a preset.
         """
         return super().from_preset(name)
+
     @classmethod
     def none(cls):
         """
@@ -468,15 +475,17 @@ class FaculaParameters(BaseParameters):
         for testing.
         """
         return cls.from_preset('std')
+
     def to_generator(
         self,
-        grid_params: Union[int,Tuple[int, int]] = (vsm_config.NLAT, vsm_config.NLON),
+        grid_params: Union[int, Tuple[int, int]] = (
+            vsm_config.NLAT, vsm_config.NLON),
         gridmaker: CoordinateGrid = None,
         rng: np.random.Generator = np.random.default_rng()
-    )->FaculaGenerator:
+    ) -> FaculaGenerator:
         """
         Construct a `vspec_vsm.FaculaGenerator` instance from the class.
-        
+
         Parameters
         ----------
         grid_params : Union[int,Tuple[int, int]]
@@ -488,7 +497,7 @@ class FaculaParameters(BaseParameters):
             Defaults to None.
         rng : np.random.Generator
             Random number generator. Defaults to np.random.default_rng().
-        
+
         Returns
         -------
         vspec_vsm.FaculaGenerator
@@ -535,7 +544,7 @@ class FlareParameters(BaseParameters):
         The minimum energy to consider. Set to ``np.inf*u.erg`` to disable flares.
     cluster_size : int
         The typical size of flare clusters.
-    
+
     Attributes
     ----------
     dist_teff_mean : astropy.units.Quantity
@@ -556,6 +565,7 @@ class FlareParameters(BaseParameters):
         The typical size of flare clusters.
     """
     _PRESET_PATH = PRESET_PATH / 'flares.yaml'
+
     def __init__(
         self,
         dist_teff_mean: u.Quantity,
@@ -575,6 +585,7 @@ class FlareParameters(BaseParameters):
         self.beta = beta
         self.min_energy = min_energy
         self.cluster_size = cluster_size
+
     @classmethod
     def from_preset(cls, name):
         """
@@ -584,13 +595,14 @@ class FlareParameters(BaseParameters):
         ----------
         name : str
             The name of the preset to load.
-        
+
         Returns
         -------
         FlareParameters
             The class instance loaded from a preset.
         """
         return super().from_preset(name)
+
     @classmethod
     def _from_dict(cls, d):
         return cls(
@@ -617,18 +629,19 @@ class FlareParameters(BaseParameters):
         A standard flare configuration for testing.
         """
         return cls.from_preset('std')
+
     def to_generator(
         self,
         rng: np.random.Generator = np.random.default_rng()
-    )->FlareGenerator:
+    ) -> FlareGenerator:
         """
         Create a `vspec_vsm.FlareGenerator` instance from the class instance.
-        
+
         Parameters
         ----------
         rng : np.random.Generator, optional
             The random number generator to use. Defaults to np.random.default_rng().
-        
+
         Returns
         -------
         vspec_vsm.FlareGenerator
@@ -713,18 +726,19 @@ class GranulationParameters(BaseParameters):
         return cls(
             0.0, 0.00, 5*u.day, 200*u.K
         )
+
     def to_generator(
         self,
-        seed: int=0
-    )->Granulation:
+        seed: int = 0
+    ) -> Granulation:
         """
         Create a `vspec_vsm.Granulation` instance from the class instance.
-        
+
         Parameters
         ----------
         seed : int, optional
             The seed for the random number generator. Defaults to 0.
-        
+
         Returns
         -------
         vspec_vsm.Granulation
@@ -779,7 +793,7 @@ class StarParameters(BaseParameters):
         in general, but if you want efficiency and only care about
         the absolute spectrum of the planet, ``bb`` is recommended
         as it can cut the runtime in half.
-    
+
     Attributes
     ----------
     psg_star_template : str
@@ -843,6 +857,7 @@ class StarParameters(BaseParameters):
         self.granulation = granulation
         self.grid_params = grid_params
         self.spectral_grid = spectral_grid
+
     @classmethod
     def from_dict(cls, d: dict):
         """
@@ -852,12 +867,13 @@ class StarParameters(BaseParameters):
         ----------
         d : dict
             The dictionary representing the ``StarParameters`` object.
-        
+
         Notes
         -----
         Available presets include ``static_proxima``, ``spotted_proxima``, ``flaring_proxima``, and ``proxima``.
         """
         return super().from_dict(d)
+
     @classmethod
     def _from_dict(cls, d: dict):
         try:
@@ -880,21 +896,6 @@ class StarParameters(BaseParameters):
             grid_params=grid_params,
             spectral_grid=str(d['spectral_grid'])
         )
-    def to_psg(self)->dict:
-        """
-        Write a dictionary containing PSG config options.
-
-        Returns
-        -------
-        dict
-            Configurations to send to PSG.
-        """
-        return {
-            'OBJECT-STAR-TYPE': self.psg_star_template,
-            'OBJECT-STAR-TEMPERATURE': f'{self.teff.to_value(u.K):.1f}',
-            'OBJECT-STAR-RADIUS': f'{self.radius.to_value(u.R_sun):.4f}',
-            'GENERATOR-CONT-STELLAR': 'Y'
-        }
 
     @classmethod
     def static_proxima(cls):
@@ -983,14 +984,15 @@ class StarParameters(BaseParameters):
             grid_params=(500, 1000),
             spectral_grid='default'
         )
+
     def to_star(
         self,
         rng: np.random.Generator = np.random.default_rng(),
         seed: int = 0
-    )->Star:
+    ) -> Star:
         """
         Create a `vspec_vsm.Star` instance from the class instance.
-        
+
         Parameters
         ----------
         rng : np.random.Generator, optional

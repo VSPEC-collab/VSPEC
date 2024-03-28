@@ -113,7 +113,7 @@ def make_fig(data:PhaseAnalyzer,geo:SystemGeometry,gcm:PyGCM,s:tuple):
 
 data = PhaseAnalyzer(model.directories['all_model'])
 geometry = model.get_observation_parameters()
-gcm = model.params.gcm.gcm.gcm
+gcm = model.params.gcm.get_gcm()
 # gcm = GCMdecoder.from_psg(model.params.gcm.content())
 
 #%%
