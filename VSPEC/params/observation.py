@@ -19,7 +19,7 @@ class ObservationParameters(BaseParameters):
         The total duration of the observation.
     integration_time : astropy.units.Quantity
         The integration time of each epoch of observation.
-    
+
 
     Attributes
     ----------
@@ -63,13 +63,14 @@ class ObservationParameters(BaseParameters):
         """
 
         return int(round((self.observation_time/self.integration_time).to_value(u.dimensionless_unscaled)))
-    
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            observation_time = u.Quantity(d['observation_time']),
-            integration_time = u.Quantity(d['integration_time']),
+            observation_time=u.Quantity(d['observation_time']),
+            integration_time=u.Quantity(d['integration_time']),
         )
+
 
 class BandpassParameters(BaseParameters):
     """
@@ -117,33 +118,17 @@ class BandpassParameters(BaseParameters):
         self.resolving_power = resolving_power
         self.wavelength_unit = wavelength_unit
         self.flux_unit = flux_unit
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            wl_blue = u.Quantity(d['wl_blue']),
-            wl_red = u.Quantity(d['wl_red']),
-            resolving_power = int(d['resolving_power']),
-            wavelength_unit = u.Unit(d['wavelength_unit']),
-            flux_unit = u.Unit(d['flux_unit'])
+            wl_blue=u.Quantity(d['wl_blue']),
+            wl_red=u.Quantity(d['wl_red']),
+            resolving_power=int(d['resolving_power']),
+            wavelength_unit=u.Unit(d['wavelength_unit']),
+            flux_unit=u.Unit(d['flux_unit'])
         )
-    def to_psg(self):
-        """
-        Convert the bandpass parameters to the PSG input format.
 
-        Returns
-        -------
-        dict
-            A dictionary representing the bandpass parameters in the PSG input format.
-
-        """
-        return {
-            'GENERATOR-RANGE1': f'{self.wl_blue.to_value(self.wavelength_unit):.2f}',
-            'GENERATOR-RANGE2': f'{self.wl_red.to_value(self.wavelength_unit):.2f}',
-            'GENERATOR-RANGEUNIT': self.wavelength_unit.to_string(),
-            'GENERATOR-RESOLUTION': f'{self.resolving_power}',
-            'GENERATOR-RESOLUTIONUNIT': 'RP',
-            'GENERATOR-RADUNITS': self.psg_rad_mapper[self.flux_unit]
-        }
     @classmethod
     def mirecle(cls):
         """
@@ -166,16 +151,18 @@ class BandpassParameters(BaseParameters):
             u.um,
             default_flux_unit
         )
+
     @classmethod
     def miri_lrs(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['bandpass']['miri-lrs'])
+
     @classmethod
     def niriss_soss(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['bandpass']['niriss-soss'])
 
@@ -231,35 +218,17 @@ class ccdParameters(BaseParameters):
         self.throughput = throughput
         self.emissivity = emissivity
         self.temperature = temperature
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            pixel_sampling = parse_table(d['pixel_sampling'],int),
-            read_noise = parse_table(d['read_noise'],u.Quantity),
-            dark_current = parse_table(d['dark_current'],u.Quantity),
-            throughput = parse_table(d['throughput'],float),
-            emissivity = float(d['emissivity']),
-            temperature = u.Quantity(d['temperature'])
+            pixel_sampling=parse_table(d['pixel_sampling'], int),
+            read_noise=parse_table(d['read_noise'], u.Quantity),
+            dark_current=parse_table(d['dark_current'], u.Quantity),
+            throughput=parse_table(d['throughput'], float),
+            emissivity=float(d['emissivity']),
+            temperature=u.Quantity(d['temperature'])
         )
-    def to_psg(self)->dict:
-        """
-        Convert the CCD parameters to the PSG input format.
-
-        Returns
-        -------
-        dict
-            A dictionary representing the CCD parameters in the PSG input format.
-
-        """
-        return {
-            'GENERATOR-NOISE': 'CCD',
-            'GENERATOR-NOISEPIXELS': f'{self.pixel_sampling}',
-            'GENERATOR-NOISE1': f'{self.read_noise.to_value(u.electron):.1f}' if isinstance(self.read_noise,u.Quantity) else str(self.read_noise),
-            'GENERATOR-NOISE2': f'{self.dark_current.to_value(u.electron/u.s):.1f}' if isinstance(self.dark_current,u.Quantity) else str(self.dark_current),
-            'GENERATOR-NOISEOEFF': f'{self.throughput:.2f}' if isinstance(self.throughput,float) else str(self.throughput),
-            'GENERATOR-NOISEOEMIS': f'{self.emissivity:.2f}',
-            'GENERATOR-NOISEOTEMP': f'{self.temperature.to_value(u.K):.1f}'
-        }
 
     @classmethod
     def mirecle(cls):
@@ -285,19 +254,20 @@ class ccdParameters(BaseParameters):
             emissivity=0.1,
             temperature=35*u.K
         )
+
     @classmethod
     def miri_lrs(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['ccd']['miri-lrs'])
+
     @classmethod
     def niriss_soss(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['ccd']['niriss-soss'])
-
 
 
 class DetectorParameters(BaseParameters):
@@ -332,39 +302,26 @@ class DetectorParameters(BaseParameters):
         self.beam_width = beam_width
         self.integration_time = integration_time
         self.ccd = ccd
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            beam_width = u.Quantity(d['beam_width']),
-            integration_time = u.Quantity(d['integration_time']),
-            ccd = ccdParameters.from_dict(d['ccd']),
+            beam_width=u.Quantity(d['beam_width']),
+            integration_time=u.Quantity(d['integration_time']),
+            ccd=ccdParameters.from_dict(d['ccd']),
         )
-    def to_psg(self)->dict:
-        """
-        Convert the detector parameters to the PSG input format.
 
-        Returns
-        -------
-        dict
-            A dictionary representing the detector parameters in the PSG input format.
-
-        """
-        config = {
-            'GENERATOR-BEAM': f'{self.beam_width.to_value(u.arcsec):.4f}',
-            'GENERATOR-BEAM-UNIT': 'arcsec'
-        }
-        config.update(self.ccd.to_psg())
-        return config
     @classmethod
     def miri_lrs(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['detector']['miri-lrs'])
+
     @classmethod
     def niriss_soss(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['detector']['niriss-soss'])
 
@@ -388,6 +345,7 @@ class DetectorParameters(BaseParameters):
             integration_time=0.5*u.s,
             ccd=ccdParameters.mirecle()
         )
+
 
 class TelescopeParameters(BaseParameters):
     """
@@ -418,42 +376,25 @@ class TelescopeParameters(BaseParameters):
         The level of the zodiacal background.
     """
 
-
     _mode_translator = {
         'single': 'SINGLE',
         'coronagraph': 'CORONA',
     }
+
     def __init__(
         self,
-        aperture:u.Quantity,
-        mode:str,
-        zodi:float,
-        **kwargs
+        aperture: u.Quantity,
+        mode: str,
+        zodi: float,
+        contrast: float | PSGtable = None,
+        iwa: float | PSGtable = None,
     ):
         self.aperture = aperture
         self.mode = mode
         self.zodi = zodi
-        for key,value in kwargs.items():
-            self.__setattr__(key,value)
-    def _to_psg(self):
-        return {}
-    def to_psg(self):
-        """
-        Convert telescope parameters to PSG format.
+        self.contrast = contrast
+        self.iwa = iwa
 
-        Returns
-        -------
-        dict
-            A dictionary containing the PSG configuration for the telescope.
-        """
-
-        config = {
-            'GEOMETRY': 'Observatory',
-            'GENERATOR-DIAMTELE': f'{self.aperture.to_value(u.m):.2f}',
-            'GENERATOR-TELESCOPE': self._mode_translator[self.mode],
-        }
-        config.update(self._to_psg())
-        return config
 
 class SingleDishParameters(TelescopeParameters):
     """
@@ -468,18 +409,16 @@ class SingleDishParameters(TelescopeParameters):
         1.0 (Ecliptic pole/minimum) to 100.0 (Close to ecliptic/Sun).
     """
 
-    def __init__(self, aperture: u.Quantity,zodi:float):
-        super().__init__(aperture, 'single',zodi)
-    def _to_psg(self):
-        return {
-            'GENERATOR-TELESCOPE2': f'{self.zodi:.2f}'
-        }
+    def __init__(self, aperture: u.Quantity, zodi: float):
+        super().__init__(aperture, 'single', zodi)
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            aperture = u.Quantity(d['aperture']),
-            zodi = float(d['zodi'])
+            aperture=u.Quantity(d['aperture']),
+            zodi=float(d['zodi'])
         )
+
     @classmethod
     def mirecle(cls):
         """
@@ -489,19 +428,21 @@ class SingleDishParameters(TelescopeParameters):
         -------
         SingleDishParameters
             The created SingleDishParameters instance with MIRECLE parameters.
-        
+
         References
         ----------
         [1] :cite:t:`2022AJ....164..176M`
         """
 
         return cls(2*u.m, 1.0)
+
     @classmethod
     def jwst(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['telescope']['jwst']['single'])
+
 
 class CoronagraphParameters(TelescopeParameters):
     """
@@ -533,24 +474,18 @@ class CoronagraphParameters(TelescopeParameters):
             aperture,
             'coronagraph',
             zodi,
-            contrast = contrast,
-            iwa = iwa
+            contrast=contrast,
+            iwa=iwa
         )
-    def _to_psg(self):
-        return {
-            'GENERATOR-TELESCOPE2': f'{self.zodi:.2f}',
-            'GENERATOR-TELESCOPE1': f'{self.contrast:.2e}',
-            'GENERATOR-TELESCOPE3': str(self.iwa)
-        }
+
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
-            aperture = u.Quantity(d['aperture']),
-            zodi = float(d['zodi']),
-            contrast = float(d['contrast']),
-            iwa = PSGtable.from_dict(d['iwa']['table'])
+            aperture=u.Quantity(d['aperture']),
+            zodi=float(d['zodi']),
+            contrast=float(d['contrast']),
+            iwa=PSGtable.from_dict(d['iwa']['table'])
         )
-
 
 
 class InstrumentParameters(BaseParameters):
@@ -579,13 +514,14 @@ class InstrumentParameters(BaseParameters):
 
     def __init__(
         self,
-        telescope: Union[SingleDishParameters,CoronagraphParameters],
+        telescope: Union[SingleDishParameters, CoronagraphParameters],
         bandpass: BandpassParameters,
         detector: DetectorParameters
     ):
         self.telescope = telescope
         self.bandpass = bandpass
         self.detector = detector
+
     @classmethod
     def _from_dict(cls, d: dict):
         if 'coronagraph' in d.keys():
@@ -595,26 +531,11 @@ class InstrumentParameters(BaseParameters):
         else:
             raise KeyError('Cannot find Telescope Parameters key')
         return cls(
-            telescope = telescope,
-            bandpass = BandpassParameters.from_dict(d['bandpass']),
-            detector = DetectorParameters.from_dict(d['detector'])
+            telescope=telescope,
+            bandpass=BandpassParameters.from_dict(d['bandpass']),
+            detector=DetectorParameters.from_dict(d['detector'])
         )
-    def to_psg(self):
-        """
-        Convert the instrument parameters to the PSG input format.
 
-        Returns
-        -------
-        dict
-            A dictionary representing the instrument parameters in the PSG input format.
-
-        """
-        config = {
-        }
-        config.update(self.telescope.to_psg())
-        config.update(self.bandpass.to_psg())
-        config.update(self.detector.to_psg())
-        return config
     @classmethod
     def mirecle(cls):
         """
@@ -635,15 +556,17 @@ class InstrumentParameters(BaseParameters):
             bandpass=BandpassParameters.mirecle(),
             detector=DetectorParameters.mirecle()
         )
+
     @classmethod
     def miri_lrs(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['instrument']['miri-lrs'])
+
     @classmethod
     def niriss_soss(cls):
         path = PRESET_PATH / 'jwst.yaml'
-        with open(path, 'r',encoding='UTF-8') as file:
+        with open(path, 'r', encoding='UTF-8') as file:
             data = yaml.safe_load(file)
             return cls.from_dict(data['instrument']['niriss-soss'])

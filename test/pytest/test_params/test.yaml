@@ -106,5 +106,19 @@ psg:
   lmax: 0
 gcm:
   mean_molec_weight: 28
-  binary:
-    data: <OBJECT>Exoplanet
+  vspec:
+    nlon: 30
+    nlat : 20
+    nlayer: 10
+    epsilon: 6
+    gamma: 1.4
+    albedo: 0.3
+    emissivity: 1.0
+    lat_redistribution: 0.0
+    psurf: 1 bar
+    ptop: 1e-5 bar
+    wind:
+      U: 0 m/s
+      V: 0 m/s
+    molecules:
+      CO2: 1e-4

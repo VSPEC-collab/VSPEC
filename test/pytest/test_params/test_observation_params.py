@@ -4,8 +4,9 @@ import numpy as np
 
 from VSPEC.config import flux_unit as default_flux_unit
 from VSPEC.params.base import PSGtable
-from VSPEC.params.observation import BandpassParameters, ObservationParameters,ccdParameters,DetectorParameters,InstrumentParameters
+from VSPEC.params.observation import BandpassParameters, ObservationParameters, ccdParameters, DetectorParameters, InstrumentParameters
 from VSPEC.params.observation import SingleDishParameters, CoronagraphParameters
+
 
 def test_ObservationParameters_init():
     # Create ObservationParameters with valid values
@@ -23,7 +24,8 @@ def test_ObservationParameters_init():
 
     # Check that ValueError is raised when creating ObservationParameters with invalid values
     with pytest.raises(ValueError):
-        ObservationParameters(invalid_observation_time, invalid_integration_time)
+        ObservationParameters(invalid_observation_time,
+                              invalid_integration_time)
 
 
 def test_ObservationParameters_total_images():
@@ -39,6 +41,7 @@ def test_ObservationParameters_total_images():
     # Check that the calculated total_images property matches the expected value
     assert obs_params.total_images == expected_total_images
 
+
 def test_ObservationParameters_from_dict():
     # Create a dictionary with the ObservationParameters data
     obs_params_data = {
@@ -52,9 +55,6 @@ def test_ObservationParameters_from_dict():
     # Perform assertions on the instance attributes
     assert obs_params.observation_time == 10 * u.day
     assert obs_params.integration_time == 1 * u.day
-
-
-
 
 
 def test_BandpassParameters_from_dict():
@@ -77,26 +77,6 @@ def test_BandpassParameters_from_dict():
     assert bandpass_params.wavelength_unit == u.um
     assert bandpass_params.flux_unit == u.Unit("W m-2 um-1")
 
-def test_BandpassParameters_to_psg():
-    # Create a BandpassParameters instance
-    bandpass_params = BandpassParameters(
-        wl_blue=1.0 * u.um,
-        wl_red=18.0 * u.um,
-        resolving_power=50,
-        wavelength_unit=u.um,
-        flux_unit=u.Unit("W m-2 um-1")
-    )
-
-    # Convert the BandpassParameters to the PSG input format
-    psg_input = bandpass_params.to_psg()
-
-    # Perform assertions on the PSG input dictionary
-    assert psg_input["GENERATOR-RANGE1"] == "1.00"
-    assert psg_input["GENERATOR-RANGE2"] == "18.00"
-    assert psg_input["GENERATOR-RANGEUNIT"] == "um"
-    assert psg_input["GENERATOR-RESOLUTION"] == "50"
-    assert psg_input["GENERATOR-RESOLUTIONUNIT"] == "RP"
-    assert psg_input["GENERATOR-RADUNITS"] == "Wm2um"
 
 def test_BandpassParameters_mirecle():
     # Create a BandpassParameters instance using the mirecle class method
@@ -108,6 +88,8 @@ def test_BandpassParameters_mirecle():
     assert bandpass_params.resolving_power == 50
     assert bandpass_params.wavelength_unit == u.um
     assert bandpass_params.flux_unit == default_flux_unit
+
+
 def test_BandpassParameters_miri_lrs():
     # Create a BandpassParameters instance using the mirecle class method
     bandpass_params = BandpassParameters.miri_lrs()
@@ -128,7 +110,8 @@ def test_ccdParameters_init():
     throughput = 0.5
     emissivity = 0.1
     temperature = 35 * u.K
-    ccd_params = ccdParameters(pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
+    ccd_params = ccdParameters(
+        pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
 
     # Perform assertions on the instance attributes
     assert ccd_params.pixel_sampling == pixel_sampling
@@ -138,29 +121,6 @@ def test_ccdParameters_init():
     assert ccd_params.emissivity == emissivity
     assert ccd_params.temperature == temperature
 
-def test_ccdParameters_to_psg():
-    # Create ccdParameters with specific values
-    pixel_sampling = 64
-    read_noise = 6 * u.electron
-    dark_current = 100 * u.electron / u.s
-    throughput = 0.5
-    emissivity = 0.1
-    temperature = 35 * u.K
-    ccd_params = ccdParameters(pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
-
-    # Define the expected PSG input format dictionary
-    expected_dict = {
-        'GENERATOR-NOISE': 'CCD',
-        'GENERATOR-NOISEPIXELS': f'{pixel_sampling}',
-        'GENERATOR-NOISE1': f'{read_noise.to_value(u.electron):.1f}',
-        'GENERATOR-NOISE2': f'{dark_current.to_value(u.electron/u.s):.1f}',
-        'GENERATOR-NOISEOEFF': f'{throughput:.2f}',
-        'GENERATOR-NOISEOEMIS': f'{emissivity:.2f}',
-        'GENERATOR-NOISEOTEMP': f'{temperature.to_value(u.K):.1f}'
-    }
-
-    # Check that the to_psg method returns the expected dictionary
-    assert ccd_params.to_psg() == expected_dict
 
 def test_ccdParameters_from_dict():
     # Create a dictionary with the ccdParameters data
@@ -184,6 +144,7 @@ def test_ccdParameters_from_dict():
     assert ccd_params.emissivity == 0.1
     assert ccd_params.temperature == 35 * u.K
 
+
 def test_ccdParameters_mirecle():
     # Create a ccdParameters instance using the mirecle class method
     ccd_params = ccdParameters.mirecle()
@@ -196,10 +157,10 @@ def test_ccdParameters_mirecle():
     assert ccd_params.emissivity == 0.1
     assert ccd_params.temperature == 35 * u.K
 
+
 def test_ccdParameters_miri_lrs():
     ccd_params = ccdParameters.miri_lrs()
     assert isinstance(ccd_params.pixel_sampling, PSGtable)
-
 
 
 def test_DetectorParameters_init():
@@ -210,48 +171,20 @@ def test_DetectorParameters_init():
     throughput = 0.5
     emissivity = 0.1
     temperature = 35 * u.K
-    ccd_params = ccdParameters(pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
+    ccd_params = ccdParameters(
+        pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
 
     # Create DetectorParameters with valid values
     beam_width = 5 * u.arcsec
     integration_time = 0.5 * u.s
-    detector_params = DetectorParameters(beam_width, integration_time, ccd_params)
+    detector_params = DetectorParameters(
+        beam_width, integration_time, ccd_params)
 
     # Perform assertions on the instance attributes
     assert detector_params.beam_width == beam_width
     assert detector_params.integration_time == integration_time
     assert detector_params.ccd == ccd_params
 
-def test_DetectorParameters_to_psg():
-    # Create CCD parameters for the detector
-    pixel_sampling = 64
-    read_noise = 6 * u.electron
-    dark_current = 100 * u.electron / u.s
-    throughput = 0.5
-    emissivity = 0.1
-    temperature = 35 * u.K
-    ccd_params = ccdParameters(pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
-
-    # Create DetectorParameters with specific values
-    beam_width = 5 * u.arcsec
-    integration_time = 0.5 * u.s
-    detector_params = DetectorParameters(beam_width, integration_time, ccd_params)
-
-    # Define the expected PSG input format dictionary
-    expected_dict = {
-        'GENERATOR-BEAM': f'{beam_width.to_value(u.arcsec):.4f}',
-        'GENERATOR-BEAM-UNIT': 'arcsec',
-        'GENERATOR-NOISE': 'CCD',
-        'GENERATOR-NOISEPIXELS': f'{pixel_sampling}',
-        'GENERATOR-NOISE1': f'{read_noise.to_value(u.electron):.1f}',
-        'GENERATOR-NOISE2': f'{dark_current.to_value(u.electron/u.s):.1f}',
-        'GENERATOR-NOISEOEFF': f'{throughput:.2f}',
-        'GENERATOR-NOISEOEMIS': f'{emissivity:.2f}',
-        'GENERATOR-NOISEOTEMP': f'{temperature.to_value(u.K):.1f}'
-    }
-
-    # Check that the to_psg method returns the expected dictionary
-    assert detector_params.to_psg() == expected_dict
 
 def test_DetectorParameters_from_dict():
     # Create a dictionary with the detector parameters data
@@ -281,6 +214,7 @@ def test_DetectorParameters_from_dict():
     assert detector_params.ccd.emissivity == 0.1
     assert detector_params.ccd.temperature == 35 * u.K
 
+
 def test_DetectorParameters_mirecle():
     # Create DetectorParameters instance using the mirecle class method
     detector_params = DetectorParameters.mirecle()
@@ -295,6 +229,7 @@ def test_DetectorParameters_mirecle():
     assert detector_params.ccd.emissivity == 0.1
     assert detector_params.ccd.temperature == 35 * u.K
 
+
 def test_DetectorParameters_miri_lrs():
     # Create DetectorParameters instance using the miri-lrs class method
     detector_params = DetectorParameters.miri_lrs()
@@ -302,10 +237,10 @@ def test_DetectorParameters_miri_lrs():
     # Perform assertions on the instance attributes
     assert detector_params.beam_width == 5 * u.arcsec
     assert detector_params.integration_time == 0.5 * u.s
-    assert isinstance(detector_params.ccd.pixel_sampling,PSGtable) 
+    assert isinstance(detector_params.ccd.pixel_sampling, PSGtable)
     assert detector_params.ccd.read_noise == 32 * u.electron
     assert detector_params.ccd.dark_current == 0.2 * u.electron / u.s
-    assert isinstance(detector_params.ccd.throughput,PSGtable)
+    assert isinstance(detector_params.ccd.throughput, PSGtable)
     assert detector_params.ccd.emissivity == 0.1
     assert detector_params.ccd.temperature == 50 * u.K
 
@@ -314,28 +249,25 @@ def test_DetectorParameters_miri_lrs():
 def single_dish_parameters():
     return SingleDishParameters(aperture=4 * u.m, zodi=10.0)
 
+
 @pytest.fixture
 def coronagraph_parameters():
     iwa_x = np.array([1.0, 2.0, 3.0])
     iwa_y = np.array([0.1, 0.2, 0.3])
-    iwa = PSGtable(iwa_x,iwa_y)
+    iwa = PSGtable(iwa_x, iwa_y)
     return CoronagraphParameters(
         aperture=8 * u.m,
         zodi=5.0,
         contrast=1e-6,
-        iwa = iwa
-        )
+        iwa=iwa
+    )
+
 
 def test_single_dish_parameters(single_dish_parameters):
     assert single_dish_parameters.aperture == 4 * u.m
     assert single_dish_parameters.mode == 'single'
     assert single_dish_parameters.zodi == 10.0
 
-    psg_config = single_dish_parameters.to_psg()
-    assert psg_config['GEOMETRY'] == 'Observatory'
-    assert psg_config['GENERATOR-DIAMTELE'] == '4.00'
-    assert psg_config['GENERATOR-TELESCOPE'] == 'SINGLE'
-    assert psg_config['GENERATOR-TELESCOPE2'] == '10.00'
 
 def test_single_dish_parameters_mirecle():
     mirecle_parameters = SingleDishParameters.mirecle()
@@ -343,28 +275,25 @@ def test_single_dish_parameters_mirecle():
     assert mirecle_parameters.mode == 'single'
     assert mirecle_parameters.zodi == 1.0
 
+
 def test_single_dish_parameters_jwst():
     mirecle_parameters = SingleDishParameters.jwst()
     assert mirecle_parameters.aperture == 5.64 * u.m
     assert mirecle_parameters.mode == 'single'
     assert mirecle_parameters.zodi == 2.0
 
-def test_coronagraph_parameters(coronagraph_parameters:CoronagraphParameters):
+
+def test_coronagraph_parameters(coronagraph_parameters: CoronagraphParameters):
     assert coronagraph_parameters.aperture == 8 * u.m
     assert coronagraph_parameters.mode == 'coronagraph'
     assert coronagraph_parameters.zodi == 5.0
     assert coronagraph_parameters.contrast == 1e-6
-    assert isinstance(coronagraph_parameters.iwa,PSGtable)
-    assert np.array_equal(coronagraph_parameters.iwa.x, np.array([1.0, 2.0, 3.0],dtype='float32'))
-    assert np.array_equal(coronagraph_parameters.iwa.y, np.array([0.1, 0.2, 0.3],dtype='float32'))
+    assert isinstance(coronagraph_parameters.iwa, PSGtable)
+    assert np.array_equal(coronagraph_parameters.iwa.x,
+                          np.array([1.0, 2.0, 3.0], dtype='float32'))
+    assert np.array_equal(coronagraph_parameters.iwa.y,
+                          np.array([0.1, 0.2, 0.3], dtype='float32'))
 
-    psg_config = coronagraph_parameters.to_psg()
-    assert psg_config['GEOMETRY'] == 'Observatory'
-    assert psg_config['GENERATOR-DIAMTELE'] == '8.00'
-    assert psg_config['GENERATOR-TELESCOPE'] == 'CORONA'
-    assert psg_config['GENERATOR-TELESCOPE2'] == '5.00'
-    assert psg_config['GENERATOR-TELESCOPE1'] == '1.00e-06'
-    assert psg_config['GENERATOR-TELESCOPE3'] == '1.00e-01@1.00e+00,2.00e-01@2.00e+00,3.00e-01@3.00e+00'
 
 def test_from_dict_single_dish_parameters():
     d = {
@@ -375,23 +304,25 @@ def test_from_dict_single_dish_parameters():
     assert parameters.aperture == 4 * u.m
     assert parameters.zodi == 10.0
 
+
 def test_from_dict_coronagraph_parameters():
     d = {
         'aperture': '8.0 m',
         'zodi': '5.0',
         'contrast': '1e-6',
-        'iwa': {'table':{
-            'x': [1.,2.,3.],
-            'y': [0.1,0.2,0.3]
+        'iwa': {'table': {
+            'x': [1., 2., 3.],
+            'y': [0.1, 0.2, 0.3]
         }}
-        }
+    }
     parameters = CoronagraphParameters._from_dict(d)
     assert parameters.aperture == 8 * u.m
     assert parameters.zodi == 5.0
     assert parameters.contrast == 1e-6
-    assert np.array_equal(parameters.iwa.x, np.array([1.0, 2.0, 3.0],dtype='float32'))
-    assert np.array_equal(parameters.iwa.y, np.array([0.1, 0.2, 0.3],dtype='float32'))
-
+    assert np.array_equal(parameters.iwa.x, np.array(
+        [1.0, 2.0, 3.0], dtype='float32'))
+    assert np.array_equal(parameters.iwa.y, np.array(
+        [0.1, 0.2, 0.3], dtype='float32'))
 
 
 def test_InstrumentParameters_init():
@@ -401,7 +332,8 @@ def test_InstrumentParameters_init():
     resolving_power = 100
     wavelength_unit = u.um
     flux_unit = u.Unit('W m-2 um-1')
-    bandpass_params = BandpassParameters(wl_blue, wl_red, resolving_power, wavelength_unit, flux_unit)
+    bandpass_params = BandpassParameters(
+        wl_blue, wl_red, resolving_power, wavelength_unit, flux_unit)
 
     # Create CCD parameters for the detector
     beam_width = 5 * u.arcsec
@@ -412,72 +344,23 @@ def test_InstrumentParameters_init():
     throughput = 0.5
     emissivity = 0.1
     temperature = 35 * u.K
-    ccd_params = ccdParameters(pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
+    ccd_params = ccdParameters(
+        pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
 
     # Create DetectorParameters with valid values
-    detector_params = DetectorParameters(beam_width, integration_time, ccd_params)
+    detector_params = DetectorParameters(
+        beam_width, integration_time, ccd_params)
 
     # Create InstrumentParameters with valid values
-    telescope = SingleDishParameters(2*u.m,1.5)
-    instrument_params = InstrumentParameters(telescope, bandpass_params, detector_params)
+    telescope = SingleDishParameters(2*u.m, 1.5)
+    instrument_params = InstrumentParameters(
+        telescope, bandpass_params, detector_params)
 
     # Perform assertions on the instance attributes
     assert instrument_params.telescope.aperture == 2*u.m
     assert instrument_params.bandpass == bandpass_params
     assert instrument_params.detector == detector_params
 
-def test_InstrumentParameters_to_psg():
-    # Create bandpass parameters for the instrument
-    wl_blue = 1 * u.um
-    wl_red = 2 * u.um
-    resolving_power = 100
-    wavelength_unit = u.um
-    flux_unit = u.Unit('W m-2 um-1')
-    bandpass_params = BandpassParameters(wl_blue, wl_red, resolving_power, wavelength_unit, flux_unit)
-
-    # Create CCD parameters for the detector
-    beam_width = 5 * u.arcsec
-    integration_time = 0.5 * u.s
-    pixel_sampling = 64
-    read_noise = 6 * u.electron
-    dark_current = 100 * u.electron / u.s
-    throughput = 0.5
-    emissivity = 0.1
-    temperature = 35 * u.K
-    ccd_params = ccdParameters(pixel_sampling, read_noise, dark_current, throughput, emissivity, temperature)
-
-    # Create DetectorParameters with specific values
-    detector_params = DetectorParameters(beam_width, integration_time, ccd_params)
-
-    # Create InstrumentParameters with specific values
-    telescope = SingleDishParameters(2*u.m,1.5)
-    instrument_params = InstrumentParameters(telescope, bandpass_params, detector_params)
-
-    # Define the expected PSG input format dictionary
-    expected_dict = {
-        'GEOMETRY': 'Observatory',
-        'GENERATOR-DIAMTELE': f'{(2*u.m).to_value(u.m):.2f}',
-        'GENERATOR-TELESCOPE': 'SINGLE',
-        'GENERATOR-TELESCOPE2' : '1.50',
-        'GENERATOR-RANGE1': f'{wl_blue.to_value(wavelength_unit):.2f}',
-        'GENERATOR-RANGE2': f'{wl_red.to_value(wavelength_unit):.2f}',
-        'GENERATOR-RANGEUNIT': wavelength_unit.to_string(),
-        'GENERATOR-RESOLUTION': f'{resolving_power}',
-        'GENERATOR-RESOLUTIONUNIT': 'RP',
-        'GENERATOR-RADUNITS': 'Wm2um',
-        'GENERATOR-BEAM': f'{beam_width.to_value(u.arcsec):.4f}',
-        'GENERATOR-BEAM-UNIT': 'arcsec',
-        'GENERATOR-NOISE': 'CCD',
-        'GENERATOR-NOISEPIXELS': f'{pixel_sampling}',
-        'GENERATOR-NOISE1': f'{read_noise.to_value(u.electron)}',
-        'GENERATOR-NOISE2': f'{dark_current.to_value(u.electron/u.s)}',
-        'GENERATOR-NOISEOEFF': f'{throughput:.2f}',
-        'GENERATOR-NOISEOTEMP': f'{temperature.to_value(u.K):.1f}',
-        'GENERATOR-NOISEOEMIS': f'{emissivity:.2f}',
-    }
-
-    # Check if the to_psg method produces the expected dictionary
-    assert instrument_params.to_psg() == expected_dict
 
 def test_InstrumentParameters_mirecle():
     # Call the mirecle class method
@@ -503,6 +386,7 @@ def test_InstrumentParameters_mirecle():
     assert instrument_params.detector.ccd.emissivity == 0.1
     assert instrument_params.detector.ccd.temperature == 35 * u.K
 
+
 def test_InstrumentParameters_miri_lrs():
     # Call the mirecle class method
     instrument_params = InstrumentParameters.miri_lrs()
@@ -520,10 +404,10 @@ def test_InstrumentParameters_miri_lrs():
     assert isinstance(instrument_params.detector, DetectorParameters)
     assert instrument_params.detector.beam_width == 5 * u.arcsec
     assert instrument_params.detector.integration_time == 0.5 * u.s
-    assert isinstance(instrument_params.detector.ccd.pixel_sampling,PSGtable)
+    assert isinstance(instrument_params.detector.ccd.pixel_sampling, PSGtable)
     assert instrument_params.detector.ccd.read_noise == 32 * u.electron
     assert instrument_params.detector.ccd.dark_current == 0.2 * u.electron / u.s
-    assert isinstance(instrument_params.detector.ccd.throughput,PSGtable)
+    assert isinstance(instrument_params.detector.ccd.throughput, PSGtable)
     assert instrument_params.detector.ccd.emissivity == 0.1
     assert instrument_params.detector.ccd.temperature == 50 * u.K
 
@@ -580,6 +464,7 @@ def test_InstrumentParameters_from_dict():
     assert instrument_params.detector.ccd.throughput == 0.7
     assert instrument_params.detector.ccd.emissivity == 0.2
     assert instrument_params.detector.ccd.temperature == 30 * u.K
+
 
 if __name__ in '__main__':
     test_ccdParameters_miri_lrs()
