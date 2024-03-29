@@ -28,21 +28,13 @@ class gcmParameters(BaseParameters):
 
     Parameters
     ----------
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
+    gcm_getter : Callable
+        A function that returns a PyGCM instance.
     mean_molec_weight : float
-        The mean molecular weight of the atmosphere
-        in g/mol.
-
-    Attributes
-    ----------
-    is_static
-    gcmtype
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
-    mean_molec_weight : float
-        The mean molecular weight of the atmosphere
-        in g/mol.
+        The mean molecular weight of the atmosphere in g/mol.
+    is_staic : bool
+        If true, the GCM does not change over time. In the case that this is false a time
+        parameter will be passed to the `gcm_getter`.
 
     """
 
@@ -50,12 +42,10 @@ class gcmParameters(BaseParameters):
         self,
         gcm_getter: Callable[..., PyGCM],
         mean_molec_weight: float,
-        gcmtype: str,
         is_static: bool
     ):
         self.get_gcm = gcm_getter
         self.mean_molec_weight = mean_molec_weight
-        self.gcmtype = gcmtype
         self.is_staic = is_static
 
     def content(self, **kwargs):
@@ -94,7 +84,6 @@ class gcmParameters(BaseParameters):
             return cls(
                 gcm_getter=fun,
                 mean_molec_weight=mean_molec_weight,
-                gcmtype='binary',
                 is_static=True
             )
         elif 'vspec' in gcm_dict:
@@ -124,7 +113,6 @@ class gcmParameters(BaseParameters):
             return cls(
                 gcm_getter=fun,
                 mean_molec_weight=mean_molec_weight,
-                gcmtype='vspec',
                 is_static=True
             )
         elif 'waccm' in gcm_dict:
@@ -160,7 +148,6 @@ class gcmParameters(BaseParameters):
             return cls(
                 gcm_getter=fun,
                 mean_molec_weight=mean_molec_weight,
-                gcmtype='waccm',
                 is_static=is_static
             )
         elif 'exocam' in gcm_dict:
@@ -197,7 +184,6 @@ class gcmParameters(BaseParameters):
             return cls(
                 gcm_getter=fun,
                 mean_molec_weight=mean_molec_weight,
-                gcmtype='exocam',
                 is_static=is_static
             )
         elif 'exoplasim' in gcm_dict:
@@ -219,26 +205,12 @@ class gcmParameters(BaseParameters):
             return cls(
                 gcm_getter=fun,
                 mean_molec_weight=mean_molec_weight,
-                gcmtype='exoplasim',
                 is_static=True
             )
 
         else:
             raise KeyError(
                 f'`binary`, `waccm`, or `vspec` not in {list(d.keys())}')
-
-    def to_psg(self) -> dict:
-        """
-        Write parameters to the PSG format.
-
-        Returns
-        -------
-        dict
-            The PSG parameters in a dictionary
-        """
-        return {
-            'ATMOSPHERE-WEIGHT': f'{self.mean_molec_weight:.1f}'
-        }
 
 
 class psgParameters(BaseParameters):
@@ -322,21 +294,3 @@ class psgParameters(BaseParameters):
             lmax=int(d['lmax']),
             continuum=list(d['continuum']),
         )
-
-    def to_psg(self):
-        """
-        Convert the PSG parameters to the PSG input format.
-
-        Returns
-        -------
-        dict
-            A dictionary representing the PSG parameters in the PSG input format.
-
-        """
-        return {
-            'GENERATOR-GCM-BINNING': f'{self.gcm_binning}',
-            'GENERATOR-GAS-MODEL': 'Y' if self.use_molecular_signatures else 'N',
-            'ATMOSPHERE-NMAX': f'{self.nmax}',
-            'ATMOSPHERE-LMAX': f'{self.lmax}',
-            'ATMOSPHERE-CONTINUUM': ','.join(self.continuum)
-        }

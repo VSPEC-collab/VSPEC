@@ -341,7 +341,7 @@ class ObservationModel:
         update : bool
             Whether to use the `'upd'` keyword rather than `'set'`
         """
-        if self.params.gcm.gcmtype == 'waccm':
+        if not self.params.gcm.is_staic:
             kwargs = {'obs_time': obstime}
         else:
             kwargs = {}
