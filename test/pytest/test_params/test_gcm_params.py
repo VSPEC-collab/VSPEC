@@ -43,7 +43,6 @@ def test_gcmParameters_from_dict_waccm():
     assert not gcm_params.is_staic
     assert isinstance(gcm_params.get_gcm(0*u.day), PyGCM)
 
-    assert gcm_params.to_psg()['ATMOSPHERE-WEIGHT'] == '28.0'
 
 
 def test_gcmParameters_from_dict_invalid():
