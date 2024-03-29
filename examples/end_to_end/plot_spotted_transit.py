@@ -185,7 +185,8 @@ star_kwargs = dict(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    grid_params=100000
+    grid_params=100000,
+    spectral_grid='default'
 )
 quiet_star = params.StarParameters(
     spots=params.SpotParameters.none(),

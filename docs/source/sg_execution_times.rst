@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:05.672** total execution time for 11 files **from all galleries**:
+**04:21.147** total execution time for 11 files **from all galleries**:
 
 .. container::
 
@@ -32,11 +32,8 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
-   * - :ref:`sphx_glr_auto_examples_other_gcm_plot_cowan2011.py` (``../../examples/other/gcm/plot_cowan2011.py``)
-     - 00:05.672
-     - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_gj1214b_kempton23.py` (``../../examples/end_to_end/plot_gj1214b_kempton23.py``)
-     - 00:00.000
+     - 04:21.147
      - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_mirecle_proxcenb.py` (``../../examples/end_to_end/plot_mirecle_proxcenb.py``)
      - 00:00.000
@@ -48,6 +45,9 @@ Computation times
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_transit_spectrum.py` (``../../examples/end_to_end/plot_transit_spectrum.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_other_gcm_plot_cowan2011.py` (``../../examples/other/gcm/plot_cowan2011.py``)
      - 00:00.000
      - 0.0
    * - :ref:`sphx_glr_auto_examples_other_star_plot_faculae_lightcurve.py` (``../../examples/other/star/plot_faculae_lightcurve.py``)

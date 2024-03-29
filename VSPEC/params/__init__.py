@@ -12,9 +12,6 @@ from VSPEC.params.planet import GravityParameters
 from VSPEC.params.planet import SystemParameters
 from VSPEC.params.gcm import psgParameters
 from VSPEC.params.gcm import gcmParameters
-from VSPEC.params.gcm import binaryGCM
-from VSPEC.params.gcm import waccmGCM
-from VSPEC.params.gcm import vspecGCM
 from VSPEC.params.observation import ObservationParameters
 from VSPEC.params.observation import InstrumentParameters
 from VSPEC.params.observation import TelescopeParameters

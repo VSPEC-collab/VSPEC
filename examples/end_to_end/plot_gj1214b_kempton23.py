@@ -121,7 +121,8 @@ star_kwargs = dict(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    grid_params=(500,1000)
+    grid_params=(500,1000),
+    spectral_grid='default'
 )
 
 quiet_star = params.StarParameters(
@@ -180,7 +181,7 @@ params_spotted = params.InternalParameters(
 # Before we run ``VSPEC``, let's look at the planet.
 # 
 
-gcm_data:PyGCM = gcm.gcm.gcm
+gcm_data:PyGCM = gcm.get_gcm()
 
 tsurf = gcm_data.tsurf.dat.to_value(u.K)
 

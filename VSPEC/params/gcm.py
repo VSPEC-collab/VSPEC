@@ -1,288 +1,25 @@
 """
 GCM parameters module
 """
-from typing import Union
+from typing import Callable
 from pathlib import Path
 from astropy import units as u
 from netCDF4 import Dataset
-import yaml
 
 from pypsg import PyConfig
-from pypsg.globes.waccm.waccm import get_time_index
-from pypsg.globes import waccm_to_pygcm, PyGCM
+from pypsg.globes import waccm_to_pygcm, PyGCM, exocam_to_pygcm, GCMdecoder, exoplasim_to_pygcm
+from pypsg.globes.exocam import exocam
+from pypsg.globes.waccm import waccm
 
-from VSPEC.config import psg_encoding, PRESET_PATH
 from VSPEC.params.base import BaseParameters
 from VSPEC.gcm.heat_transfer import to_pygcm as vspec_to_pygcm
 
 
-class binaryGCM(BaseParameters):
+def parse_molec_list(molec_list: list):
     """
-    Class to store a GCM given in the PSG format.
-
-    Parameters
-    ----------
-    path : pathlib.Path, default=None
-        The path to the data file.
-    data : bytes, default=None
-        The data as a Python bytes object.
-
-    Raises
-    ------
-    ValueError
-        If neither path nor data is provided.
-
-    Attributes
-    ----------
-    path : pathlib.Path or None
-        The path to the config file.
-    data : bytes or None
-        The data as a Python bytes object.
-    static : bool
-        If true, the GCM does not change with time.
-        (Set to True for `binaryGCM`)
-
-    Methods
-    -------
-    content()
-        Get the content of the GCM.
-
+    Annoyingly YAML automatically converts NO (nitrous oxide) to the boolean False.
     """
-    static = True
-
-    def __init__(self, path: Path = None, data: bytes = None):
-        if path is None and data is None:
-            raise ValueError('Must provide some way to access the data!')
-        self.path = path if path is None else path.expanduser()
-        self.data = data
-
-    def content(self) -> bytes:
-        """
-        Get the GCM as a `bytes` object.
-
-        Returns
-        -------
-        bytes
-            The content of the GCM.
-
-        """
-        if self.path is None:
-            return self.data
-        else:
-            with open(self.path, 'rb') as file:
-                return file.read()
-
-    def to_pycfg(self) -> PyConfig:
-        """
-        Get a `PyConfig` object from the GCM.
-        """
-        return PyConfig.from_bytes(self.content())
-
-    @classmethod
-    def _from_dict(cls, d: dict):
-        return cls(
-            path=None if d.get('path', None) is None else Path(
-                d.get('path', None)),
-            data=None if d.get('data', None) is None else bytes(
-                d.get('data', None), encoding=psg_encoding)
-        )
-
-
-class waccmGCM(BaseParameters):
-    """
-    Class to store and provide access to Whole Atmosphere
-    Community Climate Model (WACCM) data.
-
-    Parameters
-    ----------
-    path : pathlib.Path
-        The path to the netCDF file.
-    tstart : astropy.units.Quantity
-        The start time of the data.
-    molecules : list
-        A list of molecules to extract from the data.
-    aerosols : list
-        A list of aerosols to extract from the data.
-    background : str, default=None
-        The background molecule to include in the GCM.
-    static : bool, default=False
-        If true, the GCM does not change with time.
-
-    Attributes
-    ----------
-    path : pathlib.Path
-        The path to the netCDF file.
-    tstart : astropy.units.Quantity
-        The start time of the data.
-    molecules : list
-        A list of molecules to extract from the data.
-    aerosols : list
-        A list of aerosols to extract from the data.
-    background : str or None
-        The background background molecule to include in the GCM.
-    static : bool
-        If true, the GCM does not change with time.
-
-    Methods
-    -------
-    content(obs_time: astropy.units.Quantity) -> bytes
-        Get the content of the GCM for the specified observation time.
-
-    """
-
-    def __init__(self, path: Path, tstart: u.Quantity, molecules: list, aerosols: list, background: str = None, static: bool = False):
-        self.path = path
-        self.tstart = tstart
-        self.molecules = molecules
-        self.aerosols = aerosols
-        self.background = background
-        self.static = static
-
-    def content(self, obs_time: u.Quantity) -> bytes:
-        """
-        Get the content of the GCM for the specified observation time.
-
-        Parameters
-        ----------
-        obs_time : astropy.units.Quantity
-            The observation time.
-
-        Returns
-        -------
-        bytes
-            The content of the data.
-
-        """
-
-        with Dataset(self.path, 'r', format='NETCDF4') as data:
-            itime = get_time_index(data, obs_time + self.tstart)
-
-            gcm = waccm_to_pygcm(
-                data=data,
-                itime=itime,
-                molecules=self.molecules,
-                aerosols=self.aerosols,
-                background=self.background,
-            )
-            return PyConfig(
-                atmosphere=gcm.update_params(),
-                gcm=gcm
-            ).content
-
-    def to_pycfg(
-        self,
-        obs_time: u.Quantity
-    ):
-        """
-        Get a `pypsg.PyConfig` representation of the GCM.
-
-        Parameters
-        ----------
-        obs_time : astropy.units.Quantity
-            The observation time.
-
-        Returns
-        -------
-        pypsg.PyConfig
-            The PyConfig representation of the GCM.
-        """
-        with Dataset(self.path, 'r', format='NETCDF4') as data:
-            itime = get_time_index(data, obs_time + self.tstart)
-
-            pygcm = waccm_to_pygcm(
-                data=data,
-                itime=itime,
-                molecules=self.molecules,
-                aerosols=self.aerosols,
-                background=self.background,
-            )
-
-            atmosphere = pygcm.update_params()
-            return PyConfig(
-                atmosphere=atmosphere,
-                gcm=pygcm
-            )
-
-    @classmethod
-    def _from_dict(cls, d: dict):
-        return cls(
-            path=Path(d['path']).expanduser(),
-            tstart=u.Quantity(d['tstart']),
-            molecules=list(d['molecules'].replace(
-                ' ', '').split(',')) if 'molecules' in d else [],
-            aerosols=list(d['aerosols'].replace(' ', '').split(
-                ',')) if 'aerosols' in d else [],
-            background=None if d.get('background', None) is None else str(
-                d.get('background', None))
-        )
-
-
-class vspecGCM(BaseParameters):
-    static = True
-
-    def __init__(
-        self,
-        gcm: PyGCM
-    ):
-        self.gcm = gcm
-
-    @classmethod
-    def _from_dict(cls, gcm_dict: dict, star_dict: dict, planet_dict: dict):
-
-        return cls(
-            vspec_to_pygcm(
-                shape=(
-                    int(gcm_dict['nlayer']),
-                    int(gcm_dict['nlon']),
-                    int(gcm_dict['nlat'])
-                ),
-                epsilon=float(gcm_dict['epsilon']),
-                star_teff=u.Quantity(star_dict['teff']),
-                r_star=u.Quantity(star_dict['radius']),
-                r_orbit=u.Quantity(planet_dict['semimajor_axis']),
-                lat_redistribution=float(gcm_dict['lat_redistribution']),
-                p_surf=u.Quantity(gcm_dict['psurf']),
-                p_stop=u.Quantity(gcm_dict['ptop']),
-                wind_u=u.Quantity(gcm_dict['wind']['U']),
-                wind_v=u.Quantity(gcm_dict['wind']['V']),
-                gamma=float(gcm_dict['gamma']),
-                albedo=u.Quantity(gcm_dict['albedo']),
-                emissivity=u.Quantity(gcm_dict['emissivity']),
-                molecules=gcm_dict['molecules'],
-            )
-        )
-
-    def content(self) -> bytes:
-        """
-        Get bytes representation.
-        """
-        return self.gcm.content
-
-    def to_pycfg(self):
-        """
-        Get `pypsg.PyConfig` representation.
-        """
-        atmosphere = self.gcm.update_params()
-        return PyConfig(
-            atmosphere=atmosphere,
-            gcm=self.gcm
-        )
-
-    @classmethod
-    def earth(cls, **kwargs):
-        path = PRESET_PATH / 'earth.yaml'
-        with open(path, 'r', encoding='UTF-8') as file:
-            data = yaml.safe_load(file)
-            gcm_dict: dict = data['gcm']
-            star_dict = data['star']
-            planet_dict = data['planet']
-            gcm_dict.update(**kwargs)
-
-            return cls._from_dict(
-                gcm_dict=gcm_dict,
-                star_dict=star_dict,
-                planet_dict=planet_dict
-            )
+    return [mol if mol is not False else 'NO' for mol in molec_list]
 
 
 class gcmParameters(BaseParameters):
@@ -291,37 +28,31 @@ class gcmParameters(BaseParameters):
 
     Parameters
     ----------
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
+    gcm_getter : Callable
+        A function that returns a PyGCM instance.
     mean_molec_weight : float
-        The mean molecular weight of the atmosphere
-        in g/mol.
-
-    Attributes
-    ----------
-    is_static
-    gcmtype
-    gcm : binaryGCM or waccmGCM
-        The GCM instance containing the GCM data.
-    mean_molec_weight : float
-        The mean molecular weight of the atmosphere
-        in g/mol.
+        The mean molecular weight of the atmosphere in g/mol.
+    is_staic : bool
+        If true, the GCM does not change over time. In the case that this is false a time
+        parameter will be passed to the `gcm_getter`.
 
     """
 
     def __init__(
         self,
-        gcm: Union[binaryGCM, Union[vspecGCM, waccmGCM]],
-        mean_molec_weight: float
+        gcm_getter: Callable[..., PyGCM],
+        mean_molec_weight: float,
+        is_static: bool
     ):
-        self.gcm = gcm
+        self.get_gcm = gcm_getter
         self.mean_molec_weight = mean_molec_weight
+        self.is_staic = is_static
 
     def content(self, **kwargs):
         """
         Get a bytes representation of the GCM.
         """
-        return self.gcm.content(**kwargs)
+        return self.get_gcm(**kwargs).content
 
     def to_pycfg(self, **kwargs) -> PyConfig:
         """
@@ -332,22 +63,11 @@ class gcmParameters(BaseParameters):
         obs_time : astropy.time.Time, optional
             The time of the observation. Necessary for a waccm GCM.
         """
-        return self.gcm.to_pycfg(**kwargs)
-
-    @property
-    def is_staic(self) -> bool:
-        return self.gcm.static
-
-    @property
-    def gcmtype(self) -> str:
-        if isinstance(self.gcm, binaryGCM):
-            return 'binary'
-        elif isinstance(self.gcm, waccmGCM):
-            return 'waccm'
-        elif isinstance(self.gcm, vspecGCM):
-            return 'vspec'
-        else:
-            raise TypeError('Unknown GCM type')
+        _gcm = self.get_gcm(**kwargs)
+        return PyConfig(
+            atmosphere=_gcm.update_params(),
+            gcm=_gcm
+        )
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -356,37 +76,141 @@ class gcmParameters(BaseParameters):
         planet_dict = d['planet']
         mean_molec_weight = float(gcm_dict['mean_molec_weight'])
         if 'binary' in gcm_dict:
+            args_dict: dict = gcm_dict['binary']
+            path = Path(args_dict['path']).expanduser()
+
+            def fun():
+                return PyGCM.from_decoder(GCMdecoder.from_psg(path))
             return cls(
-                gcm=binaryGCM.from_dict(gcm_dict['binary']),
-                mean_molec_weight=mean_molec_weight
-            )
-        elif 'waccm' in gcm_dict:
-            return cls(
-                gcm=waccmGCM.from_dict(gcm_dict['waccm']),
-                mean_molec_weight=mean_molec_weight
+                gcm_getter=fun,
+                mean_molec_weight=mean_molec_weight,
+                is_static=True
             )
         elif 'vspec' in gcm_dict:
+            args_dict: dict = gcm_dict['vspec']
+
+            def fun():
+                return vspec_to_pygcm(
+                    shape=(
+                        int(args_dict['nlayer']),
+                        int(args_dict['nlon']),
+                        int(args_dict['nlat'])
+                    ),
+                    epsilon=float(args_dict['epsilon']),
+                    star_teff=u.Quantity(star_dict['teff']),
+                    r_star=u.Quantity(star_dict['radius']),
+                    r_orbit=u.Quantity(planet_dict['semimajor_axis']),
+                    lat_redistribution=float(args_dict['lat_redistribution']),
+                    p_surf=u.Quantity(args_dict['psurf']),
+                    p_stop=u.Quantity(args_dict['ptop']),
+                    wind_u=u.Quantity(args_dict['wind']['U']),
+                    wind_v=u.Quantity(args_dict['wind']['V']),
+                    gamma=float(args_dict['gamma']),
+                    albedo=u.Quantity(args_dict['albedo']),
+                    emissivity=u.Quantity(args_dict['emissivity']),
+                    molecules=args_dict['molecules'],
+                )
             return cls(
-                gcm=vspecGCM.from_dict(
-                    gcm_dict['vspec'], star_dict, planet_dict),
-                mean_molec_weight=mean_molec_weight
+                gcm_getter=fun,
+                mean_molec_weight=mean_molec_weight,
+                is_static=True
             )
+        elif 'waccm' in gcm_dict:
+            args_dict: dict = gcm_dict['waccm']
+            path = Path(args_dict['path']).expanduser()
+            itime = int(args_dict['itime']) if 'itime' in args_dict else None
+            is_static = itime is not None
+            if is_static:
+                def fun():
+                    with Dataset(path) as data:
+                        return waccm_to_pygcm(
+                            data=data,
+                            itime=itime,
+                            molecules=parse_molec_list(args_dict['molecules']),
+                            aerosols=args_dict['aerosols'],
+                            background=args_dict.get('background', None),
+                            lon_start=args_dict.get('lon_start', -180),
+                            lat_start=args_dict.get('lat_start', -90)
+                        )
+            else:
+                def fun(obs_time: u.Quantity):
+                    with Dataset(path) as data:
+                        return waccm_to_pygcm(
+                            data=data,
+                            itime=waccm.get_time_index(
+                                data, obs_time + u.Quantity(args_dict['tstart'])),
+                            molecules=parse_molec_list(args_dict['molecules']),
+                            aerosols=args_dict['aerosols'],
+                            background=args_dict.get('background', None),
+                            lon_start=args_dict.get('lon_start', -180),
+                            lat_start=args_dict.get('lat_start', -90)
+                        )
+            return cls(
+                gcm_getter=fun,
+                mean_molec_weight=mean_molec_weight,
+                is_static=is_static
+            )
+        elif 'exocam' in gcm_dict:
+            args_dict: dict = gcm_dict['exocam']
+            path = Path(args_dict['path']).expanduser()
+            itime = int(args_dict['itime']) if 'itime' in args_dict else None
+            is_static = itime is not None
+            if is_static:
+                def fun():
+                    with Dataset(path) as data:
+                        return exocam_to_pygcm(
+                            data=data,
+                            itime=itime,
+                            molecules=parse_molec_list(args_dict['molecules']),
+                            aerosols=args_dict['aerosols'],
+                            background=args_dict.get('background', None),
+                            lon_start=args_dict.get('lon_start', -180),
+                            lat_start=args_dict.get('lat_start', -90),
+                            mean_molecular_mass=args_dict['mean_molecular_mass']
+                        )
+            else:
+                def fun(obs_time: u.Quantity):
+                    with Dataset(path) as data:
+                        return exocam_to_pygcm(
+                            data=data,
+                            itime=exocam.get_time_index(data, obs_time),
+                            molecules=parse_molec_list(args_dict['molecules']),
+                            aerosols=args_dict['aerosols'],
+                            background=args_dict.get('background', None),
+                            lon_start=args_dict.get('lon_start', -180),
+                            lat_start=args_dict.get('lat_start', -90),
+                            mean_molecular_mass=args_dict['mean_molecular_mass']
+                        )
+            return cls(
+                gcm_getter=fun,
+                mean_molec_weight=mean_molec_weight,
+                is_static=is_static
+            )
+        elif 'exoplasim' in gcm_dict:
+            args_dict: dict = gcm_dict['exoplasim']
+            path = Path(args_dict['path']).expanduser()
+
+            def fun():
+                with Dataset(path) as data:
+                    return exoplasim_to_pygcm(
+                        data=data,
+                        itime=int(args_dict['itime']),
+                        molecules=parse_molec_list(args_dict['molecules']),
+                        aerosols=args_dict['aerosols'],
+                        background=args_dict.get('background', None),
+                        lon_start=args_dict.get('lon_start', -180),
+                        lat_start=args_dict.get('lat_start', -90),
+                        mean_molecular_mass=args_dict['mean_molecular_mass']
+                    )
+            return cls(
+                gcm_getter=fun,
+                mean_molec_weight=mean_molec_weight,
+                is_static=True
+            )
+
         else:
             raise KeyError(
                 f'`binary`, `waccm`, or `vspec` not in {list(d.keys())}')
-
-    def to_psg(self) -> dict:
-        """
-        Write parameters to the PSG format.
-
-        Returns
-        -------
-        dict
-            The PSG parameters in a dictionary
-        """
-        return {
-            'ATMOSPHERE-WEIGHT': f'{self.mean_molec_weight:.1f}'
-        }
 
 
 class psgParameters(BaseParameters):
@@ -470,21 +294,3 @@ class psgParameters(BaseParameters):
             lmax=int(d['lmax']),
             continuum=list(d['continuum']),
         )
-
-    def to_psg(self):
-        """
-        Convert the PSG parameters to the PSG input format.
-
-        Returns
-        -------
-        dict
-            A dictionary representing the PSG parameters in the PSG input format.
-
-        """
-        return {
-            'GENERATOR-GCM-BINNING': f'{self.gcm_binning}',
-            'GENERATOR-GAS-MODEL': 'Y' if self.use_molecular_signatures else 'N',
-            'ATMOSPHERE-NMAX': f'{self.nmax}',
-            'ATMOSPHERE-LMAX': f'{self.lmax}',
-            'ATMOSPHERE-CONTINUUM': ','.join(self.continuum)
-        }

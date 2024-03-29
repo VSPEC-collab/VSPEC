@@ -60,6 +60,7 @@ class ObservationModel:
         A psudo-random number generator to be used in
         the simulation.
     """
+
     def __init__(
         self,
         params: InternalParameters
@@ -71,8 +72,9 @@ class ObservationModel:
         self.verbose = params.header.verbose
         self.build_directories()
         self.rng = np.random.default_rng(self.params.header.seed)
-        self.spec = None # Load later when needed.
-        self.star:vsm.Star = None
+        # Load later when needed.
+        self.spec: GridSpectra | ForwardSpectra = None
+        self.star: vsm.Star = None
         self.bb = ForwardSpectra.blackbody()
 
     @classmethod
@@ -167,17 +169,20 @@ class ObservationModel:
         VSPEC.spectra.GridSpec
             The spectal grid object to draw stellar spectra from.
         """
-        teffs = arrange_teff(
-            self.params.header.teff_min,
-            self.params.header.teff_max
-        )
-        spec = GridSpectra.from_vspec(
-            w1=self.params.inst.bandpass.wl_blue,
-            w2=self.params.inst.bandpass.wl_red,
-            resolving_power=self.params.inst.bandpass.resolving_power,
-            teffs=teffs
-        )
-        return spec
+        if self.params.star.spectral_grid == 'default':
+            teffs = arrange_teff(
+                self.params.header.teff_min,
+                self.params.header.teff_max
+            )
+            spec = GridSpectra.from_vspec(
+                w1=self.params.inst.bandpass.wl_blue,
+                w2=self.params.inst.bandpass.wl_red,
+                resolving_power=self.params.inst.bandpass.resolving_power,
+                teffs=teffs
+            )
+            return spec
+        elif self.params.star.spectral_grid == 'bb':
+            return ForwardSpectra.blackbody()
 
     @property
     def wl(self):
@@ -195,7 +200,7 @@ class ObservationModel:
             lam2=self.params.inst.bandpass.wl_red.to_value(config.wl_unit)
         )[:-1]*config.wl_unit
 
-    def get_model_spectrum(self, teff: u.Quantity)->u.Quantity:
+    def get_model_spectrum(self, teff: u.Quantity) -> u.Quantity:
         """
         Get the interpolated spectrum given an effective temperature.
 
@@ -213,13 +218,21 @@ class ObservationModel:
         -----
         This function applies the solid angle correction.
         """
-        teffs = np.atleast_1d(teff.to_value(config.teff_unit))
         if self.spec is None:
             self.spec = self.load_spectra()
-        return self.spec.evaluate(
-            params=(teffs,),
-            wl=np.array(self.wl.to_value(config.wl_unit))
-        )[0,:] * config.flux_unit * self.params.flux_correction
+
+        match self.params.star.spectral_grid:
+            case 'default':
+                teffs = np.atleast_1d(teff.to_value(config.teff_unit))
+                return self.spec.evaluate(
+                    params=(teffs,),
+                    wl=np.array(self.wl.to_value(config.wl_unit))
+                )[0, :] * config.flux_unit * self.params.flux_correction
+            case 'bb':
+                self.spec: ForwardSpectra
+                return self.spec.evaluate(self.wl, teff) * self.params.flux_correction
+        raise ValueError(
+            f'Spectral grid {self.params.star.spectral_grid} not recognized')
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
@@ -314,7 +327,7 @@ class ObservationModel:
                 raise RuntimeError('PSG is not running.\n' +
                                    'Type `docker start psg` in the command line ' +
                                    'or run `pypsg.docker.start_psg()`')
-                
+
     def upload_gcm(self, obstime: u.Quantity = 0*u.s, update=False):
         """
         Upload GCM file to PSG
@@ -328,7 +341,7 @@ class ObservationModel:
         update : bool
             Whether to use the `'upd'` keyword rather than `'set'`
         """
-        if self.params.gcm.gcmtype == 'waccm':
+        if not self.params.gcm.is_staic:
             kwargs = {'obs_time': obstime}
         else:
             kwargs = {}
@@ -346,8 +359,7 @@ class ObservationModel:
         """
         Upload the non-changing parts of the PSG config.
         """
-        params = self.params.to_psg()
-        cfg = pypsg.PyConfig.from_dict(params)
+        cfg = self.params.to_pyconfig()
         caller = pypsg.APICall(
             cfg=cfg,
             output_type='upd',
@@ -422,7 +434,7 @@ class ObservationModel:
         if n_lines > PSG_CFG_MAX_LINES:
             self.__flags__.psg_needs_set = True
 
-        expected_cfg = pypsg.PyConfig.from_dict(self.params.to_psg())
+        expected_cfg = self.params.to_pyconfig()
 
         assert expected_cfg.target == cfg_from_psg.target, 'PSG target does not match'
         assert expected_cfg.geometry == cfg_from_psg.geometry, 'PSG geometry does not match'
@@ -633,7 +645,7 @@ class ObservationModel:
         self.star.get_flares_over_observation(
             self.params.obs.observation_time)
 
-    def     calculate_composite_stellar_spectrum(
+    def calculate_composite_stellar_spectrum(
         self,
         sub_obs_coords,
         tstart,
@@ -789,7 +801,7 @@ class ObservationModel:
         N1_frac: float,
         phase: u.Quantity,
         orbit_radius: u.Quantity
-    )-> Tuple[u.Quantity, np.ndarray]:
+    ) -> Tuple[u.Quantity, np.ndarray]:
         """
         Get the transit spectra calculated by PSG
 
@@ -824,7 +836,7 @@ class ObservationModel:
             self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'fits')
 
         wavelength = []
-        transit:List[np.ndarray] = []
+        transit: List[np.ndarray] = []
 
         for psg_cmb_path in [psg_cmb_path1, psg_cmb_path2]:
             cmb_rad: pypsg.PyRad = pypsg.PyRad.read(
@@ -834,7 +846,8 @@ class ObservationModel:
             if 'Transit' in cmb_rad.colnames:
                 tran = cmb_rad['Transit']
                 star = cmb_rad['Stellar']
-                blocked_frac = -1*(tran/star).to_value(u.dimensionless_unscaled)
+                blocked_frac = -1 * \
+                    (tran/star).to_value(u.dimensionless_unscaled)
                 transit.append(blocked_frac)
             else:
                 star = cmb_rad['Stellar']
@@ -843,11 +856,11 @@ class ObservationModel:
 
         if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
             raise ValueError('The wavelength coordinates must be equivalent.')
-        
+
         frac_absorbed: np.ndarray = transit[0]*N1_frac + transit[1]*(1-N1_frac)
-        
-        depth_bare_rock:float = (self.params.planet.radius /
-                           self.params.star.radius).to_value(u.dimensionless_unscaled)**2
+
+        depth_bare_rock: float = (self.params.planet.radius /
+                                  self.params.star.radius).to_value(u.dimensionless_unscaled)**2
         return wavelength[0], frac_absorbed/depth_bare_rock
 
         # pl_frac_visible = self.star.get_pl_frac(
@@ -916,7 +929,7 @@ class ObservationModel:
                 psg_noise_path, format='fits')
             psg_noise_source.append(noise['Source'])
             psg_source.append(combined['Total'])
-            
+
         psg_noise_source = psg_noise_source[0] * \
             N1_frac + psg_noise_source[1] * (1-N1_frac)
         psg_source = psg_source[0]*N1_frac + psg_source[1] * (1-N1_frac)
@@ -966,7 +979,8 @@ class ObservationModel:
         thermal = []
 
         for psg_thermal_path in [psg_thermal_path1, psg_thermal_path2]:
-            thermal_rad: pypsg.PyRad = pypsg.PyRad.read(psg_thermal_path, format='fits')
+            thermal_rad: pypsg.PyRad = pypsg.PyRad.read(
+                psg_thermal_path, format='fits')
 
             wavelength.append(thermal_rad.wl)
             try:
@@ -975,7 +989,7 @@ class ObservationModel:
             except KeyError:
                 try:
                     thermal.append(thermal_rad['Thermal'])
-                except KeyError as err2: # There is something wrong with the planet name. See issue #25
+                except KeyError as err2:  # There is something wrong with the planet name. See issue #25
                     msg = f'Neither "{planet_name}" nor "Thermal" were found in {thermal_rad.colnames}. '
                     new_issue_url = 'https://github.com/VSPEC-collab/VSPEC/issues/new'
                     msg += f'If this is a valid planet name, please report this bug at {new_issue_url}'
@@ -1063,7 +1077,8 @@ class ObservationModel:
         planet_times = planet_observation_info['time']
 
         time_step = self.params.obs.integration_time
-        planet_time_step = self.params.obs.observation_time / (self.params.planet_total_images+1)
+        planet_time_step = self.params.obs.observation_time / \
+            (self.params.planet_total_images+1)
         granulation_fractions = self.star.get_granulation_coverage(
             observation_info['time'])
 

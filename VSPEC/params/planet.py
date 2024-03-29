@@ -31,7 +31,7 @@ class GravityParameters(BaseParameters):
     10.0
 
     A ``GravityParameters`` object can also be created from a dictionary.
-    
+
     >>> d = {'mode':'kg','value':1*u.M_earth}
     >>> grav = GravityParameters.from_dict(d)
     >>> grav.mode
@@ -78,7 +78,7 @@ class GravityParameters(BaseParameters):
             The value of the gravity parameter.
         """
 
-        return self._value.to_value(self._psg_units[self.mode])
+        return self._value.to(self._psg_units[self.mode])
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -107,22 +107,6 @@ class GravityParameters(BaseParameters):
         This constructor assumes ``d`` contains the keys ``'mode'`` and ``'value'``
         """
         return super().from_dict(d, *args)
-
-    def to_psg(self) -> dict:
-        """
-        Convert the gravity parameters to the PSG input format.
-
-        Returns
-        -------
-        dict
-            A dictionary representing the gravity parameters in the PSG input format.
-
-        """
-
-        return {
-            'OBJECT-GRAVITY': f'{self.value:.4e}',
-            'OBJECT-GRAVITY-UNIT': self.mode
-        }
 
 
 class PlanetParameters(BaseParameters):
@@ -215,27 +199,6 @@ class PlanetParameters(BaseParameters):
         self.obliquity_direction = obliquity_direction
         self.init_phase = init_phase
         self.init_substellar_lon = init_substellar_lon
-
-    def to_psg(self):
-        """
-        Convert the parameters to the PSG config format.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the parameters in the PSG config format.
-
-        """
-        psg_dict = {
-            'OBJECT': 'Exoplanet',
-            'OBJECT-NAME': self.name,
-            'OBJECT-DIAMETER': f'{2*self.radius.to_value(planet_radius_unit):.4f}',
-            'OBJECT-STAR-DISTANCE': f'{self.semimajor_axis.to_value(planet_distance_unit):.4f}',
-            'OBJECT-PERIOD': f'{self.orbit_period.to_value(period_unit):.4f}',
-            'OBJECT-ECCENTRICITY': f'{self.eccentricity:.5f}',
-        }
-        psg_dict.update(self.gravity.to_psg())
-        return psg_dict
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -360,20 +323,3 @@ class SystemParameters(BaseParameters):
             inclination=u.Quantity(d['inclination']),
             phase_of_periasteron=u.Quantity(d['phase_of_periasteron']),
         )
-
-    def to_psg(self) -> dict:
-        """
-        Convert the parameters to the PSG config format.
-
-        Returns
-        -------
-        dict
-            A dictionary containing the parameters in the PSG config format.
-
-        """
-        return {
-            'GEOMETRY-OBS-ALTITUDE': f'{self.distance.to_value(u.pc):.4f}',
-            'GEOMETRY-ALTITUDE-UNIT': 'pc',
-            'OBJECT-INCLINATION': f'{self.inclination.to_value(u.deg):.2f}',
-            'OBJECT-PERIAPSIS': f'{self.phase_of_periasteron.to_value(u.deg):.2f}'
-        }

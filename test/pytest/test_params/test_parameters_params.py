@@ -13,7 +13,7 @@ def parameters():
     return InternalParameters.from_yaml(test_file)
 
 
-def test_star_parameters(parameters:InternalParameters):
+def test_star_parameters(parameters: InternalParameters):
     # Access and verify star parameters
     star_params = parameters.star
     assert star_params.psg_star_template == 'M'
@@ -22,12 +22,10 @@ def test_star_parameters(parameters:InternalParameters):
     assert star_params.radius == 0.154*u.R_sun
 
 
-def test_planet_parameters(parameters:InternalParameters):
+def test_planet_parameters(parameters: InternalParameters):
     # Access and verify planet parameters
     planet_params = parameters.planet
     assert planet_params.name == 'Exoplanet'
     assert planet_params.radius == 1*u.R_earth
     assert planet_params.gravity.mode == 'kg'
-    assert planet_params.gravity.value == (1.0*u.M_earth).to_value(u.kg)
-
-
+    assert planet_params.gravity.value == 1.0*u.M_earth

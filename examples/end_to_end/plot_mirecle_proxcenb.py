@@ -121,7 +121,8 @@ quiet_star = params.StarParameters(
     faculae=params.FaculaParameters.none(),
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
-    grid_params=(500, 1000)
+    grid_params=(500, 1000),
+    spectral_grid='default'
 )
 
 # Set parameters for simulation

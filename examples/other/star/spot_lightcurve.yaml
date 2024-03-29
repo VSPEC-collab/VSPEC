@@ -37,6 +37,7 @@ star:
     period: 5 day
     dteff: 200 K
   grid_params: [500,1000]
+  spectral_grid: default
 planet:
   name: Exoplanet
   radius: 1 R_earth

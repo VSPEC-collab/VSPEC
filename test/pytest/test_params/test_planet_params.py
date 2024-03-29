@@ -2,6 +2,7 @@ import pytest
 import astropy.units as u
 from VSPEC.params.planet import PlanetParameters, GravityParameters
 
+
 @pytest.fixture
 def planet_parameters():
     return PlanetParameters(
@@ -18,10 +19,11 @@ def planet_parameters():
         init_substellar_lon=180 * u.deg
     )
 
-def test_planet_parameters_creation(planet_parameters:PlanetParameters):
+
+def test_planet_parameters_creation(planet_parameters: PlanetParameters):
     assert planet_parameters.name == 'Test Planet'
     assert planet_parameters.radius == 1.5 * u.R_earth
-    assert isinstance(planet_parameters.gravity,GravityParameters)
+    assert isinstance(planet_parameters.gravity, GravityParameters)
     assert planet_parameters.semimajor_axis == 0.1 * u.AU
     assert planet_parameters.orbit_period == 20 * u.day
     assert planet_parameters.rotation_period == 10 * u.day
@@ -31,19 +33,8 @@ def test_planet_parameters_creation(planet_parameters:PlanetParameters):
     assert planet_parameters.init_phase == 0 * u.deg
     assert planet_parameters.init_substellar_lon == 180 * u.deg
 
-def test_planet_parameters_to_psg(planet_parameters:PlanetParameters):
-    psg_dict = planet_parameters.to_psg()
-    assert isinstance(psg_dict, dict)
-    assert psg_dict['OBJECT'] == 'Exoplanet'
-    assert psg_dict['OBJECT-NAME'] == 'Test Planet'
-    assert psg_dict['OBJECT-DIAMETER'] == f'{2*(1.5*u.R_earth).to_value(u.km):.4f}'
-    assert psg_dict['OBJECT-STAR-DISTANCE'] == '0.1000'
-    assert psg_dict['OBJECT-PERIOD'] == '20.0000'
-    assert psg_dict['OBJECT-ECCENTRICITY'] == '0.10000'
-    assert psg_dict['OBJECT-GRAVITY'] == '1.0000e+01'
-    assert psg_dict['OBJECT-GRAVITY-UNIT'] == 'g'
 
-def test_planet_parameters_from_dict(planet_parameters:PlanetParameters):
+def test_planet_parameters_from_dict(planet_parameters: PlanetParameters):
     planet_dict = {
         'name': 'Test Planet',
         'radius': '1.5 earthRad',
@@ -74,6 +65,7 @@ def test_planet_parameters_from_dict(planet_parameters:PlanetParameters):
     assert new_parameters.init_phase == planet_parameters.init_phase
     assert new_parameters.init_substellar_lon == planet_parameters.init_substellar_lon
 
+
 def test_planet_parameters_proxcenb():
     init_phase = 90 * u.deg
     init_substellar_lon = 0 * u.deg
@@ -90,6 +82,7 @@ def test_planet_parameters_proxcenb():
     assert planet.obliquity_direction == 0 * u.deg
     assert planet.init_phase == init_phase
     assert planet.init_substellar_lon == init_substellar_lon
+
 
 def test_planet_parameters_std():
     init_phase = 45 * u.deg
