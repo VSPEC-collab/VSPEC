@@ -140,7 +140,7 @@ class gcmParameters(BaseParameters):
                             itime=waccm.get_time_index(
                                 data, obs_time + u.Quantity(args_dict['tstart'])),
                             molecules=parse_molec_list(args_dict['molecules']),
-                            aerosols=args_dict['aerosols'],
+                            aerosols=args_dict.get('aerosols',None),
                             background=args_dict.get('background', None),
                             lon_start=args_dict.get('lon_start', -180),
                             lat_start=args_dict.get('lat_start', -90)
