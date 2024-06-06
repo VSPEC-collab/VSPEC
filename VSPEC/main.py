@@ -8,6 +8,7 @@ and PSG.
 
 from pathlib import Path
 import warnings
+import logging
 from functools import partial
 from typing import Dict, List, Tuple
 
@@ -76,6 +77,11 @@ class ObservationModel:
         self.spec: GridSpectra | ForwardSpectra = None
         self.star: vsm.Star = None
         self.bb = ForwardSpectra.blackbody()
+        self.logger = logging.Logger('VSPEC')
+        self.logger.setLevel(logging.DEBUG)
+        fh = logging.FileHandler(self.directories['parent'] / 'psg.log',mode='w')
+        fh.setLevel(logging.DEBUG)
+        self.logger.addHandler(fh)
 
     @classmethod
     def from_yaml(cls, config_path: Path):
@@ -350,6 +356,7 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd' if update else 'set',
             app='globes',
+            logger=self.logger
         )
         _ = caller()
         if not update:
@@ -364,6 +371,7 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd',
             app='globes',
+            logger=self.logger
         )
         _ = caller()
 
@@ -412,6 +420,7 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd',
             app='globes',
+            logger=self.logger
         )
         _ = caller()
 
@@ -462,6 +471,7 @@ class ObservationModel:
             cfg=tmp_cfg,
             output_type='all',
             app='globes',
+            logger=self.logger
         )
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
