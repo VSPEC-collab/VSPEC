@@ -25,6 +25,7 @@ def test_psgParameters_from_dict():
     assert psg_params.use_molecular_signatures is True
     assert psg_params.nmax == 0
     assert psg_params.lmax == 0
+    assert psg_params.use_continuum_stellar == psgParameters._defaults['use_stellar_continuum']
     assert isinstance(psg_params.continuum, list)
 
 
@@ -36,7 +37,8 @@ def test_psgParameters_to_psg():
         use_molecular_signatures=True,
         nmax=0,
         lmax=0,
-        continuum=['Rayleigh', 'Refraction']
+        continuum=['Rayleigh', 'Refraction'],
+        use_continuum_stellar=True
     )
     assert psg_params.gcm_binning == 3
     assert psg_params.phase_binning == 1
@@ -44,3 +46,4 @@ def test_psgParameters_to_psg():
     assert psg_params.nmax == 0
     assert psg_params.lmax == 0
     assert psg_params.continuum == ['Rayleigh', 'Refraction']
+    assert psg_params.use_continuum_stellar is True
