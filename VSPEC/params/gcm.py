@@ -271,6 +271,9 @@ class psgParameters(BaseParameters):
         An instance of the APIkey class representing the PSG API key.
 
     """
+    _defaults = {
+        'use_stellar_continuum': True
+    }
 
     def __init__(
         self,
@@ -296,7 +299,7 @@ class psgParameters(BaseParameters):
             gcm_binning=int(d['gcm_binning']),
             phase_binning=int(d['phase_binning']),
             use_molecular_signatures=bool(d['use_molecular_signatures']),
-            use_continuum_stellar=bool(d['use_continuum_stellar']),
+            use_continuum_stellar=bool(d.get('use_continuum_stellar',cls._defaults['use_stellar_continuum'])),
             nmax=int(d['nmax']),
             lmax=int(d['lmax']),
             continuum=list(d['continuum']),
