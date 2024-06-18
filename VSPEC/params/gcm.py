@@ -226,6 +226,8 @@ class psgParameters(BaseParameters):
         interpolated to match the cadence of the variable star simulation.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    use_continuum_stellar : bool
+        Whether to include the stellar contiuum or not.
     nmax : int
         PSG handbook: 'When performing scattering aerosols calculations, this
         parameter indicates the number of n-stream pairs - Use 0 for extinction
@@ -252,6 +254,8 @@ class psgParameters(BaseParameters):
         Number of phase epochs to bin together when simulating the planet.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    use_continuum_stellar : bool
+        Whether to include the stellar contiuum or not.
     nmax : int
         PSG handbook: 'When performing scattering aerosols calculations, this
         parameter indicates the number of n-stream pairs - Use 0 for extinction
@@ -273,6 +277,7 @@ class psgParameters(BaseParameters):
         gcm_binning: int,
         phase_binning: int,
         use_molecular_signatures: bool,
+        use_continuum_stellar: bool,
         nmax: int,
         lmax: int,
         continuum: list
@@ -280,6 +285,7 @@ class psgParameters(BaseParameters):
         self.gcm_binning = gcm_binning
         self.phase_binning = phase_binning
         self.use_molecular_signatures = use_molecular_signatures
+        self.use_continuum_stellar = use_continuum_stellar
         self.nmax = nmax
         self.lmax = lmax
         self.continuum = continuum
@@ -290,6 +296,7 @@ class psgParameters(BaseParameters):
             gcm_binning=int(d['gcm_binning']),
             phase_binning=int(d['phase_binning']),
             use_molecular_signatures=bool(d['use_molecular_signatures']),
+            use_continuum_stellar=bool(d['use_continuum_stellar']),
             nmax=int(d['nmax']),
             lmax=int(d['lmax']),
             continuum=list(d['continuum']),
