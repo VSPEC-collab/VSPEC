@@ -274,7 +274,7 @@ class InternalParameters(BaseParameters):
         return models.Generator(
             resolution_kernel=None,
             gas_model=self.psg.use_molecular_signatures,
-            continuum_model=None,
+            continuum_stellar=self.psg.use_continuum_stellar,
             continuum_stellar=True,
             apply_telluric_noise=None,
             apply_telluric_obs=None,
