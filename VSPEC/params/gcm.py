@@ -226,6 +226,8 @@ class psgParameters(BaseParameters):
         interpolated to match the cadence of the variable star simulation.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    use_continuum_stellar : bool
+        Whether to include the stellar contiuum or not.
     nmax : int
         PSG handbook: 'When performing scattering aerosols calculations, this
         parameter indicates the number of n-stream pairs - Use 0 for extinction
@@ -238,11 +240,6 @@ class psgParameters(BaseParameters):
     continuum : list of str
         The continuum opacities to include in the radiative transfer calculation, such as
         'Rayleigh', 'Refraction', 'CIA_all'.
-    url : str
-        URL of the Planetary Spectrum Generator.
-    api_key : APIkey
-        An instance of the APIkey class representing the PSG API key. Provide either the
-        path to the API key file or the API key value.
 
     Attributes
     ----------
@@ -252,6 +249,8 @@ class psgParameters(BaseParameters):
         Number of phase epochs to bin together when simulating the planet.
     use_molecular_signatures : bool
         Whether to use molecular signatures (PSG atmosphere) or not.
+    use_continuum_stellar : bool
+        Whether to include the stellar contiuum or not.
     nmax : int
         PSG handbook: 'When performing scattering aerosols calculations, this
         parameter indicates the number of n-stream pairs - Use 0 for extinction
@@ -261,18 +260,18 @@ class psgParameters(BaseParameters):
         parameter indicates the number of scattering Legendre polynomials used
         for describing the phase function - Use 0 for extinction calculations
         only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
-    url : str
-        URL of the Planetary Spectrum Generator.
-    api_key : APIkey
-        An instance of the APIkey class representing the PSG API key.
 
     """
+    _defaults = {
+        'use_stellar_continuum': True
+    }
 
     def __init__(
         self,
         gcm_binning: int,
         phase_binning: int,
         use_molecular_signatures: bool,
+        use_continuum_stellar: bool,
         nmax: int,
         lmax: int,
         continuum: list
@@ -280,6 +279,7 @@ class psgParameters(BaseParameters):
         self.gcm_binning = gcm_binning
         self.phase_binning = phase_binning
         self.use_molecular_signatures = use_molecular_signatures
+        self.use_continuum_stellar = use_continuum_stellar
         self.nmax = nmax
         self.lmax = lmax
         self.continuum = continuum
@@ -290,6 +290,7 @@ class psgParameters(BaseParameters):
             gcm_binning=int(d['gcm_binning']),
             phase_binning=int(d['phase_binning']),
             use_molecular_signatures=bool(d['use_molecular_signatures']),
+            use_continuum_stellar=bool(d.get('use_continuum_stellar',cls._defaults['use_stellar_continuum'])),
             nmax=int(d['nmax']),
             lmax=int(d['lmax']),
             continuum=list(d['continuum']),
