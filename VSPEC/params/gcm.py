@@ -240,11 +240,6 @@ class psgParameters(BaseParameters):
     continuum : list of str
         The continuum opacities to include in the radiative transfer calculation, such as
         'Rayleigh', 'Refraction', 'CIA_all'.
-    url : str
-        URL of the Planetary Spectrum Generator.
-    api_key : APIkey
-        An instance of the APIkey class representing the PSG API key. Provide either the
-        path to the API key file or the API key value.
 
     Attributes
     ----------
@@ -265,10 +260,6 @@ class psgParameters(BaseParameters):
         parameter indicates the number of scattering Legendre polynomials used
         for describing the phase function - Use 0 for extinction calculations
         only (e.g. transit, occultation)' :cite:p:`2022fpsg.book.....V`
-    url : str
-        URL of the Planetary Spectrum Generator.
-    api_key : APIkey
-        An instance of the APIkey class representing the PSG API key.
 
     """
     _defaults = {
