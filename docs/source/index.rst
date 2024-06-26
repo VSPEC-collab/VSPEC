@@ -42,6 +42,12 @@ Examples
    auto_examples/end_to_end/index
    auto_examples/other/index
 
+Authors
+=======
+
+``VSPEC`` is maintained by Ted Johnson and the original code was written by Cameron Kelahan. Additional contributions come from
+Tobi Hammond and the PSG team. For more information, see our `author list <https://github.com/VSPEC-collab/VSPEC/blob/main/AUTHORS.md>`_
+
 
 
 Indices and tables
