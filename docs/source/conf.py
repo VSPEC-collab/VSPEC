@@ -78,7 +78,19 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'furo'
+
+doc_version = os.environ.get('DOCNAME','latest')
+
+
+html_theme = 'pydata_sphinx_theme'
+html_theme_options = {
+    'navbar_start': ['navbar-logo', 'version-switcher'],
+    'switcher': {
+        'json_url': 'https://VSPEC-collab.github.io/VSPEC/versions.json',
+        'version_match': doc_version
+    }
+}
+
 
 # html_theme_options = {
 #     "light_css_variables": {
