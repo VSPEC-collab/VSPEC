@@ -31,7 +31,7 @@ but the code is much more general.
    intro
    getting_started
    components
-   modules/params
+   inputs
    references
 
 Examples
