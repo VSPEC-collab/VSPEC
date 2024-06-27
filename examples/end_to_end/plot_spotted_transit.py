@@ -112,7 +112,7 @@ observation_angle = (2*np.pi*u.rad * observation.observation_time/orbit_period).
 initial_phase = 180*u.deg - 0.5*observation_angle
 
 planet_kwargs = dict(
-    name='GJ486b',
+    name='GJ-486-b',
     gravity=params.GravityParameters('kg',planet_mass),
     semimajor_axis=orbit_rad,
     orbit_period=orbit_period,
