@@ -22,7 +22,7 @@ from VSPEC.config import N_ZFILL, MOLEC_DATA_PATH
 class PhaseAnalyzer:
     """Class to store and analyze `VSPEC` phase curves
 
-    Class to read all the data produced from a phase `VSPEC` curve simulation.
+    Read all the data produced from a phase `VSPEC` curve simulation.
     This class also includes some basic-but-powerfull analysis methods meant to be
     quickly used to create nice figures.
 
@@ -30,47 +30,31 @@ class PhaseAnalyzer:
     ----------
     path : pathlib.Path or str
         The path to the directory storing all the final output.
-        This is usually `.../AllModelSpectraValues/`
+        This is usually ``.vspec/.../AllModelSpectraValues/``
     fluxunit : astropy.units.Unit, default=u.Unit('W m-2 um-1')
         Standard unit to use with flux values. This way they are safely
-        converted between `Quantity` and `float`
+        converted between ``Quantity`` and ``float``
 
-    Attributes
-    ----------
-    observation_data : pandas.DataFrame
-        DataFrame containing the observation geometry at each epoch.
-    N_images : int
-        Number of epochs in observation
-    time : astropy.units.Quantity
-        Time coordinate of each epoch
-    phase : astropy.units.Quantity
-        Phase of the planet at each epoch. Between 0 and 360 degrees
-    unique_phase : astropy.units.Quantity
-        Non-cyclical phase of the planet at each epoch.
-        Can be greater than 360 degrees
-    wavelength : astropy.units.Quantity
-        Wavelength values of the spectral axis.
-    star : astropy.units.Quantity
-        2D array of stellar flux
-    reflected : astropy.units.Quantity
-        2D array of reflected flux
-    thermal : astropy.units.Quantity
-        2D array of thermal flux
-    total : astropy.units.Quantity
-        2D array of total flux
-    noise : astropy.units.Quantity
-        2D array of noise flux
-    layers : astropy.io.fits.HDUList
-        `HDUList` of layer arrays
+    Examples
+    --------
+    >>> model = ObservationModel.from_yaml('test.yaml')
+    ...
+    >>> data = PhaseAnalyzer(model.directories['all_model'])
+    >>> plt.plot(data.time, data.lightcurve('total', 0))
     """
 
     def __init__(self, path, fluxunit=u.Unit('W m-2 um-1')):
         if not isinstance(path, Path):
             path = Path(path)
-        self.observation_data: QTable = QTable.read(path / 'observation_info.fits')
-        self.N_images = len(self.observation_data)
-        self.time = self.observation_data['time']
-        self.phase = self.observation_data['phase']
+        self._observation_data: QTable = QTable.read(path / 'observation_info.fits')
+        self.n_images: int = len(self._observation_data)
+        """
+        The total number of epochs simulated.
+        
+        :type: int
+        """
+        self.time = self._observation_data['time']
+        self.phase = self._observation_data['phase']
         self.unique_phase = deepcopy(self.phase)
         for i in range(len(self.unique_phase) - 1):
             while self.unique_phase[i] > self.unique_phase[i+1]:
@@ -81,7 +65,7 @@ class PhaseAnalyzer:
         thermal = []
         total = []
         noise = []
-        for i in range(self.N_images):
+        for i in range(self.n_images):
             filename = path / f'phase{str(i).zfill(N_ZFILL)}.fits'
             spectra: QTable = QTable.read(filename)
             if i == 0:  # only do once
@@ -117,7 +101,7 @@ class PhaseAnalyzer:
                 tab = QTable()
                 vartables[name] = tab
             
-            for i in range(self.N_images):
+            for i in range(self.n_images):
                 filename = path / f'layer{str(i).zfill(N_ZFILL)}.fits'
                 dat:QTable = PyLyr.from_fits(filename).prof
                 for name in colnames:
@@ -329,12 +313,12 @@ class PhaseAnalyzer:
         """
         primary = fits.PrimaryHDU()
         primary.header['CREATED'] = datetime.now().strftime('%Y%m%d-%H%M%S%Z')
-        primary.header['N_images'] = self.N_images
+        primary.header['N_images'] = self.n_images
 
         cols = []
-        for col in self.observation_data.colnames:
+        for col in self._observation_data.colnames:
             cols.append(fits.Column(
-                name=col, array=self.observation_data[col].values, format='D'))
+                name=col, array=self._observation_data[col].values, format='D'))
         obs_tab = fits.BinTableHDU.from_columns(cols)
         obs_tab.name = 'OBS'
 

@@ -90,13 +90,13 @@ As shown above, running a configured model is very easy.
     model.build_spectra()
 
 The simulated observation will now be saved to a local directory specified in the header. Except in cases where
-the ``Header`` is custom writen by the user (i.e. not constructed from a YAML file), all simulation output is
+the ``Header`` is custom written by the user (i.e. not constructed from a YAML file), all simulation output is
 stored in a directory called ``.vspec``.
 
 Reading the Data
 ----------------
 
-``VSPEC`` data should be easy to read using standard Python libraries such as ``pandas``, however, we
+``VSPEC`` data is stored in the popular `.fits` format, however, we
 have included a built-in analysis class for convenience. This ``PhaseAnalyzer`` object reads in the final
 data products, which already live in the directory ``model.dirs['all_model']``.
 

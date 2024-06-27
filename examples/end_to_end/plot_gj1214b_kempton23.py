@@ -42,6 +42,7 @@ psg_params = params.psgParameters(
     phase_binning=1,
     nmax=0,
     lmax=0,
+    use_continuum_stellar=True,
     continuum=['Rayleigh', 'Refraction', 'CIA_all'],
     use_molecular_signatures=True
 )
@@ -218,8 +219,8 @@ model_quiet.build_spectra()
 data_quiet = PhaseAnalyzer(model_quiet.directories['all_model'])
 flux_unit = u.Unit('W m-2 um-1')
 def get_star(data:PhaseAnalyzer):
-    i_eclipse1 = np.argmin(data.lightcurve('total',(0,-1))[:data.N_images//4])
-    i_eclipse2 = np.argmin(data.lightcurve('total',(0,-1))[3*data.N_images//4:]) + 3*data.N_images//4
+    i_eclipse1 = np.argmin(data.lightcurve('total',(0,-1))[:data.n_images//4])
+    i_eclipse2 = np.argmin(data.lightcurve('total',(0,-1))[3*data.n_images//4:]) + 3*data.n_images//4
     time = (data.time-data.time[0]).to_value(u.hr)
     star_spec1 = data.spectrum('total',i_eclipse1).to_value(flux_unit)
     star_spec2 = data.spectrum('total',i_eclipse2).to_value(flux_unit)
@@ -253,12 +254,12 @@ def plot_lc(data:PhaseAnalyzer):
 
     n_steps = 10
     colors = plt.get_cmap('viridis')
-    indices = np.arange(start=0,stop=data.N_images,step=data.N_images//n_steps)
+    indices = np.arange(start=0,stop=data.n_images,step=data.n_images//n_steps)
 
     for index in indices:
         star_spec = interp(t[index])
         pl_spec = data.spectrum('total',index).to_value(flux_unit) - star_spec
-        axes[1].plot(data.wavelength,1e6*pl_spec/star_spec,c=colors(index/data.N_images))
+        axes[1].plot(data.wavelength,1e6*pl_spec/star_spec,c=colors(index/data.n_images))
     axes[1].set_xlabel('Wavelength (um)')
     axes[1].set_ylabel('Planet flux (ppm)')
     return fig

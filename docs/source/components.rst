@@ -1,19 +1,11 @@
-VSPEC Modules
-=============
+VSPEC API
+=========
 
-``VSPEC`` is a modular code that is broken up into several pieces. Users are most exposed to
-the ``main`` module, which manages the simulations and tracks the state of each run.
+Running a ``VSPEC`` model is handled by the ``ObservationModel`` class, and this is the main interface for the user with the package.
 
-.. toctree::
-   :maxdepth: 1
+The ``PhaseAnalyzer`` class is also important, as it provides an easy way to read data into a Python program for analysis.
 
-   modules/main
-   modules/geometry
-   modules/spectra
-   modules/psg_api
-   modules/analysis
-   modules/helpers
-   modules/gcm
-   modules/config
-   modules/builtins
+.. automodapi:: VSPEC
+    :no-main-docstr:
+    :no-inheritance-diagram:
    
