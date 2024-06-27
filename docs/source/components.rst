@@ -7,5 +7,6 @@ The ``PhaseAnalyzer`` class is also important, as it provides an easy way to rea
 
 .. automodapi:: VSPEC
     :no-main-docstr:
+    :no-heading:
     :no-inheritance-diagram:
    

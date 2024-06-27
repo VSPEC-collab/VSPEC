@@ -4,7 +4,7 @@ This module is designed to allow a user to easily handle
 `VSPEC` outputs.
 """
 
-from typing import Dict
+from typing import Dict, Union, Tuple
 from copy import deepcopy
 from pathlib import Path
 import warnings
@@ -116,7 +116,7 @@ class PhaseAnalyzer:
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
             self.layers = fits.HDUList([])
 
-    def get_mean_molecular_mass(self):
+    def _get_mean_molecular_mass(self):
         """
         Get the mean molecular mass
         """
@@ -159,7 +159,7 @@ class PhaseAnalyzer:
         if len(self.layers) == 0:
             raise KeyError('`self.layers` does not contain any data')
         if var == 'MEAN_MASS':
-            return self.get_mean_molecular_mass()
+            return self._get_mean_molecular_mass()
         tab: QTable = self.layers[var]
         cols = tab.colnames
         unit = tab[cols[0]].unit
@@ -167,7 +167,13 @@ class PhaseAnalyzer:
             [tab[col].to_value(unit) for col in cols],
         )*unit
 
-    def lightcurve(self, source, pixel, normalize='none', noise=False):
+    def lightcurve(
+        self,
+        source: str,
+        pixel: Union[int, Tuple[int, int]],
+        normalize: Union[str,int]='none',
+        noise: Union[bool,float,int]=False
+    ):
         """
         Produce a lightcurve
 
@@ -182,7 +188,7 @@ class PhaseAnalyzer:
         normalize : str or int, default='none'
             Normalization scheme. If integer, pixel of time axis to
             normalize the lightcurve to. Otherwise it is a keyword
-            to describe the normalization process: `'none'` or `'max'`
+            to describe the normalization process: ``'none'`` or ``'max'``
         noise : bool or float or int, default=False
             Should gaussian noise be added? If float, scale gaussian noise
             by this parameter.
@@ -242,7 +248,12 @@ class PhaseAnalyzer:
             raise ValueError(f'Unknown normalization parameter: {normalize}')
         return flux
 
-    def spectrum(self, source, images, noise=False):
+    def spectrum(
+        self,
+        source: str,
+        images: Union[int, Tuple[int, int]],
+        noise: Union[bool,float,int]=False
+    ):
         """
         Get a 1D spectrum
 
@@ -299,12 +310,10 @@ class PhaseAnalyzer:
                 pass
             return flux
 
-    def to_fits(self) -> fits.HDUList:
+    @property
+    def fits(self) -> fits.HDUList:
         """
-        To Fits
-
-        Covert `PhaseAnalyzer` to an 
-        `astropy.io.fits.HDUList` object
+        Covert to an `astropy.io.fits.HDUList` object
 
         Returns
         -------
@@ -360,17 +369,37 @@ class PhaseAnalyzer:
 
     def write_fits(self, filename: str) -> None:
         """
-        Save `PhaseAnalyzer` object as a `.fits` file.
+        Save ``PhaseAnalyzer`` object as a `.fits` file.
 
         Parameters
         ----------
         filename : str
         """
-        hdul = self.to_fits()
+        hdul = self.fits
         hdul.writeto(filename,overwrite=True)
-    def to_twocolumn(self,index:tuple,outfile:str,fmt='ppm',wl='um'):
+    def to_twocolumn(self,index:Union[int,Tuple[int,int]],outfile:str,fmt:str='ppm',wl:str ='um'):
         """
         Write data to a two column file that can be used in a retrival.
+        
+        Parameters
+        ----------
+        index : int or 2-tuple of int
+            The index of the epochs to consider. Passed to ``self.spectrum``.
+        outfile : str
+            The name of the output file
+        fmt : str
+            The format of the output file. Either ``'ppm'`` or ``'flambda'``.
+        wl : str
+            The wavelength unit of the output file. Passed to ``astropy.units.Unit``.
+        
+        Returns
+        -------
+        None
+        
+        Raises
+        ------
+        ValueError
+            If `fmt` is not ``'ppm'`` or ``'flambda'``.
         """
         if fmt == 'ppm':
             flux = (self.spectrum('thermal',index,False)+self.spectrum('reflected',index,False))/self.spectrum('total',index,False) * 1e6
