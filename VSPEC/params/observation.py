@@ -537,6 +537,18 @@ class InstrumentParameters(BaseParameters):
         )
 
     @classmethod
+    def from_preset(cls, name):
+        match name:
+            case 'mirecle':
+                return cls.mirecle()
+            case 'miri_lrs':
+                return cls.miri_lrs()
+            case 'niriss_soss':
+                return cls.niriss_soss()
+            case _:
+                raise ValueError('Invalid preset name')
+
+    @classmethod
     def mirecle(cls):
         """
         2m MIRECLE setup [1].
