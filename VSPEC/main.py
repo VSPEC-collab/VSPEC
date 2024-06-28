@@ -381,7 +381,7 @@ class ObservationModel:
         )
         _ = caller()
 
-    def _update_config(
+    def _psg_all_call(
         self,
         phase: u.Quantity,
         orbit_radius_coeff: float,
@@ -389,7 +389,9 @@ class ObservationModel:
         sub_stellar_lat: u.Quantity,
         pl_sub_obs_lon: u.Quantity,
         pl_sub_obs_lat: u.Quantity,
-        include_star: bool
+        include_star: bool,
+        path_dict: dict,
+        i: int
     ):
         """
         Update the PSG config with time-dependent values.
@@ -411,6 +413,11 @@ class ObservationModel:
             The sub-observer latitude of the planet.
         include_star : bool
             Whether to include the star in the simulation.
+        path_dict : dict
+            A dictionary that determines where each downloaded file
+            gets written to.
+        i : int
+            The index of the current observation
         """
         cfg = change_psg_parameters(
             params=self.params,
@@ -424,11 +431,63 @@ class ObservationModel:
         )
         caller = pypsg.APICall(
             cfg=cfg,
-            output_type='upd',
+            output_type='all',
             app='globes',
             logger=self.logger
         )
-        _ = caller()
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            response = caller()
+            for _w in w:
+                if _w.category is pypsg.cfg.ConfigTooLongWarning:
+                    self.__flags__.psg_needs_set = True
+        rad = response.rad
+        noi = response.noi
+        lyr = response.lyr
+        cfg = response.cfg
+        
+        if rad is None:
+            raise RuntimeError('PSG returned no .rad file')
+        else:
+            key = 'rad'
+            filename = get_filename(i, N_ZFILL, 'fits')
+            rad.write(
+                path_dict[key]/filename,
+                format='fits',
+                overwrite=True
+            )
+            if include_star and 'Stellar' not in rad.colnames:
+                raise ValueError('No Column named "Stellar" in .rad file')
+
+        if noi is None or 'noi' not in path_dict:
+            pass
+        else:
+            key = 'noi'
+            filename = get_filename(i, N_ZFILL, 'fits')
+            noi.write(
+                path_dict[key]/filename,
+                format='fits',
+                overwrite=True
+            )
+
+        if cfg is None:
+            raise RuntimeError('PSG returned no .cfg file')
+        elif 'cfg' not in path_dict:
+            pass
+        else:
+            key = 'cfg'
+            filename = get_filename(i, N_ZFILL, 'cfg')
+            cfg.to_file(path_dict[key]/filename)
+
+            # TODO: Check config against expected
+
+        if lyr is None or 'lyr' not in path_dict:
+            pass
+        else:
+            key = 'lyr'
+            filename = get_filename(i, N_ZFILL, 'fits')
+            lyr.to_fits(path_dict[key]/filename)
 
     def _check_config(self, cfg_from_psg: pypsg.PyConfig):
         """
@@ -460,79 +519,6 @@ class ObservationModel:
         assert expected_cfg.noise == cfg_from_psg.noise, 'PSG noise does not match'
         # do not check the GCM
 
-    def _run_psg(self, path_dict: dict, i: int, has_star: bool):
-        """
-        Run PSG
-
-        Parameters
-        ----------
-        path_dict : dict
-            A dictionary that determines where each downloaded file
-            gets written to.
-        """
-        tmp_cfg = pypsg.PyConfig(
-            target=pypsg.cfg.Target(name=self.params.planet.name),
-        )
-        caller = pypsg.APICall(
-            cfg=tmp_cfg,
-            output_type='all',
-            app='globes',
-            logger=self.logger
-        )
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            response = caller()
-            for _w in w:
-                if _w.category is pypsg.cfg.ConfigTooLongWarning:
-                    self.__flags__.psg_needs_set = True
-
-        rad = response.rad
-        noi = response.noi
-        lyr = response.lyr
-        cfg = response.cfg
-
-        if rad is None:
-            raise RuntimeError('PSG returned no .rad file')
-        else:
-            key = 'rad'
-            filename = get_filename(i, N_ZFILL, 'fits')
-            rad.write(
-                path_dict[key]/filename,
-                format='fits',
-                overwrite=True
-            )
-            if has_star and 'Stellar' not in rad.colnames:
-                raise ValueError('No Column named "Stellar" in .rad file')
-
-        if noi is None or 'noi' not in path_dict:
-            pass
-        else:
-            key = 'noi'
-            filename = get_filename(i, N_ZFILL, 'fits')
-            noi.write(
-                path_dict[key]/filename,
-                format='fits',
-                overwrite=True
-            )
-
-        if cfg is None:
-            raise RuntimeError('PSG returned no .cfg file')
-        elif 'cfg' not in path_dict:
-            pass
-        else:
-            key = 'cfg'
-            filename = get_filename(i, N_ZFILL, 'cfg')
-            cfg.to_file(path_dict[key]/filename)
-
-            # TODO: Check config against expected
-
-        if lyr is None or 'lyr' not in path_dict:
-            pass
-        else:
-            key = 'lyr'
-            filename = get_filename(i, N_ZFILL, 'fits')
-            lyr.to_fits(path_dict[key]/filename)
 
     def build_planet(self):
         """
@@ -599,7 +585,7 @@ class ObservationModel:
 
             # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
             update_config = partial(
-                self._update_config,
+                self._psg_all_call,
                 phase=phase,
                 orbit_radius_coeff=orbit_radius_coeff,
                 sub_stellar_lon=sub_stellar_lon,
@@ -607,20 +593,28 @@ class ObservationModel:
                 pl_sub_obs_lon=pl_sub_obs_lon,
                 pl_sub_obs_lat=pl_sub_obs_lat
             )
-            update_config(include_star=True)
+            
             path_dict = {
                 'rad': Path(self.directories['psg_combined']),
                 'noi': Path(self.directories['psg_noise']),
                 'cfg': Path(self.directories['psg_configs']),
             }
-            self._run_psg(path_dict, i, has_star=True)
+            update_config(
+                include_star=True,
+                path_dict=path_dict,
+                i=i
+            )
             # write updates to config file to remove star flux
-            update_config(include_star=False)
+            
             path_dict = {
                 'rad': Path(self.directories['psg_thermal']),
                 'lyr': Path(self.directories['psg_layers'])
             }
-            self._run_psg(path_dict, i, has_star=False)
+            update_config(
+                include_star=False,
+                path_dict=path_dict,
+                i=i
+            )
 
     def _build_star(self):
         """
