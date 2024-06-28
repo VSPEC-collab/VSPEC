@@ -46,11 +46,6 @@ class ObservationModel:
     ----------
     params : VSPEC.params.InternalParameters
         The global parameters describing the VSPEC simulation.
-    
-    Methods
-    -------
-    from_yaml(cls, config_path: Path)
-        Initialize a VSPEC run from a YAML file.
 
     Examples
     --------

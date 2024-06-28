@@ -90,6 +90,9 @@ html_theme_options = {
         'version_match': doc_version
     }
 }
+html_sidebars = {
+    "**": []
+}
 
 
 # html_theme_options = {

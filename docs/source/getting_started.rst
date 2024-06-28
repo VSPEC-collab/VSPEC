@@ -37,7 +37,7 @@ Configuration Files
 Because the model running portion is so straightforward, most of the 'work' comes from
 writing a good configuration file. These files are useful because they allow all the
 paramaters of a model to be set statically together, but they are nothing more than a YAML
-representation of a ``VSPEC.params.InternalParameters`` object. See the :doc:`modules/params`
+representation of a ``VSPEC.params.InternalParameters`` object. See the :doc:`inputs`
 page for descriptions of every ``VSPEC`` parameter.
 
 In general the files look like this:

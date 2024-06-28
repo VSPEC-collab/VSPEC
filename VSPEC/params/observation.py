@@ -23,7 +23,6 @@ class ObservationParameters(BaseParameters):
 
     Attributes
     ----------
-    total_images
     observation_time : astropy.units.Quantity
         The total duration of the observation.
     integration_time : astropy.units.Quantity

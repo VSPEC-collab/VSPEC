@@ -137,6 +137,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
        ``Gridpolator``, or ``bb`` to use a blackbody forward model (very fast).
 
 .. _subsec_ld:
+
 ``ld``
 ++++++
 
@@ -155,6 +156,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The second limb darkening coefficient.
 
 .. _subsec_spots:
+
 ``spots``
 +++++++++
 
@@ -206,6 +208,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The area of a spot at birth.
 
 .. _subsec_faculae:
+
 ``faculae``
 ++++++++++++
 
@@ -270,6 +273,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
     for information on how these values are calculated.
 
 .. _subsec_flares:
+
 ``flares``
 ++++++++++
 
@@ -310,6 +314,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The typical number of flares in each cluster.
 
 .. _subsec_granulation:
+
 ``granulation``
 +++++++++++++++
 
@@ -387,6 +392,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The initial substellar longitude of the planet.
 
 .. _subsec_gravity:
+
 ``gravity``
 +++++++++++
 
@@ -468,6 +474,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
 
 
 .. _subsec_single:
+
 ``single``
 ++++++++++
 
@@ -486,6 +493,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The level of the zodiacal background. See the PSG Handbook for details.
 
 .. _subsec_coronagraph:
+
 ``coronagraph``
 +++++++++++++++
 
@@ -515,6 +523,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The inner working angle of the coronagraph.
 
 .. _subsec_bandpass:
+
 ``bandpass``
 ++++++++++++
 
@@ -542,6 +551,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The unit to be used on the flux axis.
 
 .. _subsec_detector:
+
 ``detector``
 ++++++++++++
 
@@ -564,6 +574,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The CCD used for the observation.
 
 .. _subsubsec_ccd:
+
 ``ccd``
 """""""
 
@@ -653,7 +664,9 @@ The sections of a ``VSPEC`` YAML configuration file are below.
     * - ``binary`` | ``waccm`` | ``exocam`` | ``exoplasim`` | ``vspec``
       - see :ref:`subsec_binary`, :ref:`subsec_waccm`, :ref:`subsec_exocam`, :ref:`subsec_exoplasim`, :ref:`subsec_vspec`
       - The GCM type and parameters.
+
 .. _subsec_binary:
+
 ``binary``
 ++++++++++
 
@@ -670,6 +683,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
         by ``pypsg.globes.GCMdecoder`` into a ``pypsg.globes.PyGCM`` object.
 
 .. _subsec_waccm:
+
 ``waccm``
 ++++++++++
 
@@ -709,6 +723,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
       - The latitude of the first point on the latitudinal axis. Default is ``-90``.
 
 .. _subsec_exocam:
+
 ``exocam``
 ++++++++++
 
@@ -752,6 +767,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
         because ExoCAM treats water as humidity.
 
 .. _subsec_exoplasim:
+
 ``exoplasim``
 +++++++++++++
 
@@ -791,6 +807,7 @@ The sections of a ``VSPEC`` YAML configuration file are below.
         because ExoPlasim treats water as humidity.
 
 .. _subsec_vspec:
+
 ``vspec``
 +++++++++++++
 
@@ -848,8 +865,5 @@ The sections of a ``VSPEC`` YAML configuration file are below.
         same temperature as the equator. If ``0``, then there is no heat redistribution.
         Default is ``0.0``.
 
-
-
-
-
 .. automodapi:: VSPEC.params
+    :headings: -~
