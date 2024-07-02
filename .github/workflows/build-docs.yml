@@ -65,8 +65,8 @@ jobs:
           PSG_KEY: ${{ secrets.PSG_API_KEY }}
         run: |
           docker logout
-          docker pull nasapsg/psg
-          docker tag nasapsg/psg psg
+          docker pull nasapsg/psg-amd
+          docker tag nasapsg/psg-amd psg
           docker run -d --name psg -p 3000:80 psg
           curl http://localhost:3000/index.php?install=base
           curl http://localhost:3000/index.php?install=surfaces
