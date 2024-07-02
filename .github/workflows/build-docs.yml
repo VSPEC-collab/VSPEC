@@ -64,23 +64,23 @@ jobs:
         env:
           PSG_KEY: ${{ secrets.PSG_API_KEY }}
         run: |
-          docker logout
-          docker pull nasapsg/psg-amd
-          docker tag nasapsg/psg-amd psg
-          docker run -d --name psg -p 3000:80 psg
-          sleep 1
-          curl http://localhost:3000/index.php?install=base
-          sleep 1
-          curl http://localhost:3000/index.php?install=surfaces
-          sleep 1
-          curl http://localhost:3000/index.php?install=atmospheres
-          sleep 1
-          curl http://localhost:3000/index.php?install=lines
-          sleep 1
-          curl http://localhost:3000/index.php?install=exo
-          sleep 1
-          curl http://localhost:3000/index.php?install=corrklowmain
-          sleep 1
+          # docker logout
+          # docker pull nasapsg/psg-amd
+          # docker tag nasapsg/psg-amd psg
+          # docker run -d --name psg -p 3000:80 psg
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=base
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=surfaces
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=atmospheres
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=lines
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=exo
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=corrklowmain
+          # sleep 1
           python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
           echo "Successfully loaded API key"
           python -c "from pypsg import settings; print('The current PSG URL is',settings.get_setting('url'))"
