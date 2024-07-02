@@ -104,7 +104,6 @@ def gcm_getter():
 gcm = params.gcmParameters(
     gcm_getter=gcm_getter,
     mean_molec_weight=28,
-    gcmtype='vspec',
     is_static=True
 )
 
