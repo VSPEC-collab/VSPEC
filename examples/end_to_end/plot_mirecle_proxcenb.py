@@ -15,7 +15,8 @@ from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 
 SEED = 10
-pypsg.docker.set_url_and_run()
+# pypsg.docker.set_url_and_run()
+pypsg.settings.save_settings(url=pypsg.settings.PSG_URL)
 
 
 # %%

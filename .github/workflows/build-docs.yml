@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install .[dev]
+          pip install .[dev,plot]
           sudo apt-get install graphviz
       - name: Pre-deploy
         id: prep
@@ -65,6 +65,7 @@ jobs:
           PSG_KEY: ${{ secrets.PSG_API_KEY }}
         run: |
           python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
+          echo "Successfully loaded API key"
           python -c "from pypsg import settings; print('The current PSG URL is',settings.get_setting('url'))"
       - name: Build docs
         env:
