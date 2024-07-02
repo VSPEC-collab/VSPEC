@@ -44,13 +44,6 @@ class GravityParameters(BaseParameters):
     >>> grav.to_psg()
     {'OBJECT-GRAVITY': 5.9720e+24, 'OBJECT-GRAVITY-UNIT': 'kg'}
 
-    Attributes
-    ----------
-    value : float
-        The value of the gravity parameter to upload to PSG
-    mode : str
-        The mode of the gravity parameter.
-
     """
 
     _psg_units = {

@@ -55,13 +55,13 @@ def test_get_observation_plan(observation_model:ObservationModel):
     observation_parameters = observation_model.get_observation_parameters()
 
     # create observation plan for planet
-    observation_plan = observation_model.get_observation_plan(observation_parameters,planet=True)
+    observation_plan = observation_model._get_observation_plan(observation_parameters,planet=True)
     expected_N_obs = int((observation_model.params.obs.observation_time / observation_model.params.obs.integration_time \
         / observation_model.params.psg.phase_binning)) + 1
     assert len(observation_plan['time']) == expected_N_obs
 
     # create observation plan for star
-    observation_plan = observation_model.get_observation_plan(observation_parameters,planet=False)
+    observation_plan = observation_model._get_observation_plan(observation_parameters,planet=False)
     expected_N_obs = int((observation_model.params.obs.observation_time / observation_model.params.obs.integration_time))
     assert len(observation_plan['time']) == expected_N_obs
 

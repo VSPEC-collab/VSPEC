@@ -12,7 +12,8 @@ to perform radiative transfer calculations
 
 
 __author__ = 'Cameron Kelahan, Ted Johnson'
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
-from VSPEC.main import ObservationModel
-from VSPEC.analysis import PhaseAnalyzer
+from .main import ObservationModel
+from .analysis import PhaseAnalyzer
+from . import params

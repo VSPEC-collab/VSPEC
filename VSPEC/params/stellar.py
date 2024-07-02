@@ -714,6 +714,16 @@ class GranulationParameters(BaseParameters):
             period=u.Quantity(d['period']),
             dteff=u.Quantity(d['dteff'])
         )
+    
+    @classmethod
+    def from_preset(cls, name):
+        match name:
+            case 'none':
+                return cls.none()
+            case 'std':
+                return cls.std()
+            case _:
+                return super().from_preset(name)
 
     @classmethod
     def std(cls):
@@ -897,6 +907,19 @@ class StarParameters(BaseParameters):
             spectral_grid=str(d['spectral_grid'])
         )
 
+    @classmethod
+    def from_preset(cls, name):
+        match name:
+            case 'static_proxima':
+                return cls.static_proxima()
+            case 'spotted_proxima':
+                return cls.spotted_proxima()
+            case 'flaring_proxima':
+                return cls.flaring_proxima()
+            case 'proxima':
+                return cls.proxima()
+            case _:
+                raise ValueError(f'Unknown preset: {name}')    
     @classmethod
     def static_proxima(cls):
         """

@@ -10,7 +10,7 @@ flares, and granulation combined with simultations from the Planetary Spectrum G
 to simulate phase resolved observations of planetary spectra.
 
 Recent observations with JWST have shown stellar contamination can cause signals similar to exoplanet
-atmospheres :cite:p:`2023ApJ...948L..11M`. Similarly, the future Habitable Worlds Observatory gather
+atmospheres :cite:p:`2023ApJ...948L..11M`. Similarly, the future Habitable Worlds Observatory will gather
 reflected-light spectra of earth-like exoplanets over a very long baseline. To understand these challenges
 and develop data analysis that can mitigate them, we need a robust and flexible modeling suite.
 
@@ -21,7 +21,7 @@ but has since been refactored to be a general-use tool. It builds off of PSG and
 thermal, and transmission spectroscopy as well as the use of a coronagraph for direct imaging spectroscopy.
 
 Installation
-************
+============
 
 ``VSPEC`` can be installed via pip.
 
@@ -42,7 +42,7 @@ Note that adding ``[dev,plot]`` will install additional dependecies for developm
 
 
 Running PSG
-***********
+===========
 
 While it is not 100% necessary to run PSG locally in order to use ``VSPEC``, it is
 highly recommended. Luckly, PSG is easy to install and run. Detailed instructions can be
@@ -51,6 +51,11 @@ found in the `PSG handbook <https://psg.gsfc.nasa.gov/help.php#handbook>`_ (see 
 We recommend using `Rancher Desktop <rancherdesktop.io>`_ to run the PSG Docker container,
 as it is free for all use. If you do not have administrative (sudo) access to your
 computer, uncheck 'Administrative Access' in Rancher Desktop settings.
+
+.. note::
+    
+    Rancher Desktop is not necessary if running on Linux. The docker engine command line interface is sufficient.
+    It can be installed by following `these instructions <https://docs.docker.com/engine/install/#supported-platforms>`_.
 
 ``VSPEC`` assumes you have installed PSG using the commands (Handbook page 154):
 
@@ -62,8 +67,11 @@ computer, uncheck 'Administrative Access' in Rancher Desktop settings.
 
     docker run -d --name psg -p 3000:80 psg
 
-Importantly, we assume that a container named ``psg`` can be accessed
-though local port ``3000``.
+``VSPEC`` interfaces with PSG through the `pypsg <https://tedjohnson12.github.io/pypsg/latest/index.html>`_ library, so if you
+change any setting from the default (e.g. the port that PSG runs on), make sure to change the appropriate setting in ``pypsg``.
+
+Importantly, ``pypsg`` assumes that a container named ``psg`` exists to run PSG locally, and if this container is not found
+the code will complain even if PSG is installed and ``http://localhost:3000/api.php`` is reachable.
 
 ``VSPEC`` has been tested with the following PSG packages installed:
 

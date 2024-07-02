@@ -71,6 +71,7 @@ psg_kwargs = dict(
     phase_binning=1,
     nmax=0,
     lmax=0,
+    use_continuum_stellar=True,
     continuum=['Rayleigh', 'Refraction'],
 )
 psg_params = params.psgParameters(

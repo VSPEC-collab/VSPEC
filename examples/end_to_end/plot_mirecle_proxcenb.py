@@ -15,7 +15,8 @@ from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 
 SEED = 10
-pypsg.docker.set_url_and_run()
+# pypsg.docker.set_url_and_run()
+pypsg.settings.save_settings(url=pypsg.settings.PSG_URL)
 
 
 # %%
@@ -39,6 +40,7 @@ psg_params = params.psgParameters(
     use_molecular_signatures=True,
     gcm_binning=200,
     phase_binning=1,
+    use_continuum_stellar=True,
     nmax=0,
     lmax=0,
     continuum=['Rayleigh', 'Refraction','CIA_all'],
