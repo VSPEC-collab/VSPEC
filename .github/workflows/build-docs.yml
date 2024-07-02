@@ -64,6 +64,16 @@ jobs:
         env:
           PSG_KEY: ${{ secrets.PSG_API_KEY }}
         run: |
+          docker logout
+          docker pull nasapsg/psg
+          docker tag nasapsg/psg psg
+          docker run -d --name psg -p 3000:80 psg
+          curl http://localhost:3000/index.php?install=base
+          curl http://localhost:3000/index.php?install=surfaces
+          curl http://localhost:3000/index.php?install=atmospheres
+          curl http://localhost:3000/index.php?install=lines
+          curl http://localhost:3000/index.php?install=exo
+          curl http://localhost:3000/index.php?install=corrklowmain
           python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
           echo "Successfully loaded API key"
           python -c "from pypsg import settings; print('The current PSG URL is',settings.get_setting('url'))"
@@ -73,6 +83,7 @@ jobs:
           DEST_DIR: ${{ steps.prep.outputs.DEST_DIR }}
         run: |
           cd docs
+          pip freeze
           make html
           cd ..
           cp docs/source/versions.json docs/build/html/versions.json
