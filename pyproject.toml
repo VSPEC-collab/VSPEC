@@ -3,7 +3,7 @@
 requires = ["setuptools", "wheel"]  # PEP 508 specifications.
 
 [project]
-version = "0.5.0"
+version = "0.6.0"
 name = "VSPEC"
 authors = [
     { name = "Ted Johnson", email = "ted.johnson@unlv.edu" },
@@ -14,20 +14,19 @@ description = "Simulate Observations of Exoplanets in Variable Star Systems"
 readme = "docs/readme.rst"
 license = {file = "LICENSE"}
 keywords = ["exoplanet", "astronomy", "star"]
-requires-python = ">= 3.9"
+requires-python = ">= 3.10"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Astronomy",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "numpy",
+    "numpy~=1.26.3",
     "astropy",
     "scipy",
     "tqdm",
@@ -39,9 +38,9 @@ dependencies = [
     "netCDF4",
     "requests",
     "pyyaml",
-    "pypsg==0.3.0",
-    "vspec-vsm==0.3.5",
-    "GridPolator==0.3.2",
+    "pypsg>=0.3.2",
+    "vspec-vsm>=0.3.5",
+    "GridPolator>=0.4.0",
 ]
 [project.optional-dependencies]
 plot = ["matplotlib","cartopy"]
@@ -50,7 +49,7 @@ dev = [
 "pytest-timeout",
 "pandas",
 "pep8",
-"furo==2023.9.10",
+"pydata-sphinx-theme",
 "imageio",
 "numpydoc",
 "sphinx",

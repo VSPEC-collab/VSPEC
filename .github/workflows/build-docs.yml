@@ -1,0 +1,116 @@
+name: Build Documentation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    outputs:
+      DOCNAME: ${{ steps.prep.outputs.DOCNAME }}
+      DEST_DIR: ${{ steps.prep.outputs.DEST_DIR }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .[dev,plot]
+          sudo apt-get install graphviz
+      - name: Pre-deploy
+        id: prep
+        env:
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          RELEASE: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+          RELEASE_VERSION: ${{ github.event.release.tag_name }}
+
+        run: |
+          if [[ $RELEASE == "true" ]]; then
+            echo "This is a release!"
+            echo $RELEASE
+            DOCNAME="${RELEASE_VERSION##*v}"
+          elif [[ $BRANCH_NAME =~ "release" ]]; then
+            echo "This is a release branch!"
+            VERSION="${BRANCH_NAME##*/}"
+            DOCNAME="${VERSION}-beta"
+          elif [[ $BRANCH_NAME == "develop" ]]; then
+            echo "This is the develop branch!"
+            DOCNAME="develop"
+          elif [[ $BRANCH_NAME == "main" ]]; then
+            echo "This is the main branch!"
+            DOCNAME="latest"
+          else
+            DOCNAME="${BRANCH_NAME}"
+            echo "Not sure how to handle $BRANCH_NAME"
+            exit 1
+          fi
+          echo "Using $DOCNAME"
+          echo "DOCNAME=$DOCNAME" >> $GITHUB_OUTPUT
+          echo "DEST_DIR=${DOCNAME%%-*}" >> $GITHUB_OUTPUT
+      - name: Setup PSG
+        env:
+          PSG_KEY: ${{ secrets.PSG_API_KEY }}
+        run: |
+          # docker logout
+          # docker pull nasapsg/psg-amd
+          # docker tag nasapsg/psg-amd psg
+          # docker run -d --name psg -p 3000:80 psg
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=base
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=surfaces
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=atmospheres
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=lines
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=exo
+          # sleep 1
+          # curl http://localhost:3000/index.php?install=corrklowmain
+          # sleep 1
+          python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
+          echo "Successfully loaded API key"
+          python -c "from pypsg import settings; print('The current PSG URL is',settings.get_setting('url'))"
+      - name: Build docs
+        env:
+          DOCNAME: ${{ steps.prep.outputs.DOCNAME }}
+          DEST_DIR: ${{ steps.prep.outputs.DEST_DIR }}
+        run: |
+          cd docs
+          pip freeze
+          make html
+          cd ..
+          cp docs/source/versions.json docs/build/html/versions.json
+          cp docs/source/redirect.html docs/build/html/redirect.html
+      - name: Deploy
+        env:
+          DOCNAME: ${{ steps.prep.outputs.DOCNAME }}
+          DEST_DIR: ${{ steps.prep.outputs.DEST_DIR }}
+        run : |
+          set -e
+          git fetch origin gh-pages
+          git checkout gh-pages
+          git pull origin gh-pages
+          cp -r docs/build/html ${DEST_DIR}/
+          cp ${DEST_DIR}/versions.json versions.json
+          cp ${DEST_DIR}/redirect.html index.html
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add versions.json
+          git add index.html
+          git add ${DEST_DIR}/
+          git commit -m "Update ${DOCNAME}"
+          git push origin gh-pages

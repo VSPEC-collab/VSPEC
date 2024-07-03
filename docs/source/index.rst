@@ -10,8 +10,8 @@
 
 
 
-Welcome to VSPEC's documentation!
-=================================
+Welcome!
+========
 
 VSPEC (Variable Star PhasE Curve) is an exoplanet modeling suite that combines NASA's Planetary Spectrum Generator
 (`PSG <https://psg.gsfc.nasa.gov>`_) with a custom variable star
@@ -31,7 +31,7 @@ but the code is much more general.
    intro
    getting_started
    components
-   modules/params
+   inputs
    references
 
 Examples
@@ -41,6 +41,12 @@ Examples
 
    auto_examples/end_to_end/index
    auto_examples/other/index
+
+Authors
+=======
+
+``VSPEC`` is maintained by Ted Johnson and the original code was written by Cameron Kelahan. Additional contributions come from
+Tobi Hammond and the PSG team. For more information, see our `author list <https://github.com/VSPEC-collab/VSPEC/blob/main/AUTHORS.md>`_.
 
 
 

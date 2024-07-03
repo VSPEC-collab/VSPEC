@@ -37,6 +37,9 @@ class gcmParameters(BaseParameters):
         parameter will be passed to the `gcm_getter`.
 
     """
+    _defaults = {
+        'lat_redistribution': 0.0
+    }
 
     def __init__(
         self,
@@ -100,7 +103,7 @@ class gcmParameters(BaseParameters):
                     star_teff=u.Quantity(star_dict['teff']),
                     r_star=u.Quantity(star_dict['radius']),
                     r_orbit=u.Quantity(planet_dict['semimajor_axis']),
-                    lat_redistribution=float(args_dict['lat_redistribution']),
+                    lat_redistribution=float(args_dict.get('lat_redistribution', cls._defaults['lat_redistribution'])),
                     p_surf=u.Quantity(args_dict['psurf']),
                     p_stop=u.Quantity(args_dict['ptop']),
                     wind_u=u.Quantity(args_dict['wind']['U']),
@@ -140,7 +143,7 @@ class gcmParameters(BaseParameters):
                             itime=waccm.get_time_index(
                                 data, obs_time + u.Quantity(args_dict['tstart'])),
                             molecules=parse_molec_list(args_dict['molecules']),
-                            aerosols=args_dict['aerosols'],
+                            aerosols=args_dict.get('aerosols',None),
                             background=args_dict.get('background', None),
                             lon_start=args_dict.get('lon_start', -180),
                             lat_start=args_dict.get('lat_start', -90)
@@ -166,7 +169,7 @@ class gcmParameters(BaseParameters):
                             background=args_dict.get('background', None),
                             lon_start=args_dict.get('lon_start', -180),
                             lat_start=args_dict.get('lat_start', -90),
-                            mean_molecular_mass=args_dict['mean_molecular_mass']
+                            mean_molecular_mass=args_dict.get('mean_molecular_mass',None)
                         )
             else:
                 def fun(obs_time: u.Quantity):
@@ -179,7 +182,7 @@ class gcmParameters(BaseParameters):
                             background=args_dict.get('background', None),
                             lon_start=args_dict.get('lon_start', -180),
                             lat_start=args_dict.get('lat_start', -90),
-                            mean_molecular_mass=args_dict['mean_molecular_mass']
+                            mean_molecular_mass=args_dict.get('mean_molecular_mass',None)
                         )
             return cls(
                 gcm_getter=fun,
@@ -200,7 +203,7 @@ class gcmParameters(BaseParameters):
                         background=args_dict.get('background', None),
                         lon_start=args_dict.get('lon_start', -180),
                         lat_start=args_dict.get('lat_start', -90),
-                        mean_molecular_mass=args_dict['mean_molecular_mass']
+                        mean_molecular_mass=args_dict.get('mean_molecular_mass',None)
                     )
             return cls(
                 gcm_getter=fun,

@@ -1,9 +1,0 @@
-sphinxcontrib-napoleon
-sphinx-automodapi
-numpydoc
-nbsphinx
-nbsphinx-link
-sphinxcontrib-bibtex
-sphinx-gallery
-furo
-imageio

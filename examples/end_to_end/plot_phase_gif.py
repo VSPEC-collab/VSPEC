@@ -129,12 +129,12 @@ fig.show()
 
 
 def gif_image(i):
-    s = (max(0,i-10),min(data.N_images-1,i+10))
+    s = (max(0,i-10),min(data.n_images-1,i+10))
     return make_fig(data,geometry,gcm,s)
 
 images = []
 fname='temp.png'
-for i in range(data.N_images):
+for i in range(data.n_images):
     fig = gif_image(i)
     fig.savefig(fname)
     plt.close(fig)

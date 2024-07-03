@@ -18,8 +18,8 @@ def test_init(test1_data:PhaseAnalyzer):
     """
     Test the `__init__` method of `VSPEC.PhaseAnalyzer`
     """
-    assert isinstance(test1_data.observation_data, QTable)
-    assert isinstance(test1_data.N_images, int)
+    assert isinstance(test1_data._observation_data, QTable)
+    assert isinstance(test1_data.n_images, int)
     assert isinstance(test1_data.time, u.Quantity)
     assert isinstance(test1_data.phase, u.Quantity)
     assert isinstance(test1_data.unique_phase, u.Quantity)
@@ -61,23 +61,23 @@ def test_lightcurve(test1_data:PhaseAnalyzer):
     """
     Test `PhaseAnalyzer.lightcurve()`
     """
-    assert test1_data.lightcurve('total', 0).shape == (test1_data.N_images,)
-    assert test1_data.lightcurve('star', 0).shape == (test1_data.N_images,)
-    assert test1_data.lightcurve('reflected', 0).shape == (test1_data.N_images,)
-    assert test1_data.lightcurve('thermal', 0).shape == (test1_data.N_images,)
-    assert test1_data.lightcurve('noise', 0).shape == (test1_data.N_images,)
+    assert test1_data.lightcurve('total', 0).shape == (test1_data.n_images,)
+    assert test1_data.lightcurve('star', 0).shape == (test1_data.n_images,)
+    assert test1_data.lightcurve('reflected', 0).shape == (test1_data.n_images,)
+    assert test1_data.lightcurve('thermal', 0).shape == (test1_data.n_images,)
+    assert test1_data.lightcurve('noise', 0).shape == (test1_data.n_images,)
     assert test1_data.lightcurve('total', len(
-        test1_data.wavelength)//2).shape == (test1_data.N_images,)
-    assert test1_data.lightcurve('total', -1).shape == (test1_data.N_images,)
-    assert test1_data.lightcurve('total', (0, -1)).shape == (test1_data.N_images,)
+        test1_data.wavelength)//2).shape == (test1_data.n_images,)
+    assert test1_data.lightcurve('total', -1).shape == (test1_data.n_images,)
+    assert test1_data.lightcurve('total', (0, -1)).shape == (test1_data.n_images,)
     assert test1_data.lightcurve(
-        'total', 0, normalize=0).shape == (test1_data.N_images,)
+        'total', 0, normalize=0).shape == (test1_data.n_images,)
     assert test1_data.lightcurve(
-        'total', (0, -1), normalize=0).shape == (test1_data.N_images,)
+        'total', (0, -1), normalize=0).shape == (test1_data.n_images,)
     assert test1_data.lightcurve(
-        'total', 0, noise=True).shape == (test1_data.N_images,)
+        'total', 0, noise=True).shape == (test1_data.n_images,)
     assert test1_data.lightcurve(
-        'total', (0, -1), noise=True).shape == (test1_data.N_images,)
+        'total', (0, -1), noise=True).shape == (test1_data.n_images,)
 
     assert np.all(test1_data.lightcurve('total', 0, normalize='max') <= 1)
 
@@ -112,7 +112,7 @@ def test_spectrum(test1_data:PhaseAnalyzer):
     assert result.shape == (len(test1_data.wavelength),)
 
     # Test with source='noise'
-    if test1_data.N_images > 1:
+    if test1_data.n_images > 1:
         epoch0 = test1_data.spectrum('noise', 0)
         epoch1 = test1_data.spectrum('noise', 1)
         multi_epoch = test1_data.spectrum('noise', (0, 2))

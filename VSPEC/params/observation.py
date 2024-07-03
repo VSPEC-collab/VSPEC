@@ -23,7 +23,6 @@ class ObservationParameters(BaseParameters):
 
     Attributes
     ----------
-    total_images
     observation_time : astropy.units.Quantity
         The total duration of the observation.
     integration_time : astropy.units.Quantity
@@ -535,6 +534,18 @@ class InstrumentParameters(BaseParameters):
             bandpass=BandpassParameters.from_dict(d['bandpass']),
             detector=DetectorParameters.from_dict(d['detector'])
         )
+
+    @classmethod
+    def from_preset(cls, name):
+        match name:
+            case 'mirecle':
+                return cls.mirecle()
+            case 'miri_lrs':
+                return cls.miri_lrs()
+            case 'niriss_soss':
+                return cls.niriss_soss()
+            case _:
+                raise ValueError('Invalid preset name')
 
     @classmethod
     def mirecle(cls):

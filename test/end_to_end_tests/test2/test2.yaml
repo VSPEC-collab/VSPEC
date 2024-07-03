@@ -56,6 +56,7 @@ star:
     period: 5 day
     dteff: 200 K
   grid_params: 1000000
+  spectral_grid: default
 planet:
   name: Exoplanet
   radius: 1 R_earth
@@ -109,5 +110,5 @@ gcm:
   waccm:
     path: ~/.pypsg/data/waccm_test.nc
     tstart: 4621.01 day
-    molecules: CO2, O3, H2O
+    molecules: [CO2, O3, H2O]
     background: N2
