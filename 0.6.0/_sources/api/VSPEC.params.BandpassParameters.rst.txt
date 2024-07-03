@@ -1,0 +1,31 @@
+BandpassParameters
+==================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: BandpassParameters
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~BandpassParameters.psg_rad_mapper
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BandpassParameters.mirecle
+      ~BandpassParameters.miri_lrs
+      ~BandpassParameters.niriss_soss
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: psg_rad_mapper
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: mirecle
+   .. automethod:: miri_lrs
+   .. automethod:: niriss_soss

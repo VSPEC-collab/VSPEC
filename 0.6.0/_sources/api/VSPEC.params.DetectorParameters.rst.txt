@@ -1,0 +1,21 @@
+DetectorParameters
+==================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: DetectorParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~DetectorParameters.mirecle
+      ~DetectorParameters.miri_lrs
+      ~DetectorParameters.niriss_soss
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: mirecle
+   .. automethod:: miri_lrs
+   .. automethod:: niriss_soss

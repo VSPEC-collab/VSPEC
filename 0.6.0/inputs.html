@@ -1,0 +1,1869 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Inputs &#8212; VSPEC 0.6.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/css/table_fix.css?v=fdc28d34" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=f32b83b8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=8fa8b3e9"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'inputs';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.15.3';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://VSPEC-collab.github.io/VSPEC/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner = false;
+        </script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BandpassParameters" href="api/VSPEC.params.BandpassParameters.html" />
+    <link rel="prev" title="PhaseAnalyzer" href="api/VSPEC.PhaseAnalyzer.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/vspec_logo.png" class="logo__image only-light" alt="VSPEC 0.6.0 documentation - Home"/>
+    <script>document.write(`<img src="_static/vspec_logo.png" class="logo__image only-dark" alt="VSPEC 0.6.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button id="pst-version-switcher-button-2"
+      type="button"
+      class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-haspopup="listbox"
+      aria-controls="pst-version-switcher-list-2"
+      aria-label="Version switcher list"
+    >
+      Choose version  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div id="pst-version-switcher-list-2"
+      class="version-switcher__menu dropdown-menu list-group-flush py-0"
+      role="listbox" aria-labelledby="pst-version-switcher-button-2">
+      <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="references.html">
+    References
+  </a>
+</li>
+
+            <li class="nav-item dropdown pst-header-nav-item">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="auto_examples/end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link dropdown-item nav-internal" href="auto_examples/other/index.html">
+    Other Examples
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="references.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="auto_examples/end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="auto_examples/other/index.html">
+    Other Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Inputs</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="inputs">
+<h1>Inputs<a class="headerlink" href="#inputs" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">VSPEC</span></code> can read in inputs in two ways:</p>
+<ol class="arabic simple">
+<li><p>From a YAML file</p></li>
+<li><p>From a <code class="docutils literal notranslate"><span class="pre">VSPEC.params.InternalParameters</span></code> object</p></li>
+</ol>
+<p>YAML is convenient because it is human-readable and can be easily ported between programs. Creating an <code class="docutils literal notranslate"><span class="pre">InternalParameters</span></code>
+instance directly in Python can also be convenient, especially when running many near-identical models.</p>
+<section id="the-vspec-params-yaml-format">
+<h2>The <code class="docutils literal notranslate"><span class="pre">VSPEC.params</span></code> YAML Format<a class="headerlink" href="#the-vspec-params-yaml-format" title="Link to this heading">#</a></h2>
+<p>The most basic way to create an <code class="docutils literal notranslate"><span class="pre">ObservationalModel</span></code> object instance is through a YAML file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">VSPEC</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">VSPEC</span><span class="o">.</span><span class="n">ObservationModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s1">&#39;my_config.yaml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The file <code class="docutils literal notranslate"><span class="pre">my_config.yaml</span></code> contains all the necessary information to run <code class="docutils literal notranslate"><span class="pre">VSPEC</span></code>.
+YAML files have a hierarchical structure, so for example the header section looks like this:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">header</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">data_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">transit</span>
+<span class="w">    </span><span class="nt">teff_min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2300 K</span>
+<span class="w">    </span><span class="nt">teff_max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3900 K</span>
+<span class="w">    </span><span class="nt">desc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">This is a VSPEC example.</span>
+<span class="w">    </span><span class="nt">verbose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+</pre></div>
+</div>
+<p>The sections of a <code class="docutils literal notranslate"><span class="pre">VSPEC</span></code> YAML configuration file are below.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because the configuration file is parsed by a parameter object that knows
+what type to expect, it is possible to parse directly to an <code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code>
+object. Any parameter that expects a quantity will read in the user input as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">my_input</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>So encoding the quantity as a string is very easy. For example the <code class="docutils literal notranslate"><span class="pre">teff_min</span></code>
+parameter can be set to <code class="docutils literal notranslate"><span class="pre">2300</span> <span class="pre">K</span></code>, and so after parsing it will be equivalent
+to having set it to <code class="docutils literal notranslate"><span class="pre">2300</span> <span class="pre">*</span> <span class="pre">u.K</span></code>.</p>
+</div>
+<section id="header">
+<h3><code class="docutils literal notranslate"><span class="pre">header</span></code><a class="headerlink" href="#header" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">data_path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The name of the directory inside <code class="docutils literal notranslate"><span class="pre">.vspec</span></code> where outputs will be saved.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">teff_min</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The minimum effective temperature to include in the spectrum grid.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">teff_max</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The maximum effective temperature to include in the spectrum grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">desc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>A description of the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">verbose</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The level of verbosity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">seed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The seed for the random number generator.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="star">
+<h3><code class="docutils literal notranslate"><span class="pre">star</span></code><a class="headerlink" href="#star" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available presets include <code class="docutils literal notranslate"><span class="pre">static_proxima</span></code>, <code class="docutils literal notranslate"><span class="pre">spotted_proxima</span></code>, <code class="docutils literal notranslate"><span class="pre">flaring_proxima</span></code>, and <code class="docutils literal notranslate"><span class="pre">proxima</span></code>.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">psg_star_template</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The template for the star. See the PSG Handbook for options.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">teff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The effective temperature of the star.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mass</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The mass of the star.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">radius</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The radius of the star.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">period</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The rotational period of the star.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">misalignment</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The misalignment between the stellar rotation axis and the orbital axis. This is the planet’s “mutual inclination”.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">misalignment_dir</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The direction of stellar rotation axis misalignment, relative to the argument of periapsis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ld</span></code></p></td>
+<td><p>See <a class="reference internal" href="#subsec-ld"><span class="std std-ref">ld</span></a></p></td>
+<td><p>The limb darkening parameters of the star.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">spots</span></code></p></td>
+<td><p>See <a class="reference internal" href="#subsec-spots"><span class="std std-ref">spots</span></a></p></td>
+<td><p>The parameters to create star spots.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">faculae</span></code></p></td>
+<td><p>See <a class="reference internal" href="#subsec-faculae"><span class="std std-ref">faculae</span></a></p></td>
+<td><p>The parameters to create faculae.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flares</span></code></p></td>
+<td><p>See <a class="reference internal" href="#subsec-flares"><span class="std std-ref">flares</span></a></p></td>
+<td><p>The parameters to create flares.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">granulation</span></code></p></td>
+<td><p>See <a class="reference internal" href="#subsec-granulation"><span class="std std-ref">granulation</span></a></p></td>
+<td><p>The parameters to create granulation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">grid_params</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">tuple</span></code></p></td>
+<td><p>Stellar surface grid parameters. If <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, the number of points in the
+latitude and longitude directions. If <code class="docutils literal notranslate"><span class="pre">int</span></code>, the number of total grid points
+for a Fibonacci spiral grid. In general the spiral grid is more efficient.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">spectral_grid</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The spectral grid to use. Either <code class="docutils literal notranslate"><span class="pre">default</span></code> for the default stellar grid from
+<code class="docutils literal notranslate"><span class="pre">Gridpolator</span></code>, or <code class="docutils literal notranslate"><span class="pre">bb</span></code> to use a blackbody forward model (very fast).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="ld">
+<span id="subsec-ld"></span><h4><code class="docutils literal notranslate"><span class="pre">ld</span></code><a class="headerlink" href="#ld" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">u1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The first limb darkening coefficient.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">u2</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The second limb darkening coefficient.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="spots">
+<span id="subsec-spots"></span><h4><code class="docutils literal notranslate"><span class="pre">spots</span></code><a class="headerlink" href="#spots" title="Link to this heading">#</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available presets include <code class="docutils literal notranslate"><span class="pre">none</span></code>, <code class="docutils literal notranslate"><span class="pre">mdwarf</span></code>, and <code class="docutils literal notranslate"><span class="pre">solar</span></code>.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distribution</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The distribution of the spots. Either <code class="docutils literal notranslate"><span class="pre">iso</span></code> for an isotropic distribution or <code class="docutils literal notranslate"><span class="pre">solar</span></code> for two bands at <span class="math notranslate nohighlight">\(\\pm 15^{\\circ}\)</span> latitude.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">initial_coverage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The spot coverage created initially by generating spots at random stages of life.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">equillibrium_coverage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The fractional coverage of the star’s surface by spots. This is the value
+at growth-decay equilibrium.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burn_in</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The duration of the burn-in period, during which the spot coverage approaches equilibrium.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">area_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The mean area of a spot on the star’s surface in MSH.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">area_logsigma</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The standard deviation of the spot areas. This is a lognormal
+distribution, so the units of this value are dex.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">teff_umbra</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The effective temperature of the spot umbrae.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">teff_penumbra</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The effective temperature of the spot penumbrae.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">growth_rate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The rate at which new spots grow. Spots grow exponentially, so this quantity has units of 1/time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">decay_rate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The rate at which existing spots decay [area/time].</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">initial_area</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The area of a spot at birth.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="faculae">
+<span id="subsec-faculae"></span><h4><code class="docutils literal notranslate"><span class="pre">faculae</span></code><a class="headerlink" href="#faculae" title="Link to this heading">#</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available presets include <code class="docutils literal notranslate"><span class="pre">none</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code>.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distribution</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The distribution of the spots. Currently only <code class="docutils literal notranslate"><span class="pre">iso</span></code> is supported.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Equillibrium_coverage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The fractional coverage of the star’s surface by spots. This is the value
+at growth-decay equilibrium.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burn_in</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The duration of the burn-in period, during which the spot coverage approaches
+equilibrium.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mean_radius</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The mean radius of the faculae.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">logsigma_radius</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The standard deviation of the radius in dex.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mean_timescale</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The mean faculae lifetime.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">logsigma_timescale</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The standard deviation of the lifetime in dex.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">depth</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The depth of the facula depression.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">floor_teff_slope</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The slope of the radius-Teff relationship for the cool floor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">floor_teff_min_rad</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The minimum radius at which the floor is visible. Otherwise the facula
+is a bright point – even near disk center.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">floor_teff_base_dteff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The Teff of the floor at the minimum radius.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wall_teff_slope</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The slope of the radius-Teff relationship for the hot wall.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wall_teff_intercept</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The intercept of the radius-Teff relationship for the hot wall.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The temperatures of a facula wall or floor are a function of the radius.
+See <a class="reference external" href="https://github.com/VSPEC-collab/vspec-vsm/blob/main/vspec_vsm/faculae.py">the vspec-vsm source</a>
+for information on how these values are calculated.</p>
+</div>
+</section>
+<section id="flares">
+<span id="subsec-flares"></span><h4><code class="docutils literal notranslate"><span class="pre">flares</span></code><a class="headerlink" href="#flares" title="Link to this heading">#</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available presets include <code class="docutils literal notranslate"><span class="pre">none</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code>.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dist_teff_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The mean temperature of the flares.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dist_teff_sigma</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The standard deviation of the flare temperatures.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dist_fwhm_mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The mean FWHM of the flare lightcurves [time].</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dist_fwhm_logsigma</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The standard deviation of the FWHM in dex.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The slope of the frequency-energy powerlaw.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">beta</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The intercept of the frequency-energy powerlaw.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">min_energy</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The minimum energy of the flares. Set to infinity to disable.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_size</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The typical number of flares in each cluster.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="granulation">
+<span id="subsec-granulation"></span><h4><code class="docutils literal notranslate"><span class="pre">granulation</span></code><a class="headerlink" href="#granulation" title="Link to this heading">#</a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available presets include <code class="docutils literal notranslate"><span class="pre">none</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code>.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mean</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The mean coverage of low-teff granulation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">amp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The amplitude of granulation oscillations.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">period</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The period of granulation oscillations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dteff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The difference between the quiet photosphere and the low-teff granulation region.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="planet">
+<h3><code class="docutils literal notranslate"><span class="pre">planet</span></code><a class="headerlink" href="#planet" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available presets include <code class="docutils literal notranslate"><span class="pre">proxcenb</span></code> and <code class="docutils literal notranslate"><span class="pre">std</span></code>.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The name of the planet.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">radius</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The radius of the planet.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gravity</span></code></p></td>
+<td><p>see <a class="reference internal" href="#subsec-gravity"><span class="std std-ref">gravity</span></a></p></td>
+<td><p>The mass/surface gravity/density of the planet.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">semimajor_axis</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The semi-major axis of the planet’s orbit.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">orbit_period</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The period of the planet’s orbit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rotation_period</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The rotation period of the planet.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eccentricity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The eccentricity of the planet’s orbit</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">obliquity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The obliquity (tilt) of the planet. Not currently implemented.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">obliquity_direction</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The direction of the planet’s obliquity. The true anomaly
+at which the planet’s north pole faces away from the star.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">init_phase</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The phase of the planet at the beginning of the simulation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">init_substellar_lon</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The initial substellar longitude of the planet.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="gravity">
+<span id="subsec-gravity"></span><h4><code class="docutils literal notranslate"><span class="pre">gravity</span></code><a class="headerlink" href="#gravity" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The mode of the gravity parameter. Valid options are ‘g’, ‘rho’, and ‘kg’.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">value</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The value of the gravity parameter. Can be any unit so long as the physical type is correct.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="system">
+<h3><code class="docutils literal notranslate"><span class="pre">system</span></code><a class="headerlink" href="#system" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distance</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The distance to the system.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inclination</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The inclination of the system. Transit occurs when <span class="math notranslate nohighlight">\(i=90^{\circ}\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">phase_of_periasteron</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The phase of the planet when it reaches periasteron. Only necessary for planets
+with non-zero obliquity or non-zero eccentricity.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="obs">
+<h3><code class="docutils literal notranslate"><span class="pre">obs</span></code><a class="headerlink" href="#obs" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">observation_time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The total time of the observation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integration_time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The integration time of each epoch of observation.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="inst">
+<h3><code class="docutils literal notranslate"><span class="pre">inst</span></code><a class="headerlink" href="#inst" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Available presets include <code class="docutils literal notranslate"><span class="pre">mirecle</span></code>, <code class="docutils literal notranslate"><span class="pre">miri_lrs</span></code>, and <code class="docutils literal notranslate"><span class="pre">niriss_soss</span></code>.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">single</span></code> | <code class="docutils literal notranslate"><span class="pre">coronagraph</span></code></p></td>
+<td><p>see <a class="reference internal" href="#subsec-single"><span class="std std-ref">single</span></a> or <a class="reference internal" href="#subsec-coronagraph"><span class="std std-ref">coronagraph</span></a></p></td>
+<td><p>The type of telescope to use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bandpass</span></code></p></td>
+<td><p>see <a class="reference internal" href="#subsec-bandpass"><span class="std std-ref">bandpass</span></a></p></td>
+<td><p>The bandpass &amp; resolution of the observation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">detector</span></code></p></td>
+<td><p>see <a class="reference internal" href="#subsec-detector"><span class="std std-ref">detector</span></a></p></td>
+<td><p>The detector properties of the observation.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="single">
+<span id="subsec-single"></span><h4><code class="docutils literal notranslate"><span class="pre">single</span></code><a class="headerlink" href="#single" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aperture</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The aperture size of the telescope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">zodi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The level of the zodiacal background. See the PSG Handbook for details.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="coronagraph">
+<span id="subsec-coronagraph"></span><h4><code class="docutils literal notranslate"><span class="pre">coronagraph</span></code><a class="headerlink" href="#coronagraph" title="Link to this heading">#</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Use this instrument type with caution. It is not well tested and
+not fully implemented. Pull requests are welcome.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aperture</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The aperture size of the telescope.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">zodi</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The level of the zodiacal background. See the PSG Handbook for details.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">contrast</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The contrast of the coronagraphic system.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">iwa</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PSGtable</span></code></p></td>
+<td><p>The inner working angle of the coronagraph.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="bandpass">
+<span id="subsec-bandpass"></span><h4><code class="docutils literal notranslate"><span class="pre">bandpass</span></code><a class="headerlink" href="#bandpass" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wl_blue</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The minimum wavelength.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wl_red</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The maximum wavelength.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resolving_power</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The resolving power of the observation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wavelength_unit</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Unit</span></code></p></td>
+<td><p>The unit to be used on the spectral axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flux_unit</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Unit</span></code></p></td>
+<td><p>The unit to be used on the flux axis.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="detector">
+<span id="subsec-detector"></span><h4><code class="docutils literal notranslate"><span class="pre">detector</span></code><a class="headerlink" href="#detector" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">beam_width</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The width of the field of view.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integration_time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The integration time on the detector for saturation purposes.
+This effects the read noise of the observation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ccd</span></code></p></td>
+<td><p>see <a class="reference internal" href="#subsubsec-ccd"><span class="std std-ref">ccd</span></a></p></td>
+<td><p>The CCD used for the observation.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="ccd">
+<span id="subsubsec-ccd"></span><h5><code class="docutils literal notranslate"><span class="pre">ccd</span></code><a class="headerlink" href="#ccd" title="Link to this heading">#</a></h5>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pixel_sampling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The number of pixels comprising a resolution element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">read_noise</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The read noise of the CCD in electrons.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dark_current</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The dark current of the CCD in electrons/second.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">throughput</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The throughput of the optical system.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">emissivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The emissivity of the optical system.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The temperature of the optical system.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+</section>
+<section id="psg">
+<h3><code class="docutils literal notranslate"><span class="pre">psg</span></code><a class="headerlink" href="#psg" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gcm_binning</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The number of GCM points to bin together.
+Use 200 for testing and 3 for science (depending on the native resolution of your gcm).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">phase_binning</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Planetary epoch binning. Useful if your star changes on a shorter timescale than your planet.
+For example, if set to 4, a planet spectrum will be calculated for every fourth stellar spectrum
+and will be interpolated otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_molecular_signatures</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Whether to have PSG consider the planetary atmosphere. If False, PSG will return a blackbody spectrum.
+Useful for testing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_continuum_stellar</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Whether to have PSG use a stellar atmosphere model. Otherwise, the stellar spectrum is a blackbody.
+While not guaranteed, there is no expectation that this parameter has any effect on VSPEC outputs.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nmax</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The number of n-stream pairs for scattering aerosols calculations. See the PSG Handbook for details.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lmax</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The number of Legendre polynomials for scattering aerosols calculations. See the PSG Handbook for details.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">continuum</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>The continuum opacities to include in the radiative transfer calculation. Typically these include
+<code class="docutils literal notranslate"><span class="pre">Rayleigh</span></code>, <code class="docutils literal notranslate"><span class="pre">Refraction</span></code>, and <code class="docutils literal notranslate"><span class="pre">CIA_all</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="gcm">
+<h3><code class="docutils literal notranslate"><span class="pre">gcm</span></code><a class="headerlink" href="#gcm" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order to support many types of GCM input this section can be configured many ways.Read the following carefully.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mean_molecular_weight</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The mean molecular weight of the GCM in amu.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">binary</span></code> | <code class="docutils literal notranslate"><span class="pre">waccm</span></code> | <code class="docutils literal notranslate"><span class="pre">exocam</span></code> | <code class="docutils literal notranslate"><span class="pre">exoplasim</span></code> | <code class="docutils literal notranslate"><span class="pre">vspec</span></code></p></td>
+<td><p>see <a class="reference internal" href="#subsec-binary"><span class="std std-ref">binary</span></a>, <a class="reference internal" href="#subsec-waccm"><span class="std std-ref">waccm</span></a>, <a class="reference internal" href="#subsec-exocam"><span class="std std-ref">exocam</span></a>, <a class="reference internal" href="#subsec-exoplasim"><span class="std std-ref">exoplasim</span></a>, <a class="reference internal" href="#subsec-vspec"><span class="std std-ref">vspec</span></a></p></td>
+<td><p>The GCM type and parameters.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="binary">
+<span id="subsec-binary"></span><h4><code class="docutils literal notranslate"><span class="pre">binary</span></code><a class="headerlink" href="#binary" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code></p></td>
+<td><p>The path to the PSG-readable GCM file. The contents of this file are parsed
+by <code class="docutils literal notranslate"><span class="pre">pypsg.globes.GCMdecoder</span></code> into a <code class="docutils literal notranslate"><span class="pre">pypsg.globes.PyGCM</span></code> object.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="waccm">
+<span id="subsec-waccm"></span><h4><code class="docutils literal notranslate"><span class="pre">waccm</span></code><a class="headerlink" href="#waccm" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code></p></td>
+<td><p>The path to the WACCM netCDF file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">itime</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The index of the time axis to use. If this is specified, then the GCM is static. Otherwise,
+it is assumed that the GCM changes as a function of time, and the <code class="docutils literal notranslate"><span class="pre">tstart</span></code> parameter must be specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tstart</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The start time of the GCM. Only used if <code class="docutils literal notranslate"><span class="pre">itime</span></code> is not specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecules</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>Which molecular species to look for in the GCM file. Use the same names as in PSG.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aerosols</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>Which aerosol species to look for in the GCM file. Use the same names as in PSG.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">background</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The background molecular species. The abundances in <code class="docutils literal notranslate"><span class="pre">molecules</span></code> will be subtracted from unity and the
+difference will be included as this background species. If this species is already in <code class="docutils literal notranslate"><span class="pre">molecules</span></code>, then
+an error will be raised.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lon_start</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The longitude of the first point on the longitudinal axis. Default is <code class="docutils literal notranslate"><span class="pre">-180</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lat_start</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The latitude of the first point on the latitudinal axis. Default is <code class="docutils literal notranslate"><span class="pre">-90</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="exocam">
+<span id="subsec-exocam"></span><h4><code class="docutils literal notranslate"><span class="pre">exocam</span></code><a class="headerlink" href="#exocam" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code></p></td>
+<td><p>The path to the ExoCAM netCDF file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">itime</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The index of the time axis to use. If this is specified, then the GCM is static. Otherwise,
+it is assumed that the GCM changes as a function of time, and the <code class="docutils literal notranslate"><span class="pre">tstart</span></code> parameter must be specified.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tstart</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The start time of the GCM. Only used if <code class="docutils literal notranslate"><span class="pre">itime</span></code> is not specified.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecules</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>Which molecular species to look for in the GCM file. Use the same names as in PSG.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aerosols</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>Which aerosol species to look for in the GCM file. Use the same names as in PSG.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">background</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The background molecular species. The abundances in <code class="docutils literal notranslate"><span class="pre">molecules</span></code> will be subtracted from unity and the
+difference will be included as this background species. If this species is already in <code class="docutils literal notranslate"><span class="pre">molecules</span></code>, then
+an error will be raised.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lon_start</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The longitude of the first point on the longitudinal axis. Default is <code class="docutils literal notranslate"><span class="pre">-180</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lat_start</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The latitude of the first point on the latitudinal axis. Default is <code class="docutils literal notranslate"><span class="pre">-90</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mean_molecular_mass</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The mean molecular mass of the GCM. Must be specified if <code class="docutils literal notranslate"><span class="pre">H2O</span></code> is in <code class="docutils literal notranslate"><span class="pre">molecules</span></code>. This is
+because ExoCAM treats water as humidity.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="exoplasim">
+<span id="subsec-exoplasim"></span><h4><code class="docutils literal notranslate"><span class="pre">exoplasim</span></code><a class="headerlink" href="#exoplasim" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pathlib.Path</span></code></p></td>
+<td><p>The path to the ExoPlasim netCDF file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">itime</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The index of the time axis to use.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">molecules</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>Which molecular species to look for in the GCM file. Use the same names as in PSG.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aerosols</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>Which aerosol species to look for in the GCM file. Use the same names as in PSG.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">background</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>The background molecular species. The abundances in <code class="docutils literal notranslate"><span class="pre">molecules</span></code> will be subtracted from unity and the
+difference will be included as this background species. If this species is already in <code class="docutils literal notranslate"><span class="pre">molecules</span></code>, then
+an error will be raised.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lon_start</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The longitude of the first point on the longitudinal axis. Default is <code class="docutils literal notranslate"><span class="pre">-180</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lat_start</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The latitude of the first point on the latitudinal axis. Default is <code class="docutils literal notranslate"><span class="pre">-90</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mean_molecular_mass</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The mean molecular mass of the GCM. Must be specified if <code class="docutils literal notranslate"><span class="pre">H2O</span></code> is in <code class="docutils literal notranslate"><span class="pre">molecules</span></code>. This is
+because ExoPlasim treats water as humidity.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="vspec">
+<span id="subsec-vspec"></span><h4><code class="docutils literal notranslate"><span class="pre">vspec</span></code><a class="headerlink" href="#vspec" title="Link to this heading">#</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is a minimal atmosphere model. It is useful for testing or when a
+sophisticated model is not necessary.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Parses to</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nlayer</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The number of layers in the GCM.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nlon</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The number of longitude points in the GCM.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nlat</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>The number of latitude points in the GCM.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">epsilon</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The thermal inertia of the GCM. See <span id="id1">Cowan and Agol [<a class="reference internal" href="references.html#id8" title="Nicolas B. Cowan and Eric Agol. A Model for Thermal Phase Variations of Circular and Eccentric Exoplanets. \apj , 726(2):82, January 2011. arXiv:1011.0428, doi:10.1088/0004-637X/726/2/82.">2011</a>]</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">p_surf</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The surface pressure of the GCM.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">p_stop</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The pressure at the top of the atmosphere.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wind_u</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The U component (west-to-east) of the GCM’s wind.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wind_v</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></p></td>
+<td><p>The V component (south-to-north) of the GCM’s wind.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gamma</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The adiabatic index of the GCM atmosphere.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">albedo</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The surface albedo of the GCM.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">emissivity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The surface emissivity of the GCM.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">molecules</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list</span> <span class="pre">of</span> <span class="pre">str</span></code></p></td>
+<td><p>The molecular species in the GCM.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lat_redistribution</span></code> (optional)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>The latitudinal redistribution factor of the GCM. If <code class="docutils literal notranslate"><span class="pre">1</span></code>, the poles have the
+same temperature as the equator. If <code class="docutils literal notranslate"><span class="pre">0</span></code>, then there is no heat redistribution.
+Default is <code class="docutils literal notranslate"><span class="pre">0.0</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+</section>
+<section id="module-VSPEC.params">
+<span id="vspec-params-package"></span><h2>VSPEC.params Package<a class="headerlink" href="#module-VSPEC.params" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">VSPEC</span></code> parameters module.</p>
+<p>This classes instruct the behavior of the rest
+of the <code class="docutils literal notranslate"><span class="pre">VSPEC</span></code> package.</p>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters" title="VSPEC.params.BandpassParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BandpassParameters</span></code></a>(wl_blue, wl_red, ...)</p></td>
+<td><p>Class to store bandpass parameters for observations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.BaseParameters.html#VSPEC.params.BaseParameters" title="VSPEC.params.BaseParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseParameters</span></code></a>(**kwargs)</p></td>
+<td><p>Base class for Parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.CoronagraphParameters.html#VSPEC.params.CoronagraphParameters" title="VSPEC.params.CoronagraphParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CoronagraphParameters</span></code></a>(aperture, zodi, ...)</p></td>
+<td><p>Parameters for a coronagraph telescope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters" title="VSPEC.params.DetectorParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DetectorParameters</span></code></a>(beam_width, ...)</p></td>
+<td><p>Class to store detector parameters for observations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters" title="VSPEC.params.FaculaParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FaculaParameters</span></code></a>(distribution, ...)</p></td>
+<td><p>Facula Parameters</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters" title="VSPEC.params.FlareParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FlareParameters</span></code></a>(dist_teff_mean, ...)</p></td>
+<td><p>Class to store stellar flare parameters</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters" title="VSPEC.params.GranulationParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GranulationParameters</span></code></a>(mean, amp, period, dteff)</p></td>
+<td><p>Granulation Parameters</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters" title="VSPEC.params.GravityParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GravityParameters</span></code></a>(mode, value)</p></td>
+<td><p>Class representing gravity parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.Header.html#VSPEC.params.Header" title="VSPEC.params.Header"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Header</span></code></a>(data_path, teff_min, teff_max, seed)</p></td>
+<td><p>Header for VSPEC simulation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters" title="VSPEC.params.InstrumentParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InstrumentParameters</span></code></a>(telescope, bandpass, ...)</p></td>
+<td><p>Class to store instrument parameters for observations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters" title="VSPEC.params.InternalParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InternalParameters</span></code></a>(header, star, planet, ...)</p></td>
+<td><p>Class to store parameters for a VSPEC simulation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters" title="VSPEC.params.LimbDarkeningParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LimbDarkeningParameters</span></code></a>(u1, u2)</p></td>
+<td><p>Limb Darkening Parameters for the Quadratic Limb Darkening Law</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.ObservationParameters.html#VSPEC.params.ObservationParameters" title="VSPEC.params.ObservationParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObservationParameters</span></code></a>(observation_time, ...)</p></td>
+<td><p>Class storing parameters for observations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters" title="VSPEC.params.PlanetParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlanetParameters</span></code></a>(name, radius, gravity, ...)</p></td>
+<td><p>Class representing planet parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.SingleDishParameters.html#VSPEC.params.SingleDishParameters" title="VSPEC.params.SingleDishParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SingleDishParameters</span></code></a>(aperture, zodi)</p></td>
+<td><p>Parameters for a single dish telescope.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters" title="VSPEC.params.SpotParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpotParameters</span></code></a>(distribution, ...)</p></td>
+<td><p>Parameters controling variability from star spots.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters" title="VSPEC.params.StarParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StarParameters</span></code></a>(psg_star_template, teff, ...)</p></td>
+<td><p>Parameters describing the <code class="docutils literal notranslate"><span class="pre">VSPEC</span></code> stellar model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.SystemParameters.html#VSPEC.params.SystemParameters" title="VSPEC.params.SystemParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SystemParameters</span></code></a>(distance, inclination, ...)</p></td>
+<td><p>Class representing system parameters.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.TelescopeParameters.html#VSPEC.params.TelescopeParameters" title="VSPEC.params.TelescopeParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TelescopeParameters</span></code></a>(aperture, mode, zodi[, ...])</p></td>
+<td><p>Base class for telescope Parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters" title="VSPEC.params.ccdParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ccdParameters</span></code></a>(pixel_sampling, read_noise, ...)</p></td>
+<td><p>Class to store CCD parameters for observations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/VSPEC.params.gcmParameters.html#VSPEC.params.gcmParameters" title="VSPEC.params.gcmParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gcmParameters</span></code></a>(gcm_getter, mean_molec_weight, ...)</p></td>
+<td><p>Class to store GCM parameters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters" title="VSPEC.params.psgParameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psgParameters</span></code></a>(gcm_binning, phase_binning, ...)</p></td>
+<td><p>Class to store parameters for the Planetary Spectrum Generator (PSG).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="class-inheritance-diagram">
+<h3>Class Inheritance Diagram<a class="headerlink" href="#class-inheritance-diagram" title="Link to this heading">#</a></h3>
+<div class="graphviz"><img src="_images/inheritance-765a7cb4b2138dcb9f114c70b3e81342f4790034.png" alt="Inheritance diagram of VSPEC.params.observation.BandpassParameters, VSPEC.params.base.BaseParameters, VSPEC.params.observation.CoronagraphParameters, VSPEC.params.observation.DetectorParameters, VSPEC.params.stellar.FaculaParameters, VSPEC.params.stellar.FlareParameters, VSPEC.params.stellar.GranulationParameters, VSPEC.params.planet.GravityParameters, VSPEC.params.read.Header, VSPEC.params.observation.InstrumentParameters, VSPEC.params.read.InternalParameters, VSPEC.params.stellar.LimbDarkeningParameters, VSPEC.params.observation.ObservationParameters, VSPEC.params.planet.PlanetParameters, VSPEC.params.observation.SingleDishParameters, VSPEC.params.stellar.SpotParameters, VSPEC.params.stellar.StarParameters, VSPEC.params.planet.SystemParameters, VSPEC.params.observation.TelescopeParameters, VSPEC.params.observation.ccdParameters, VSPEC.params.gcm.gcmParameters, VSPEC.params.gcm.psgParameters" usemap="#inheritanced8231d031c" class="inheritance graphviz" /></div>
+<map id="inheritanced8231d031c" name="inheritanced8231d031c">
+<area shape="rect" id="node1" href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters" target="_top" title="Class to store bandpass parameters for observations." alt="" coords="199,5,358,31"/>
+<area shape="rect" id="node2" href="api/VSPEC.params.BaseParameters.html#VSPEC.params.BaseParameters" target="_top" title="Base class for Parameters" alt="" coords="5,449,133,475"/>
+<area shape="rect" id="node4" href="api/VSPEC.params.TelescopeParameters.html#VSPEC.params.TelescopeParameters" target="_top" title="Base class for telescope Parameters." alt="" coords="199,55,359,80"/>
+<area shape="rect" id="node5" href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters" target="_top" title="Class to store detector parameters for observations." alt="" coords="203,104,355,129"/>
+<area shape="rect" id="node6" href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters" target="_top" title="Facula Parameters" alt="" coords="210,153,347,179"/>
+<area shape="rect" id="node7" href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters" target="_top" title="Class to store stellar flare parameters" alt="" coords="214,203,343,228"/>
+<area shape="rect" id="node8" href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters" target="_top" title="Granulation Parameters" alt="" coords="193,252,365,277"/>
+<area shape="rect" id="node9" href="api/VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters" target="_top" title="Class representing gravity parameters." alt="" coords="207,301,351,327"/>
+<area shape="rect" id="node10" href="api/VSPEC.params.Header.html#VSPEC.params.Header" target="_top" title="Header for VSPEC simulation" alt="" coords="243,351,315,376"/>
+<area shape="rect" id="node11" href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters" target="_top" title="Class to store instrument parameters for observations." alt="" coords="195,400,362,425"/>
+<area shape="rect" id="node12" href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters" target="_top" title="Class to store parameters for a VSPEC simulation." alt="" coords="205,449,352,475"/>
+<area shape="rect" id="node13" href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters" target="_top" title="Limb Darkening Parameters for the Quadratic" alt="" coords="181,499,376,524"/>
+<area shape="rect" id="node14" href="api/VSPEC.params.ObservationParameters.html#VSPEC.params.ObservationParameters" target="_top" title="Class storing parameters for observations." alt="" coords="191,548,366,573"/>
+<area shape="rect" id="node15" href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters" target="_top" title="Class representing planet parameters." alt="" coords="210,597,347,623"/>
+<area shape="rect" id="node17" href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters" target="_top" title="Parameters controling variability from star spots." alt="" coords="216,647,341,672"/>
+<area shape="rect" id="node18" href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters" target="_top" title="Parameters describing the ``VSPEC`` stellar model." alt="" coords="217,696,340,721"/>
+<area shape="rect" id="node19" href="api/VSPEC.params.SystemParameters.html#VSPEC.params.SystemParameters" target="_top" title="Class representing system parameters." alt="" coords="206,745,351,771"/>
+<area shape="rect" id="node20" href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters" target="_top" title="Class to store CCD parameters for observations." alt="" coords="219,795,338,820"/>
+<area shape="rect" id="node21" href="api/VSPEC.params.gcmParameters.html#VSPEC.params.gcmParameters" target="_top" title="Class to store GCM parameters." alt="" coords="217,844,341,869"/>
+<area shape="rect" id="node22" href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters" target="_top" title="Class to store parameters for the Planetary Spectrum Generator (PSG)." alt="" coords="219,893,338,919"/>
+<area shape="rect" id="node3" href="api/VSPEC.params.CoronagraphParameters.html#VSPEC.params.CoronagraphParameters" target="_top" title="Parameters for a coronagraph telescope." alt="" coords="424,31,603,56"/>
+<area shape="rect" id="node16" href="api/VSPEC.params.SingleDishParameters.html#VSPEC.params.SingleDishParameters" target="_top" title="Parameters for a single dish telescope." alt="" coords="431,80,596,105"/>
+</map></section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="api/VSPEC.PhaseAnalyzer.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">PhaseAnalyzer</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="api/VSPEC.params.BandpassParameters.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">BandpassParameters</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-vspec-params-yaml-format">The <code class="docutils literal notranslate"><span class="pre">VSPEC.params</span></code> YAML Format</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header"><code class="docutils literal notranslate"><span class="pre">header</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#star"><code class="docutils literal notranslate"><span class="pre">star</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ld"><code class="docutils literal notranslate"><span class="pre">ld</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#spots"><code class="docutils literal notranslate"><span class="pre">spots</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#faculae"><code class="docutils literal notranslate"><span class="pre">faculae</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#flares"><code class="docutils literal notranslate"><span class="pre">flares</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#granulation"><code class="docutils literal notranslate"><span class="pre">granulation</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#planet"><code class="docutils literal notranslate"><span class="pre">planet</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gravity"><code class="docutils literal notranslate"><span class="pre">gravity</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#system"><code class="docutils literal notranslate"><span class="pre">system</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#obs"><code class="docutils literal notranslate"><span class="pre">obs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inst"><code class="docutils literal notranslate"><span class="pre">inst</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#single"><code class="docutils literal notranslate"><span class="pre">single</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#coronagraph"><code class="docutils literal notranslate"><span class="pre">coronagraph</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bandpass"><code class="docutils literal notranslate"><span class="pre">bandpass</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#detector"><code class="docutils literal notranslate"><span class="pre">detector</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#ccd"><code class="docutils literal notranslate"><span class="pre">ccd</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#psg"><code class="docutils literal notranslate"><span class="pre">psg</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gcm"><code class="docutils literal notranslate"><span class="pre">gcm</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#binary"><code class="docutils literal notranslate"><span class="pre">binary</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#waccm"><code class="docutils literal notranslate"><span class="pre">waccm</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#exocam"><code class="docutils literal notranslate"><span class="pre">exocam</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#exoplasim"><code class="docutils literal notranslate"><span class="pre">exoplasim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#vspec"><code class="docutils literal notranslate"><span class="pre">vspec</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-VSPEC.params">VSPEC.params Package</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#class-inheritance-diagram">Class Inheritance Diagram</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/inputs.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, The VSPEC Collaboration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

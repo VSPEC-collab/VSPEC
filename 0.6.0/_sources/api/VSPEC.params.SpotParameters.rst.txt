@@ -1,0 +1,25 @@
+SpotParameters
+==============
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: SpotParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SpotParameters.from_preset
+      ~SpotParameters.mdwarf
+      ~SpotParameters.none
+      ~SpotParameters.solar
+      ~SpotParameters.to_generator
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_preset
+   .. automethod:: mdwarf
+   .. automethod:: none
+   .. automethod:: solar
+   .. automethod:: to_generator

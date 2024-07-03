@@ -1,0 +1,49 @@
+InternalParameters
+==================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: InternalParameters
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~InternalParameters.atmosphere
+      ~InternalParameters.flux_correction
+      ~InternalParameters.generator
+      ~InternalParameters.geometry
+      ~InternalParameters.noise
+      ~InternalParameters.planet_total_images
+      ~InternalParameters.star_total_images
+      ~InternalParameters.surface
+      ~InternalParameters.target
+      ~InternalParameters.telescope
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~InternalParameters.from_dict
+      ~InternalParameters.from_yaml
+      ~InternalParameters.to_pyconfig
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: atmosphere
+   .. autoattribute:: flux_correction
+   .. autoattribute:: generator
+   .. autoattribute:: geometry
+   .. autoattribute:: noise
+   .. autoattribute:: planet_total_images
+   .. autoattribute:: star_total_images
+   .. autoattribute:: surface
+   .. autoattribute:: target
+   .. autoattribute:: telescope
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_dict
+   .. automethod:: from_yaml
+   .. automethod:: to_pyconfig

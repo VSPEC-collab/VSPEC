@@ -1,0 +1,116 @@
+
+
+.. _sphx_glr_auto_examples_other_star:
+
+VSPEC Star Examples
+-------------------
+
+Below is a gallery of examples of the
+``VSPEC`` variable star model
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example plots the lightcurve caused by a spotted photosphere.">
+
+.. only:: html
+
+  .. image:: /auto_examples/other/star/images/thumb/sphx_glr_plot_spot_lightcurve_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_other_star_plot_spot_lightcurve.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Plot the lightcurve of a spotted star</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example plots the lightcurve effects caused by granulation on the surface of a star.">
+
+.. only:: html
+
+  .. image:: /auto_examples/other/star/images/thumb/sphx_glr_plot_granulation_lightcurve_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_other_star_plot_granulation_lightcurve.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Plot the lightcurve stellar granulation</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example plots the lightcurve caused by a flaring star.">
+
+.. only:: html
+
+  .. image:: /auto_examples/other/star/images/thumb/sphx_glr_plot_flare_lightcurve_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_other_star_plot_flare_lightcurve.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Plot the lightcurve of a flaring star</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example plots the lightcurve caused by a  photosphere covered in faculae.">
+
+.. only:: html
+
+  .. image:: /auto_examples/other/star/images/thumb/sphx_glr_plot_faculae_lightcurve_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_other_star_plot_faculae_lightcurve.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Plot the lightcurve of a star with faculae</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example plots the lightcurve caused by a flaring star when it also has spots.">
+
+.. only:: html
+
+  .. image:: /auto_examples/other/star/images/thumb/sphx_glr_plot_flare_spot_lightcurve_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_other_star_plot_flare_spot_lightcurve.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Plot the lightcurve of a flaring star with spots</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/other/star/plot_spot_lightcurve
+   /auto_examples/other/star/plot_granulation_lightcurve
+   /auto_examples/other/star/plot_flare_lightcurve
+   /auto_examples/other/star/plot_faculae_lightcurve
+   /auto_examples/other/star/plot_flare_spot_lightcurve
+

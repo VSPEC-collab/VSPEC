@@ -1,0 +1,19 @@
+BaseParameters
+==============
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: BaseParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BaseParameters.from_dict
+      ~BaseParameters.from_preset
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_dict
+   .. automethod:: from_preset
