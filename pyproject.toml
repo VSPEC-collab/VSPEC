@@ -60,7 +60,7 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://vspec.readthedocs.io/en/latest/"
+Documentation = "https://vspec-collab.github.io/VSPEC/0.6.0/"
 Repository = "https://github.com/VSPEC-collab/VSPEC"
 Issues = "https://github.com/VSPEC-collab/VSPEC/issues"
 
