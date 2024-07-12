@@ -83,6 +83,12 @@ class ObservationModel:
         fh = logging.FileHandler(self.directories['parent'] / 'psg.log',mode='w')
         fh.setLevel(logging.DEBUG)
         self.logger.addHandler(fh)
+        # warn if the planet sampling is too low.
+        planet_dt = self.params.obs.observation_time / self.params.planet_total_images
+        max_dt = self.params.planet.orbit_period / 8.0
+        if planet_dt > max_dt:
+            msg = f'Planet sampling is too low ({planet_dt:.2f} > {max_dt:.2f})'
+            warnings.warn(msg, RuntimeWarning)
 
     @classmethod
     def from_yaml(cls, config_path: Path):
@@ -192,7 +198,7 @@ class ObservationModel:
             return ForwardSpectra.blackbody()
 
     @property
-    def _wl(self):
+    def _wl(self)->u.Quantity:
         """
         The wavelength axis of the observation.
 
@@ -667,7 +673,7 @@ class ObservationModel:
         phase: u.Quantity = 90*u.deg,
         inclination: u.Quantity = 0*u.deg,
         transit_depth: np.ndarray | float = 0
-    ):
+    )->Tuple[u.Quantity, u.Quantity]:
         """
         Compute the stellar spectrum given an integration window and the
         side of the star facing the observer.
@@ -737,11 +743,51 @@ class ObservationModel:
 
         return base_flux.to(config.flux_unit), pl_frac
 
+    def _get_pyrad(
+        self,
+        kind: str,
+        index: int
+    )-> pypsg.PyRad:
+        """
+        Read a rad file.
+        """
+        match kind:
+            case 'thermal':
+                path = self.directories['psg_thermal'] / get_filename(index, N_ZFILL, 'fits')
+            case 'combined':
+                path = self.directories['psg_combined'] / get_filename(index, N_ZFILL, 'fits')
+            case 'noise':
+                path = self.directories['psg_noise'] / get_filename(index, N_ZFILL, 'fits')
+        return pypsg.PyRad.read(path, format='fits')
+    
+    def _get_psg_interp(
+        self,
+        kind:str,
+        name:str,
+    ):
+        """
+        Create an interpolaor from PSG outputs.
+        """
+        observation_parameters = self.get_observation_parameters()
+        observation_info = self._get_observation_plan(
+            observation_parameters, planet=True)
+        times = observation_info['time'].to_value(config.time_unit)
+        spectra = [
+            self._get_pyrad(kind, i)[name].to_value(config.flux_unit) for i in range(self.params.planet_total_images+1)
+        ]
+        return GridSpectra(
+            native_wl=self._wl.to_value(config.wl_unit),
+            params = {'time': times},
+            spectra = np.array(spectra),
+            impl='scipy'
+        )
+    
     def _calculate_reflected_spectra(
         self,
-        N1: int,
-        N2: int,
-        N1_frac: float,
+        start_time: float,
+        end_time: float,
+        reflected_interpolator: GridSpectra,
+        stellar_interpolator: GridSpectra,
         sub_planet_flux: u.Quantity,
         pl_frac: float
     ) -> u.Quantity:
@@ -752,153 +798,180 @@ class ObservationModel:
 
         Parameters
         ----------
-        N1 : int
-            The planet index immediately before the current epoch.
-        N2 : int
-            The planet index immediately after the current epoch.
-        N1_frac : float
-            The fraction of the `N1` epoch to use in interpolation.
+        start_time : float
+            The start time of the observation.
+        end_time : float
+            The end time of the observation.
+        _thermal_interpolator : GridSpectra
+            The thermal interpolator.
+        _combined_interpolator : GridSpectra
+            The thermal+reflected interpolator.
+        _stellar_interpolator : GridSpectra
+            The stellar interpolator.
         sub_planet_flux : astropy.units.Quantity
-            Stellar flux to scale to.
+            The sub-planet flux.
         pl_frac : float
-            The fraction of the planet that is visible (in case of
-            eclipse)
+            The planet fraction.
 
         Returns
         -------
         reflected_flux : astropy.units.Quantity
             Reflected flux.
 
-        Raises
-        ------
-        ValueError
-            If the PSG flux unit code is not recognized.
-        ValueError
-            If the wavelength coordinates from the loaded spectra do not match.
         """
-        psg_combined_path1 = Path(
-            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'fits')
-        psg_thermal_path1 = Path(
-            self.directories['psg_thermal']) / get_filename(N1, N_ZFILL, 'fits')
-        psg_combined_path2 = Path(
-            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'fits')
-        psg_thermal_path2 = Path(
-            self.directories['psg_thermal']) / get_filename(N2, N_ZFILL, 'fits')
+        reflected_spectrum = reflected_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        stellar_spectrum = stellar_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        
+        planet_reflection_fraction = (reflected_spectrum / stellar_spectrum)
+        
+        return sub_planet_flux * planet_reflection_fraction * pl_frac
+    
+    def _get_thermal_interpolator(self)-> GridSpectra:
+        """
+        Get an interpolator for the thermal spectra.
+        """
+        observation_parameters = self.get_observation_parameters()
+        observation_info = self._get_observation_plan(
+            observation_parameters, planet=True)
+        times = observation_info['time'].to_value(config.time_unit)
+        spectra = []
+        for i in range(self.params.planet_total_images+1):
+            pyrad = self._get_pyrad('thermal', i)
+            if 'Thermal' in pyrad.columns:
+                spectra.append(pyrad['Thermal'].to_value(config.flux_unit))
+            else:
+                if 'Transit' in pyrad.columns:
+                    spectra.append(
+                        (pyrad[self._thermal_name] - pyrad['Transit']).to_value(config.flux_unit)
+                    )
+                else:
+                    spectra.append(pyrad[self._thermal_name].to_value(config.flux_unit))
+        return GridSpectra(
+            native_wl=self._wl.to_value(config.wl_unit),
+            params = {'time': times},
+            spectra = np.array(spectra),
+            impl='scipy'
+        )
+    def _get_reflected_interpolator(self)-> GridSpectra:
+        """
+        Get an interpolator for the reflected spectra.
+        """
+        observation_parameters = self.get_observation_parameters()
+        observation_info = self._get_observation_plan(
+            observation_parameters, planet=True)
+        times = observation_info['time'].to_value(config.time_unit)
+        spectra = []
+        for i in range(self.params.planet_total_images+1):
+            combined = self._get_pyrad('combined', i)
+            thermal = self._get_pyrad('thermal', i)
+            if 'Reflected' in combined.columns:
+                spectra.append(combined['Reflected'].to_value(config.flux_unit))
+            else:
+                if 'Transit' in combined.columns:
+                    cmb_spec = combined[self._thermal_name] - combined['Transit']
+                    the_spec = thermal[self._thermal_name]
+                    spectra.append((cmb_spec - the_spec).to_value(config.flux_unit))
+                else:
+                    cmb_spec = combined[self._thermal_name]
+                    the_spec = thermal[self._thermal_name]
+                    spectra.append((cmb_spec - the_spec).to_value(config.flux_unit))
+        return GridSpectra(
+            native_wl=self._wl.to_value(config.wl_unit),
+            params = {'time': times},
+            spectra = np.array(spectra),
+            impl='scipy'
+        )
 
-        reflected = []
-
-        for psg_combined_path, psg_thermal_path in zip([psg_combined_path1, psg_combined_path2],
-                                                       [psg_thermal_path1, psg_thermal_path2]):
-            combined = pypsg.PyRad.read(psg_combined_path, format='fits')
-            thermal = pypsg.PyRad.read(psg_thermal_path, format='fits')
-
-            planet_reflection_only = get_reflected(
-                combined,
-                thermal,
-                self.params.planet.name
-            )
-            planet_reflection_fraction: np.ndarray = (
-                planet_reflection_only / combined['Stellar']).to_value(u.dimensionless_unscaled)
-
-            planet_reflection_adj = sub_planet_flux * planet_reflection_fraction
-            reflected.append(planet_reflection_adj)
-
-        return reflected[0] * N1_frac + reflected[1] * (1-N1_frac)*pl_frac
+    def _get_transit_interpolator(self)-> GridSpectra:
+        """
+        Get an interpolator for the transit spectra.
+        """
+        observation_parameters = self.get_observation_parameters()
+        observation_info = self._get_observation_plan(
+            observation_parameters, planet=True)
+        times = observation_info['time'].to_value(config.time_unit)
+        spectra = []
+        for i in range(self.params.planet_total_images+1):
+            try:
+                pyrad = self._get_pyrad('combined', i)
+                spectra.append(
+                    (-pyrad['Transit']/pyrad['Stellar']).to_value(u.dimensionless_unscaled)
+                )
+            except KeyError:
+                spectra.append(
+                    np.zeros_like(self._wl.value)
+                )
+        return GridSpectra(
+            native_wl=self._wl.to_value(config.wl_unit),
+            params = {'time': times},
+            spectra = np.array(spectra),
+            impl='scipy'
+        )
+        
 
     def _get_transit(
         self,
-        N1: int,
-        N2: int,
-        N1_frac: float,
-        phase: u.Quantity,
-        orbit_radius: u.Quantity
-    ) -> Tuple[u.Quantity, np.ndarray]:
+        start_time: float,
+        end_time: float,
+        transit_interpolator: GridSpectra,
+    ) -> np.ndarray:
         """
         Get the transit spectra calculated by PSG
 
         Parameters
         ----------
-        N1 : int
-            The planet index immediately before the current epoch.
-        N2 : int
-            The planet index immediately after the current epoch.
-        N1_frac : float
-            The fraction of the `N1` epoch to use in interpolation.
-        pl_frac : float
-            The fraction of the planet that is visible (not eclipsed)
+        start_time : float
+            The start time of the observation.
+        end_time : float
+            The end time of the observation.
+        transit_interpolator : GridSpectra
+            The transit interpolator.
+        star_interpolator : GridSpectra
+            The star interpolator.
 
         Returns
         -------
-        wavelength : astropy.units.Quantity
-            The wavelength of the thermal emission.
         flux : np.ndarray
             The dimensionless fraction of light blocked by the planet at each wavelength.
 
-        Raises
-        ------
-        ValueError
-            If the PSG flux unit code is not recognized.
-        ValueError
-            If the wavelength coordinates from the loaded spectra do not match.
         """
-        psg_cmb_path1 = Path(
-            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'fits')
-        psg_cmb_path2 = Path(
-            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'fits')
-
-        wavelength = []
-        transit: List[np.ndarray] = []
-
-        for psg_cmb_path in [psg_cmb_path1, psg_cmb_path2]:
-            cmb_rad: pypsg.PyRad = pypsg.PyRad.read(
-                psg_cmb_path, format='fits')
-
-            wavelength.append(cmb_rad.wl)
-            if 'Transit' in cmb_rad.colnames:
-                tran = cmb_rad['Transit']
-                star = cmb_rad['Stellar']
-                blocked_frac = -1 * \
-                    (tran/star).to_value(u.dimensionless_unscaled)
-                transit.append(blocked_frac)
-            else:
-                star = cmb_rad['Stellar']
-                blocked_frac = 0*(star/star).to_value(u.dimensionless_unscaled)
-                transit.append(blocked_frac)
-
-        if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
-            raise ValueError('The wavelength coordinates must be equivalent.')
-
-        frac_absorbed: np.ndarray = transit[0]*N1_frac + transit[1]*(1-N1_frac)
-
+        transit = transit_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        
         depth_bare_rock: float = (self.params.planet.radius /
                                   self.params.star.radius).to_value(u.dimensionless_unscaled)**2
-        return wavelength[0], frac_absorbed/depth_bare_rock
+        return transit/depth_bare_rock
 
-        # pl_frac_visible = self.star.get_pl_frac(
-        #     angle_past_midtransit=phase+180*u.deg,
-        #     orbit_radius=orbit_radius,
-        #     planet_radius=self.params.planet.radius,
-        #     inclination=self.params.system.inclination
-        # )
-        # pl_frac_covering = 1-pl_frac_visible * (self.params.planet.radius/self.params.star.radius).to_value(u.dimensionless_unscaled)**2
-        # if pl_frac_covering == 0:
-        #     normalized_frac_absorbed = pl_frac_covering*0
-        # else:
-        #     normalized_frac_absorbed = frac_absorbed/pl_frac_covering/depth_bare_rock
-        # return wavelength[0], normalized_frac_absorbed
-
-    def _calculate_noise(self, N1: int, N2: int, N1_frac: float, time_scale_factor: float, cmb_flux):
+    def _calculate_noise(
+        self,
+        start_time: float,
+        end_time: float,
+        photon_noise_interpolator: GridSpectra,
+        detector_noise_interpolator: GridSpectra,
+        telescope_noise_interpolator: GridSpectra,
+        background_noise_interpolator: GridSpectra,
+        star_interpolator: GridSpectra,
+        time_scale_factor: float,
+        cmb_flux: u.Quantity
+    ):
         """
         Calculate the noise in our model based on the noise output from PSG.
 
         Parameters
         ----------
-        N1 : int
-            The planet index immediately before the current epoch.
-        N2 : int
-            The planet index immediately after the current epoch.
-        N1_frac : float
-            The fraction of the `N1` epoch to use in interpolation.
+        start_time : astropy.units.Quantity
+            The start time of the observation.
+        end_time : astropy.units.Quantity
+            The end time of the observation.
+        _photon_noise_interpolator : GridSpectra
+            The interpolator for the photon noise.
+        _detector_noise_interpolator : GridSpectra
+            The interpolator for the detector noise.
+        _telescope_noise_interpolator : GridSpectra
+            The interpolator for the telescope noise.
+        _background_noise_interpolator : GridSpectra
+            The interpolator for the background noise.
+        _star_interpolator : GridSpectra
+            The interpolator for the star flux.
         time_scale_factor : float
             A scaling factor to apply to the noise at the end of the calculation.
             This is 1 if the planet and star sampling has the same cadence. Otherwise,
@@ -918,54 +991,50 @@ class ObservationModel:
         ValueError
             If the wavelength coordinates from the loaded spectra do not match.
         """
-        psg_combined_path1 = Path(
-            self.directories['psg_combined']) / get_filename(N1, N_ZFILL, 'fits')
-        psg_noise_path1 = Path(
-            self.directories['psg_noise']) / get_filename(N1, N_ZFILL, 'fits')
-        psg_combined_path2 = Path(
-            self.directories['psg_combined']) / get_filename(N2, N_ZFILL, 'fits')
-        psg_noise_path2 = Path(
-            self.directories['psg_noise']) / get_filename(N2, N_ZFILL, 'fits')
+        photon_noise = photon_noise_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        star = star_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        model_noise = photon_noise * np.sqrt(cmb_flux.to_value(config.flux_unit)/star)
+        
+        detector_noise = detector_noise_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        telescope_noise = telescope_noise_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        background_noise = background_noise_interpolator.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
 
-        psg_noise_source = []
-        psg_source = []
-
-        for psg_combined_path, psg_noise_path in zip(
-            [psg_combined_path1, psg_combined_path2],
-            [psg_noise_path1, psg_noise_path2]
-        ):
-            combined: pypsg.PyRad = pypsg.PyRad.read(
-                psg_combined_path, format='fits')
-            noise: pypsg.PyRad = pypsg.PyRad.read(
-                psg_noise_path, format='fits')
-            psg_noise_source.append(noise['Source'])
-            psg_source.append(combined['Total'])
-
-        psg_noise_source = psg_noise_source[0] * \
-            N1_frac + psg_noise_source[1] * (1-N1_frac)
-        psg_source = psg_source[0]*N1_frac + psg_source[1] * (1-N1_frac)
-
-        model_noise = psg_noise_source * np.sqrt(cmb_flux/psg_source)
         noise_sq = (model_noise**2
-                    + (noise['Detector'])**2
-                    + (noise['Telescope'])**2
-                    + (noise['Background'])**2)
+                    + (detector_noise)**2
+                    + (telescope_noise)**2
+                    + (background_noise)**2)
         return np.sqrt(noise_sq) * time_scale_factor
+    
+    @property
+    def _thermal_name(self):
+        """
+        The name of the thermal column in the output file.
+        """
+        if self.params.psg.use_molecular_signatures:
+            return self.params.planet.name.replace(' ', '-')
+        else:
+            return 'Thermal'
 
-    def _get_thermal_spectrum(self, N1: int, N2: int, N1_frac: float, pl_frac: float):
+    def _get_thermal_spectrum(
+        self,
+        start_time: float,
+        end_time: float,
+        _interp_thermal: GridSpectra,
+        pl_frac: float
+    )->u.Quantity:
         """
         Get the thermal emission spectra calculated by PSG
 
         Parameters
         ----------
-        N1 : int
-            The planet index immediately before the current epoch.
-        N2 : int
-            The planet index immediately after the current epoch.
-        N1_frac : float
-            The fraction of the `N1` epoch to use in interpolation.
+        start_time : astropy.units.Quantity
+            The start time of the integration
+        end_time : astropy.units.Quantity
+            The end time of the integration
+        _interp_thermal : GridSpectra
+            The thermal spectra interpolator object.
         pl_frac : float
-            The fraction of the planet that is visible (not eclipsed)
+            The fraction of the planet's surface that is visible
 
         Returns
         -------
@@ -981,35 +1050,9 @@ class ObservationModel:
         ValueError
             If the wavelength coordinates from the loaded spectra do not match.
         """
-        psg_thermal_path1 = Path(
-            self.directories['psg_thermal']) / get_filename(N1, N_ZFILL, 'fits')
-        psg_thermal_path2 = Path(
-            self.directories['psg_thermal']) / get_filename(N2, N_ZFILL, 'fits')
-
-        wavelength = []
-        thermal = []
-
-        for psg_thermal_path in [psg_thermal_path1, psg_thermal_path2]:
-            thermal_rad: pypsg.PyRad = pypsg.PyRad.read(
-                psg_thermal_path, format='fits')
-
-            wavelength.append(thermal_rad.wl)
-            try:
-                planet_name = self.params.planet.name.replace(' ', '-')
-                thermal.append(thermal_rad[planet_name])
-            except KeyError:
-                try:
-                    thermal.append(thermal_rad['Thermal'])
-                except KeyError as err2:  # There is something wrong with the planet name. See issue #25
-                    msg = f'Neither "{planet_name}" nor "Thermal" were found in {thermal_rad.colnames}. '
-                    new_issue_url = 'https://github.com/VSPEC-collab/VSPEC/issues/new'
-                    msg += f'If this is a valid planet name, please report this bug at {new_issue_url}'
-                    raise RuntimeError(msg) from err2
-
-        if not np.all(isclose(wavelength[0], wavelength[1], 1e-3*u.um)):
-            raise ValueError('The wavelength coordinates must be equivalent.')
-
-        return thermal[0]*N1_frac + thermal[1]*(1-N1_frac)*pl_frac
+        
+        spectra = _interp_thermal.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
+        return spectra * pl_frac * config.flux_unit
 
     def _get_layer_data(self, N1: int, N2: int, N1_frac: float) -> pypsg.PyLyr:
         """
@@ -1099,6 +1142,23 @@ class ObservationModel:
             (self.params.planet_total_images+1)
         granulation_fractions = self.star.get_granulation_coverage(
             observation_info['time'])
+        print('Creating interpolators: thermal', end='')
+        interp_thermal = self._get_thermal_interpolator()
+        print(', combined', end='')
+        interp_reflected = self._get_reflected_interpolator()
+        print(', stellar', end='')
+        interp_stellar = self._get_psg_interp('combined', 'Stellar')
+        print(', photon noise', end='')
+        interp_noise_photon = self._get_psg_interp('noise', 'Source')
+        print(', detector noise', end='')
+        interp_noise_detector = self._get_psg_interp('noise', 'Detector')
+        print(', telescope noise', end='')
+        interp_noise_telescope = self._get_psg_interp('noise', 'Telescope')
+        print(', background noise', end='')
+        interp_noise_background = self._get_psg_interp('noise', 'Background')
+        print(', transit', end='\n')
+        interp_transit = self._get_transit_interpolator()
+        print('Finished!')
 
         for index in self._wrap_iterator(range(self.params.obs.total_images), desc='Build Spectra', total=self.params.obs.total_images, position=0, leave=True):
             tindex = observation_info['time'][index]
@@ -1116,9 +1176,12 @@ class ObservationModel:
 
             sub_planet_lon = observation_info['sub_planet_lon'][index]
             sub_planet_lat = observation_info['sub_planet_lat'][index]
-
-            _, transit_depth = self._get_transit(
-                N1, N2, N1_frac, planet_phase, orbital_radius)
+            
+            transit_depth = self._get_transit(
+                start_time=tstart.to_value(config.time_unit),
+                end_time=tfinish.to_value(config.time_unit),
+                transit_interpolator=interp_transit,
+            )
 
             comp_flux, pl_frac = self._calculate_composite_stellar_spectrum(
                 {'lat': sub_obs_lat, 'lon': sub_obs_lon}, tstart, tfinish,
@@ -1144,17 +1207,34 @@ class ObservationModel:
             )
 
             reflection_flux_adj = self._calculate_reflected_spectra(
-                N1, N2, N1_frac, to_planet_flux, pl_frac)
-
+                start_time=tstart.to_value(config.time_unit),
+                end_time=tfinish.to_value(config.time_unit),
+                reflected_interpolator=interp_reflected,
+                stellar_interpolator=interp_stellar,
+                sub_planet_flux=to_planet_flux,
+                pl_frac=pl_frac
+            )
             thermal_spectrum = self._get_thermal_spectrum(
-                N1, N2, N1_frac, pl_frac)
+                start_time=tstart.to_value(config.time_unit),
+                end_time=tfinish.to_value(config.time_unit),
+                _interp_thermal=interp_thermal,
+                pl_frac=pl_frac
+            )
 
-            combined_flux = comp_flux + reflection_flux_adj + thermal_spectrum
+            combined_flux: u.Quantity = comp_flux + reflection_flux_adj + thermal_spectrum
+            
+            noise_flux_adj = self._calculate_noise(
+                start_time=tstart.to_value(config.time_unit),
+                end_time=tfinish.to_value(config.time_unit),
+                photon_noise_interpolator=interp_noise_photon,
+                detector_noise_interpolator=interp_noise_detector,
+                telescope_noise_interpolator=interp_noise_telescope,
+                background_noise_interpolator=interp_noise_background,
+                star_interpolator=interp_stellar,
+                time_scale_factor=np.sqrt((planet_time_step/time_step).to_value(u.dimensionless_unscaled)),
+                cmb_flux=combined_flux
+            )
 
-            noise_flux_adj = self._calculate_noise(N1, N2, N1_frac,
-                                                  np.sqrt(
-                                                      (planet_time_step/time_step).to_value(u.dimensionless_unscaled)),
-                                                  combined_flux)
             wl = self._wl
             data: Dict[str, u.Quantity] = {}
             data['wavelength'] = wl
@@ -1163,7 +1243,7 @@ class ObservationModel:
             data['reflected'] = reflection_flux_adj
             data['planet_thermal'] = thermal_spectrum
             data['total'] = combined_flux
-            data['noise'] = noise_flux_adj
+            data['noise'] = noise_flux_adj*config.flux_unit
 
             df = QTable(data)
 
