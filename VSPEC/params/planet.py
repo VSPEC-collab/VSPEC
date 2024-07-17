@@ -4,7 +4,6 @@ Planetary and System Parameters Module
 
 from astropy import units as u
 from VSPEC.params.base import BaseParameters
-from VSPEC.config import planet_distance_unit, period_unit, planet_radius_unit
 
 
 class GravityParameters(BaseParameters):

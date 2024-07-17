@@ -3,7 +3,7 @@
 requires = ["setuptools", "wheel"]  # PEP 508 specifications.
 
 [project]
-version = "0.6.0"
+version = "1.0.0"
 name = "VSPEC"
 authors = [
     { name = "Ted Johnson", email = "ted.johnson@unlv.edu" },
@@ -60,7 +60,7 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://vspec-collab.github.io/VSPEC/0.6.0/"
+Documentation = "https://vspec-collab.github.io/VSPEC/1.0.0/"
 Repository = "https://github.com/VSPEC-collab/VSPEC"
 Issues = "https://github.com/VSPEC-collab/VSPEC/issues"
 
