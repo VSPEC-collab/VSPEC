@@ -716,7 +716,7 @@ class ObservationModel:
         # add up star flux before considering transit
         for teff, coverage in total.items():
             if coverage > 0:
-                flux = self._get_model_spectrum(teff)
+                flux = self._get_model_spectrum(u.Quantity(teff))
                 if not flux.shape == base_flux.shape:
                     raise ValueError('All arrays must have same shape.')
                 base_flux = base_flux + flux * coverage
@@ -724,7 +724,7 @@ class ObservationModel:
         transit_flux = base_flux*0
         for teff, coverage in covered.items():
             if coverage > 0:
-                flux = self._get_model_spectrum(teff)
+                flux = self._get_model_spectrum(u.Quantity(teff))
                 if not flux.shape == base_flux.shape:
                     raise ValueError('All arrays must have same shape.')
                 transit_flux = transit_flux + flux * coverage
