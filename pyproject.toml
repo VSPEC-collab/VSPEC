@@ -39,8 +39,8 @@ dependencies = [
     "requests",
     "pyyaml",
     "pypsg>=0.3.2",
-    "vspec-vsm>=0.3.5",
-    "GridPolator>=0.4.0",
+    "vspec-vsm~=0.3.6",
+    "GridPolator~=0.4.1",
 ]
 [project.optional-dependencies]
 plot = ["matplotlib","cartopy"]
