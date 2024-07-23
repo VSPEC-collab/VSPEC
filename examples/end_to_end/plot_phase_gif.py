@@ -12,7 +12,7 @@ from astropy import units as u
 from imageio.v2 import imread, mimsave
 from cartopy import crs as ccrs
 import pypsg
-from pypsg.globes import GCMdecoder, PyGCM
+from pypsg.globes import PyGCM
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC.geometry import SystemGeometry

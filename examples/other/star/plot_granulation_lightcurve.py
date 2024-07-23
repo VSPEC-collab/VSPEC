@@ -28,9 +28,11 @@ pypsg.docker.set_url_and_run()
 
 header = params.Header(
     data_path=Path('.vspec/granulation_lightcurve'),
-    teff_min=3000*u.K,
-    teff_max=3400*u.K,
-    seed=SEED,verbose=0
+    seed=SEED,verbose=0,
+    spec_grid = params.VSPECGridParameters(
+        max_teff=3400*u.K,min_teff=3000*u.K,
+        impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+    )
 )
 star = params.StarParameters(
     psg_star_template='M',

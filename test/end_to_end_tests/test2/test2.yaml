@@ -1,9 +1,11 @@
 header:
   data_path: test2
-  teff_min: 2300 K
-  teff_max: 3900 K
   desc: This is a VSPEC test run.
   seed: 10
+  spec_grid:
+    name: vspec
+    min_teff: 2300 K
+    max_teff: 3900 K
 star:
   psg_star_template: M
   teff: 3300 K

@@ -30,9 +30,11 @@ pypsg.docker.set_url_and_run()
 
 header = params.Header(
     data_path=Path('.vspec/flare_spot_lightcurve'),
-    teff_min=2900*u.K,
-    teff_max=3400*u.K,
-    seed=SEED,verbose=1
+    seed=SEED,verbose=1,
+    spec_grid = params.VSPECGridParameters(
+        max_teff=3400*u.K,min_teff=2900*u.K,
+        impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+    )
 )
 
 star = params.StarParameters(

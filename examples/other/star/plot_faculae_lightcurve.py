@@ -27,8 +27,10 @@ pypsg.docker.set_url_and_run()
 
 header = params.Header(
     data_path=Path('.vspec/faclae_lightcurve'),
-    teff_min=2300*u.K,
-    teff_max=3900*u.K,
+    spec_grid = params.VSPECGridParameters(
+        max_teff=3900*u.K,min_teff=2300*u.K,
+        impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+    ),
     seed=SEED, verbose=0
 )
 star = params.StarParameters(

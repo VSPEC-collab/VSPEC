@@ -1,10 +1,15 @@
 header:
   data_path: phase_gif
-  teff_min: 3200 K
-  teff_max: 3400 K
   desc: This is a VSPEC example.
   seed: 20
   verbose: 0
+  spec_grid:
+    name: vspec
+    min_teff: 3200 K
+    max_teff: 3400 K
+    impl_bin: rust
+    impl_interp: scipy
+    fail_on_missing: False
 star:
   psg_star_template: M
   teff: 3300 K

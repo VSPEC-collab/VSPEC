@@ -131,7 +131,10 @@ quiet_star = params.StarParameters(
 internal_params = params.InternalParameters(
     header=params.Header(
         data_path=Path('.vspec/proxcenb'),
-        teff_min=2300*u.K,teff_max=3400*u.K,
+        spec_grid = params.VSPECGridParameters(
+            max_teff=3400*u.K,min_teff=2300*u.K,
+            impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+        ),
         seed = SEED),
     star = quiet_star,
     psg=psg_params,

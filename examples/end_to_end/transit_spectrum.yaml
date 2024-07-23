@@ -1,10 +1,15 @@
 header:
   data_path: transit
-  teff_min: 2300 K
-  teff_max: 3900 K
   desc: This is a VSPEC example.
   verbose: 0
   seed: 32
+  spec_grid:
+    name: vspec
+    min_teff: 2300 K
+    max_teff: 3900 K
+    impl_bin: rust
+    impl_interp: scipy
+    fail_on_missing: False
 star:
   psg_star_template: M
   teff: 3300 K

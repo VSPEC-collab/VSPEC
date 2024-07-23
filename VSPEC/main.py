@@ -33,7 +33,7 @@ from VSPEC.helpers import arrange_teff
 from VSPEC.helpers import check_and_build_dir, get_filename
 from VSPEC.helpers import get_planet_indicies
 from VSPEC.psg_api import change_psg_parameters
-from VSPEC.params.read import InternalParameters
+from VSPEC.params.read import InternalParameters, VSPECGridParameters, BlackbodyGridParameters
 from VSPEC.spectra import ForwardSpectra
 
 
@@ -181,20 +181,17 @@ class ObservationModel:
         VSPEC.spectra.GridSpec
             The spectal grid object to draw stellar spectra from.
         """
-        if self.params.star.spectral_grid == 'default':
-            teffs = arrange_teff(
-                self.params.header.teff_min,
-                self.params.header.teff_max
-            )
-            spec = GridSpectra.from_vspec(
+        p = self.params.header.spec_grid
+        if isinstance(p, VSPECGridParameters):
+            return p.build(
                 w1=self.params.inst.bandpass.wl_blue,
                 w2=self.params.inst.bandpass.wl_red,
                 resolving_power=self.params.inst.bandpass.resolving_power,
-                teffs=teffs
             )
-            return spec
-        elif self.params.star.spectral_grid == 'bb':
-            return ForwardSpectra.blackbody()
+        elif isinstance(p, BlackbodyGridParameters):
+            return p.build()
+        else:
+            raise NotImplementedError(f'Unsure how to build ``GridSpectra`` object from {p}')
 
     @property
     def _wl(self)->u.Quantity:
@@ -233,18 +230,17 @@ class ObservationModel:
         if self.spec is None:
             self.spec = self._load_spectra()
 
-        match self.params.star.spectral_grid:
-            case 'default':
-                teffs = np.atleast_1d(teff.to_value(config.teff_unit))
-                return self.spec.evaluate(
-                    params=(teffs,),
-                    wl=np.array(self._wl.to_value(config.wl_unit))
-                )[0, :] * config.flux_unit * self.params.flux_correction
-            case 'bb':
-                self.spec: ForwardSpectra
-                return self.spec.evaluate(self._wl, teff) * self.params.flux_correction
-        raise ValueError(
-            f'Spectral grid {self.params.star.spectral_grid} not recognized')
+        
+        if isinstance(self.params.header.spec_grid, VSPECGridParameters):
+            teffs = np.atleast_1d(teff.to_value(config.teff_unit))
+            return self.spec.evaluate(
+                params=(teffs,),
+                wl=np.array(self._wl.to_value(config.wl_unit))
+            )[0, :] * config.flux_unit * self.params.flux_correction
+        elif isinstance(self.params.header.spec_grid, BlackbodyGridParameters):
+            return self.spec.evaluate(self._wl, teff) * self.params.flux_correction
+        else:
+            raise TypeError(f'Unsure how to handle grid parameters of type {type(self.params.header.spec_grid)}')
 
     def get_observation_parameters(self) -> SystemGeometry:
         """
@@ -564,7 +560,7 @@ class ObservationModel:
                   str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
         ####################################
         # iterate through phases
-        for i in self._wrap_iterator(range(self.params.planet_total_images+1), desc='Build Planet', total=self.params.planet_total_images):
+        for i in self._wrap_iterator(range(self.params.planet_total_images+1), desc='Build Planet', total=self.params.planet_total_images+1):
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]

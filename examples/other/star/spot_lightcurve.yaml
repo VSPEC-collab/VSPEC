@@ -4,6 +4,14 @@ header:
   teff_max: 3900 K
   desc: This is a VSPEC example.
   seed: 11
+  verbose: 0
+  spec_grid:
+    name: vspec
+    min_teff: 2300 K
+    max_teff: 3900 K
+    impl_bin: rust
+    impl_interp: scipy
+    fail_on_missing: False
 star:
   psg_star_template: M
   teff: 3300 K
