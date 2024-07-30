@@ -29,7 +29,6 @@ import vspec_vsm as vsm
 from VSPEC.config import PSG_CFG_MAX_LINES, N_ZFILL
 from VSPEC import config
 from VSPEC.geometry import SystemGeometry
-from VSPEC.helpers import arrange_teff
 from VSPEC.helpers import check_and_build_dir, get_filename
 from VSPEC.helpers import get_planet_indicies
 from VSPEC.psg_api import change_psg_parameters
