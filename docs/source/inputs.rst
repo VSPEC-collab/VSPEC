@@ -209,6 +209,10 @@ This might be useful to use when testing variability as it is very fast.
 ``ld``
 ++++++
 
+.. note::
+
+    Available presets include ``lambertian``, ``proxima``, ``solar``, and ``trappist``.
+
 .. list-table::
     :widths: 25 25 50
     :header-rows: 1
