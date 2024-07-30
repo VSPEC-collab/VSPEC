@@ -329,7 +329,7 @@ class TemperatureMap:
         quantity is invarient:
 
         .. math::
-            I = \\int_{0}^{\\pi/2} (f(x,\\alpha) \\cos{x})^4 dx
+            I = \\int_{0}^{\\pi/2} (f(x,\\alpha) )^4 \\cos{x}\\,dx
 
         We also know that in the case of no latitudinal mixing, the temperature is:
 
@@ -339,9 +339,9 @@ class TemperatureMap:
         We can plug this in to the integral to see
 
         .. math::
-            I = \\int_{0}^{\\pi/2} (\\cos(x)^{1/4} \\cos{x})^4 dx \\\\
-                = \\int_{0}^{\\pi/2} (\\cos{x})^5 dx \\\\
-                = \\frac{8}{15}
+            I = \\int_{0}^{\\pi/2} (\\cos(x)^{1/4} )^4  \\cos{x}\\,dx \\\\
+                = \\int_{0}^{\\pi/2} (\\cos{x})^2 dx \\\\
+                = \\frac{\\pi}{4}
 
         We can then look at the other limit. Let :math:`T_0` be the temperature
         at which the equator and pole are equal. Then the temperature is
@@ -352,27 +352,26 @@ class TemperatureMap:
         And the integral is
 
         .. math::
-            I = \\int_{0}^{\\pi/2} (T_0 \\cos{x})^4 dx = \\frac{8}{15}
+            I = \\int_{0}^{\\pi/2} (T_0 )^4 \\cos{x} dx
 
-        With the knowledge that :math:`\\int_{0}^{\\pi/2} (\\cos{x})^4 dx = \\frac{3\\pi}{16}`
+        With the knowledge that :math:`\\int_{0}^{\\pi/2} (\\cos{x}) dx = 1`
         we find that:
 
         .. math::
-            T_0 = \\left(\\frac{2^7}{45\\pi}\\right)^{1/4} \\\\
-                = 0.9754654591261265
+            T_0 = \\left(\\frac{\\pi}{4}\\right)^{1/4} \\\\
+                = 0.941396263777
 
         We then can create a general equation for the temperature:
 
         .. math::
-            f(x,\\alpha) = T_0 \\alpha + (1-\\alpha) \\cos(x)^{1/4}
+            f(x,\\alpha) = (T_0 \\alpha + (1-\\alpha) \\cos(x))^{1/4}
         """
         if isinstance(lon, u.Quantity):
             lon = get_psi(lon)
         if alpha < 0 or alpha > 1:
             raise ValueError(f'alpha must be between 0 and 1, got {alpha}')
-        t0 = (2**7/45/np.pi)**0.25  # see docstring
         tmap = self.t0*self.equator(lon) * \
-            (t0*alpha + (1-alpha)*np.cos(lat)**0.25)
+            (np.pi/4 * alpha + (1-alpha)*np.cos(lat))**(0.25)
         tmap: u.Quantity = np.where(tmap > self.min_temp, tmap, self.min_temp)
         return tmap
 
