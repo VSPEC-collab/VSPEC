@@ -79,7 +79,7 @@ planet_params = params.PlanetParameters(
 system_params = params.SystemParameters(
     distance=1.3*u.pc,
     inclination=inclination,
-    phase_of_periasteron=0*u.deg
+    phase_of_periastron=0*u.deg
 )
 
 
@@ -123,7 +123,6 @@ quiet_star = params.StarParameters(
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
     grid_params=(500, 1000),
-    spectral_grid='default'
 )
 
 # Set parameters for simulation

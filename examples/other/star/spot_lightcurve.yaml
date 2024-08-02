@@ -45,7 +45,6 @@ star:
     period: 5 day
     dteff: 200 K
   grid_params: [500,1000]
-  spectral_grid: default
 planet:
   name: Exoplanet
   radius: 1 R_earth
@@ -63,7 +62,7 @@ planet:
 system:
   distance: 1.5 pc
   inclination: 80 deg
-  phase_of_periasteron: 0 deg
+  phase_of_periastron: 0 deg
 obs:
   observation_time: 40 day
   integration_time: 1 day

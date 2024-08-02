@@ -45,7 +45,7 @@ def test_get_observation_parameters(observation_model:ObservationModel):
     assert system_geometry.alpha == 0 * u.deg
     assert system_geometry.beta == 0 * u.deg
     assert system_geometry.eccentricity == 0.
-    assert system_geometry.phase_of_periasteron == 0 * u.deg
+    assert system_geometry.phase_of_periastron == 0 * u.deg
     assert system_geometry.system_distance == 10.0 * u.pc
     assert system_geometry.obliquity == 0 * u.deg
     assert system_geometry.obliquity_direction == 0 * u.deg

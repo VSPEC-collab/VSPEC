@@ -57,7 +57,7 @@ planet:
 system:
   distance: 1.5 pc
   inclination: 90 deg
-  phase_of_periasteron: 0 deg
+  phase_of_periastron: 0 deg
 obs:
   observation_time: 1.5 hour
   integration_time: 5 min

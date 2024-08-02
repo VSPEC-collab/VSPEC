@@ -265,7 +265,7 @@ class ObservationModel:
                               stellar_offset_amp=self.params.star.misalignment,
                               stellar_offset_phase=self.params.star.misalignment_dir,
                               eccentricity=self.params.planet.eccentricity,
-                              phase_of_periasteron=self.params.system.phase_of_periasteron,
+                              phase_of_periastron=self.params.system.phase_of_periastron,
                               system_distance=self.params.system.distance,
                               obliquity=self.params.planet.obliquity,
                               obliquity_direction=self.params.planet.obliquity_direction)

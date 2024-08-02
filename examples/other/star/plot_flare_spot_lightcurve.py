@@ -72,14 +72,13 @@ star = params.StarParameters(
     ),
     granulation=params.GranulationParameters.none(),
     grid_params=(500, 1000),
-    spectral_grid='default'
 )
 
 planet = params.PlanetParameters.std(init_phase=180*u.deg,init_substellar_lon=0*u.deg)
 system = params.SystemParameters(
     distance=1.3*u.pc,
     inclination=80*u.deg,
-    phase_of_periasteron=0*u.deg
+    phase_of_periastron=0*u.deg
 )
 observation = params.ObservationParameters(
     observation_time=10*u.day,

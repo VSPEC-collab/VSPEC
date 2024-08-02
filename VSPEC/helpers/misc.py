@@ -22,7 +22,7 @@ def get_planet_indicies(
     Parameters
     ----------
     planet_times : astropy.units.Quantity
-        The times (cast to since periasteron) at which the planet spectrum was taken.
+        The times (cast to since periastron) at which the planet spectrum was taken.
     tindex : astropy.units.Quantity
         The epoch of the current observation. The goal is to place this between
         two elements of `planet_times`
