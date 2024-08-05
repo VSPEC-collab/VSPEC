@@ -5,9 +5,9 @@ from typing import Callable, List, Union
 from pathlib import Path
 import yaml
 from astropy import units as u
-from pypsg import PyConfig
-from pypsg.cfg import models
-from pypsg.units import resolving_power as u_rp
+from libpypsg import PyConfig
+from libpypsg.cfg import models
+from libpypsg.units import resolving_power as u_rp
 from GridPolator import GridSpectra
 
 from .. import config
@@ -475,7 +475,7 @@ class InternalParameters(BaseParameters):
 
     def to_pyconfig(self):
         """
-        Write VSPEC parameters into a `pypsg` `PyConfig` object.
+        Write VSPEC parameters into a `libpypsg` `PyConfig` object.
         """
         return PyConfig(
             target=self.target,

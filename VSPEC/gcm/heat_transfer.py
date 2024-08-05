@@ -14,8 +14,8 @@ import warnings
 from copy import deepcopy
 from scipy.interpolate import interp1d
 
-from pypsg.globes import PyGCM
-from pypsg.globes import structure
+from libpypsg.globes import PyGCM
+from libpypsg.globes import structure
 
 
 def get_flux(
@@ -41,7 +41,7 @@ def get_flux(
         The flux of the star at the planet.
 
     """
-    # pylint: disable-next:no-member
+    # pylint: disable-next=no-member
     flux = c.sigma_sb * teff_star**4 * (r_star/r_orbit)**2
     return flux.to(u.Unit('W m-2'))
 
@@ -478,7 +478,7 @@ def to_pygcm(
     molecules: dict,
 ):
     """
-    Create a `pypsg.PyGCM` object using the parameterized VSPEC GCM.
+    Create a `libpypsg.PyGCM` object using the parameterized VSPEC GCM.
 
     Parameters
     ----------
@@ -513,7 +513,7 @@ def to_pygcm(
 
     Returns
     -------
-    pypsg.PyGCM
+    libpypsg.PyGCM
         The PyGCM object.
     """
     pressure = structure.Pressure.from_limits(p_surf, p_stop, shape)

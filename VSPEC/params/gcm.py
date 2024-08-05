@@ -6,10 +6,10 @@ from pathlib import Path
 from astropy import units as u
 from netCDF4 import Dataset
 
-from pypsg import PyConfig
-from pypsg.globes import waccm_to_pygcm, PyGCM, exocam_to_pygcm, GCMdecoder, exoplasim_to_pygcm
-from pypsg.globes.exocam import exocam
-from pypsg.globes.waccm import waccm
+from libpypsg import PyConfig
+from libpypsg.globes import waccm_to_pygcm, PyGCM, exocam_to_pygcm, GCMdecoder, exoplasim_to_pygcm
+from libpypsg.globes.exocam import exocam
+from libpypsg.globes.waccm import waccm
 
 from VSPEC.params.base import BaseParameters
 from VSPEC.gcm.heat_transfer import to_pygcm as vspec_to_pygcm
@@ -59,7 +59,7 @@ class gcmParameters(BaseParameters):
 
     def to_pycfg(self, **kwargs) -> PyConfig:
         """
-        Get `pypsg.PyConfig` representation of the GCM.
+        Get `libpypsg.PyConfig` representation of the GCM.
 
         Parameters
         ----------

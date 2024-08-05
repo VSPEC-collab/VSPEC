@@ -14,7 +14,7 @@ from astropy.io import fits
 from datetime import datetime
 import json
 from astropy.table import QTable
-from pypsg import PyLyr
+from libpypsg import PyLyr
 
 from VSPEC.config import N_ZFILL, MOLEC_DATA_PATH
 from VSPEC import ObservationModel

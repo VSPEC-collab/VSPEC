@@ -10,7 +10,7 @@ from astropy import units as u
 import matplotlib.pyplot as plt
 from pathlib import Path
 import numpy as np
-import pypsg
+import libpypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
@@ -18,7 +18,7 @@ from VSPEC import config
 from VSPEC.params.gcm import vspec_to_pygcm
 
 SEED = 42
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run parameters

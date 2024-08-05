@@ -8,12 +8,12 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from astropy import units as u
 import numpy as np
-import pypsg
+import libpypsg
 import pytest
 
 import VSPEC
 
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 CFG_PATH = Path(__file__).parent / 'test1.yaml'
 FIG_PATH = Path(__file__).parent / 'out.png'

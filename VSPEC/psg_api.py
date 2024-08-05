@@ -6,7 +6,7 @@ and the Planetary Spectrum Generator via the API.
 
 from astropy import units as u
 
-import pypsg
+import libpypsg
 
 from VSPEC.params.read import InternalParameters
 
@@ -19,7 +19,7 @@ def change_psg_parameters(
     pl_sub_obs_lon:u.Quantity,
     pl_sub_obs_lat:u.Quantity,
     include_star:bool
-    )->pypsg.PyConfig:
+    )->libpypsg.PyConfig:
     """
     Get the time-dependent PSG parameters
 
@@ -47,7 +47,7 @@ def change_psg_parameters(
     config : dict
         The PSG config in dictionary form.
     """
-    target = pypsg.cfg.Target(
+    target = libpypsg.cfg.Target(
         star_type=params.star.psg_star_template if include_star else '-',
         season=phase,
         star_distance=orbit_radius_coeff*params.planet.semimajor_axis,
@@ -56,4 +56,4 @@ def change_psg_parameters(
         obs_longitude=pl_sub_obs_lon,
         obs_latitude=pl_sub_obs_lat
     )
-    return pypsg.PyConfig(target=target)
+    return libpypsg.PyConfig(target=target)

@@ -4,7 +4,7 @@ Configuration for pytest.
 import pytest
 from pathlib import Path
 
-from pypsg import settings
+from libpypsg import settings
 
 import VSPEC
 

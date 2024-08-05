@@ -20,8 +20,8 @@ from tqdm.auto import tqdm
 from GridPolator import GridSpectra
 from GridPolator.binning import get_wavelengths
 
-import pypsg
-from pypsg import docker as psg_docker
+import libpypsg
+from libpypsg import docker as psg_docker
 
 import vspec_vsm as vsm
 
@@ -317,8 +317,8 @@ class ObservationModel:
         RuntimeWarning
             If calling the online PSG API, but no API key is specified.
         """
-        if pypsg.settings.get_setting('url') == pypsg.settings.PSG_URL:
-            if pypsg.settings.get_setting('api_key') is None:
+        if libpypsg.settings.get_setting('url') == libpypsg.settings.PSG_URL:
+            if libpypsg.settings.get_setting('api_key') is None:
                 warnings.warn('PSG is being called without an API key. ' +
                               'After 100 API calls in a 24hr period you will need to get a key. ' +
                               'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook)',
@@ -327,13 +327,13 @@ class ObservationModel:
             if not psg_docker.is_psg_installed():
                 msg = 'PSG is not installed. '
                 msg += 'We suggest installing PSG locally using docker. (see https://psg.gsfc.nasa.gov/help.php#handbook) '
-                msg += 'otherwise set the `pypsg` url setting to the online PSG url:\n'
-                msg += f'pypsg.settings.save_settings(url=\'{pypsg.settings.PSG_URL}\')'
+                msg += 'otherwise set the `libpypsg` url setting to the online PSG url:\n'
+                msg += f'libpypsg.settings.save_settings(url=\'{libpypsg.settings.PSG_URL}\')'
                 raise RuntimeError(msg)
             elif not psg_docker.is_psg_running():
                 raise RuntimeError('PSG is not running.\n' +
                                    'Type `docker start psg` in the command line ' +
-                                   'or run `pypsg.docker.start_psg()`')
+                                   'or run `libpypsg.docker.start_psg()`')
 
     def _upload_gcm(self, obstime: u.Quantity = 0*u.s, update=False):
         """
@@ -353,7 +353,7 @@ class ObservationModel:
         else:
             kwargs = {}
         cfg = self.params.gcm.to_pycfg(**kwargs)
-        caller = pypsg.APICall(
+        caller = libpypsg.APICall(
             cfg=cfg,
             output_type='upd' if update else 'set',
             app='globes',
@@ -368,7 +368,7 @@ class ObservationModel:
         Upload the non-changing parts of the PSG config.
         """
         cfg = self.params.to_pyconfig()
-        caller = pypsg.APICall(
+        caller = libpypsg.APICall(
             cfg=cfg,
             output_type='upd',
             app='globes',
@@ -424,7 +424,7 @@ class ObservationModel:
             pl_sub_obs_lat=pl_sub_obs_lat,
             include_star=include_star
         )
-        caller = pypsg.APICall(
+        caller = libpypsg.APICall(
             cfg=cfg,
             output_type='all',
             app='globes',
@@ -435,7 +435,7 @@ class ObservationModel:
 
             response = caller()
             for _w in w:
-                if _w.category is pypsg.cfg.ConfigTooLongWarning:
+                if _w.category is libpypsg.cfg.ConfigTooLongWarning:
                     self.__flags__.psg_needs_set = True
         rad = response.rad
         noi = response.noi
@@ -484,14 +484,14 @@ class ObservationModel:
             filename = get_filename(i, N_ZFILL, 'fits')
             lyr.to_fits(path_dict[key]/filename)
 
-    def _check_config(self, cfg_from_psg: pypsg.PyConfig):
+    def _check_config(self, cfg_from_psg: libpypsg.PyConfig):
         """
         Validate the config file recieved from PSG to ensure that
         the parameters sent are the parameters used in the simulation.
 
         Parameters
         ----------
-        cfg_from_psg : pypsg.PyConfig
+        cfg_from_psg : libpypsg.PyConfig
             The config file recieved from PSG.
 
         Raises
@@ -741,7 +741,7 @@ class ObservationModel:
         self,
         kind: str,
         index: int
-    )-> pypsg.PyRad:
+    )-> libpypsg.PyRad:
         """
         Read a rad file.
         """
@@ -752,7 +752,7 @@ class ObservationModel:
                 path = self.directories['psg_combined'] / get_filename(index, N_ZFILL, 'fits')
             case 'noise':
                 path = self.directories['psg_noise'] / get_filename(index, N_ZFILL, 'fits')
-        return pypsg.PyRad.read(path, format='fits')
+        return libpypsg.PyRad.read(path, format='fits')
     
     def _get_psg_interp(
         self,
@@ -1048,7 +1048,7 @@ class ObservationModel:
         spectra = _interp_thermal.evaluate((np.array([start_time,end_time]),),self._wl).mean(axis=0)
         return spectra * pl_frac * config.flux_unit
 
-    def _get_layer_data(self, N1: int, N2: int, N1_frac: float) -> pypsg.PyLyr:
+    def _get_layer_data(self, N1: int, N2: int, N1_frac: float) -> libpypsg.PyLyr:
         """
         Interpolate between two PSG .lyr files.
 
@@ -1075,8 +1075,8 @@ class ObservationModel:
             self.directories['psg_layers']) / get_filename(N1, N_ZFILL, 'fits')
         psg_layers_path2 = Path(
             self.directories['psg_layers']) / get_filename(N2, N_ZFILL, 'fits')
-        layers1 = pypsg.PyLyr.from_fits(psg_layers_path1)
-        layers2 = pypsg.PyLyr.from_fits(psg_layers_path2)
+        layers1 = libpypsg.PyLyr.from_fits(psg_layers_path1)
+        layers2 = libpypsg.PyLyr.from_fits(psg_layers_path2)
 
         if not np.all(layers1.prof.colnames == layers2.prof.colnames):
             raise ValueError(
@@ -1097,7 +1097,7 @@ class ObservationModel:
             cg_data[name] = layers1.cg[name] * \
                 N1_frac + layers2.cg[name] * (1-N1_frac)
 
-        return pypsg.PyLyr(
+        return libpypsg.PyLyr(
             prof=QTable(data=prof_data, meta=layers1.prof.meta),
             cg=QTable(data=cg_data, meta=layers1.cg.meta)
         )

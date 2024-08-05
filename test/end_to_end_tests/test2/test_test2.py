@@ -8,12 +8,12 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from astropy import units as u
 import numpy as np
-import pypsg
-from pypsg.globes.waccm.waccm import download_test_data
+import libpypsg
+from libpypsg.globes.waccm.waccm import download_test_data
 
 import VSPEC
 
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 download_test_data(rewrite=False)
 chdir(Path(__file__).parent)
 

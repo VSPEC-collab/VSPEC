@@ -13,15 +13,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
 from cartopy import crs as ccrs
-import pypsg
-from pypsg.globes import PyGCM
+import libpypsg
+from libpypsg.globes import PyGCM
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 from VSPEC.config import MSH
 
 SEED = 1214
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 # %%
 # Create the configurations

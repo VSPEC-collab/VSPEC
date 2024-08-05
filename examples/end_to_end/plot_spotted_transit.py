@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
-import pypsg
+import libpypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
@@ -21,7 +21,7 @@ from VSPEC.config import MSH
 SEED = 10
 PRE_TRANSIT = 8
 IN_TRANSIT = 13
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 
 
