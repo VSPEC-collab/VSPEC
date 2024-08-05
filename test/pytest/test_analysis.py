@@ -120,6 +120,12 @@ def test_spectrum(test1_data:PhaseAnalyzer):
         assert np.all(isclose(multi_epoch, 0.5 *
                       np.sqrt(epoch0**2+epoch1**2), tol))
 
+def test_init_from_model(test1_model):
+    """
+    Test `PhaseAnalyzer.from_model()`
+    """
+    test1_data = PhaseAnalyzer.from_model(test1_model)
+    assert isinstance(test1_data, PhaseAnalyzer)
 
 
 

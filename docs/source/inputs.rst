@@ -75,6 +75,74 @@ The sections of a ``VSPEC`` YAML configuration file are below.
    * - ``seed``
      - ``int``
      - The seed for the random number generator.
+   * - ``spec_grid``
+     - see :ref:`subsec_spec_grid`
+     - Parameters that define the grid of spectral models.
+
+.. _subsec_spec_grid:
+
+``spec_grid``
++++++++++++++
+
+
+.. list-table::
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Key
+     - Parses to
+     - Description
+   * - ``name``
+     - ``str``
+     - The name of the spectral grid.
+   * - 
+     - 
+     - Additional parameters (see below)
+
+.. note::
+
+    The ``name`` parameter determines how the rest of this section is parsed.
+
+See below for additional parameters
+
+``name="vspec"``
+""""""""""""""""
+
+This is the default spectral grid what was created for VSPEC. It is made from PHOENIX stellar models :cite:p:`2013A&A...553A...6H`.
+
+.. list-table::
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Key
+     - Parses to
+     - Description
+   * - ``max_teff``
+     - ``astropy.units.Quantity``
+     - The maximum effective temperature to include in the grid.
+   * - ``min_teff``
+     - ``astropy.units.Quantity``
+     - The minimum effective temperature to include in the grid.
+   * - ``impl_bin``, optional
+     - ``str``
+     - The implementation of the binning algorithm, either 'rust' or 'python'. Default is 'rust'.
+   * - ``impl_interp``, optional
+     - ``str``
+     - The implementation of the interpolation algorithm, either 'scipy' or 'jax'. Default is 'scipy'.
+   * - ``fail_on_missing``, optional
+     - ``bool``
+     - If ``True``, raise an error if a spectrum from the grid is not found. If ``False``, download the needed spectra. Default is ``False``.
+
+``name="bb"``
+"""""""""""""
+
+This replaces the grid interpolator with a forward model that produces a pure blackbody spectrum.
+This might be useful to use when testing variability as it is very fast.
+
+.. note::
+
+    There are no additional parameters for this spectral model.
+
 
 ``star``
 ~~~~~~~~
@@ -140,6 +208,10 @@ The sections of a ``VSPEC`` YAML configuration file are below.
 
 ``ld``
 ++++++
+
+.. note::
+
+    Available presets include ``lambertian``, ``proxima``, ``solar``, and ``trappist``.
 
 .. list-table::
     :widths: 25 25 50

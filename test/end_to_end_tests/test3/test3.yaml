@@ -1,9 +1,11 @@
 header:
   data_path: test3
-  teff_min: 2300 K
-  teff_max: 3900 K
   desc: This is a VSPEC test run.
   seed: 10
+  spec_grid:
+    name: vspec
+    min_teff: 2300 K
+    max_teff: 3900 K
 star:
   psg_star_template: M
   teff: 3300 K
@@ -12,6 +14,7 @@ star:
   period: 40 day
   misalignment: 0 deg
   misalignment_dir: 0 deg
+  grid_params: 1000
   ld:
     u1: 1.0
     u2: 0.0
@@ -54,7 +57,7 @@ planet:
 system:
   distance: 1.5 pc
   inclination: 90 deg
-  phase_of_periasteron: 0 deg
+  phase_of_periastron: 0 deg
 obs:
   observation_time: 1.5 hour
   integration_time: 5 min

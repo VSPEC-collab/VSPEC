@@ -72,6 +72,13 @@ we want units to be consistent.
 :type: astropy.units.Unit
 """
 
+time_unit = u.day
+"""
+The standard unit of time.
+
+For consistency internally.
+"""
+
 nlat = 500
 """
 The default latitude resolution for the stellar model. This should

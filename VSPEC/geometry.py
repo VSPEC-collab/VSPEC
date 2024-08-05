@@ -40,8 +40,8 @@ class SystemGeometry:
         right hand direction is positive.
     eccentricity : float, default=0
         The orbital eccentricity of the planet.
-    phase_of_periasteron : astropy.units.quantity.Quantity [angle], default=0 deg
-        The phase at which the planet reaches periasteron.
+    phase_of_periastron : astropy.units.quantity.Quantity [angle], default=0 deg
+        The phase at which the planet reaches periastron.
     system_distance : astropy.units.quantity.Quantity [distance], default=1.3 pc
         The distance to the system.
     obliquity : astropy.units.quantity.Quantity [angle], default=0 deg
@@ -77,8 +77,8 @@ class SystemGeometry:
         vector onto the plane perpendicular to the line of sight. Default is 0 deg.
     eccentricity : float
         Eccentricity of the planet's orbit. Default is 0.
-    phase_of_periasteron : astropy.units.quantity.Quantity [angle]
-        Phase at which the planet reaches periasteron. Default is 0 deg.
+    phase_of_periastron : astropy.units.quantity.Quantity [angle]
+        Phase at which the planet reaches periastron. Default is 0 deg.
     system_distance : astropy.units.quantity.Quantity [length]
         Distance to the system. Default is 1.3 pc.
     obliquity : astropy.units.quantity.Quantity [angle]
@@ -87,11 +87,11 @@ class SystemGeometry:
     obliquity_direction : astropy.units.quantity.Quantity [angle]
         The true anomaly at which the planet's North pole faces away from the star.
         Default is 0 deg.
-    init_time_since_periasteron : astropy.units.quantity.Quantity [angle]
-        Time since periasteron at the beginning of observation. Default is the time
-        since periasteron at `init_planet_phase`.
+    init_time_since_periastron : astropy.units.quantity.Quantity [angle]
+        Time since periastron at the beginning of observation. Default is the time
+        since periastron at `init_planet_phase`.
     init_true_anomaly : astropy.units.quantity.Quantity [angle]
-        True anomaly at the beginning of observation, computed from `init_time_since_periasteron`.
+        True anomaly at the beginning of observation, computed from `init_time_since_periastron`.
     """
 
     def __init__(self, inclination=0*u.deg,
@@ -105,7 +105,7 @@ class SystemGeometry:
                  stellar_offset_amp=0*u.deg,
                  stellar_offset_phase=0*u.deg,
                  eccentricity=0,
-                 phase_of_periasteron=0*u.deg,
+                 phase_of_periastron=0*u.deg,
                  system_distance=1.3*u.pc,
                  obliquity=0*u.deg,
                  obliquity_direction=0*u.deg):
@@ -120,14 +120,14 @@ class SystemGeometry:
         self.alpha = stellar_offset_amp
         self.beta = stellar_offset_phase
         self.eccentricity = eccentricity
-        self.phase_of_periasteron = phase_of_periasteron
+        self.phase_of_periastron = phase_of_periastron
         self.system_distance = system_distance
         self.obliquity = obliquity
         self.obliquity_direction = obliquity_direction
-        self.init_time_since_periasteron = self.get_time_since_periasteron(
+        self.init_time_since_periastron = self.get_time_since_periastron(
             self.init_planet_phase)
         self.init_true_anomaly = self.true_anomaly(
-            self.init_time_since_periasteron)
+            self.init_time_since_periastron)
 
     def sub_obs(self, time):
         """
@@ -165,7 +165,7 @@ class SystemGeometry:
         Parameters
         ----------
         time : astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+            The time elapsed since periastron.
 
         Returns
         -------
@@ -182,7 +182,7 @@ class SystemGeometry:
         Parameters
         ----------
         time : astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+            The time elapsed since periastron.
 
         Returns
         -------
@@ -203,7 +203,7 @@ class SystemGeometry:
         Parameters
         ----------
         time : astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+            The time elapsed since periastron.
 
         Returns
         -------
@@ -237,14 +237,14 @@ class SystemGeometry:
         Parameters
         ----------
         time : astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+            The time elapsed since periastron.
 
         Returns
         -------
         astropy.units.Quantity [angle]
             The phase.
         """
-        return (self.true_anomaly(time) + self.phase_of_periasteron) % (360*u.deg)
+        return (self.true_anomaly(time) + self.phase_of_periastron) % (360*u.deg)
 
     def sub_planet(self, time, phase=None):
         """
@@ -253,7 +253,7 @@ class SystemGeometry:
         Parameters
         ----------
         time : astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+            The time elapsed since periastron.
         phase : astropy.units.Quantity [angle], default=None
             The current phase, if known. Otherwise phase is calculated based on `time`.
             It is best practice to specify `phase` when possible to avoid using the Newtonian
@@ -271,13 +271,13 @@ class SystemGeometry:
         lat = -1*self.alpha * np.cos(self.beta + phase)
         return {'lat': lat, 'lon': lon}
 
-    def get_time_since_periasteron(self, phase):
+    def get_time_since_periastron(self, phase):
         """
-        Calculate the time since the last periasteron for a given phase.
+        Calculate the time since the last periastron for a given phase.
         
         This calculation is costly, so it is prefered that the user avoid
         calling this function more than necessary. The output is stored as
-        `self.time_since_periasteron` upon initialization, so it can be
+        `self.time_since_periastron` upon initialization, so it can be
         accessed easily without recalculating (so long as no attributes change).
 
         Parameters
@@ -288,9 +288,9 @@ class SystemGeometry:
         Returns
         -------
         astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+            The time elapsed since periastron.
         """
-        true_anomaly = phase - self.phase_of_periasteron
+        true_anomaly = phase - self.phase_of_periastron
         true_anomaly = true_anomaly % (360*u.deg)
         guess = true_anomaly/360/u.deg * self.orbital_period
 
@@ -301,30 +301,30 @@ class SystemGeometry:
         time = newton(func, (guess/u.day).to(u.Unit(''))) * u.day
         return time.to(u.day)
 
-    def get_substellar_lon_at_periasteron(self) -> u.Quantity:
+    def get_substellar_lon_at_periastron(self) -> u.Quantity:
         """
-        Compute the sub-stellar longitude at the previous periasteron
+        Compute the sub-stellar longitude at the previous periastron
         given the rotation period, orbital period, and initial
         substellar longitude
 
         Returns
         -------
         astropy.units.Quantity [angle]
-            The sub-stellar longitude at periasteron.
+            The sub-stellar longitude at periastron.
         """
-        init_time_since_periasteron = self.get_time_since_periasteron(
+        init_time_since_periastron = self.get_time_since_periastron(
             self.init_planet_phase)
-        init_deg_rotated = 360*u.deg * init_time_since_periasteron/self.planetary_rot_period
+        init_deg_rotated = 360*u.deg * init_time_since_periastron/self.planetary_rot_period
         return self.planetary_init_substellar_lon + init_deg_rotated - self.init_true_anomaly
 
-    def get_substellar_lon(self, time_since_periasteron) -> u.quantity.Quantity:
+    def get_substellar_lon(self, time_since_periastron) -> u.quantity.Quantity:
         """
-        Calculate the sub-stellar longitude at a particular time since periasteron.
+        Calculate the sub-stellar longitude at a particular time since periastron.
 
         Parameters
         ----------
-        time_since_periasteron : astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+        time_since_periastron : astropy.units.Quantity [time]
+            The time elapsed since periastron.
 
         Returns
         -------
@@ -336,15 +336,15 @@ class SystemGeometry:
         NotImplementedError
             If `self.obliquity` is not 0 deg.
         """
-        substellar_lon_at_periasteron = self.get_substellar_lon_at_periasteron()
-        deg_rotated = 360*u.deg * time_since_periasteron/self.planetary_rot_period
-        true_anom = self.true_anomaly(time_since_periasteron)
+        substellar_lon_at_periastron = self.get_substellar_lon_at_periastron()
+        deg_rotated = 360*u.deg * time_since_periastron/self.planetary_rot_period
+        true_anom = self.true_anomaly(time_since_periastron)
         # how long since summer in N
         north_season = (true_anom - self.obliquity_direction) % (360*u.deg)
         if self.obliquity != 0*u.deg:
             raise NotImplementedError(
                 'VSPEC does not currently support non-zero obliquity')
-        lon = substellar_lon_at_periasteron + true_anom - \
+        lon = substellar_lon_at_periastron + true_anom - \
             deg_rotated - self.obliquity*np.cos(north_season)
         # lon = self.planetary_init_substellar_lon - dphase + rotated
         # lon = self.planetary_init_substellar_lon + dphase - rotated
@@ -369,7 +369,7 @@ class SystemGeometry:
         NotImplementedError
             If `self.obliquity` is not 0 deg.
         """
-        true_anomaly = phase - self.phase_of_periasteron
+        true_anomaly = phase - self.phase_of_periastron
         north_season = (true_anomaly - self.obliquity_direction) % (360*u.deg)
         if self.obliquity != 0*u.deg:
             raise NotImplementedError(
@@ -377,14 +377,14 @@ class SystemGeometry:
         lat = 0*u.deg + self.obliquity*np.cos(north_season)
         return lat
 
-    def get_pl_sub_obs_lon(self, time_since_periasteron: u.quantity.Quantity, phase: u.quantity.Quantity) -> u.quantity.Quantity:
+    def get_pl_sub_obs_lon(self, time_since_periastron: u.quantity.Quantity, phase: u.quantity.Quantity) -> u.quantity.Quantity:
         """
         Compute the sub-observer longitude of the planet.
 
         Parameters
         ----------
-        time_since_periasteron : astropy.units.Quantity [time]
-            The time elapsed since periasteron.
+        time_since_periastron : astropy.units.Quantity [time]
+            The time elapsed since periastron.
         phase : astropy.units.Quantity [angle]
             The current phase of the planet.
 
@@ -393,7 +393,7 @@ class SystemGeometry:
         astropy.units.Quantity [angle]
             The current sub-observer longitude of the planet.
         """
-        lon = self.get_substellar_lon(time_since_periasteron) - phase
+        lon = self.get_substellar_lon(time_since_periastron) - phase
         return lon
 
     def get_pl_sub_obs_lat(self, phase: u.Quantity) -> u.Quantity:
@@ -415,7 +415,7 @@ class SystemGeometry:
         NotImplementedError
             If `self.obliquity` is not 0 deg.
         """
-        true_anomaly = phase - self.phase_of_periasteron
+        true_anomaly = phase - self.phase_of_periastron
         north_season = (true_anomaly - self.obliquity_direction) % (360*u.deg)
         if self.obliquity != 0*u.deg:
             raise NotImplementedError(
@@ -438,7 +438,7 @@ class SystemGeometry:
         float
             The orbital radius coefficient.
         """
-        true_anomaly = phase - self.phase_of_periasteron
+        true_anomaly = phase - self.phase_of_periastron
         num = 1 - self.eccentricity**2
         den = 1 + self.eccentricity*np.cos(true_anomaly)
         return (num/den).to_value(u.dimensionless_unscaled)
@@ -472,7 +472,7 @@ class SystemGeometry:
         pl_sub_obs_lats = []
         orbit_radii = []
         u_angle = u.deg
-        for time in start_times + self.init_time_since_periasteron:
+        for time in start_times + self.init_time_since_periastron:
             phase = self.phase(time).to_value(u.deg)  # % (360*u.deg)
             phases.append(phase)
             sub_obs = self.sub_obs(time)
@@ -526,14 +526,14 @@ class SystemGeometry:
         ax.scatter(0, 0, c='xkcd:tangerine', s=150)
         theta = np.linspace(0, 360, 180, endpoint=False)*u.deg
         r_dist = (1-self.eccentricity**2)/(1+self.eccentricity*np.cos(theta -
-                                                                      self.phase_of_periasteron-90*u.deg))
+                                                                      self.phase_of_periastron-90*u.deg))
         curr_theta = phase + 90*u.deg
         x_dist = self.semimajor_axis * np.cos(theta)*r_dist
         y_dist = -1*self.semimajor_axis * \
             np.sin(theta)*r_dist*np.cos(self.inclination)
 
         current_r = (1-self.eccentricity**2)/(1+self.eccentricity*np.cos(curr_theta -
-                                                                         self.phase_of_periasteron - 90*u.deg))
+                                                                         self.phase_of_periastron - 90*u.deg))
         current_x_dist = self.semimajor_axis * np.cos(curr_theta)*current_r
         current_y_dist = -1*self.semimajor_axis * \
             np.sin(curr_theta)*current_r*np.cos(self.inclination)
@@ -581,8 +581,8 @@ class SystemGeometry:
         from cartopy.geodesic import Geodesic
         if ax is None:
             ax = plt.gca()
-        time_since_periasteron = self.get_time_since_periasteron(phase)
-        substellar_lon = self.get_substellar_lon(time_since_periasteron)
+        time_since_periastron = self.get_time_since_periastron(phase)
+        substellar_lon = self.get_substellar_lon(time_since_periastron)
         substellar_lat = self.get_substellar_lat(phase)
         
         ax.stock_img()
@@ -664,8 +664,8 @@ class SystemGeometry:
         axes['orbit'] = fig.add_subplot(1, 2, 1)
         
         self.get_system_visual(phase,axes['orbit'])
-        time_since_periasteron = self.get_time_since_periasteron(phase)
-        subobs_lon = self.get_pl_sub_obs_lon(time_since_periasteron, phase)
+        time_since_periastron = self.get_time_since_periastron(phase)
+        subobs_lon = self.get_pl_sub_obs_lon(time_since_periastron, phase)
         subobs_lat = self.get_pl_sub_obs_lat(phase)
         proj = ccrs.Orthographic(
             central_longitude=subobs_lon, central_latitude=subobs_lat)

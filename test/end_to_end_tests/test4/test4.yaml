@@ -1,9 +1,11 @@
 header:
   data_path: test4
-  teff_min: 2300 K
-  teff_max: 3900 K
   desc: This is a VSPEC test run.
   seed: 10
+  spec_grid:
+    name: vspec
+    min_teff: 2300 K
+    max_teff: 3900 K
 star:
   psg_star_template: M
   teff: 3300 K
@@ -44,7 +46,7 @@ planet:
 system:
   distance: 10 pc
   inclination: 75 deg
-  phase_of_periasteron: 0 deg
+  phase_of_periastron: 0 deg
 obs:
   observation_time: 10 day
   integration_time: 1 day
@@ -52,7 +54,7 @@ inst:
   coronagraph:
     aperture: 15 m
     zodi: 1.0
-    contrast: 1e-10
+    contrast: 1.e-10
     iwa:
       table:
         x: [0.0, 0.217, 1.41, 2.278, 2.767, 3.092, 3.418, 3.797, 4.014, 4.231, 4.557, 5.371, 6.13, 6.618, 7.215, 9.005, 12.64, 17.631, 20.561, 24.304, 27.288, 29.349]
@@ -72,14 +74,19 @@ inst:
         table:
           x: [0.2,1.0,1.01,2.0]
           y: [0.0, 0.0, 2.5,2.5]
+          xunit: um
+          yunit: electron
       dark_current:
         table:
           x: [0.2,1.0,1.01,2.0]
-          y: [3e-5, 3e-5, 2e-3,2e-3]
+          y: [3.e-5, 3.e-5, 2.e-3,2.e-3]
+          xunit: um
+          yunit: electron/s
       throughput:
         table:
           x: [0.2, 0.2261, 0.258, 0.2986, 0.3377, 0.3667, 0.4029, 0.4493, 0.4971, 0.514, 0.515, 0.5377, 0.6304, 0.7087, 0.7986, 0.8435, 0.9058, 0.9594, 0.9942, 1.22, 1.41, 1.62, 1.87, 2.0]
           y: [0.0317, 0.0437, 0.0589, 0.0742, 0.0851, 0.0917, 0.0971, 0.1015, 0.1004, 0.1004, 0.167, 0.1659, 0.1506, 0.1255, 0.0939, 0.0884, 0.1146, 0.1419, 0.1594, 0.1821, 0.1958, 0.2049, 0.2094, 0.214]
+          xunit: um
       emissivity: 0.1
       temperature: 35 K
 psg:

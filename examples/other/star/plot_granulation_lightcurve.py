@@ -9,14 +9,14 @@ on the surface of a star.
 from pathlib import Path
 from astropy import units as u
 import matplotlib.pyplot as plt
-import pypsg
+import libpypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 from VSPEC.params.gcm import vspec_to_pygcm
 
 SEED = 32
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run parameters
@@ -28,9 +28,11 @@ pypsg.docker.set_url_and_run()
 
 header = params.Header(
     data_path=Path('.vspec/granulation_lightcurve'),
-    teff_min=3000*u.K,
-    teff_max=3400*u.K,
-    seed=SEED,verbose=0
+    seed=SEED,verbose=0,
+    spec_grid = params.VSPECGridParameters(
+        max_teff=3400*u.K,min_teff=3000*u.K,
+        impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+    )
 )
 star = params.StarParameters(
     psg_star_template='M',
@@ -51,13 +53,12 @@ star = params.StarParameters(
         dteff=300*u.K
     ),
     grid_params=(500, 1000),
-    spectral_grid='default'
 )
 planet = params.PlanetParameters.std(init_phase=180*u.deg,init_substellar_lon=0*u.deg)
 system = params.SystemParameters(
     distance=1.3*u.pc,
     inclination=30*u.deg,
-    phase_of_periasteron=0*u.deg
+    phase_of_periastron=0*u.deg
 )
 observation = params.ObservationParameters(
     observation_time=3*u.day,

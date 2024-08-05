@@ -10,13 +10,13 @@ from os import chdir
 from astropy import units as u
 import numpy as np
 
-import pypsg
+import libpypsg
 
 import VSPEC
 
 chdir(Path(__file__).parent)
 
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 CFG_PATH = Path(__file__).parent / 'test3.yaml'
 FIG1_PATH = Path(__file__).parent / 'out1.png'

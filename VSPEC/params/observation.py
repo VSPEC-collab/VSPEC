@@ -483,7 +483,7 @@ class CoronagraphParameters(TelescopeParameters):
             aperture=u.Quantity(d['aperture']),
             zodi=float(d['zodi']),
             contrast=float(d['contrast']),
-            iwa=PSGtable.from_dict(d['iwa']['table'])
+            iwa=PSGtable.from_dict(d['iwa']['table']).to_psg()
         )
 
 

@@ -8,7 +8,7 @@ spotted photosphere.
 from pathlib import Path
 from astropy import units as u
 import matplotlib.pyplot as plt
-import pypsg
+import libpypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 
@@ -17,7 +17,7 @@ try:
 except NameError:
     CFG_PATH = 'spot_lightcurve.yaml'
 
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run

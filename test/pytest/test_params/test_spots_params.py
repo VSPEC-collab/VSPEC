@@ -11,6 +11,8 @@ def test_preset_solar():
     params_dict = {'preset': 'solar'}
     params = SpotParameters.from_dict(params_dict)
     assert params.distribution == 'solar'
+    params = SpotParameters.solar()
+    assert params.distribution == 'solar'
 
 def test_custom_dict():
     params_dict = {
@@ -35,11 +37,7 @@ def test_preset_none():
 
 def test_preset_mdwarf():
     params = SpotParameters.mdwarf()
-    assert params.distribution == 'iso'
-
-def test_preset_solar():
-    params = SpotParameters.solar()
-    assert params.distribution == 'solar'
+    assert params.distribution == 'iso'    
 
 def test_invalid_distribution():
     params_dict = {

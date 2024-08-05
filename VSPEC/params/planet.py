@@ -4,7 +4,6 @@ Planetary and System Parameters Module
 
 from astropy import units as u
 from VSPEC.params.base import BaseParameters
-from VSPEC.config import planet_distance_unit, period_unit, planet_radius_unit
 
 
 class GravityParameters(BaseParameters):
@@ -285,8 +284,8 @@ class SystemParameters(BaseParameters):
         The distance to the system.
     inclination : astropy.units.Quantity
         The inclination angle of the system. Transit occurs at 90 degrees.
-    phase_of_periasteron : astropy.units.Quantity
-        The phase (as seen from the observer) of the planet when it reaches periasteron.
+    phase_of_periastron : astropy.units.Quantity
+        The phase (as seen from the observer) of the planet when it reaches periastron.
 
     Attributes
     ----------
@@ -294,8 +293,8 @@ class SystemParameters(BaseParameters):
         The distance to the system.
     inclination : astropy.units.Quantity
         The inclination angle of the system. Transit occurs at 90 degrees.
-    phase_of_periasteron : astropy.units.Quantity
-        The phase (as seen from the observer) of the planet when it reaches periasteron.
+    phase_of_periastron : astropy.units.Quantity
+        The phase (as seen from the observer) of the planet when it reaches periastron.
 
     """
 
@@ -303,16 +302,16 @@ class SystemParameters(BaseParameters):
         self,
         distance: u.Quantity,
         inclination: u.Quantity,
-        phase_of_periasteron: u.Quantity
+        phase_of_periastron: u.Quantity
     ):
         self.distance = distance
         self.inclination = inclination
-        self.phase_of_periasteron = phase_of_periasteron
+        self.phase_of_periastron = phase_of_periastron
 
     @classmethod
     def _from_dict(cls, d: dict):
         return cls(
             distance=u.Quantity(d['distance']),
             inclination=u.Quantity(d['inclination']),
-            phase_of_periasteron=u.Quantity(d['phase_of_periasteron']),
+            phase_of_periastron=u.Quantity(d['phase_of_periastron']),
         )

@@ -7,7 +7,7 @@ This example runs VSPEC with a transiting planet scenario.
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
-import pypsg
+import libpypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 
@@ -16,7 +16,7 @@ try:
 except NameError:
     CFG_PATH = Path('transit_spectrum.yaml')
 
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run

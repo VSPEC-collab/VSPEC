@@ -1,7 +1,7 @@
 import pytest
 from astropy import units as u
 import numpy as np
-from pypsg.cfg.base import Table
+from libpypsg.cfg.base import Table
 
 from VSPEC.config import flux_unit as default_flux_unit
 from VSPEC.params.base import PSGtable

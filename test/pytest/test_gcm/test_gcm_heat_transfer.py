@@ -9,8 +9,8 @@ import pytest
 import matplotlib.pyplot as plt
 from time import time
 
-from pypsg.globes import PyGCM
-from pypsg import PyConfig, APICall
+from libpypsg.globes import PyGCM
+from libpypsg import PyConfig, APICall
 
 from VSPEC.gcm.heat_transfer import get_flux
 import VSPEC.gcm.heat_transfer as ht

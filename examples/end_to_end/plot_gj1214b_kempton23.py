@@ -13,15 +13,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
 from cartopy import crs as ccrs
-import pypsg
-from pypsg.globes import PyGCM
+import libpypsg
+from libpypsg.globes import PyGCM
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 from VSPEC.config import MSH
 
 SEED = 1214
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 # %%
 # Create the configurations
@@ -80,7 +80,7 @@ planet_params = params.PlanetParameters(
 system_params = params.SystemParameters(
     distance=14.6427*u.pc,
     inclination=inclination,
-    phase_of_periasteron=0*u.deg
+    phase_of_periastron=0*u.deg
 )
 
 star_dict = {
@@ -123,7 +123,6 @@ star_kwargs = dict(
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
     grid_params=(500,1000),
-    spectral_grid='default'
 )
 
 quiet_star = params.StarParameters(
@@ -149,9 +148,12 @@ spotted_star = params.StarParameters(
 
 # Set parameters for simulation
 header_kwargs = dict(
-    teff_min=2300*u.K,teff_max=3400*u.K,
     seed = SEED,
-    verbose = 0
+    verbose = 0,
+    spec_grid = params.VSPECGridParameters(
+        max_teff=3400*u.K,min_teff=2300*u.K,
+        impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+    )
 )
 internal_params_kwargs = dict(
     planet=planet_params,
