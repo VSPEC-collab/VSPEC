@@ -1130,27 +1130,35 @@ class ObservationModel:
         planet_observation_info = self._get_observation_plan(
             observation_parameters, planet=True)
         planet_times = planet_observation_info['time']
-
         time_step = self.params.obs.integration_time
         planet_time_step = self.params.obs.observation_time / \
             (self.params.planet_total_images+1)
         granulation_fractions = self.star.get_granulation_coverage(
             observation_info['time'])
-        print('Creating interpolators: thermal', end='')
+        print('Creating interpolators:', end='\n')
+        s = 'thermal'
+        print(s,end='\r')
         interp_thermal = self._get_thermal_interpolator()
-        print(', combined', end='')
+        s+=', combined'
+        print(s, end='\r')
         interp_reflected = self._get_reflected_interpolator()
-        print(', stellar', end='')
+        s+=', stellar'
+        print(s, end='\r')
         interp_stellar = self._get_psg_interp('combined', 'Stellar')
-        print(', photon noise', end='')
+        s+=', photon noise'
+        print(s, end='\r')
         interp_noise_photon = self._get_psg_interp('noise', 'Source')
-        print(', detector noise', end='')
+        s+=', detector noise'
+        print(s, end='\r')
         interp_noise_detector = self._get_psg_interp('noise', 'Detector')
-        print(', telescope noise', end='')
+        s+=', telescope noise'
+        print(s, end='\r')
         interp_noise_telescope = self._get_psg_interp('noise', 'Telescope')
-        print(', background noise', end='')
+        s+=', background noise'
+        print(s, end='\r')
         interp_noise_background = self._get_psg_interp('noise', 'Background')
-        print(', transit', end='\n')
+        s+=', transit'
+        print(s)
         interp_transit = self._get_transit_interpolator()
         print('Finished!')
 
