@@ -754,6 +754,8 @@ class GranulationParameters(BaseParameters):
         vspec_vsm.Granulation
             The `vspec_vsm.Granulation` instance.
         """
+        if self.mean == 0 and self.amp == 0:
+            return None
         return Granulation(
             mean_coverage=self.mean,
             amplitude=self.amp,
