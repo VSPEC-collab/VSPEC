@@ -46,7 +46,7 @@ class ForwardSpectra:
 
             Returns
             -------
-            jax.numpy.ndarray
+            np.ndarray
                 The flux values of the blackbody spectra at the given wavelength and temperature.
 
             """
