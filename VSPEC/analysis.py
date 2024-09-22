@@ -111,7 +111,7 @@ class PhaseAnalyzer:
                     colname=f'col{i}'
                     vartables[name].add_column(val*unit, name=colname)
             
-            self.layers = vartables
+            self.layers: Dict[str, QTable] = vartables
         except FileNotFoundError:
             warnings.warn(
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
@@ -347,8 +347,9 @@ class PhaseAnalyzer:
 
         cols = []
         for col in self._observation_data.colnames:
+            array:u.Quantity = self._observation_data[col]
             cols.append(fits.Column(
-                name=col, array=self._observation_data[col].values, format='D'))
+                name=col, array=array.value, format='D'))
         obs_tab = fits.BinTableHDU.from_columns(cols)
         obs_tab.name = 'OBS'
 
@@ -385,7 +386,7 @@ class PhaseAnalyzer:
 
         hdul = fits.HDUList([primary, obs_tab, tab1, tab2,
                             total, star, reflected, thermal, noise])
-        hdul = hdul + self.layers
+        # hdul = hdul + [fits.TableHDU.(val) for _, val in self.layers.items()]
         return fits.HDUList(hdul)
 
     def write_fits(self, filename: str) -> None:
