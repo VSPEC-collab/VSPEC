@@ -81,9 +81,9 @@ jobs:
           # sleep 1
           # curl http://localhost:3000/index.php?install=corrklowmain
           # sleep 1
-          python -c "import pypsg; pypsg.settings.save_settings(api_key='$PSG_KEY')"
+          python -c "import libpypsg; libpypsg.settings.save_settings(api_key='$PSG_KEY')"
           echo "Successfully loaded API key"
-          python -c "from pypsg import settings; print('The current PSG URL is',settings.get_setting('url'))"
+          python -c "from libpypsg import settings; print('The current PSG URL is',settings.get_setting('url'))"
       - name: Build docs
         env:
           DOCNAME: ${{ steps.prep.outputs.DOCNAME }}
