@@ -48,6 +48,15 @@ Authors
 ``VSPEC`` is maintained by Ted Johnson and the original code was written by Cameron Kelahan. Additional contributions come from
 Tobi Hammond and the PSG team. For more information, see our `author list <https://github.com/VSPEC-collab/VSPEC/blob/main/AUTHORS.md>`_.
 
+Citation
+========
+
+A paper describing ``VSPEC`` and other codes was recently accepted by *Astronomy & Computing*. More information will be posted here upon publication, but in
+the meantime, please look for it on arXiv.
+
+Additionally, you can cite the specific version of ``VSPEC`` that you are using with the ``CITATION.cff`` file in the repository root. Just make sure you select
+the correct version for reproducibility.
+
 
 
 Indices and tables

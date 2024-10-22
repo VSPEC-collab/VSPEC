@@ -31,7 +31,9 @@ There you can find a description of the API as well as numerous examples.
 How to Cite
 -----------
 
-A JOSS paper describing VSPEC is in the works.
+A paper describing the code has been accepted by *Astronomy & Computing*. Please cite this paper if you use ``VSPEC``.
+
+Additionally, the ``CITATION.cff`` file in this repository contains citation information for specific ``VSPEC`` versions.
 
 Authors
 -------

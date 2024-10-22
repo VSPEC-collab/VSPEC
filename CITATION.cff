@@ -1,0 +1,48 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: VSPEC
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Ted
+    family-names: Johnson
+    email: ted.johnson@unlv.edu
+    affiliation: 'NASA GSFC, UNLV'
+    orcid: 'https://orcid.org/0000-0002-1570-2203'
+  - given-names: Cameron
+    family-names: Kelahan
+    orcid: 'https://orcid.org/0009-0002-0075-8041'
+    affiliation: NASA GSFC
+  - given-names: Tobi
+    family-names: Hammond
+    affiliation: NASA GSFC
+    orcid: 'https://orcid.org/0009-0002-5756-9778'
+repository-code: 'https://github.com/VSPEC-collab/VSPEC'
+abstract: >-
+  VSPEC (Variable Star PhasE Curve) is an exoplanet modeling
+  suite that combines NASA’s Planetary Spectrum Generator
+  (PSG) with a custom variable star (based on the spotty and
+  xoflares packages).
+
+
+  VSPEC is a general exoplanet observation modeling suite
+  that is built to be modular. VSPEC can simulate phase
+  curves of non-transiting planets, transits, eclipses, and
+  direct-imaging spectroscopy. It uses a noise model from
+  PSG, which is sophisticated enough to simulate realistic
+  data for a variety of scenarios.
+
+
+  The original motivation for VSPEC was to create synthetic
+  datasets of Planetary Infrared Excess (PIE) observations,
+  but the code is much more general.
+keywords:
+  - Exoplanet
+  - Open-source
+  - Planetary Spectrum Generator
+license: MIT
+version: 1.0.0
