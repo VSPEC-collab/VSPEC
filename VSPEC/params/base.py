@@ -3,7 +3,7 @@ Base parameter class
 """
 import yaml
 from astropy import units as u
-from pypsg.cfg.base import Table
+from libpypsg.cfg.base import Table
 
 class BaseParameters:
     """
@@ -106,7 +106,7 @@ class PSGtable(BaseParameters):
         return super().from_dict(d, *args)
     def to_psg(self):
         """
-        Convert to pypsg table
+        Convert to libpypsg table
         """
         return Table(
             x = self.x.to_value(u.dimensionless_unscaled) if self.x.unit is u.dimensionless_unscaled else self.x,

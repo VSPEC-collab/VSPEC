@@ -1,8 +1,13 @@
 header:
   data_path: test_run
-  teff_min: 2300 K
-  teff_max: 3700 K
   desc: This is a VSPEC test run.
+  spec_grid:
+    name: vspec
+    max_teff: 3400 K
+    min_teff: 3200 K
+    impl_bin: rust
+    impl_interp: scipy
+    fail_on_missing: False
 star:
   psg_star_template: M
   teff: 3300 K
@@ -73,7 +78,7 @@ planet:
 system:
   distance: 10 pc
   inclination: 90 deg
-  phase_of_periasteron: 0 deg
+  phase_of_periastron: 0 deg
 obs:
   observation_time: 10 hour
   integration_time: 1 hour

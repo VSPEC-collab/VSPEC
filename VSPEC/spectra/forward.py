@@ -46,7 +46,7 @@ class ForwardSpectra:
 
             Returns
             -------
-            jax.numpy.ndarray
+            np.ndarray
                 The flux values of the blackbody spectra at the given wavelength and temperature.
 
             """
@@ -54,7 +54,9 @@ class ForwardSpectra:
                 raise u.UnitTypeError('wl is wrong physical type')
             if not teff.unit.physical_type == u.K.physical_type:
                 raise u.UnitTypeError('teff is wrong physical type')
+            # pylint: disable-next=no-member
             A = 2 * c.h * c.c**2/wl**5
+            # pylint: disable-next=no-member
             B = np.exp(((c.h*c.c)/(wl*c.k_B*teff)
                         ).to(u.dimensionless_unscaled)) - 1
             return (A/B).to(config.flux_unit)

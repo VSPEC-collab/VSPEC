@@ -1,20 +1,167 @@
 """
 Module to read parameters
 """
+from typing import Callable, List, Union
 from pathlib import Path
 import yaml
 from astropy import units as u
-from pypsg import PyConfig
-from pypsg.cfg import models
-from pypsg.globes import PyGCM
-from pypsg.units import resolving_power as u_rp
+from libpypsg import PyConfig
+from libpypsg.cfg import models
+from libpypsg.units import resolving_power as u_rp
+from GridPolator import GridSpectra
 
-from VSPEC import config
-from VSPEC.params.base import BaseParameters
-from VSPEC.params.stellar import StarParameters
-from VSPEC.params.planet import PlanetParameters, SystemParameters
-from VSPEC.params.gcm import gcmParameters, psgParameters
-from VSPEC.params.observation import InstrumentParameters, ObservationParameters, SingleDishParameters, CoronagraphParameters
+from .. import config
+from ..spectra import ForwardSpectra
+from ..helpers import arrange_teff
+from .base import BaseParameters
+from .stellar import StarParameters
+from .planet import PlanetParameters, SystemParameters
+from .gcm import gcmParameters, psgParameters
+from .observation import InstrumentParameters, ObservationParameters, SingleDishParameters, CoronagraphParameters
+
+
+class AbstractGridParameters(BaseParameters):
+    """
+    The particulars of the grid of stellar spectral models.
+    
+    """
+    
+    def __init__(
+        self,
+        builder: Callable[..., GridSpectra],
+        **kwargs
+    ):
+        self._builder = builder
+        self._kwargs = kwargs
+    def build(self,**kwargs)->GridSpectra:
+        """
+        Create a ``GridSpectra`` instance using additional parameters
+        """
+        return self._builder(**self._kwargs,**kwargs)
+    @staticmethod
+    def _get_subtype(name: str)->Union['VSPECGridParameters']:
+        match name:
+            case 'vspec':
+                return VSPECGridParameters
+            case 'bb':
+                return BlackbodyGridParameters
+            case _:
+                raise NotImplementedError(f'Grid type {name} not implemented.')
+    @classmethod
+    def from_dict(cls, d: dict):
+        return cls._get_subtype(d['name']).from_dict(d)
+class VSPECGridParameters(AbstractGridParameters):
+    """
+    Parameter container for the default VSPEC grid.
+    
+    Parameters
+    ----------
+    max_teff : astropy.units.Quantity
+        The maximum effective temperature.
+    min_teff : astropy.units.Quantity
+        The minimum effective temperature.
+    impl_bin : str, optional
+        The implementation of the binning algorithm. Default is 'rust'.
+    impl_interp : str, optional
+        The implementation of the interpolation algorithm. Default is 'scipy'.
+    fail_on_missing : bool, optional
+        If ``True``, raise an error if a spectrum from the grid is not found.
+        If ``False``, download the needed spectra. Default is ``False``.
+    
+    """
+    
+    _defaults = {
+        'impl_bin': 'rust',
+        'impl_interp': 'scipy',
+        'fail_on_missing': False
+    }
+    def __init__(
+        self,
+        max_teff: u.Quantity,
+        min_teff: u.Quantity,
+        impl_bin: str = 'rust',
+        impl_interp: str = 'scipy',
+        fail_on_missing: bool = False
+    ):
+        teffs = arrange_teff(minteff=min_teff, maxteff=max_teff)
+        super().__init__(GridSpectra.from_vspec, teffs=teffs, impl_bin=impl_bin, impl_interp=impl_interp, fail_on_missing=fail_on_missing)
+
+    def build(
+        self,
+        w1: u.Quantity,
+        w2: u.Quantity,
+        resolving_power: float,
+    ):
+        """
+        Initialize a ``GridSpectra`` instance using additional parameters.
+        
+        Parameters
+        ----------
+        w1 : astropy.units.Quantity
+            The w1 wavelength.
+        w2 : astropy.units.Quantity
+            The w2 wavelength.
+        resolving_power : float
+            The resolving power.
+        
+        Returns
+        -------
+        GridSpectra
+            The grid of stellar spectral models.
+        """
+        return super().build(
+            w1=w1,
+            w2=w2,
+            resolving_power=resolving_power,
+        )
+    @classmethod
+    def from_dict(cls, d: dict):
+        """
+        Initialize a VSPEC grid parameter object from a dictionary.
+
+        Parameters
+        ----------
+        d : dict
+            The parameter dictionary.
+
+        Returns
+        -------
+        VSPECGridParameters
+            The VSPEC grid parameters.
+        """
+        return cls(
+            max_teff=u.Quantity(d['max_teff']),
+            min_teff=u.Quantity(d['min_teff']),
+            impl_bin=str(d.get('impl_bin', cls._defaults['impl_bin'])),
+            impl_interp=str(d.get('impl_interp', cls._defaults['impl_interp'])),
+            fail_on_missing=bool(d.get('fail_on_missing', cls._defaults['fail_on_missing']))
+        )
+
+class BlackbodyGridParameters(AbstractGridParameters):
+    """
+    Parameter container for a forward-model blackbody stellar spectrum.
+    
+    Note
+    ----
+    The ``ForwardSpectra`` object API is identical to the ``GridSpectra`` object API.
+    
+    """
+    
+    def __init__(self):
+        super().__init__(ForwardSpectra.blackbody)
+    
+    def build(self):
+        """
+        Initialize the ``ForwardSpectra`` object.
+        """
+        return super().build()
+
+    @classmethod
+    def from_dict(cls, d: dict):
+        """
+        Initialize from a dictionary.
+        """
+        return cls()
 
 
 class Header(BaseParameters):
@@ -56,15 +203,13 @@ class Header(BaseParameters):
     def __init__(
         self,
         data_path: Path,
-        teff_min: u.Quantity,
-        teff_max: u.Quantity,
+        spec_grid: AbstractGridParameters,
         seed: int,
         verbose: int = 1,
         desc: str = None
     ):
         self.data_path = data_path
-        self.teff_min = teff_min
-        self.teff_max = teff_max
+        self.spec_grid = spec_grid
         self.seed = seed
         self.verbose = verbose
         self.desc = desc
@@ -73,8 +218,7 @@ class Header(BaseParameters):
     def _from_dict(cls, d: dict):
         return cls(
             data_path=config.VSPEC_PARENT_PATH / d['data_path'],
-            teff_min=u.Quantity(d['teff_min']),
-            teff_max=u.Quantity(d['teff_max']),
+            spec_grid=AbstractGridParameters.from_dict(d['spec_grid']),
             seed=None if d.get('seed', None) is None else int(
                 d.get('seed', None)),
             desc=None if d.get('desc', None) is None else str(
@@ -331,7 +475,7 @@ class InternalParameters(BaseParameters):
 
     def to_pyconfig(self):
         """
-        Write VSPEC parameters into a `pypsg` `PyConfig` object.
+        Write VSPEC parameters into a `libpypsg` `PyConfig` object.
         """
         return PyConfig(
             target=self.target,

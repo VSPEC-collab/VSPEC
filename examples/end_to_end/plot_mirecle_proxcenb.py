@@ -9,13 +9,13 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from astropy import units as u
-import pypsg
+import libpypsg
 
 from VSPEC import ObservationModel,PhaseAnalyzer
 from VSPEC import params
 
 SEED = 10
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 
 # %%
@@ -79,7 +79,7 @@ planet_params = params.PlanetParameters(
 system_params = params.SystemParameters(
     distance=1.3*u.pc,
     inclination=inclination,
-    phase_of_periasteron=0*u.deg
+    phase_of_periastron=0*u.deg
 )
 
 
@@ -123,7 +123,6 @@ quiet_star = params.StarParameters(
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
     grid_params=(500, 1000),
-    spectral_grid='default'
 )
 
 # Set parameters for simulation
@@ -131,7 +130,10 @@ quiet_star = params.StarParameters(
 internal_params = params.InternalParameters(
     header=params.Header(
         data_path=Path('.vspec/proxcenb'),
-        teff_min=2300*u.K,teff_max=3400*u.K,
+        spec_grid = params.VSPECGridParameters(
+            max_teff=3400*u.K,min_teff=2300*u.K,
+            impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+        ),
         seed = SEED),
     star = quiet_star,
     psg=psg_params,

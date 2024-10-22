@@ -8,14 +8,14 @@ This example plots the lightcurve caused by a
 from pathlib import Path
 from astropy import units as u
 import matplotlib.pyplot as plt
-import pypsg
+import libpypsg
 
 from VSPEC import ObservationModel, PhaseAnalyzer
 from VSPEC import params
 from VSPEC.params.gcm import vspec_to_pygcm
 
 SEED = 24
-pypsg.docker.set_url_and_run()
+libpypsg.docker.set_url_and_run()
 
 # %%
 # Initialize the VSPEC run parameters
@@ -27,8 +27,10 @@ pypsg.docker.set_url_and_run()
 
 header = params.Header(
     data_path=Path('.vspec/faclae_lightcurve'),
-    teff_min=2300*u.K,
-    teff_max=3900*u.K,
+    spec_grid = params.VSPECGridParameters(
+        max_teff=3900*u.K,min_teff=2300*u.K,
+        impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+    ),
     seed=SEED, verbose=0
 )
 star = params.StarParameters(
@@ -59,7 +61,6 @@ star = params.StarParameters(
     flares=params.FlareParameters.none(),
     granulation=params.GranulationParameters.none(),
     grid_params=10000,
-    spectral_grid='default'
 )
 
 planet = params.PlanetParameters.std(
@@ -67,7 +68,7 @@ planet = params.PlanetParameters.std(
 system = params.SystemParameters(
     distance=1.3*u.pc,
     inclination=30*u.deg,
-    phase_of_periasteron=0*u.deg
+    phase_of_periastron=0*u.deg
 )
 observation = params.ObservationParameters(
     observation_time=3*u.day,

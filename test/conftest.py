@@ -4,7 +4,7 @@ Configuration for pytest.
 import pytest
 from pathlib import Path
 
-from pypsg import settings
+from libpypsg import settings
 
 import VSPEC
 
@@ -35,3 +35,11 @@ def test1_data(request: pytest.FixtureRequest) -> VSPEC.PhaseAnalyzer:
         model.build_planet()
         model.build_spectra()
     return VSPEC.PhaseAnalyzer(model.directories['all_model'])
+
+@pytest.fixture
+def test1_model(request: pytest.FixtureRequest) -> VSPEC.ObservationModel:
+    """
+    Model for test 1.
+    """
+    path = Path(__file__).parent / 'end_to_end_tests' / 'test1' / 'test1.yaml'
+    return VSPEC.ObservationModel.from_yaml(path)

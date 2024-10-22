@@ -754,6 +754,8 @@ class GranulationParameters(BaseParameters):
         vspec_vsm.Granulation
             The `vspec_vsm.Granulation` instance.
         """
+        if self.mean == 0 and self.amp == 0:
+            return None
         return Granulation(
             mean_coverage=self.mean,
             amplitude=self.amp,
@@ -851,7 +853,6 @@ class StarParameters(BaseParameters):
         flares: FlareParameters,
         granulation: GranulationParameters,
         grid_params: tuple,
-        spectral_grid: str
     ):
         self.psg_star_template = psg_star_template
         self.teff = teff
@@ -866,7 +867,6 @@ class StarParameters(BaseParameters):
         self.flares = flares
         self.granulation = granulation
         self.grid_params = grid_params
-        self.spectral_grid = spectral_grid
 
     @classmethod
     def from_dict(cls, d: dict):
@@ -904,7 +904,6 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.from_dict(d['flares']),
             granulation=GranulationParameters.from_dict(d['granulation']),
             grid_params=grid_params,
-            spectral_grid=str(d['spectral_grid'])
         )
 
     @classmethod
@@ -939,7 +938,6 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
             grid_params=(500, 1000),
-            spectral_grid='default'
         )
 
     @classmethod
@@ -961,7 +959,6 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.none(),
             granulation=GranulationParameters.none(),
             grid_params=(500, 1000),
-            spectral_grid='default'
         )
 
     @classmethod
@@ -983,7 +980,6 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.std(),
             granulation=GranulationParameters.none(),
             grid_params=(500, 1000),
-            spectral_grid='default'
         )
 
     @classmethod
@@ -1005,7 +1001,6 @@ class StarParameters(BaseParameters):
             flares=FlareParameters.std(),
             granulation=GranulationParameters.std(),
             grid_params=(500, 1000),
-            spectral_grid='default'
         )
 
     def to_star(

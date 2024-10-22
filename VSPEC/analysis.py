@@ -14,9 +14,10 @@ from astropy.io import fits
 from datetime import datetime
 import json
 from astropy.table import QTable
-from pypsg import PyLyr
+from libpypsg import PyLyr
 
 from VSPEC.config import N_ZFILL, MOLEC_DATA_PATH
+from VSPEC import ObservationModel
 
 
 class PhaseAnalyzer:
@@ -110,11 +111,31 @@ class PhaseAnalyzer:
                     colname=f'col{i}'
                     vartables[name].add_column(val*unit, name=colname)
             
-            self.layers = vartables
+            self.layers: Dict[str, QTable] = vartables
         except FileNotFoundError:
             warnings.warn(
                 'No Layer info, maybe globes or molecular signatures are off', RuntimeWarning)
             self.layers = fits.HDUList([])
+    @classmethod
+    def from_model(cls, model:ObservationModel, fluxunit=u.Unit('W m-2 um-1')):
+        """
+        Initialize a ``PhaseAnalyzer`` instance from a ``VSPEC`` ``ObservationModel``.
+        
+        Parameters
+        ----------
+        model : VSPEC.ObservationModel
+            The model to use
+        fluxunit : astropy.units.Unit, optional
+            The flux unit to use. Default: ``u.Unit('W m-2 um-1')``
+        
+        Examples
+        --------
+        >>> model = ObservationModel.from_yaml('test.yaml')
+        ...
+        >>> data = PhaseAnalyzer.from_model(model)
+        >>> plt.plot(data.time, data.lightcurve('total', 0))
+        """
+        return cls(model.directories['all_model'], fluxunit)
 
     def _get_mean_molecular_mass(self):
         """
@@ -326,8 +347,9 @@ class PhaseAnalyzer:
 
         cols = []
         for col in self._observation_data.colnames:
+            array:u.Quantity = self._observation_data[col]
             cols.append(fits.Column(
-                name=col, array=self._observation_data[col].values, format='D'))
+                name=col, array=array.value, format='D'))
         obs_tab = fits.BinTableHDU.from_columns(cols)
         obs_tab.name = 'OBS'
 
@@ -364,7 +386,7 @@ class PhaseAnalyzer:
 
         hdul = fits.HDUList([primary, obs_tab, tab1, tab2,
                             total, star, reflected, thermal, noise])
-        hdul = hdul + self.layers
+        # hdul = hdul + [fits.TableHDU.(val) for _, val in self.layers.items()]
         return fits.HDUList(hdul)
 
     def write_fits(self, filename: str) -> None:

@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 from astropy import units as u
 
-from pypsg.globes import PyGCM
-from pypsg.globes.waccm.waccm import TEST_PATH, download_test_data
+from libpypsg.globes import PyGCM
+from libpypsg.globes.waccm.waccm import TEST_PATH, download_test_data
 
 from VSPEC.params.gcm import gcmParameters
 
@@ -18,7 +18,7 @@ def waccm_path():
     return TEST_PATH
 
 
-def test_gcmParameters_from_dict_waccm():
+def test_gcmParameters_from_dict_waccm(waccm_path: Path):
     # Create a dictionary representation of the gcmParameters instance with waccmGCM
 
     gcm_dict = {
@@ -26,7 +26,7 @@ def test_gcmParameters_from_dict_waccm():
         'planet': None,
         'gcm': {
             'waccm': {
-                'path': str(TEST_PATH.resolve()),
+                'path': str(waccm_path.resolve()),
                 'tstart': '4630 day',
                 'molecules': ['O2', 'CO2'],
                 'aerosols': [],
