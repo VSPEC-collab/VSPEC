@@ -1,0 +1,23 @@
+FlareParameters
+===============
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: FlareParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~FlareParameters.from_preset
+      ~FlareParameters.none
+      ~FlareParameters.std
+      ~FlareParameters.to_generator
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_preset
+   .. automethod:: none
+   .. automethod:: std
+   .. automethod:: to_generator

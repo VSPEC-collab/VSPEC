@@ -1,0 +1,23 @@
+LimbDarkeningParameters
+=======================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: LimbDarkeningParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~LimbDarkeningParameters.lambertian
+      ~LimbDarkeningParameters.proxima
+      ~LimbDarkeningParameters.solar
+      ~LimbDarkeningParameters.trappist
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: lambertian
+   .. automethod:: proxima
+   .. automethod:: solar
+   .. automethod:: trappist

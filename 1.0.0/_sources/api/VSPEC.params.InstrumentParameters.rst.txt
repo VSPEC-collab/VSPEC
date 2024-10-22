@@ -1,0 +1,23 @@
+InstrumentParameters
+====================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: InstrumentParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~InstrumentParameters.from_preset
+      ~InstrumentParameters.mirecle
+      ~InstrumentParameters.miri_lrs
+      ~InstrumentParameters.niriss_soss
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_preset
+   .. automethod:: mirecle
+   .. automethod:: miri_lrs
+   .. automethod:: niriss_soss
