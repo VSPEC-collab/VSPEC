@@ -1,0 +1,19 @@
+SingleDishParameters
+====================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: SingleDishParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SingleDishParameters.jwst
+      ~SingleDishParameters.mirecle
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: jwst
+   .. automethod:: mirecle

@@ -1,0 +1,37 @@
+PhaseAnalyzer
+=============
+
+.. currentmodule:: VSPEC
+
+.. autoclass:: PhaseAnalyzer
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~PhaseAnalyzer.fits
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~PhaseAnalyzer.from_model
+      ~PhaseAnalyzer.get_layer
+      ~PhaseAnalyzer.lightcurve
+      ~PhaseAnalyzer.spectrum
+      ~PhaseAnalyzer.to_twocolumn
+      ~PhaseAnalyzer.write_fits
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: fits
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_model
+   .. automethod:: get_layer
+   .. automethod:: lightcurve
+   .. automethod:: spectrum
+   .. automethod:: to_twocolumn
+   .. automethod:: write_fits

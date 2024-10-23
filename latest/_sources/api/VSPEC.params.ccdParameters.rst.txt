@@ -1,0 +1,21 @@
+ccdParameters
+=============
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: ccdParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ccdParameters.mirecle
+      ~ccdParameters.miri_lrs
+      ~ccdParameters.niriss_soss
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: mirecle
+   .. automethod:: miri_lrs
+   .. automethod:: niriss_soss

@@ -1,0 +1,7 @@
+TelescopeParameters
+===================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: TelescopeParameters
+   :show-inheritance:

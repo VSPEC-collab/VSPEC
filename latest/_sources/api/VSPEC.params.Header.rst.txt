@@ -1,0 +1,7 @@
+Header
+======
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: Header
+   :show-inheritance:

@@ -1,0 +1,19 @@
+gcmParameters
+=============
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: gcmParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~gcmParameters.content
+      ~gcmParameters.to_pycfg
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: content
+   .. automethod:: to_pycfg
