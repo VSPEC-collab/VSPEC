@@ -3,13 +3,16 @@
     :alt: VSPEC Logo
     :align: center
 
-|Documentation Status| |MIT license|
+|Documentation Status| |MIT license| |EMAC Badge|
 
-.. |Documentation Status| image:: https://readthedocs.org/projects/vspec/badge/?version=latest
-   :target: http://vspec.readthedocs.io/?badge=latest
+.. |Documentation Status| image:: https://github.com/VSPEC-collab/VSPEC/actions/workflows/build-docs.yml/badge.svg
+   :target: https://vspec-collab.github.io/VSPEC
 
 .. |MIT license| image:: https://img.shields.io/badge/License-MIT-blue.svg
    :target: https://lbesson.mit-license.org/
+
+.. |EMAC Badge| image:: https://img.shields.io/badge/EMAC-2401--001-blue
+   :target: https://emac.gsfc.nasa.gov?cid=2401-001
 
 .. image:: https://coveralls.io/repos/github/VSPEC-collab/VSPEC/badge.svg?branch=main
    :target: https://coveralls.io/github/VSPEC-collab/VSPEC?branch=main
@@ -25,7 +28,7 @@ to produce phase curves of variable host + planet systems.
 Documentation
 -------------
 
-VSPEC's documentation is hosted on readthedocs `here <https://vspec.readthedocs.io/en/latest/index.html>`_.
+VSPEC's documentation is hosted `here <https://vspec-collab.github.io/VSPEC>`_.
 There you can find a description of the API as well as numerous examples.
 
 How to Cite
