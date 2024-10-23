@@ -67,10 +67,10 @@ computer, uncheck 'Administrative Access' in Rancher Desktop settings.
 
     docker run -d --name psg -p 3000:80 psg
 
-``VSPEC`` interfaces with PSG through the `pypsg <https://tedjohnson12.github.io/pypsg/latest/index.html>`_ library, so if you
-change any setting from the default (e.g. the port that PSG runs on), make sure to change the appropriate setting in ``pypsg``.
+``VSPEC`` interfaces with PSG through the `libpypsg <https://tedjohnson12.github.io/libpypsg/latest/index.html>`_ library, so if you
+change any setting from the default (e.g. the port that PSG runs on), make sure to change the appropriate setting in ``libpypsg``.
 
-Importantly, ``pypsg`` assumes that a container named ``psg`` exists to run PSG locally, and if this container is not found
+Importantly, ``libpypsg`` assumes that a container named ``psg`` exists to run PSG locally, and if this container is not found
 the code will complain even if PSG is installed and ``http://localhost:3000/api.php`` is reachable.
 
 ``VSPEC`` has been tested with the following PSG packages installed:

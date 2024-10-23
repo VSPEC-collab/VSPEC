@@ -752,7 +752,7 @@ This might be useful to use when testing variability as it is very fast.
     * - ``path``
       - ``pathlib.Path``
       - The path to the PSG-readable GCM file. The contents of this file are parsed
-        by ``pypsg.globes.GCMdecoder`` into a ``pypsg.globes.PyGCM`` object.
+        by ``libpypsg.globes.GCMdecoder`` into a ``libpypsg.globes.PyGCM`` object.
 
 .. _subsec_waccm:
 

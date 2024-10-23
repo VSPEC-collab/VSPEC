@@ -19,14 +19,14 @@ Most use cases for VSPEC involve this simple workflow:
 
 .. note::
     ``VSPEC`` must have some way to call the PSG API. We interface with PSG using the
-    ``pypsg`` package. The easiest thing you can do is add to the top of your script
-    :python:`import pypsg; pypsg.docker.set_url_and_run()`. This will check if PSG
+    ``libpypsg`` package. The easiest thing you can do is add to the top of your script
+    :python:`import libpypsg; libpypsg.docker.set_url_and_run()`. This will check if PSG
     is installed, start the container if necessary, and set the URL appropriately.
 
 .. note::
-    If you have an API key for PSG you can set it using the ``pypsg`` package. In a terminal type
-    :bash:`$ python -c "import pypsg;pypsg.save_settings(api_key='YOUR_API_KEY')"`. This will save
-    you key to `~/.pypsg/settings.json` where it can be read safely in the future.
+    If you have an API key for PSG you can set it using the ``libpypsg`` package. In a terminal type
+    :bash:`$ python -c "import libpypsg;libpypsg.save_settings(api_key='YOUR_API_KEY')"`. This will save
+    you key to `~/.libpypsg/settings.json` where it can be read safely in the future.
     
     .. warning::
         Never commit your API key to a public repository.
@@ -79,8 +79,8 @@ As shown above, running a configured model is very easy.
 
 .. code-block:: python
 
-    import pypsg
-    pypsg.docker.set_url_and_run()
+    import libpypsg
+    libpypsg.docker.set_url_and_run()
     
     from VSPEC import ObservationModel
     path = 'my_config.yaml'
