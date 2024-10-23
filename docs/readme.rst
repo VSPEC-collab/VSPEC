@@ -1,4 +1,4 @@
-.. image:: https://vspec.readthedocs.io/en/latest/_images/vspec_logo.png
+.. image:: https://vspec-collab.github.io/VSPEC/latest/_images/vspec_logo.png
     :width: 400
     :alt: VSPEC Logo
     :align: center
