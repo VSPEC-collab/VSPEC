@@ -937,5 +937,88 @@ This might be useful to use when testing variability as it is very fast.
         same temperature as the equator. If ``0``, then there is no heat redistribution.
         Default is ``0.0``.
 
+``twoface``
++++++++++++
+
+.. warning::
+
+    This is a minimal atmosphere model. It is useful for testing or when a
+    sophisticated model is not necessary.
+
+.. list-table::
+    :widths: 25 25 50
+    :header-rows: 1
+
+    * - Key
+      - Parses to
+      - Description
+    * - ``p0d``
+      - ``astropy.units.Quantity``
+      - The dayside surface pressure.
+    * - ``p1d``
+      - ``astropy.units.Quantity``
+      - The dayside pressure where the isothermal region begins
+    * - ``t0d``
+      - ``astropy.units.Quantity``
+      - The dayside surface temperature.
+    * - ``t1d``
+      - ``astropy.units.Quantity``
+      - The dayside temperature in the isothermal region.
+    * - ``p0n``
+      - ``astropy.units.Quantity``
+      - The nightside surface pressure.
+    * - ``p1n``
+      - ``astropy.units.Quantity``
+      - The nightside pressure where the isothermal region begins
+    * - ``t0n``
+      - ``astropy.units.Quantity``
+      - The nightside surface temperature.
+    * - ``t1n``
+      - ``astropy.units.Quantity``
+      - The nightside temperature in the isothermal region.
+    * - ``n_linear``
+      - ``int``
+      - The number of layers in the lower-atmosphere linear region.
+    * - ``n_const``
+      - ``int``
+      - The number of layers in the isothermal region.
+    * - ``p_top``
+      - ``astropy.units.Quantity``
+      - The pressure at the top of the atmosphere.
+    * - ``nphi``
+      - ``int``
+      - The number of longitude points in the GCM.
+    * - ``ntheta``
+      - ``int``
+      - The number of latitude points in the GCM.
+    * - ``scheme`` (optional)
+      - ``str``
+      - The scheme to use for the isothermal region. One of ``discont`` or ``cos2``. Default is ``cos2``.
+    * - ``h2o_d0`` (optional)
+      - ``astropy.units.Quantity``
+      - The dayside water vapor mixing ratio at the surface.
+    * - ``h2o_d1`` (optional)
+      - ``astropy.units.Quantity``
+      - The dayside water vapor mixing ratio in the isothermal region.
+    * - ``h2o_n0`` (optional)
+      - ``astropy.units.Quantity``
+      - The nightside water vapor mixing ratio at the surface.
+    * - ``h2o_n1`` (optional)
+      - ``astropy.units.Quantity``
+      - The nightside water vapor mixing ratio in the isothermal region.
+    * - ``co2`` (optional)
+      - ``astropy.units.Quantity``
+      - The CO2 mixing ratio.
+    * - ``o3`` (optional)
+      - ``astropy.units.Quantity``
+      - The O3 mixing ratio.
+    * - ``no2`` (optional)
+      - ``astropy.units.Quantity``
+      - The NO2 mixing ratio.
+    * - ``albedo``
+      - ``float``
+      - The surface albedo of the GCM.
+
+
 .. automodapi:: VSPEC.params
     :headings: -~

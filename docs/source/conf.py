@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('../../VSPEC'))
 # -- Project information -----------------------------------------------------
 
 project = 'VSPEC'
-copyright = '2024, The VSPEC Collaboration'
+copyright = '2025, The VSPEC Collaboration'
 author = 'Ted Johnson and Cameron Kelahan'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.1.0'
 
 
 # -- General configuration ---------------------------------------------------

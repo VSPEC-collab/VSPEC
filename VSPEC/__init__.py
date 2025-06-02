@@ -12,7 +12,7 @@ to perform radiative transfer calculations
 
 
 __author__ = 'Cameron Kelahan, Ted Johnson'
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 from .main import ObservationModel
 from .analysis import PhaseAnalyzer
