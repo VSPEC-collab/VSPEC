@@ -51,8 +51,7 @@ Tobi Hammond and the PSG team. For more information, see our `author list <https
 Citation
 ========
 
-A paper describing ``VSPEC`` and other codes was recently accepted by *Astronomy & Computing*. More information will be posted here upon publication, but in
-the meantime, please look for it on arXiv.
+A paper describing ``VSPEC`` and other codes was published in *Astronomy & Computing* `[ADS] <https://ui.adsabs.harvard.edu/abs/2025A%26C....5000890J/abstract>`_. Please cite it if you use ``VSPEC`` in your work.
 
 Additionally, you can cite the specific version of ``VSPEC`` that you are using with the ``CITATION.cff`` file in the repository root. Just make sure you select
 the correct version for reproducibility.
