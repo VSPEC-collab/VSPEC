@@ -95,8 +95,8 @@ _=ax2.set_ylim(np.flip(ax2.get_ylim()))
 
 psg.docker.set_url_and_run()
 
-# model.build_planet()
-# model.build_spectra()
+model.build_planet()
+model.build_spectra()
 
 data = PhaseAnalyzer.from_model(model)
 
