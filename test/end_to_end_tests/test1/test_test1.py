@@ -8,7 +8,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from astropy import units as u
 import numpy as np
-import libpypsg
 import pytest
 
 import VSPEC
