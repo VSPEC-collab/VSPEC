@@ -5,6 +5,7 @@ import pytest
 from pathlib import Path
 
 from libpypsg import settings
+import libpypsg
 
 import VSPEC
 
@@ -24,7 +25,7 @@ def psg_url(request: pytest.FixtureRequest)->str:
     return settings.PSG_URL if external else settings.INTERNAL_PSG_URL
 
 @pytest.fixture
-def test1_data(request: pytest.FixtureRequest) -> VSPEC.PhaseAnalyzer:
+def test1_data(request: pytest.FixtureRequest, psg_url: str) -> VSPEC.PhaseAnalyzer:
     """
     Run end-to-end test 1.
     """
@@ -32,6 +33,12 @@ def test1_data(request: pytest.FixtureRequest) -> VSPEC.PhaseAnalyzer:
     model = VSPEC.ObservationModel.from_yaml(path)
     rerun = request.config.getoption('--test1')
     if rerun:
+        if psg_url == settings.PSG_URL:
+            libpypsg.docker.set_psg_url(False)
+        elif libpypsg.docker.is_psg_installed():
+            libpypsg.docker.set_url_and_run()
+        else:
+            raise RuntimeError('PSG is not installed. Please use the pytest `--external` option.')
         model.build_planet()
         model.build_spectra()
     return VSPEC.PhaseAnalyzer(model.directories['all_model'])
