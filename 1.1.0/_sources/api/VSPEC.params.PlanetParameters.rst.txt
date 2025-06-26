@@ -1,0 +1,19 @@
+PlanetParameters
+================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: PlanetParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~PlanetParameters.proxcenb
+      ~PlanetParameters.std
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: proxcenb
+   .. automethod:: std

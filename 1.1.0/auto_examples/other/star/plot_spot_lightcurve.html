@@ -1,0 +1,6428 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Plot the lightcurve of a spotted star &#8212; VSPEC 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/table_fix.css?v=fdc28d34" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f32b83b8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/other/star/plot_spot_lightcurve';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://VSPEC-collab.github.io/VSPEC/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.0-beta';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Plot the lightcurve stellar granulation" href="plot_granulation_lightcurve.html" />
+    <link rel="prev" title="VSPEC Star Examples" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/vspec_logo.png" class="logo__image only-light" alt="VSPEC 1.1.0 documentation - Home"/>
+    <img src="../../../_static/vspec_logo.png" class="logo__image only-dark pst-js-only" alt="VSPEC 1.1.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../index.html">
+    Other Examples
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Other Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Other Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">VSPEC Star Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Plot the lightcurve of a spotted star</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-other-star-plot-spot-lightcurve-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="plot-the-lightcurve-of-a-spotted-star">
+<span id="sphx-glr-auto-examples-other-star-plot-spot-lightcurve-py"></span><h1>Plot the lightcurve of a spotted star<a class="headerlink" href="#plot-the-lightcurve-of-a-spotted-star" title="Link to this heading">#</a></h1>
+<p>This example plots the lightcurve caused by a
+spotted photosphere.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">libpypsg</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">VSPEC</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservationModel</span><span class="p">,</span><span class="n">PhaseAnalyzer</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CFG_PATH</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;spot_lightcurve.yaml&#39;</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CFG_PATH</span></a> <span class="o">=</span> <span class="s1">&#39;spot_lightcurve.yaml&#39;</span>
+
+<span class="n">libpypsg</span><span class="o">.</span><span class="n">docker</span><span class="o">.</span><span class="n">set_url_and_run</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="initialize-the-vspec-run">
+<h2>Initialize the VSPEC run<a class="headerlink" href="#initialize-the-vspec-run" title="Link to this heading">#</a></h2>
+<p>We read in the config file and run the model.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ObservationModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CFG_PATH</span></a><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">build_planet</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">build_spectra</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.11.12/x64/lib/python3.11/site-packages/VSPEC/main.py:89: RuntimeWarning: Planet sampling is too low (4.00 d &gt; 1.25 d)
+  warnings.warn(msg, RuntimeWarning)
+Starting at phase 0.0 deg, observe for 40.0 d in 10 steps
+Phases = [  0. 144. 288.  72. 216.   0. 144. 288.  72. 216.   0.] deg
+
+Build Planet:   0%|          | 0/11 [00:00&lt;?, ?it/s]
+Build Planet:   9%|▉         | 1/11 [00:00&lt;00:04,  2.25it/s]
+Build Planet:  18%|█▊        | 2/11 [00:00&lt;00:04,  2.04it/s]
+Build Planet:  27%|██▋       | 3/11 [00:01&lt;00:03,  2.14it/s]
+Build Planet:  36%|███▋      | 4/11 [00:01&lt;00:03,  2.19it/s]
+Build Planet:  45%|████▌     | 5/11 [00:02&lt;00:02,  2.21it/s]
+Build Planet:  55%|█████▍    | 6/11 [00:02&lt;00:02,  2.21it/s]
+Build Planet:  64%|██████▎   | 7/11 [00:03&lt;00:01,  2.24it/s]
+Build Planet:  73%|███████▎  | 8/11 [00:03&lt;00:01,  2.24it/s]
+Build Planet:  82%|████████▏ | 9/11 [00:04&lt;00:00,  2.24it/s]
+Build Planet:  91%|█████████ | 10/11 [00:04&lt;00:00,  2.23it/s]
+Build Planet: 100%|██████████| 11/11 [00:04&lt;00:00,  2.23it/s]
+Build Planet: 100%|██████████| 11/11 [00:04&lt;00:00,  2.21it/s]
+Generated 2 mature spots
+Creating interpolators:
+thermal
+thermal, combined
+thermal, combined, stellar
+thermal, combined, stellar, photon noise
+thermal, combined, stellar, photon noise, detector noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
+Finished!
+
+Build Spectra:   0%|          | 0/40 [00:00&lt;?, ?it/s]
+
+Loading Spectra:   0%|          | 0/17 [00:00&lt;?, ?it/s]PHOENIX grid for 2300 not found. Downloading...
+
+
+
+Downloading teff=2300:   0%|          | 0.00/33.8M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2300:   0%|          | 4.10k/33.8M [00:00&lt;1:36:34, 5.84kB/s]
+
+
+Downloading teff=2300:   0%|          | 41.0k/33.8M [00:00&lt;09:22, 60.0kB/s]
+
+
+Downloading teff=2300:   0%|          | 90.1k/33.8M [00:00&lt;04:14, 133kB/s]
+
+
+Downloading teff=2300:   1%|          | 258k/33.8M [00:01&lt;01:30, 371kB/s]
+
+
+Downloading teff=2300:   1%|▏         | 487k/33.8M [00:01&lt;00:52, 629kB/s]
+
+
+Downloading teff=2300:   2%|▏         | 668k/33.8M [00:01&lt;00:45, 724kB/s]
+
+
+Downloading teff=2300:   3%|▎         | 848k/33.8M [00:01&lt;00:41, 789kB/s]
+
+
+Downloading teff=2300:   3%|▎         | 1.08M/33.8M [00:01&lt;00:35, 912kB/s]
+
+
+Downloading teff=2300:   4%|▍         | 1.27M/33.8M [00:02&lt;00:34, 945kB/s]
+
+
+Downloading teff=2300:   4%|▍         | 1.52M/33.8M [00:02&lt;00:31, 1.04MB/s]
+
+
+Downloading teff=2300:   5%|▍         | 1.68M/33.8M [00:02&lt;00:32, 982kB/s]
+
+
+Downloading teff=2300:   5%|▌         | 1.86M/33.8M [00:02&lt;00:33, 968kB/s]
+
+
+Downloading teff=2300:   6%|▌         | 2.11M/33.8M [00:02&lt;00:29, 1.06MB/s]
+
+
+Downloading teff=2300:   7%|▋         | 2.30M/33.8M [00:03&lt;00:30, 1.05MB/s]
+
+
+Downloading teff=2300:   7%|▋         | 2.48M/33.8M [00:03&lt;00:30, 1.02MB/s]
+
+
+Downloading teff=2300:   8%|▊         | 2.68M/33.8M [00:03&lt;00:30, 1.02MB/s]
+
+
+Downloading teff=2300:   9%|▊         | 2.91M/33.8M [00:03&lt;00:28, 1.07MB/s]
+
+
+Downloading teff=2300:   9%|▉         | 3.14M/33.8M [00:03&lt;00:27, 1.10MB/s]
+
+
+Downloading teff=2300:  10%|▉         | 3.30M/33.8M [00:04&lt;00:29, 1.03MB/s]
+
+
+Downloading teff=2300:  10%|█         | 3.50M/33.8M [00:04&lt;00:29, 1.03MB/s]
+
+
+Downloading teff=2300:  11%|█         | 3.67M/33.8M [00:04&lt;00:30, 993kB/s]
+
+
+Downloading teff=2300:  11%|█▏        | 3.85M/33.8M [00:04&lt;00:30, 974kB/s]
+
+
+Downloading teff=2300:  12%|█▏        | 4.05M/33.8M [00:04&lt;00:30, 986kB/s]
+
+
+Downloading teff=2300:  13%|█▎        | 4.28M/33.8M [00:05&lt;00:28, 1.05MB/s]
+
+
+Downloading teff=2300:  13%|█▎        | 4.46M/33.8M [00:05&lt;00:29, 1.01MB/s]
+
+
+Downloading teff=2300:  14%|█▍        | 4.67M/33.8M [00:05&lt;00:28, 1.04MB/s]
+
+
+Downloading teff=2300:  15%|█▍        | 4.92M/33.8M [00:05&lt;00:26, 1.11MB/s]
+
+
+Downloading teff=2300:  15%|█▌        | 5.08M/33.8M [00:05&lt;00:27, 1.03MB/s]
+
+
+Downloading teff=2300:  16%|█▌        | 5.31M/33.8M [00:06&lt;00:26, 1.08MB/s]
+
+
+Downloading teff=2300:  17%|█▋        | 5.64M/33.8M [00:06&lt;00:22, 1.27MB/s]
+
+
+Downloading teff=2300:  18%|█▊        | 5.93M/33.8M [00:06&lt;00:20, 1.34MB/s]
+
+
+Downloading teff=2300:  18%|█▊        | 6.18M/33.8M [00:06&lt;00:20, 1.32MB/s]
+
+
+Downloading teff=2300:  19%|█▉        | 6.44M/33.8M [00:06&lt;00:20, 1.33MB/s]
+
+
+Downloading teff=2300:  20%|█▉        | 6.70M/33.8M [00:06&lt;00:20, 1.34MB/s]
+
+
+Downloading teff=2300:  20%|██        | 6.93M/33.8M [00:07&lt;00:20, 1.30MB/s]
+
+
+Downloading teff=2300:  21%|██        | 7.16M/33.8M [00:07&lt;00:21, 1.27MB/s]
+
+
+Downloading teff=2300:  22%|██▏       | 7.37M/33.8M [00:07&lt;00:21, 1.22MB/s]
+
+
+Downloading teff=2300:  22%|██▏       | 7.59M/33.8M [00:07&lt;00:22, 1.18MB/s]
+
+
+Downloading teff=2300:  23%|██▎       | 7.94M/33.8M [00:07&lt;00:18, 1.38MB/s]
+
+
+Downloading teff=2300:  25%|██▍       | 8.30M/33.8M [00:08&lt;00:16, 1.53MB/s]
+
+
+Downloading teff=2300:  25%|██▌       | 8.48M/33.8M [00:08&lt;00:18, 1.35MB/s]
+
+
+Downloading teff=2300:  26%|██▌       | 8.71M/33.8M [00:08&lt;00:19, 1.30MB/s]
+
+
+Downloading teff=2300:  26%|██▋       | 8.94M/33.8M [00:08&lt;00:19, 1.27MB/s]
+
+
+Downloading teff=2300:  27%|██▋       | 9.19M/33.8M [00:08&lt;00:19, 1.27MB/s]
+
+
+Downloading teff=2300:  28%|██▊       | 9.43M/33.8M [00:09&lt;00:19, 1.27MB/s]
+
+
+Downloading teff=2300:  28%|██▊       | 9.61M/33.8M [00:09&lt;00:20, 1.17MB/s]
+
+
+Downloading teff=2300:  29%|██▉       | 9.84M/33.8M [00:09&lt;00:20, 1.17MB/s]
+
+
+Downloading teff=2300:  30%|███       | 10.2M/33.8M [00:09&lt;00:17, 1.35MB/s]
+
+
+Downloading teff=2300:  31%|███       | 10.3M/33.8M [00:09&lt;00:16, 1.40MB/s]
+
+
+Downloading teff=2300:  31%|███       | 10.5M/33.8M [00:09&lt;00:19, 1.19MB/s]
+
+
+Downloading teff=2300:  32%|███▏      | 10.7M/33.8M [00:10&lt;00:20, 1.11MB/s]
+
+
+Downloading teff=2300:  32%|███▏      | 10.9M/33.8M [00:10&lt;00:21, 1.08MB/s]
+
+
+Downloading teff=2300:  33%|███▎      | 11.1M/33.8M [00:10&lt;00:20, 1.09MB/s]
+
+
+Downloading teff=2300:  33%|███▎      | 11.3M/33.8M [00:10&lt;00:21, 1.04MB/s]
+
+
+Downloading teff=2300:  34%|███▍      | 11.5M/33.8M [00:10&lt;00:19, 1.17MB/s]
+
+
+Downloading teff=2300:  35%|███▍      | 11.8M/33.8M [00:11&lt;00:18, 1.20MB/s]
+
+
+Downloading teff=2300:  35%|███▌      | 12.0M/33.8M [00:11&lt;00:18, 1.17MB/s]
+
+
+Downloading teff=2300:  36%|███▌      | 12.2M/33.8M [00:11&lt;00:18, 1.14MB/s]
+
+
+Downloading teff=2300:  37%|███▋      | 12.5M/33.8M [00:11&lt;00:18, 1.19MB/s]
+
+
+Downloading teff=2300:  38%|███▊      | 12.7M/33.8M [00:11&lt;00:17, 1.19MB/s]
+
+
+Downloading teff=2300:  38%|███▊      | 13.0M/33.8M [00:12&lt;00:16, 1.26MB/s]
+
+
+Downloading teff=2300:  39%|███▉      | 13.2M/33.8M [00:12&lt;00:16, 1.22MB/s]
+
+
+Downloading teff=2300:  40%|███▉      | 13.4M/33.8M [00:12&lt;00:17, 1.18MB/s]
+
+
+Downloading teff=2300:  40%|████      | 13.6M/33.8M [00:12&lt;00:16, 1.21MB/s]
+
+
+Downloading teff=2300:  41%|████      | 13.8M/33.8M [00:12&lt;00:17, 1.13MB/s]
+
+
+Downloading teff=2300:  42%|████▏     | 14.1M/33.8M [00:13&lt;00:16, 1.22MB/s]
+
+
+Downloading teff=2300:  42%|████▏     | 14.3M/33.8M [00:13&lt;00:16, 1.21MB/s]
+
+
+Downloading teff=2300:  43%|████▎     | 14.5M/33.8M [00:13&lt;00:16, 1.15MB/s]
+
+
+Downloading teff=2300:  44%|████▎     | 14.7M/33.8M [00:13&lt;00:16, 1.16MB/s]
+
+
+Downloading teff=2300:  44%|████▍     | 14.9M/33.8M [00:13&lt;00:17, 1.09MB/s]
+
+
+Downloading teff=2300:  45%|████▍     | 15.2M/33.8M [00:13&lt;00:15, 1.20MB/s]
+
+
+Downloading teff=2300:  46%|████▌     | 15.5M/33.8M [00:14&lt;00:13, 1.35MB/s]
+
+
+Downloading teff=2300:  47%|████▋     | 15.8M/33.8M [00:14&lt;00:13, 1.32MB/s]
+
+
+Downloading teff=2300:  48%|████▊     | 16.2M/33.8M [00:14&lt;00:11, 1.51MB/s]
+
+
+Downloading teff=2300:  49%|████▉     | 16.6M/33.8M [00:14&lt;00:10, 1.71MB/s]
+
+
+Downloading teff=2300:  50%|████▉     | 16.8M/33.8M [00:14&lt;00:10, 1.55MB/s]
+
+
+Downloading teff=2300:  50%|█████     | 17.0M/33.8M [00:15&lt;00:12, 1.37MB/s]
+
+
+Downloading teff=2300:  51%|█████     | 17.2M/33.8M [00:15&lt;00:12, 1.32MB/s]
+
+
+Downloading teff=2300:  52%|█████▏    | 17.5M/33.8M [00:15&lt;00:11, 1.41MB/s]
+
+
+Downloading teff=2300:  53%|█████▎    | 17.8M/33.8M [00:15&lt;00:11, 1.36MB/s]
+
+
+Downloading teff=2300:  53%|█████▎    | 18.0M/33.8M [00:15&lt;00:12, 1.24MB/s]
+
+
+Downloading teff=2300:  54%|█████▍    | 18.2M/33.8M [00:16&lt;00:12, 1.22MB/s]
+
+
+Downloading teff=2300:  55%|█████▍    | 18.5M/33.8M [00:16&lt;00:11, 1.28MB/s]
+
+
+Downloading teff=2300:  55%|█████▌    | 18.7M/33.8M [00:16&lt;00:12, 1.23MB/s]
+
+
+Downloading teff=2300:  56%|█████▌    | 18.9M/33.8M [00:16&lt;00:12, 1.22MB/s]
+
+
+Downloading teff=2300:  56%|█████▋    | 19.1M/33.8M [00:16&lt;00:12, 1.13MB/s]
+
+
+Downloading teff=2300:  57%|█████▋    | 19.3M/33.8M [00:17&lt;00:13, 1.10MB/s]
+
+
+Downloading teff=2300:  58%|█████▊    | 19.6M/33.8M [00:17&lt;00:12, 1.18MB/s]
+
+
+Downloading teff=2300:  58%|█████▊    | 19.7M/33.8M [00:17&lt;00:12, 1.11MB/s]
+
+
+Downloading teff=2300:  59%|█████▉    | 20.0M/33.8M [00:17&lt;00:11, 1.16MB/s]
+
+
+Downloading teff=2300:  60%|█████▉    | 20.2M/33.8M [00:17&lt;00:12, 1.09MB/s]
+
+
+Downloading teff=2300:  61%|██████    | 20.5M/33.8M [00:18&lt;00:10, 1.25MB/s]
+
+
+Downloading teff=2300:  61%|██████    | 20.7M/33.8M [00:18&lt;00:10, 1.20MB/s]
+
+
+Downloading teff=2300:  62%|██████▏   | 20.9M/33.8M [00:18&lt;00:10, 1.20MB/s]
+
+
+Downloading teff=2300:  62%|██████▏   | 21.1M/33.8M [00:18&lt;00:10, 1.19MB/s]
+
+
+Downloading teff=2300:  63%|██████▎   | 21.4M/33.8M [00:18&lt;00:09, 1.30MB/s]
+
+
+Downloading teff=2300:  64%|██████▍   | 21.7M/33.8M [00:19&lt;00:08, 1.39MB/s]
+
+
+Downloading teff=2300:  65%|██████▍   | 22.0M/33.8M [00:19&lt;00:09, 1.31MB/s]
+
+
+Downloading teff=2300:  66%|██████▌   | 22.2M/33.8M [00:19&lt;00:09, 1.26MB/s]
+
+
+Downloading teff=2300:  66%|██████▌   | 22.4M/33.8M [00:19&lt;00:09, 1.19MB/s]
+
+
+Downloading teff=2300:  67%|██████▋   | 22.6M/33.8M [00:19&lt;00:09, 1.21MB/s]
+
+
+Downloading teff=2300:  68%|██████▊   | 22.8M/33.8M [00:19&lt;00:09, 1.18MB/s]
+
+
+Downloading teff=2300:  68%|██████▊   | 23.1M/33.8M [00:20&lt;00:09, 1.16MB/s]
+
+
+Downloading teff=2300:  69%|██████▉   | 23.3M/33.8M [00:20&lt;00:09, 1.14MB/s]
+
+
+Downloading teff=2300:  69%|██████▉   | 23.4M/33.8M [00:20&lt;00:09, 1.08MB/s]
+
+
+Downloading teff=2300:  70%|██████▉   | 23.7M/33.8M [00:20&lt;00:09, 1.11MB/s]
+
+
+Downloading teff=2300:  71%|███████   | 23.9M/33.8M [00:20&lt;00:08, 1.11MB/s]
+
+
+Downloading teff=2300:  71%|███████▏  | 24.1M/33.8M [00:21&lt;00:08, 1.14MB/s]
+
+
+Downloading teff=2300:  72%|███████▏  | 24.4M/33.8M [00:21&lt;00:07, 1.25MB/s]
+
+
+Downloading teff=2300:  73%|███████▎  | 24.7M/33.8M [00:21&lt;00:07, 1.26MB/s]
+
+
+Downloading teff=2300:  74%|███████▎  | 24.9M/33.8M [00:21&lt;00:07, 1.21MB/s]
+
+
+Downloading teff=2300:  74%|███████▍  | 25.1M/33.8M [00:21&lt;00:06, 1.28MB/s]
+
+
+Downloading teff=2300:  75%|███████▌  | 25.5M/33.8M [00:22&lt;00:06, 1.38MB/s]
+
+
+Downloading teff=2300:  76%|███████▋  | 25.8M/33.8M [00:22&lt;00:05, 1.50MB/s]
+
+
+Downloading teff=2300:  77%|███████▋  | 26.0M/33.8M [00:22&lt;00:05, 1.43MB/s]
+
+
+Downloading teff=2300:  78%|███████▊  | 26.3M/33.8M [00:22&lt;00:05, 1.34MB/s]
+
+
+Downloading teff=2300:  79%|███████▊  | 26.6M/33.8M [00:22&lt;00:05, 1.39MB/s]
+
+
+Downloading teff=2300:  79%|███████▉  | 26.8M/33.8M [00:23&lt;00:05, 1.38MB/s]
+
+
+Downloading teff=2300:  80%|███████▉  | 27.0M/33.8M [00:23&lt;00:05, 1.32MB/s]
+
+
+Downloading teff=2300:  81%|████████  | 27.3M/33.8M [00:23&lt;00:05, 1.28MB/s]
+
+
+Downloading teff=2300:  81%|████████▏ | 27.6M/33.8M [00:23&lt;00:04, 1.36MB/s]
+
+
+Downloading teff=2300:  82%|████████▏ | 27.8M/33.8M [00:23&lt;00:04, 1.31MB/s]
+
+
+Downloading teff=2300:  83%|████████▎ | 28.0M/33.8M [00:24&lt;00:04, 1.27MB/s]
+
+
+Downloading teff=2300:  84%|████████▎ | 28.3M/33.8M [00:24&lt;00:04, 1.32MB/s]
+
+
+Downloading teff=2300:  84%|████████▍ | 28.5M/33.8M [00:24&lt;00:04, 1.28MB/s]
+
+
+Downloading teff=2300:  85%|████████▌ | 28.8M/33.8M [00:24&lt;00:04, 1.26MB/s]
+
+
+Downloading teff=2300:  86%|████████▌ | 28.9M/33.8M [00:24&lt;00:04, 1.16MB/s]
+
+
+Downloading teff=2300:  86%|████████▋ | 29.2M/33.8M [00:24&lt;00:03, 1.19MB/s]
+
+
+Downloading teff=2300:  87%|████████▋ | 29.4M/33.8M [00:25&lt;00:04, 1.11MB/s]
+
+
+Downloading teff=2300:  88%|████████▊ | 29.7M/33.8M [00:25&lt;00:03, 1.26MB/s]
+
+
+Downloading teff=2300:  88%|████████▊ | 29.9M/33.8M [00:25&lt;00:03, 1.17MB/s]
+
+
+Downloading teff=2300:  89%|████████▉ | 30.2M/33.8M [00:25&lt;00:02, 1.40MB/s]
+
+
+Downloading teff=2300:  90%|█████████ | 30.6M/33.8M [00:25&lt;00:02, 1.49MB/s]
+
+
+Downloading teff=2300:  91%|█████████ | 30.8M/33.8M [00:26&lt;00:02, 1.48MB/s]
+
+
+Downloading teff=2300:  92%|█████████▏| 31.1M/33.8M [00:26&lt;00:01, 1.41MB/s]
+
+
+Downloading teff=2300:  93%|█████████▎| 31.3M/33.8M [00:26&lt;00:01, 1.32MB/s]
+
+
+Downloading teff=2300:  94%|█████████▎| 31.7M/33.8M [00:26&lt;00:01, 1.51MB/s]
+
+
+Downloading teff=2300:  95%|█████████▍| 32.0M/33.8M [00:26&lt;00:01, 1.64MB/s]
+
+
+Downloading teff=2300:  95%|█████████▌| 32.3M/33.8M [00:27&lt;00:00, 1.53MB/s]
+
+
+Downloading teff=2300:  96%|█████████▋| 32.6M/33.8M [00:27&lt;00:00, 1.61MB/s]
+
+
+Downloading teff=2300:  98%|█████████▊| 33.1M/33.8M [00:27&lt;00:00, 1.79MB/s]
+
+
+Downloading teff=2300:  98%|█████████▊| 33.3M/33.8M [00:27&lt;00:00, 1.57MB/s]
+
+
+Downloading teff=2300:  99%|█████████▉| 33.5M/33.8M [00:27&lt;00:00, 1.46MB/s]
+
+
+Downloading teff=2300: 100%|█████████▉| 33.7M/33.8M [00:28&lt;00:00, 1.38MB/s]
+Downloading teff=2300: 100%|██████████| 33.8M/33.8M [00:28&lt;00:00, 1.20MB/s]
+
+
+Loading Spectra:   6%|▌         | 1/17 [00:28&lt;07:43, 28.95s/it]PHOENIX grid for 2400 not found. Downloading...
+
+
+
+Downloading teff=2400:   0%|          | 0.00/33.9M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2400:   0%|          | 4.10k/33.9M [00:00&lt;46:42, 12.1kB/s]
+
+
+Downloading teff=2400:   0%|          | 28.7k/33.9M [00:00&lt;07:52, 71.7kB/s]
+
+
+Downloading teff=2400:   0%|          | 111k/33.9M [00:00&lt;02:16, 247kB/s]
+
+
+Downloading teff=2400:   1%|          | 287k/33.9M [00:00&lt;01:05, 516kB/s]
+
+
+Downloading teff=2400:   1%|▏         | 463k/33.9M [00:01&lt;00:50, 663kB/s]
+
+
+Downloading teff=2400:   2%|▏         | 676k/33.9M [00:01&lt;00:40, 814kB/s]
+
+
+Downloading teff=2400:   3%|▎         | 938k/33.9M [00:01&lt;00:33, 992kB/s]
+
+
+Downloading teff=2400:   3%|▎         | 1.13M/33.9M [00:01&lt;00:32, 995kB/s]
+
+
+Downloading teff=2400:   4%|▍         | 1.49M/33.9M [00:01&lt;00:25, 1.27MB/s]
+
+
+Downloading teff=2400:   5%|▍         | 1.67M/33.9M [00:01&lt;00:27, 1.17MB/s]
+
+
+Downloading teff=2400:   6%|▌         | 1.92M/33.9M [00:02&lt;00:26, 1.20MB/s]
+
+
+Downloading teff=2400:   6%|▌         | 2.11M/33.9M [00:02&lt;00:27, 1.15MB/s]
+
+
+Downloading teff=2400:   7%|▋         | 2.23M/33.9M [00:02&lt;00:27, 1.15MB/s]
+
+
+Downloading teff=2400:   7%|▋         | 2.41M/33.9M [00:02&lt;00:29, 1.07MB/s]
+
+
+Downloading teff=2400:   8%|▊         | 2.65M/33.9M [00:02&lt;00:27, 1.14MB/s]
+
+
+Downloading teff=2400:   8%|▊         | 2.82M/33.9M [00:03&lt;00:29, 1.05MB/s]
+
+
+Downloading teff=2400:   9%|▉         | 3.08M/33.9M [00:03&lt;00:26, 1.14MB/s]
+
+
+Downloading teff=2400:  10%|▉         | 3.26M/33.9M [00:03&lt;00:28, 1.07MB/s]
+
+
+Downloading teff=2400:  10%|█         | 3.55M/33.9M [00:03&lt;00:24, 1.21MB/s]
+
+
+Downloading teff=2400:  11%|█▏        | 3.83M/33.9M [00:03&lt;00:23, 1.28MB/s]
+
+
+Downloading teff=2400:  12%|█▏        | 4.03M/33.9M [00:04&lt;00:24, 1.20MB/s]
+
+
+Downloading teff=2400:  12%|█▏        | 4.21M/33.9M [00:04&lt;00:26, 1.12MB/s]
+
+
+Downloading teff=2400:  13%|█▎        | 4.39M/33.9M [00:04&lt;00:27, 1.07MB/s]
+
+
+Downloading teff=2400:  13%|█▎        | 4.57M/33.9M [00:04&lt;00:28, 1.03MB/s]
+
+
+Downloading teff=2400:  14%|█▍        | 4.81M/33.9M [00:04&lt;00:26, 1.10MB/s]
+
+
+Downloading teff=2400:  15%|█▍        | 5.03M/33.9M [00:04&lt;00:26, 1.10MB/s]
+
+
+Downloading teff=2400:  16%|█▌        | 5.32M/33.9M [00:05&lt;00:23, 1.23MB/s]
+
+
+Downloading teff=2400:  16%|█▋        | 5.51M/33.9M [00:05&lt;00:24, 1.17MB/s]
+
+
+Downloading teff=2400:  17%|█▋        | 5.71M/33.9M [00:05&lt;00:25, 1.12MB/s]
+
+
+Downloading teff=2400:  17%|█▋        | 5.84M/33.9M [00:05&lt;00:28, 992kB/s]
+
+
+Downloading teff=2400:  18%|█▊        | 6.07M/33.9M [00:05&lt;00:26, 1.05MB/s]
+
+
+Downloading teff=2400:  19%|█▊        | 6.28M/33.9M [00:06&lt;00:25, 1.07MB/s]
+
+
+Downloading teff=2400:  19%|█▉        | 6.50M/33.9M [00:06&lt;00:25, 1.08MB/s]
+
+
+Downloading teff=2400:  20%|█▉        | 6.68M/33.9M [00:06&lt;00:26, 1.04MB/s]
+
+
+Downloading teff=2400:  20%|██        | 6.89M/33.9M [00:06&lt;00:25, 1.06MB/s]
+
+
+Downloading teff=2400:  21%|██        | 7.12M/33.9M [00:06&lt;00:24, 1.10MB/s]
+
+
+Downloading teff=2400:  22%|██▏       | 7.32M/33.9M [00:07&lt;00:24, 1.07MB/s]
+
+
+Downloading teff=2400:  22%|██▏       | 7.52M/33.9M [00:07&lt;00:24, 1.08MB/s]
+
+
+Downloading teff=2400:  23%|██▎       | 7.75M/33.9M [00:07&lt;00:23, 1.11MB/s]
+
+
+Downloading teff=2400:  23%|██▎       | 7.87M/33.9M [00:07&lt;00:23, 1.11MB/s]
+
+
+Downloading teff=2400:  24%|██▎       | 8.03M/33.9M [00:07&lt;00:25, 1.03MB/s]
+
+
+Downloading teff=2400:  24%|██▍       | 8.23M/33.9M [00:07&lt;00:25, 1.03MB/s]
+
+
+Downloading teff=2400:  25%|██▍       | 8.44M/33.9M [00:08&lt;00:24, 1.05MB/s]
+
+
+Downloading teff=2400:  25%|██▌       | 8.64M/33.9M [00:08&lt;00:24, 1.04MB/s]
+
+
+Downloading teff=2400:  26%|██▌       | 8.88M/33.9M [00:08&lt;00:22, 1.11MB/s]
+
+
+Downloading teff=2400:  27%|██▋       | 9.11M/33.9M [00:08&lt;00:21, 1.13MB/s]
+
+
+Downloading teff=2400:  27%|██▋       | 9.31M/33.9M [00:08&lt;00:22, 1.10MB/s]
+
+
+Downloading teff=2400:  28%|██▊       | 9.47M/33.9M [00:09&lt;00:23, 1.02MB/s]
+
+
+Downloading teff=2400:  29%|██▊       | 9.68M/33.9M [00:09&lt;00:23, 1.04MB/s]
+
+
+Downloading teff=2400:  29%|██▉       | 9.88M/33.9M [00:09&lt;00:23, 1.04MB/s]
+
+
+Downloading teff=2400:  30%|██▉       | 10.1M/33.9M [00:09&lt;00:23, 1.01MB/s]
+
+
+Downloading teff=2400:  30%|███       | 10.3M/33.9M [00:09&lt;00:21, 1.11MB/s]
+
+
+Downloading teff=2400:  31%|███       | 10.5M/33.9M [00:10&lt;00:23, 1.02MB/s]
+
+
+Downloading teff=2400:  32%|███▏      | 10.7M/33.9M [00:10&lt;00:22, 1.02MB/s]
+
+
+Downloading teff=2400:  32%|███▏      | 11.0M/33.9M [00:10&lt;00:19, 1.20MB/s]
+
+
+Downloading teff=2400:  33%|███▎      | 11.2M/33.9M [00:10&lt;00:19, 1.17MB/s]
+
+
+Downloading teff=2400:  34%|███▎      | 11.4M/33.9M [00:10&lt;00:19, 1.18MB/s]
+
+
+Downloading teff=2400:  34%|███▍      | 11.6M/33.9M [00:11&lt;00:19, 1.15MB/s]
+
+
+Downloading teff=2400:  35%|███▌      | 11.9M/33.9M [00:11&lt;00:18, 1.18MB/s]
+
+
+Downloading teff=2400:  36%|███▌      | 12.1M/33.9M [00:11&lt;00:19, 1.11MB/s]
+
+
+Downloading teff=2400:  36%|███▌      | 12.3M/33.9M [00:11&lt;00:20, 1.06MB/s]
+
+
+Downloading teff=2400:  37%|███▋      | 12.4M/33.9M [00:11&lt;00:21, 1.01MB/s]
+
+
+Downloading teff=2400:  37%|███▋      | 12.6M/33.9M [00:12&lt;00:20, 1.02MB/s]
+
+
+Downloading teff=2400:  38%|███▊      | 12.9M/33.9M [00:12&lt;00:18, 1.12MB/s]
+
+
+Downloading teff=2400:  39%|███▉      | 13.2M/33.9M [00:12&lt;00:17, 1.19MB/s]
+
+
+Downloading teff=2400:  39%|███▉      | 13.3M/33.9M [00:12&lt;00:18, 1.14MB/s]
+
+
+Downloading teff=2400:  40%|████      | 13.6M/33.9M [00:12&lt;00:16, 1.21MB/s]
+
+
+Downloading teff=2400:  41%|████      | 13.8M/33.9M [00:12&lt;00:17, 1.17MB/s]
+
+
+Downloading teff=2400:  41%|████▏     | 14.0M/33.9M [00:13&lt;00:17, 1.12MB/s]
+
+
+Downloading teff=2400:  42%|████▏     | 14.2M/33.9M [00:13&lt;00:18, 1.09MB/s]
+
+
+Downloading teff=2400:  43%|████▎     | 14.4M/33.9M [00:13&lt;00:17, 1.12MB/s]
+
+
+Downloading teff=2400:  43%|████▎     | 14.7M/33.9M [00:13&lt;00:16, 1.14MB/s]
+
+
+Downloading teff=2400:  44%|████▍     | 14.9M/33.9M [00:13&lt;00:15, 1.21MB/s]
+
+
+Downloading teff=2400:  45%|████▍     | 15.1M/33.9M [00:14&lt;00:16, 1.13MB/s]
+
+
+Downloading teff=2400:  45%|████▌     | 15.3M/33.9M [00:14&lt;00:16, 1.10MB/s]
+
+
+Downloading teff=2400:  46%|████▌     | 15.5M/33.9M [00:14&lt;00:16, 1.15MB/s]
+
+
+Downloading teff=2400:  46%|████▌     | 15.6M/33.9M [00:14&lt;00:16, 1.09MB/s]
+
+
+Downloading teff=2400:  47%|████▋     | 15.8M/33.9M [00:14&lt;00:17, 1.04MB/s]
+
+
+Downloading teff=2400:  47%|████▋     | 16.0M/33.9M [00:15&lt;00:16, 1.06MB/s]
+
+
+Downloading teff=2400:  48%|████▊     | 16.2M/33.9M [00:15&lt;00:16, 1.05MB/s]
+
+
+Downloading teff=2400:  49%|████▊     | 16.5M/33.9M [00:15&lt;00:16, 1.09MB/s]
+
+
+Downloading teff=2400:  49%|████▉     | 16.7M/33.9M [00:15&lt;00:16, 1.07MB/s]
+
+
+Downloading teff=2400:  50%|████▉     | 16.9M/33.9M [00:15&lt;00:14, 1.16MB/s]
+
+
+Downloading teff=2400:  50%|█████     | 17.1M/33.9M [00:15&lt;00:15, 1.09MB/s]
+
+
+Downloading teff=2400:  51%|█████     | 17.3M/33.9M [00:16&lt;00:15, 1.04MB/s]
+
+
+Downloading teff=2400:  52%|█████▏    | 17.5M/33.9M [00:16&lt;00:15, 1.09MB/s]
+
+
+Downloading teff=2400:  52%|█████▏    | 17.7M/33.9M [00:16&lt;00:14, 1.09MB/s]
+
+
+Downloading teff=2400:  53%|█████▎    | 17.9M/33.9M [00:16&lt;00:15, 1.05MB/s]
+
+
+Downloading teff=2400:  53%|█████▎    | 18.1M/33.9M [00:16&lt;00:15, 1.03MB/s]
+
+
+Downloading teff=2400:  54%|█████▍    | 18.3M/33.9M [00:17&lt;00:15, 1.00MB/s]
+
+
+Downloading teff=2400:  55%|█████▍    | 18.5M/33.9M [00:17&lt;00:14, 1.06MB/s]
+
+
+Downloading teff=2400:  55%|█████▌    | 18.7M/33.9M [00:17&lt;00:14, 1.05MB/s]
+
+
+Downloading teff=2400:  56%|█████▌    | 18.9M/33.9M [00:17&lt;00:14, 1.04MB/s]
+
+
+Downloading teff=2400:  56%|█████▋    | 19.1M/33.9M [00:17&lt;00:14, 1.04MB/s]
+
+
+Downloading teff=2400:  57%|█████▋    | 19.3M/33.9M [00:18&lt;00:14, 980kB/s]
+
+
+Downloading teff=2400:  58%|█████▊    | 19.5M/33.9M [00:18&lt;00:13, 1.10MB/s]
+
+
+Downloading teff=2400:  58%|█████▊    | 19.8M/33.9M [00:18&lt;00:12, 1.15MB/s]
+
+
+Downloading teff=2400:  59%|█████▉    | 20.0M/33.9M [00:18&lt;00:11, 1.16MB/s]
+
+
+Downloading teff=2400:  60%|█████▉    | 20.2M/33.9M [00:18&lt;00:12, 1.11MB/s]
+
+
+Downloading teff=2400:  60%|██████    | 20.4M/33.9M [00:19&lt;00:12, 1.11MB/s]
+
+
+Downloading teff=2400:  61%|██████    | 20.6M/33.9M [00:19&lt;00:11, 1.11MB/s]
+
+
+Downloading teff=2400:  61%|██████▏   | 20.8M/33.9M [00:19&lt;00:12, 1.06MB/s]
+
+
+Downloading teff=2400:  62%|██████▏   | 21.0M/33.9M [00:19&lt;00:12, 1.02MB/s]
+
+
+Downloading teff=2400:  62%|██████▏   | 21.2M/33.9M [00:19&lt;00:12, 1.02MB/s]
+
+
+Downloading teff=2400:  63%|██████▎   | 21.4M/33.9M [00:20&lt;00:11, 1.05MB/s]
+
+
+Downloading teff=2400:  64%|██████▎   | 21.6M/33.9M [00:20&lt;00:11, 1.04MB/s]
+
+
+Downloading teff=2400:  64%|██████▍   | 21.8M/33.9M [00:20&lt;00:11, 1.06MB/s]
+
+
+Downloading teff=2400:  65%|██████▌   | 22.1M/33.9M [00:20&lt;00:09, 1.30MB/s]
+
+
+Downloading teff=2400:  66%|██████▌   | 22.4M/33.9M [00:20&lt;00:09, 1.24MB/s]
+
+
+Downloading teff=2400:  67%|██████▋   | 22.6M/33.9M [00:20&lt;00:09, 1.22MB/s]
+
+
+Downloading teff=2400:  67%|██████▋   | 22.8M/33.9M [00:21&lt;00:09, 1.19MB/s]
+
+
+Downloading teff=2400:  68%|██████▊   | 23.1M/33.9M [00:21&lt;00:08, 1.24MB/s]
+
+
+Downloading teff=2400:  69%|██████▊   | 23.3M/33.9M [00:21&lt;00:09, 1.18MB/s]
+
+
+Downloading teff=2400:  69%|██████▉   | 23.5M/33.9M [00:21&lt;00:09, 1.13MB/s]
+
+
+Downloading teff=2400:  70%|██████▉   | 23.7M/33.9M [00:21&lt;00:09, 1.10MB/s]
+
+
+Downloading teff=2400:  71%|███████   | 23.9M/33.9M [00:22&lt;00:08, 1.15MB/s]
+
+
+Downloading teff=2400:  71%|███████   | 24.1M/33.9M [00:22&lt;00:08, 1.14MB/s]
+
+
+Downloading teff=2400:  72%|███████▏  | 24.3M/33.9M [00:22&lt;00:08, 1.13MB/s]
+
+
+Downloading teff=2400:  72%|███████▏  | 24.5M/33.9M [00:22&lt;00:08, 1.09MB/s]
+
+
+Downloading teff=2400:  73%|███████▎  | 24.7M/33.9M [00:22&lt;00:08, 1.04MB/s]
+
+
+Downloading teff=2400:  73%|███████▎  | 24.9M/33.9M [00:23&lt;00:08, 1.06MB/s]
+
+
+Downloading teff=2400:  75%|███████▍  | 25.3M/33.9M [00:23&lt;00:06, 1.33MB/s]
+
+
+Downloading teff=2400:  75%|███████▌  | 25.5M/33.9M [00:23&lt;00:06, 1.29MB/s]
+
+
+Downloading teff=2400:  76%|███████▌  | 25.7M/33.9M [00:23&lt;00:06, 1.21MB/s]
+
+
+Downloading teff=2400:  77%|███████▋  | 26.0M/33.9M [00:23&lt;00:06, 1.28MB/s]
+
+
+Downloading teff=2400:  77%|███████▋  | 26.2M/33.9M [00:24&lt;00:06, 1.18MB/s]
+
+
+Downloading teff=2400:  78%|███████▊  | 26.4M/33.9M [00:24&lt;00:06, 1.16MB/s]
+
+
+Downloading teff=2400:  78%|███████▊  | 26.6M/33.9M [00:24&lt;00:06, 1.11MB/s]
+
+
+Downloading teff=2400:  79%|███████▉  | 26.9M/33.9M [00:24&lt;00:05, 1.24MB/s]
+
+
+Downloading teff=2400:  80%|████████  | 27.2M/33.9M [00:24&lt;00:05, 1.32MB/s]
+
+
+Downloading teff=2400:  81%|████████  | 27.4M/33.9M [00:25&lt;00:05, 1.26MB/s]
+
+
+Downloading teff=2400:  81%|████████▏ | 27.6M/33.9M [00:25&lt;00:05, 1.24MB/s]
+
+
+Downloading teff=2400:  82%|████████▏ | 27.8M/33.9M [00:25&lt;00:05, 1.20MB/s]
+
+
+Downloading teff=2400:  83%|████████▎ | 28.1M/33.9M [00:25&lt;00:04, 1.30MB/s]
+
+
+Downloading teff=2400:  84%|████████▎ | 28.3M/33.9M [00:25&lt;00:04, 1.27MB/s]
+
+
+Downloading teff=2400:  84%|████████▍ | 28.6M/33.9M [00:25&lt;00:04, 1.26MB/s]
+
+
+Downloading teff=2400:  85%|████████▌ | 28.8M/33.9M [00:26&lt;00:03, 1.29MB/s]
+
+
+Downloading teff=2400:  86%|████████▌ | 29.1M/33.9M [00:26&lt;00:03, 1.29MB/s]
+
+
+Downloading teff=2400:  86%|████████▌ | 29.2M/33.9M [00:26&lt;00:03, 1.27MB/s]
+
+
+Downloading teff=2400:  87%|████████▋ | 29.5M/33.9M [00:26&lt;00:03, 1.24MB/s]
+
+
+Downloading teff=2400:  88%|████████▊ | 29.7M/33.9M [00:26&lt;00:03, 1.25MB/s]
+
+
+Downloading teff=2400:  88%|████████▊ | 29.9M/33.9M [00:27&lt;00:03, 1.21MB/s]
+
+
+Downloading teff=2400:  89%|████████▉ | 30.1M/33.9M [00:27&lt;00:03, 1.20MB/s]
+
+
+Downloading teff=2400:  90%|████████▉ | 30.4M/33.9M [00:27&lt;00:03, 1.17MB/s]
+
+
+Downloading teff=2400:  90%|█████████ | 30.5M/33.9M [00:27&lt;00:03, 1.10MB/s]
+
+
+Downloading teff=2400:  91%|█████████ | 30.7M/33.9M [00:27&lt;00:02, 1.09MB/s]
+
+
+Downloading teff=2400:  91%|█████████▏| 31.0M/33.9M [00:28&lt;00:02, 1.10MB/s]
+
+
+Downloading teff=2400:  92%|█████████▏| 31.2M/33.9M [00:28&lt;00:02, 1.10MB/s]
+
+
+Downloading teff=2400:  93%|█████████▎| 31.4M/33.9M [00:28&lt;00:02, 1.18MB/s]
+
+
+Downloading teff=2400:  94%|█████████▎| 31.7M/33.9M [00:28&lt;00:01, 1.28MB/s]
+
+
+Downloading teff=2400:  94%|█████████▍| 31.9M/33.9M [00:28&lt;00:01, 1.23MB/s]
+
+
+Downloading teff=2400:  95%|█████████▍| 32.2M/33.9M [00:28&lt;00:01, 1.24MB/s]
+
+
+Downloading teff=2400:  96%|█████████▌| 32.6M/33.9M [00:29&lt;00:00, 1.51MB/s]
+
+
+Downloading teff=2400:  97%|█████████▋| 32.8M/33.9M [00:29&lt;00:00, 1.43MB/s]
+
+
+Downloading teff=2400:  98%|█████████▊| 33.1M/33.9M [00:29&lt;00:00, 1.46MB/s]
+
+
+Downloading teff=2400:  99%|█████████▊| 33.4M/33.9M [00:29&lt;00:00, 1.46MB/s]
+
+
+Downloading teff=2400:  99%|█████████▉| 33.6M/33.9M [00:29&lt;00:00, 1.35MB/s]
+Downloading teff=2400: 100%|██████████| 33.9M/33.9M [00:30&lt;00:00, 1.13MB/s]
+
+
+Loading Spectra:  12%|█▏        | 2/17 [00:59&lt;07:29, 29.97s/it]PHOENIX grid for 2500 not found. Downloading...
+
+
+
+Downloading teff=2500:   0%|          | 0.00/34.0M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2500:   0%|          | 4.10k/34.0M [00:00&lt;59:24, 9.53kB/s]
+
+
+Downloading teff=2500:   0%|          | 45.1k/34.0M [00:00&lt;05:36, 101kB/s]
+
+
+Downloading teff=2500:   0%|          | 139k/34.0M [00:00&lt;02:04, 273kB/s]
+
+
+Downloading teff=2500:   1%|          | 299k/34.0M [00:00&lt;01:09, 482kB/s]
+
+
+Downloading teff=2500:   1%|▏         | 479k/34.0M [00:01&lt;00:52, 640kB/s]
+
+
+Downloading teff=2500:   2%|▏         | 659k/34.0M [00:01&lt;00:45, 738kB/s]
+
+
+Downloading teff=2500:   2%|▏         | 823k/34.0M [00:01&lt;00:42, 775kB/s]
+
+
+Downloading teff=2500:   3%|▎         | 1.17M/34.0M [00:01&lt;00:29, 1.09MB/s]
+
+
+Downloading teff=2500:   4%|▍         | 1.41M/34.0M [00:01&lt;00:28, 1.15MB/s]
+
+
+Downloading teff=2500:   5%|▍         | 1.64M/34.0M [00:02&lt;00:27, 1.17MB/s]
+
+
+Downloading teff=2500:   6%|▌         | 1.87M/34.0M [00:02&lt;00:27, 1.17MB/s]
+
+
+Downloading teff=2500:   6%|▌         | 2.08M/34.0M [00:02&lt;00:27, 1.15MB/s]
+
+
+Downloading teff=2500:   7%|▋         | 2.36M/34.0M [00:02&lt;00:25, 1.23MB/s]
+
+
+Downloading teff=2500:   8%|▊         | 2.59M/34.0M [00:02&lt;00:25, 1.22MB/s]
+
+
+Downloading teff=2500:   8%|▊         | 2.80M/34.0M [00:03&lt;00:26, 1.19MB/s]
+
+
+Downloading teff=2500:   9%|▉         | 3.00M/34.0M [00:03&lt;00:27, 1.13MB/s]
+
+
+Downloading teff=2500:   9%|▉         | 3.21M/34.0M [00:03&lt;00:27, 1.13MB/s]
+
+
+Downloading teff=2500:  10%|█         | 3.44M/34.0M [00:03&lt;00:26, 1.15MB/s]
+
+
+Downloading teff=2500:  11%|█         | 3.62M/34.0M [00:03&lt;00:28, 1.08MB/s]
+
+
+Downloading teff=2500:  11%|█▏        | 3.83M/34.0M [00:03&lt;00:27, 1.09MB/s]
+
+
+Downloading teff=2500:  12%|█▏        | 4.08M/34.0M [00:04&lt;00:26, 1.14MB/s]
+
+
+Downloading teff=2500:  13%|█▎        | 4.29M/34.0M [00:04&lt;00:26, 1.13MB/s]
+
+
+Downloading teff=2500:  13%|█▎        | 4.49M/34.0M [00:04&lt;00:26, 1.09MB/s]
+
+
+Downloading teff=2500:  14%|█▍        | 4.71M/34.0M [00:04&lt;00:26, 1.12MB/s]
+
+
+Downloading teff=2500:  15%|█▍        | 4.96M/34.0M [00:04&lt;00:24, 1.17MB/s]
+
+
+Downloading teff=2500:  16%|█▌        | 5.27M/34.0M [00:05&lt;00:22, 1.30MB/s]
+
+
+Downloading teff=2500:  16%|█▌        | 5.48M/34.0M [00:05&lt;00:22, 1.24MB/s]
+
+
+Downloading teff=2500:  17%|█▋        | 5.71M/34.0M [00:05&lt;00:23, 1.23MB/s]
+
+
+Downloading teff=2500:  17%|█▋        | 5.93M/34.0M [00:05&lt;00:23, 1.19MB/s]
+
+
+Downloading teff=2500:  18%|█▊        | 6.11M/34.0M [00:05&lt;00:24, 1.12MB/s]
+
+
+Downloading teff=2500:  19%|█▊        | 6.34M/34.0M [00:06&lt;00:24, 1.14MB/s]
+
+
+Downloading teff=2500:  19%|█▉        | 6.45M/34.0M [00:06&lt;00:24, 1.13MB/s]
+
+
+Downloading teff=2500:  19%|█▉        | 6.57M/34.0M [00:06&lt;00:24, 1.13MB/s]
+
+
+Downloading teff=2500:  20%|█▉        | 6.76M/34.0M [00:06&lt;00:25, 1.08MB/s]
+
+
+Downloading teff=2500:  21%|██        | 7.02M/34.0M [00:06&lt;00:22, 1.18MB/s]
+
+
+Downloading teff=2500:  21%|██▏       | 7.27M/34.0M [00:06&lt;00:22, 1.21MB/s]
+
+
+Downloading teff=2500:  22%|██▏       | 7.48M/34.0M [00:07&lt;00:22, 1.18MB/s]
+
+
+Downloading teff=2500:  22%|██▏       | 7.60M/34.0M [00:07&lt;00:22, 1.18MB/s]
+
+
+Downloading teff=2500:  23%|██▎       | 7.84M/34.0M [00:07&lt;00:21, 1.20MB/s]
+
+
+Downloading teff=2500:  24%|██▎       | 8.05M/34.0M [00:07&lt;00:22, 1.17MB/s]
+
+
+Downloading teff=2500:  24%|██▍       | 8.31M/34.0M [00:07&lt;00:20, 1.23MB/s]
+
+
+Downloading teff=2500:  25%|██▌       | 8.54M/34.0M [00:07&lt;00:20, 1.22MB/s]
+
+
+Downloading teff=2500:  26%|██▌       | 8.79M/34.0M [00:08&lt;00:20, 1.22MB/s]
+
+
+Downloading teff=2500:  27%|██▋       | 9.03M/34.0M [00:08&lt;00:20, 1.24MB/s]
+
+
+Downloading teff=2500:  27%|██▋       | 9.24M/34.0M [00:08&lt;00:20, 1.20MB/s]
+
+
+Downloading teff=2500:  28%|██▊       | 9.49M/34.0M [00:08&lt;00:20, 1.22MB/s]
+
+
+Downloading teff=2500:  29%|██▊       | 9.74M/34.0M [00:08&lt;00:19, 1.24MB/s]
+
+
+Downloading teff=2500:  29%|██▉       | 9.97M/34.0M [00:09&lt;00:19, 1.22MB/s]
+
+
+Downloading teff=2500:  30%|██▉       | 10.2M/34.0M [00:09&lt;00:20, 1.16MB/s]
+
+
+Downloading teff=2500:  31%|███       | 10.4M/34.0M [00:09&lt;00:20, 1.14MB/s]
+
+
+Downloading teff=2500:  31%|███       | 10.6M/34.0M [00:09&lt;00:20, 1.16MB/s]
+
+
+Downloading teff=2500:  32%|███▏      | 10.8M/34.0M [00:09&lt;00:20, 1.14MB/s]
+
+
+Downloading teff=2500:  32%|███▏      | 11.0M/34.0M [00:10&lt;00:20, 1.13MB/s]
+
+
+Downloading teff=2500:  33%|███▎      | 11.3M/34.0M [00:10&lt;00:19, 1.15MB/s]
+
+
+Downloading teff=2500:  34%|███▎      | 11.4M/34.0M [00:10&lt;00:20, 1.08MB/s]
+
+
+Downloading teff=2500:  34%|███▍      | 11.7M/34.0M [00:10&lt;00:18, 1.19MB/s]
+
+
+Downloading teff=2500:  35%|███▌      | 11.9M/34.0M [00:10&lt;00:18, 1.19MB/s]
+
+
+Downloading teff=2500:  36%|███▌      | 12.2M/34.0M [00:11&lt;00:18, 1.19MB/s]
+
+
+Downloading teff=2500:  36%|███▋      | 12.4M/34.0M [00:11&lt;00:18, 1.17MB/s]
+
+
+Downloading teff=2500:  37%|███▋      | 12.6M/34.0M [00:11&lt;00:18, 1.15MB/s]
+
+
+Downloading teff=2500:  38%|███▊      | 12.8M/34.0M [00:11&lt;00:19, 1.11MB/s]
+
+
+Downloading teff=2500:  38%|███▊      | 13.1M/34.0M [00:11&lt;00:17, 1.18MB/s]
+
+
+Downloading teff=2500:  39%|███▉      | 13.3M/34.0M [00:12&lt;00:17, 1.16MB/s]
+
+
+Downloading teff=2500:  40%|███▉      | 13.5M/34.0M [00:12&lt;00:17, 1.19MB/s]
+
+
+Downloading teff=2500:  40%|████      | 13.7M/34.0M [00:12&lt;00:17, 1.14MB/s]
+
+
+Downloading teff=2500:  41%|████      | 13.8M/34.0M [00:12&lt;00:17, 1.14MB/s]
+
+
+Downloading teff=2500:  41%|████▏     | 14.0M/34.0M [00:12&lt;00:17, 1.13MB/s]
+
+
+Downloading teff=2500:  42%|████▏     | 14.2M/34.0M [00:12&lt;00:17, 1.12MB/s]
+
+
+Downloading teff=2500:  43%|████▎     | 14.4M/34.0M [00:13&lt;00:17, 1.09MB/s]
+
+
+Downloading teff=2500:  43%|████▎     | 14.7M/34.0M [00:13&lt;00:17, 1.09MB/s]
+
+
+Downloading teff=2500:  44%|████▍     | 14.9M/34.0M [00:13&lt;00:17, 1.12MB/s]
+
+
+Downloading teff=2500:  44%|████▍     | 15.1M/34.0M [00:13&lt;00:17, 1.08MB/s]
+
+
+Downloading teff=2500:  45%|████▌     | 15.3M/34.0M [00:13&lt;00:16, 1.12MB/s]
+
+
+Downloading teff=2500:  46%|████▌     | 15.5M/34.0M [00:14&lt;00:16, 1.09MB/s]
+
+
+Downloading teff=2500:  46%|████▋     | 15.7M/34.0M [00:14&lt;00:16, 1.12MB/s]
+
+
+Downloading teff=2500:  47%|████▋     | 15.9M/34.0M [00:14&lt;00:16, 1.06MB/s]
+
+
+Downloading teff=2500:  47%|████▋     | 16.1M/34.0M [00:14&lt;00:16, 1.08MB/s]
+
+
+Downloading teff=2500:  48%|████▊     | 16.3M/34.0M [00:14&lt;00:16, 1.08MB/s]
+
+
+Downloading teff=2500:  49%|████▉     | 16.6M/34.0M [00:15&lt;00:15, 1.12MB/s]
+
+
+Downloading teff=2500:  50%|████▉     | 16.8M/34.0M [00:15&lt;00:14, 1.16MB/s]
+
+
+Downloading teff=2500:  50%|█████     | 17.1M/34.0M [00:15&lt;00:14, 1.20MB/s]
+
+
+Downloading teff=2500:  51%|█████     | 17.3M/34.0M [00:15&lt;00:14, 1.19MB/s]
+
+
+Downloading teff=2500:  52%|█████▏    | 17.5M/34.0M [00:15&lt;00:14, 1.16MB/s]
+
+
+Downloading teff=2500:  52%|█████▏    | 17.7M/34.0M [00:15&lt;00:14, 1.15MB/s]
+
+
+Downloading teff=2500:  53%|█████▎    | 17.9M/34.0M [00:16&lt;00:14, 1.14MB/s]
+
+
+Downloading teff=2500:  53%|█████▎    | 18.1M/34.0M [00:16&lt;00:14, 1.13MB/s]
+
+
+Downloading teff=2500:  54%|█████▍    | 18.4M/34.0M [00:16&lt;00:13, 1.12MB/s]
+
+
+Downloading teff=2500:  55%|█████▍    | 18.5M/34.0M [00:16&lt;00:14, 1.06MB/s]
+
+
+Downloading teff=2500:  55%|█████▌    | 18.7M/34.0M [00:16&lt;00:14, 1.08MB/s]
+
+
+Downloading teff=2500:  56%|█████▌    | 19.0M/34.0M [00:17&lt;00:12, 1.16MB/s]
+
+
+Downloading teff=2500:  57%|█████▋    | 19.2M/34.0M [00:17&lt;00:13, 1.12MB/s]
+
+
+Downloading teff=2500:  57%|█████▋    | 19.4M/34.0M [00:17&lt;00:12, 1.12MB/s]
+
+
+Downloading teff=2500:  58%|█████▊    | 19.6M/34.0M [00:17&lt;00:12, 1.19MB/s]
+
+
+Downloading teff=2500:  58%|█████▊    | 19.8M/34.0M [00:17&lt;00:11, 1.21MB/s]
+
+
+Downloading teff=2500:  59%|█████▉    | 20.0M/34.0M [00:18&lt;00:11, 1.18MB/s]
+
+
+Downloading teff=2500:  60%|█████▉    | 20.3M/34.0M [00:18&lt;00:11, 1.15MB/s]
+
+
+Downloading teff=2500:  60%|██████    | 20.5M/34.0M [00:18&lt;00:11, 1.14MB/s]
+
+
+Downloading teff=2500:  61%|██████    | 20.7M/34.0M [00:18&lt;00:12, 1.10MB/s]
+
+
+Downloading teff=2500:  61%|██████▏   | 20.9M/34.0M [00:18&lt;00:11, 1.13MB/s]
+
+
+Downloading teff=2500:  62%|██████▏   | 21.2M/34.0M [00:18&lt;00:09, 1.28MB/s]
+
+
+Downloading teff=2500:  63%|██████▎   | 21.5M/34.0M [00:19&lt;00:09, 1.30MB/s]
+
+
+Downloading teff=2500:  64%|██████▍   | 21.7M/34.0M [00:19&lt;00:09, 1.24MB/s]
+
+
+Downloading teff=2500:  65%|██████▍   | 21.9M/34.0M [00:19&lt;00:09, 1.25MB/s]
+
+
+Downloading teff=2500:  65%|██████▌   | 22.1M/34.0M [00:19&lt;00:09, 1.21MB/s]
+
+
+Downloading teff=2500:  66%|██████▌   | 22.3M/34.0M [00:19&lt;00:09, 1.18MB/s]
+
+
+Downloading teff=2500:  66%|██████▋   | 22.6M/34.0M [00:20&lt;00:09, 1.15MB/s]
+
+
+Downloading teff=2500:  67%|██████▋   | 22.8M/34.0M [00:20&lt;00:09, 1.14MB/s]
+
+
+Downloading teff=2500:  68%|██████▊   | 23.0M/34.0M [00:20&lt;00:09, 1.10MB/s]
+
+
+Downloading teff=2500:  68%|██████▊   | 23.2M/34.0M [00:20&lt;00:09, 1.18MB/s]
+
+
+Downloading teff=2500:  69%|██████▉   | 23.4M/34.0M [00:20&lt;00:09, 1.11MB/s]
+
+
+Downloading teff=2500:  69%|██████▉   | 23.6M/34.0M [00:21&lt;00:09, 1.05MB/s]
+
+
+Downloading teff=2500:  70%|███████   | 23.8M/34.0M [00:21&lt;00:09, 1.12MB/s]
+
+
+Downloading teff=2500:  71%|███████   | 24.0M/34.0M [00:21&lt;00:08, 1.11MB/s]
+
+
+Downloading teff=2500:  72%|███████▏  | 24.3M/34.0M [00:21&lt;00:08, 1.19MB/s]
+
+
+Downloading teff=2500:  72%|███████▏  | 24.5M/34.0M [00:21&lt;00:08, 1.16MB/s]
+
+
+Downloading teff=2500:  73%|███████▎  | 24.8M/34.0M [00:22&lt;00:07, 1.20MB/s]
+
+
+Downloading teff=2500:  74%|███████▎  | 25.0M/34.0M [00:22&lt;00:07, 1.16MB/s]
+
+
+Downloading teff=2500:  74%|███████▍  | 25.2M/34.0M [00:22&lt;00:07, 1.12MB/s]
+
+
+Downloading teff=2500:  75%|███████▍  | 25.4M/34.0M [00:22&lt;00:07, 1.11MB/s]
+
+
+Downloading teff=2500:  75%|███████▌  | 25.6M/34.0M [00:22&lt;00:07, 1.18MB/s]
+
+
+Downloading teff=2500:  76%|███████▌  | 25.9M/34.0M [00:23&lt;00:06, 1.18MB/s]
+
+
+Downloading teff=2500:  77%|███████▋  | 26.1M/34.0M [00:23&lt;00:06, 1.14MB/s]
+
+
+Downloading teff=2500:  77%|███████▋  | 26.3M/34.0M [00:23&lt;00:06, 1.18MB/s]
+
+
+Downloading teff=2500:  78%|███████▊  | 26.5M/34.0M [00:23&lt;00:06, 1.16MB/s]
+
+
+Downloading teff=2500:  79%|███████▊  | 26.7M/34.0M [00:23&lt;00:06, 1.11MB/s]
+
+
+Downloading teff=2500:  79%|███████▉  | 27.0M/34.0M [00:23&lt;00:06, 1.14MB/s]
+
+
+Downloading teff=2500:  80%|███████▉  | 27.2M/34.0M [00:24&lt;00:06, 1.13MB/s]
+
+
+Downloading teff=2500:  81%|████████  | 27.4M/34.0M [00:24&lt;00:06, 1.10MB/s]
+
+
+Downloading teff=2500:  81%|████████  | 27.6M/34.0M [00:24&lt;00:05, 1.12MB/s]
+
+
+Downloading teff=2500:  82%|████████▏ | 27.8M/34.0M [00:24&lt;00:05, 1.11MB/s]
+
+
+Downloading teff=2500:  82%|████████▏ | 28.0M/34.0M [00:24&lt;00:05, 1.08MB/s]
+
+
+Downloading teff=2500:  83%|████████▎ | 28.2M/34.0M [00:25&lt;00:05, 1.07MB/s]
+
+
+Downloading teff=2500:  84%|████████▎ | 28.4M/34.0M [00:25&lt;00:05, 1.08MB/s]
+
+
+Downloading teff=2500:  84%|████████▍ | 28.6M/34.0M [00:25&lt;00:04, 1.11MB/s]
+
+
+Downloading teff=2500:  85%|████████▍ | 28.9M/34.0M [00:25&lt;00:04, 1.13MB/s]
+
+
+Downloading teff=2500:  86%|████████▌ | 29.1M/34.0M [00:25&lt;00:04, 1.13MB/s]
+
+
+Downloading teff=2500:  86%|████████▌ | 29.3M/34.0M [00:26&lt;00:04, 1.09MB/s]
+
+
+Downloading teff=2500:  87%|████████▋ | 29.5M/34.0M [00:26&lt;00:04, 1.10MB/s]
+
+
+Downloading teff=2500:  87%|████████▋ | 29.7M/34.0M [00:26&lt;00:03, 1.12MB/s]
+
+
+Downloading teff=2500:  88%|████████▊ | 29.9M/34.0M [00:26&lt;00:03, 1.11MB/s]
+
+
+Downloading teff=2500:  89%|████████▊ | 30.1M/34.0M [00:26&lt;00:03, 1.11MB/s]
+
+
+Downloading teff=2500:  89%|████████▉ | 30.4M/34.0M [00:27&lt;00:03, 1.11MB/s]
+
+
+Downloading teff=2500:  90%|████████▉ | 30.6M/34.0M [00:27&lt;00:03, 1.11MB/s]
+
+
+Downloading teff=2500:  91%|█████████ | 30.8M/34.0M [00:27&lt;00:02, 1.11MB/s]
+
+
+Downloading teff=2500:  91%|█████████ | 31.0M/34.0M [00:27&lt;00:02, 1.11MB/s]
+
+
+Downloading teff=2500:  92%|█████████▏| 31.2M/34.0M [00:27&lt;00:02, 1.11MB/s]
+
+
+Downloading teff=2500:  93%|█████████▎| 31.5M/34.0M [00:28&lt;00:02, 1.16MB/s]
+
+
+Downloading teff=2500:  93%|█████████▎| 31.7M/34.0M [00:28&lt;00:02, 1.14MB/s]
+
+
+Downloading teff=2500:  94%|█████████▍| 31.9M/34.0M [00:28&lt;00:01, 1.18MB/s]
+
+
+Downloading teff=2500:  95%|█████████▍| 32.1M/34.0M [00:28&lt;00:01, 1.15MB/s]
+
+
+Downloading teff=2500:  95%|█████████▌| 32.3M/34.0M [00:28&lt;00:01, 1.14MB/s]
+
+
+Downloading teff=2500:  96%|█████████▌| 32.5M/34.0M [00:28&lt;00:01, 1.10MB/s]
+
+
+Downloading teff=2500:  96%|█████████▋| 32.8M/34.0M [00:29&lt;00:01, 1.16MB/s]
+
+
+Downloading teff=2500:  97%|█████████▋| 33.0M/34.0M [00:29&lt;00:00, 1.17MB/s]
+
+
+Downloading teff=2500:  98%|█████████▊| 33.3M/34.0M [00:29&lt;00:00, 1.20MB/s]
+
+
+Downloading teff=2500:  99%|█████████▊| 33.5M/34.0M [00:29&lt;00:00, 1.17MB/s]
+
+
+Downloading teff=2500:  99%|█████████▉| 33.6M/34.0M [00:29&lt;00:00, 1.10MB/s]
+
+
+Downloading teff=2500: 100%|█████████▉| 33.9M/34.0M [00:30&lt;00:00, 1.10MB/s]
+Downloading teff=2500: 100%|██████████| 34.0M/34.0M [00:30&lt;00:00, 1.12MB/s]
+
+
+Loading Spectra:  18%|█▊        | 3/17 [01:30&lt;07:06, 30.47s/it]PHOENIX grid for 2600 not found. Downloading...
+
+
+
+Downloading teff=2600:   0%|          | 0.00/34.0M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2600:   0%|          | 4.10k/34.0M [00:00&lt;1:02:05, 9.12kB/s]
+
+
+Downloading teff=2600:   0%|          | 36.9k/34.0M [00:00&lt;08:06, 69.8kB/s]
+
+
+Downloading teff=2600:   0%|          | 168k/34.0M [00:00&lt;02:00, 282kB/s]
+
+
+Downloading teff=2600:   1%|          | 381k/34.0M [00:01&lt;01:01, 549kB/s]
+
+
+Downloading teff=2600:   2%|▏         | 561k/34.0M [00:01&lt;00:50, 668kB/s]
+
+
+Downloading teff=2600:   2%|▏         | 737k/34.0M [00:01&lt;00:44, 740kB/s]
+
+
+Downloading teff=2600:   3%|▎         | 918k/34.0M [00:01&lt;00:41, 794kB/s]
+
+
+Downloading teff=2600:   3%|▎         | 1.10M/34.0M [00:01&lt;00:39, 831kB/s]
+
+
+Downloading teff=2600:   4%|▎         | 1.26M/34.0M [00:02&lt;00:39, 831kB/s]
+
+
+Downloading teff=2600:   4%|▍         | 1.49M/34.0M [00:02&lt;00:34, 931kB/s]
+
+
+Downloading teff=2600:   5%|▍         | 1.67M/34.0M [00:02&lt;00:34, 926kB/s]
+
+
+Downloading teff=2600:   6%|▌         | 1.92M/34.0M [00:02&lt;00:31, 1.02MB/s]
+
+
+Downloading teff=2600:   7%|▋         | 2.26M/34.0M [00:02&lt;00:25, 1.24MB/s]
+
+
+Downloading teff=2600:   7%|▋         | 2.44M/34.0M [00:03&lt;00:27, 1.14MB/s]
+
+
+Downloading teff=2600:   8%|▊         | 2.72M/34.0M [00:03&lt;00:25, 1.22MB/s]
+
+
+Downloading teff=2600:   9%|▉         | 3.04M/34.0M [00:03&lt;00:23, 1.33MB/s]
+
+
+Downloading teff=2600:   9%|▉         | 3.18M/34.0M [00:03&lt;00:23, 1.32MB/s]
+
+
+Downloading teff=2600:  10%|▉         | 3.32M/34.0M [00:03&lt;00:27, 1.13MB/s]
+
+
+Downloading teff=2600:  10%|█         | 3.44M/34.0M [00:03&lt;00:27, 1.12MB/s]
+
+
+Downloading teff=2600:  11%|█         | 3.63M/34.0M [00:04&lt;00:28, 1.08MB/s]
+
+
+Downloading teff=2600:  11%|█         | 3.81M/34.0M [00:04&lt;00:29, 1.02MB/s]
+
+
+Downloading teff=2600:  12%|█▏        | 3.95M/34.0M [00:04&lt;00:27, 1.10MB/s]
+
+
+Downloading teff=2600:  12%|█▏        | 4.11M/34.0M [00:04&lt;00:30, 990kB/s]
+
+
+Downloading teff=2600:  12%|█▏        | 4.24M/34.0M [00:04&lt;00:28, 1.04MB/s]
+
+
+Downloading teff=2600:  13%|█▎        | 4.44M/34.0M [00:04&lt;00:28, 1.03MB/s]
+
+
+Downloading teff=2600:  14%|█▎        | 4.65M/34.0M [00:05&lt;00:28, 1.04MB/s]
+
+
+Downloading teff=2600:  14%|█▍        | 4.78M/34.0M [00:05&lt;00:26, 1.11MB/s]
+
+
+Downloading teff=2600:  15%|█▍        | 4.96M/34.0M [00:05&lt;00:28, 1.02MB/s]
+
+
+Downloading teff=2600:  15%|█▌        | 5.17M/34.0M [00:05&lt;00:27, 1.04MB/s]
+
+
+Downloading teff=2600:  16%|█▌        | 5.43M/34.0M [00:05&lt;00:25, 1.14MB/s]
+
+
+Downloading teff=2600:  17%|█▋        | 5.69M/34.0M [00:05&lt;00:23, 1.20MB/s]
+
+
+Downloading teff=2600:  17%|█▋        | 5.91M/34.0M [00:06&lt;00:24, 1.16MB/s]
+
+
+Downloading teff=2600:  18%|█▊        | 6.10M/34.0M [00:06&lt;00:25, 1.11MB/s]
+
+
+Downloading teff=2600:  19%|█▊        | 6.33M/34.0M [00:06&lt;00:24, 1.13MB/s]
+
+
+Downloading teff=2600:  19%|█▉        | 6.55M/34.0M [00:06&lt;00:24, 1.12MB/s]
+
+
+Downloading teff=2600:  20%|██        | 6.81M/34.0M [00:06&lt;00:23, 1.18MB/s]
+
+
+Downloading teff=2600:  21%|██        | 7.10M/34.0M [00:07&lt;00:21, 1.27MB/s]
+
+
+Downloading teff=2600:  22%|██▏       | 7.36M/34.0M [00:07&lt;00:20, 1.29MB/s]
+
+
+Downloading teff=2600:  22%|██▏       | 7.62M/34.0M [00:07&lt;00:20, 1.30MB/s]
+
+
+Downloading teff=2600:  23%|██▎       | 7.87M/34.0M [00:07&lt;00:20, 1.29MB/s]
+
+
+Downloading teff=2600:  24%|██▍       | 8.10M/34.0M [00:07&lt;00:20, 1.25MB/s]
+
+
+Downloading teff=2600:  24%|██▍       | 8.31M/34.0M [00:08&lt;00:21, 1.20MB/s]
+
+
+Downloading teff=2600:  25%|██▌       | 8.52M/34.0M [00:08&lt;00:21, 1.16MB/s]
+
+
+Downloading teff=2600:  26%|██▌       | 8.85M/34.0M [00:08&lt;00:19, 1.31MB/s]
+
+
+Downloading teff=2600:  27%|██▋       | 9.11M/34.0M [00:08&lt;00:18, 1.32MB/s]
+
+
+Downloading teff=2600:  28%|██▊       | 9.44M/34.0M [00:08&lt;00:17, 1.41MB/s]
+
+
+Downloading teff=2600:  28%|██▊       | 9.65M/34.0M [00:09&lt;00:18, 1.31MB/s]
+
+
+Downloading teff=2600:  29%|██▉       | 9.78M/34.0M [00:09&lt;00:18, 1.31MB/s]
+
+
+Downloading teff=2600:  29%|██▉       | 9.99M/34.0M [00:09&lt;00:19, 1.23MB/s]
+
+
+Downloading teff=2600:  30%|███       | 10.2M/34.0M [00:09&lt;00:20, 1.18MB/s]
+
+
+Downloading teff=2600:  31%|███       | 10.5M/34.0M [00:09&lt;00:18, 1.25MB/s]
+
+
+Downloading teff=2600:  31%|███▏      | 10.7M/34.0M [00:09&lt;00:19, 1.17MB/s]
+
+
+Downloading teff=2600:  32%|███▏      | 10.9M/34.0M [00:10&lt;00:19, 1.19MB/s]
+
+
+Downloading teff=2600:  33%|███▎      | 11.2M/34.0M [00:10&lt;00:19, 1.19MB/s]
+
+
+Downloading teff=2600:  34%|███▎      | 11.4M/34.0M [00:10&lt;00:18, 1.25MB/s]
+
+
+Downloading teff=2600:  35%|███▍      | 11.7M/34.0M [00:10&lt;00:16, 1.35MB/s]
+
+
+Downloading teff=2600:  35%|███▌      | 12.0M/34.0M [00:10&lt;00:15, 1.39MB/s]
+
+
+Downloading teff=2600:  36%|███▌      | 12.3M/34.0M [00:11&lt;00:15, 1.37MB/s]
+
+
+Downloading teff=2600:  37%|███▋      | 12.5M/34.0M [00:11&lt;00:16, 1.29MB/s]
+
+
+Downloading teff=2600:  38%|███▊      | 12.8M/34.0M [00:11&lt;00:16, 1.30MB/s]
+
+
+Downloading teff=2600:  39%|███▉      | 13.2M/34.0M [00:11&lt;00:12, 1.60MB/s]
+
+
+Downloading teff=2600:  40%|███▉      | 13.5M/34.0M [00:11&lt;00:13, 1.51MB/s]
+
+
+Downloading teff=2600:  41%|████      | 13.8M/34.0M [00:12&lt;00:11, 1.73MB/s]
+
+
+Downloading teff=2600:  41%|████      | 14.0M/34.0M [00:12&lt;00:13, 1.47MB/s]
+
+
+Downloading teff=2600:  42%|████▏     | 14.1M/34.0M [00:12&lt;00:12, 1.56MB/s]
+
+
+Downloading teff=2600:  42%|████▏     | 14.4M/34.0M [00:12&lt;00:13, 1.48MB/s]
+
+
+Downloading teff=2600:  43%|████▎     | 14.7M/34.0M [00:12&lt;00:13, 1.40MB/s]
+
+
+Downloading teff=2600:  44%|████▍     | 15.0M/34.0M [00:12&lt;00:12, 1.57MB/s]
+
+
+Downloading teff=2600:  45%|████▍     | 15.3M/34.0M [00:13&lt;00:12, 1.44MB/s]
+
+
+Downloading teff=2600:  46%|████▌     | 15.6M/34.0M [00:13&lt;00:12, 1.50MB/s]
+
+
+Downloading teff=2600:  47%|████▋     | 15.8M/34.0M [00:13&lt;00:12, 1.42MB/s]
+
+
+Downloading teff=2600:  48%|████▊     | 16.2M/34.0M [00:13&lt;00:09, 1.91MB/s]
+
+
+Downloading teff=2600:  48%|████▊     | 16.5M/34.0M [00:13&lt;00:10, 1.66MB/s]
+
+
+Downloading teff=2600:  49%|████▉     | 16.8M/34.0M [00:13&lt;00:10, 1.66MB/s]
+
+
+Downloading teff=2600:  50%|█████     | 17.0M/34.0M [00:14&lt;00:11, 1.50MB/s]
+
+
+Downloading teff=2600:  51%|█████     | 17.3M/34.0M [00:14&lt;00:11, 1.42MB/s]
+
+
+Downloading teff=2600:  51%|█████▏    | 17.5M/34.0M [00:14&lt;00:12, 1.29MB/s]
+
+
+Downloading teff=2600:  52%|█████▏    | 17.8M/34.0M [00:14&lt;00:10, 1.59MB/s]
+
+
+Downloading teff=2600:  53%|█████▎    | 17.9M/34.0M [00:14&lt;00:11, 1.37MB/s]
+
+
+Downloading teff=2600:  53%|█████▎    | 18.1M/34.0M [00:15&lt;00:13, 1.18MB/s]
+
+
+Downloading teff=2600:  54%|█████▍    | 18.4M/34.0M [00:15&lt;00:12, 1.26MB/s]
+
+
+Downloading teff=2600:  55%|█████▍    | 18.6M/34.0M [00:15&lt;00:10, 1.42MB/s]
+
+
+Downloading teff=2600:  55%|█████▌    | 18.8M/34.0M [00:15&lt;00:11, 1.27MB/s]
+
+
+Downloading teff=2600:  56%|█████▋    | 19.1M/34.0M [00:15&lt;00:08, 1.72MB/s]
+
+
+Downloading teff=2600:  57%|█████▋    | 19.3M/34.0M [00:15&lt;00:09, 1.48MB/s]
+
+
+Downloading teff=2600:  58%|█████▊    | 19.6M/34.0M [00:16&lt;00:10, 1.40MB/s]
+
+
+Downloading teff=2600:  58%|█████▊    | 19.8M/34.0M [00:16&lt;00:09, 1.48MB/s]
+
+
+Downloading teff=2600:  60%|█████▉    | 20.2M/34.0M [00:16&lt;00:07, 1.78MB/s]
+
+
+Downloading teff=2600:  60%|██████    | 20.5M/34.0M [00:16&lt;00:08, 1.60MB/s]
+
+
+Downloading teff=2600:  61%|██████    | 20.8M/34.0M [00:16&lt;00:08, 1.56MB/s]
+
+
+Downloading teff=2600:  62%|██████▏   | 21.0M/34.0M [00:16&lt;00:09, 1.44MB/s]
+
+
+Downloading teff=2600:  63%|██████▎   | 21.3M/34.0M [00:17&lt;00:07, 1.77MB/s]
+
+
+Downloading teff=2600:  63%|██████▎   | 21.5M/34.0M [00:17&lt;00:08, 1.51MB/s]
+
+
+Downloading teff=2600:  64%|██████▍   | 21.8M/34.0M [00:17&lt;00:08, 1.40MB/s]
+
+
+Downloading teff=2600:  65%|██████▌   | 22.2M/34.0M [00:17&lt;00:07, 1.67MB/s]
+
+
+Downloading teff=2600:  66%|██████▋   | 22.5M/34.0M [00:17&lt;00:06, 1.69MB/s]
+
+
+Downloading teff=2600:  67%|██████▋   | 22.8M/34.0M [00:18&lt;00:06, 1.65MB/s]
+
+
+Downloading teff=2600:  68%|██████▊   | 23.1M/34.0M [00:18&lt;00:06, 1.55MB/s]
+
+
+Downloading teff=2600:  69%|██████▊   | 23.4M/34.0M [00:18&lt;00:07, 1.46MB/s]
+
+
+Downloading teff=2600:  70%|██████▉   | 23.6M/34.0M [00:18&lt;00:07, 1.45MB/s]
+
+
+Downloading teff=2600:  71%|███████   | 24.0M/34.0M [00:18&lt;00:06, 1.50MB/s]
+
+
+Downloading teff=2600:  71%|███████▏  | 24.3M/34.0M [00:19&lt;00:06, 1.50MB/s]
+
+
+Downloading teff=2600:  72%|███████▏  | 24.5M/34.0M [00:19&lt;00:06, 1.40MB/s]
+
+
+Downloading teff=2600:  73%|███████▎  | 24.7M/34.0M [00:19&lt;00:06, 1.38MB/s]
+
+
+Downloading teff=2600:  74%|███████▎  | 25.0M/34.0M [00:19&lt;00:06, 1.41MB/s]
+
+
+Downloading teff=2600:  74%|███████▍  | 25.3M/34.0M [00:19&lt;00:06, 1.39MB/s]
+
+
+Downloading teff=2600:  75%|███████▌  | 25.6M/34.0M [00:20&lt;00:06, 1.37MB/s]
+
+
+Downloading teff=2600:  76%|███████▌  | 25.8M/34.0M [00:20&lt;00:06, 1.26MB/s]
+
+
+Downloading teff=2600:  77%|███████▋  | 26.1M/34.0M [00:20&lt;00:06, 1.29MB/s]
+
+
+Downloading teff=2600:  77%|███████▋  | 26.2M/34.0M [00:20&lt;00:06, 1.28MB/s]
+
+
+Downloading teff=2600:  77%|███████▋  | 26.3M/34.0M [00:20&lt;00:05, 1.28MB/s]
+
+
+Downloading teff=2600:  78%|███████▊  | 26.7M/34.0M [00:20&lt;00:05, 1.45MB/s]
+
+
+Downloading teff=2600:  79%|███████▉  | 26.9M/34.0M [00:21&lt;00:05, 1.38MB/s]
+
+
+Downloading teff=2600:  80%|███████▉  | 27.1M/34.0M [00:21&lt;00:04, 1.53MB/s]
+
+
+Downloading teff=2600:  80%|████████  | 27.3M/34.0M [00:21&lt;00:05, 1.28MB/s]
+
+
+Downloading teff=2600:  81%|████████  | 27.5M/34.0M [00:21&lt;00:04, 1.47MB/s]
+
+
+Downloading teff=2600:  81%|████████▏ | 27.7M/34.0M [00:21&lt;00:05, 1.24MB/s]
+
+
+Downloading teff=2600:  82%|████████▏ | 27.9M/34.0M [00:21&lt;00:05, 1.20MB/s]
+
+
+Downloading teff=2600:  83%|████████▎ | 28.2M/34.0M [00:22&lt;00:04, 1.32MB/s]
+
+
+Downloading teff=2600:  84%|████████▎ | 28.4M/34.0M [00:22&lt;00:04, 1.29MB/s]
+
+
+Downloading teff=2600:  85%|████████▍ | 28.7M/34.0M [00:22&lt;00:03, 1.38MB/s]
+
+
+Downloading teff=2600:  86%|████████▌ | 29.2M/34.0M [00:22&lt;00:03, 1.60MB/s]
+
+
+Downloading teff=2600:  87%|████████▋ | 29.5M/34.0M [00:22&lt;00:02, 1.86MB/s]
+
+
+Downloading teff=2600:  87%|████████▋ | 29.7M/34.0M [00:22&lt;00:02, 1.58MB/s]
+
+
+Downloading teff=2600:  88%|████████▊ | 29.9M/34.0M [00:23&lt;00:02, 1.39MB/s]
+
+
+Downloading teff=2600:  89%|████████▉ | 30.2M/34.0M [00:23&lt;00:02, 1.50MB/s]
+
+
+Downloading teff=2600:  90%|████████▉ | 30.4M/34.0M [00:23&lt;00:02, 1.39MB/s]
+
+
+Downloading teff=2600:  90%|█████████ | 30.7M/34.0M [00:23&lt;00:02, 1.32MB/s]
+
+
+Downloading teff=2600:  91%|█████████ | 30.9M/34.0M [00:23&lt;00:02, 1.35MB/s]
+
+
+Downloading teff=2600:  92%|█████████▏| 31.3M/34.0M [00:23&lt;00:01, 1.73MB/s]
+
+
+Downloading teff=2600:  93%|█████████▎| 31.6M/34.0M [00:24&lt;00:01, 1.76MB/s]
+
+
+Downloading teff=2600:  94%|█████████▍| 32.0M/34.0M [00:24&lt;00:01, 1.70MB/s]
+
+
+Downloading teff=2600:  95%|█████████▍| 32.2M/34.0M [00:24&lt;00:01, 1.53MB/s]
+
+
+Downloading teff=2600:  96%|█████████▌| 32.5M/34.0M [00:24&lt;00:00, 1.59MB/s]
+
+
+Downloading teff=2600:  97%|█████████▋| 32.9M/34.0M [00:24&lt;00:00, 1.61MB/s]
+
+
+Downloading teff=2600:  98%|█████████▊| 33.1M/34.0M [00:25&lt;00:00, 1.55MB/s]
+
+
+Downloading teff=2600:  98%|█████████▊| 33.3M/34.0M [00:25&lt;00:00, 1.56MB/s]
+
+
+Downloading teff=2600:  98%|█████████▊| 33.5M/34.0M [00:25&lt;00:00, 1.56MB/s]
+
+
+Downloading teff=2600:  99%|█████████▉| 33.6M/34.0M [00:25&lt;00:00, 1.29MB/s]
+
+
+Downloading teff=2600: 100%|█████████▉| 33.8M/34.0M [00:25&lt;00:00, 1.24MB/s]
+Downloading teff=2600: 100%|██████████| 34.0M/34.0M [00:25&lt;00:00, 1.31MB/s]
+
+
+Loading Spectra:  24%|██▎       | 4/17 [01:57&lt;06:16, 28.93s/it]PHOENIX grid for 2700 not found. Downloading...
+
+
+
+Downloading teff=2700:   0%|          | 0.00/34.0M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2700:   0%|          | 4.10k/34.0M [00:00&lt;1:02:57, 8.99kB/s]
+
+
+Downloading teff=2700:   0%|          | 94.2k/34.0M [00:00&lt;02:41, 209kB/s]
+
+
+Downloading teff=2700:   1%|          | 209k/34.0M [00:00&lt;01:28, 380kB/s]
+
+
+Downloading teff=2700:   1%|          | 397k/34.0M [00:00&lt;00:55, 600kB/s]
+
+
+Downloading teff=2700:   2%|▏         | 573k/34.0M [00:01&lt;00:47, 708kB/s]
+
+
+Downloading teff=2700:   2%|▏         | 770k/34.0M [00:01&lt;00:40, 810kB/s]
+
+
+Downloading teff=2700:   3%|▎         | 999k/34.0M [00:01&lt;00:35, 928kB/s]
+
+
+Downloading teff=2700:   4%|▎         | 1.25M/34.0M [00:01&lt;00:31, 1.04MB/s]
+
+
+Downloading teff=2700:   4%|▍         | 1.43M/34.0M [00:01&lt;00:32, 1.01MB/s]
+
+
+Downloading teff=2700:   5%|▍         | 1.62M/34.0M [00:02&lt;00:31, 1.01MB/s]
+
+
+Downloading teff=2700:   5%|▌         | 1.84M/34.0M [00:02&lt;00:30, 1.04MB/s]
+
+
+Downloading teff=2700:   6%|▌         | 2.05M/34.0M [00:02&lt;00:30, 1.06MB/s]
+
+
+Downloading teff=2700:   7%|▋         | 2.28M/34.0M [00:02&lt;00:28, 1.10MB/s]
+
+
+Downloading teff=2700:   7%|▋         | 2.46M/34.0M [00:02&lt;00:29, 1.05MB/s]
+
+
+Downloading teff=2700:   8%|▊         | 2.67M/34.0M [00:03&lt;00:29, 1.06MB/s]
+
+
+Downloading teff=2700:   9%|▊         | 2.90M/34.0M [00:03&lt;00:28, 1.10MB/s]
+
+
+Downloading teff=2700:   9%|▉         | 3.14M/34.0M [00:03&lt;00:26, 1.15MB/s]
+
+
+Downloading teff=2700:  10%|▉         | 3.34M/34.0M [00:03&lt;00:27, 1.11MB/s]
+
+
+Downloading teff=2700:  11%|█         | 3.60M/34.0M [00:03&lt;00:25, 1.19MB/s]
+
+
+Downloading teff=2700:  11%|█▏        | 3.83M/34.0M [00:04&lt;00:25, 1.19MB/s]
+
+
+Downloading teff=2700:  13%|█▎        | 4.26M/34.0M [00:04&lt;00:19, 1.50MB/s]
+
+
+Downloading teff=2700:  13%|█▎        | 4.50M/34.0M [00:04&lt;00:20, 1.43MB/s]
+
+
+Downloading teff=2700:  14%|█▍        | 4.71M/34.0M [00:04&lt;00:21, 1.33MB/s]
+
+
+Downloading teff=2700:  15%|█▌        | 5.15M/34.0M [00:04&lt;00:17, 1.61MB/s]
+
+
+Downloading teff=2700:  16%|█▌        | 5.35M/34.0M [00:04&lt;00:19, 1.44MB/s]
+
+
+Downloading teff=2700:  16%|█▋        | 5.60M/34.0M [00:05&lt;00:20, 1.39MB/s]
+
+
+Downloading teff=2700:  17%|█▋        | 5.86M/34.0M [00:05&lt;00:20, 1.38MB/s]
+
+
+Downloading teff=2700:  18%|█▊        | 6.17M/34.0M [00:05&lt;00:19, 1.44MB/s]
+
+
+Downloading teff=2700:  19%|█▉        | 6.50M/34.0M [00:05&lt;00:18, 1.52MB/s]
+
+
+Downloading teff=2700:  20%|█▉        | 6.69M/34.0M [00:05&lt;00:19, 1.37MB/s]
+
+
+Downloading teff=2700:  21%|██        | 6.98M/34.0M [00:06&lt;00:19, 1.41MB/s]
+
+
+Downloading teff=2700:  22%|██▏       | 7.33M/34.0M [00:06&lt;00:17, 1.52MB/s]
+
+
+Downloading teff=2700:  22%|██▏       | 7.57M/34.0M [00:06&lt;00:18, 1.45MB/s]
+
+
+Downloading teff=2700:  23%|██▎       | 7.82M/34.0M [00:06&lt;00:18, 1.40MB/s]
+
+
+Downloading teff=2700:  24%|██▍       | 8.23M/34.0M [00:06&lt;00:15, 1.61MB/s]
+
+
+Downloading teff=2700:  25%|██▌       | 8.59M/34.0M [00:07&lt;00:14, 1.69MB/s]
+
+
+Downloading teff=2700:  26%|██▌       | 8.82M/34.0M [00:07&lt;00:16, 1.54MB/s]
+
+
+Downloading teff=2700:  27%|██▋       | 9.18M/34.0M [00:07&lt;00:15, 1.63MB/s]
+
+
+Downloading teff=2700:  28%|██▊       | 9.40M/34.0M [00:07&lt;00:16, 1.50MB/s]
+
+
+Downloading teff=2700:  29%|██▉       | 9.80M/34.0M [00:07&lt;00:14, 1.66MB/s]
+
+
+Downloading teff=2700:  30%|██▉       | 10.1M/34.0M [00:08&lt;00:15, 1.57MB/s]
+
+
+Downloading teff=2700:  30%|███       | 10.3M/34.0M [00:08&lt;00:15, 1.48MB/s]
+
+
+Downloading teff=2700:  31%|███       | 10.5M/34.0M [00:08&lt;00:17, 1.35MB/s]
+
+
+Downloading teff=2700:  32%|███▏      | 10.8M/34.0M [00:08&lt;00:17, 1.35MB/s]
+
+
+Downloading teff=2700:  33%|███▎      | 11.1M/34.0M [00:08&lt;00:16, 1.40MB/s]
+
+
+Downloading teff=2700:  33%|███▎      | 11.2M/34.0M [00:09&lt;00:18, 1.23MB/s]
+
+
+Downloading teff=2700:  34%|███▍      | 11.6M/34.0M [00:09&lt;00:15, 1.42MB/s]
+
+
+Downloading teff=2700:  35%|███▌      | 11.9M/34.0M [00:09&lt;00:14, 1.51MB/s]
+
+
+Downloading teff=2700:  36%|███▌      | 12.2M/34.0M [00:09&lt;00:15, 1.44MB/s]
+
+
+Downloading teff=2700:  37%|███▋      | 12.4M/34.0M [00:09&lt;00:15, 1.39MB/s]
+
+
+Downloading teff=2700:  37%|███▋      | 12.7M/34.0M [00:09&lt;00:14, 1.43MB/s]
+
+
+Downloading teff=2700:  38%|███▊      | 13.0M/34.0M [00:10&lt;00:14, 1.43MB/s]
+
+
+Downloading teff=2700:  39%|███▉      | 13.2M/34.0M [00:10&lt;00:15, 1.36MB/s]
+
+
+Downloading teff=2700:  40%|███▉      | 13.5M/34.0M [00:10&lt;00:14, 1.43MB/s]
+
+
+Downloading teff=2700:  41%|████      | 13.8M/34.0M [00:10&lt;00:13, 1.49MB/s]
+
+
+Downloading teff=2700:  42%|████▏     | 14.1M/34.0M [00:10&lt;00:12, 1.53MB/s]
+
+
+Downloading teff=2700:  42%|████▏     | 14.3M/34.0M [00:11&lt;00:12, 1.57MB/s]
+
+
+Downloading teff=2700:  43%|████▎     | 14.5M/34.0M [00:11&lt;00:14, 1.34MB/s]
+
+
+Downloading teff=2700:  43%|████▎     | 14.7M/34.0M [00:11&lt;00:14, 1.35MB/s]
+
+
+Downloading teff=2700:  44%|████▍     | 15.1M/34.0M [00:11&lt;00:12, 1.48MB/s]
+
+
+Downloading teff=2700:  46%|████▌     | 15.5M/34.0M [00:11&lt;00:11, 1.65MB/s]
+
+
+Downloading teff=2700:  47%|████▋     | 15.8M/34.0M [00:12&lt;00:10, 1.74MB/s]
+
+
+Downloading teff=2700:  48%|████▊     | 16.1M/34.0M [00:12&lt;00:10, 1.68MB/s]
+
+
+Downloading teff=2700:  48%|████▊     | 16.4M/34.0M [00:12&lt;00:11, 1.58MB/s]
+
+
+Downloading teff=2700:  49%|████▉     | 16.7M/34.0M [00:12&lt;00:11, 1.51MB/s]
+
+
+Downloading teff=2700:  50%|█████     | 17.0M/34.0M [00:12&lt;00:10, 1.57MB/s]
+
+
+Downloading teff=2700:  51%|█████     | 17.2M/34.0M [00:12&lt;00:11, 1.46MB/s]
+
+
+Downloading teff=2700:  51%|█████▏    | 17.4M/34.0M [00:13&lt;00:12, 1.33MB/s]
+
+
+Downloading teff=2700:  52%|█████▏    | 17.6M/34.0M [00:13&lt;00:13, 1.23MB/s]
+
+
+Downloading teff=2700:  53%|█████▎    | 17.8M/34.0M [00:13&lt;00:13, 1.22MB/s]
+
+
+Downloading teff=2700:  54%|█████▍    | 18.3M/34.0M [00:13&lt;00:09, 1.59MB/s]
+
+
+Downloading teff=2700:  55%|█████▍    | 18.6M/34.0M [00:13&lt;00:09, 1.60MB/s]
+
+
+Downloading teff=2700:  55%|█████▌    | 18.8M/34.0M [00:14&lt;00:10, 1.45MB/s]
+
+
+Downloading teff=2700:  56%|█████▌    | 19.1M/34.0M [00:14&lt;00:10, 1.37MB/s]
+
+
+Downloading teff=2700:  57%|█████▋    | 19.5M/34.0M [00:14&lt;00:09, 1.59MB/s]
+
+
+Downloading teff=2700:  58%|█████▊    | 19.7M/34.0M [00:14&lt;00:09, 1.49MB/s]
+
+
+Downloading teff=2700:  59%|█████▉    | 20.0M/34.0M [00:14&lt;00:09, 1.50MB/s]
+
+
+Downloading teff=2700:  60%|█████▉    | 20.3M/34.0M [00:15&lt;00:08, 1.56MB/s]
+
+
+Downloading teff=2700:  60%|██████    | 20.5M/34.0M [00:15&lt;00:08, 1.56MB/s]
+
+
+Downloading teff=2700:  61%|██████    | 20.7M/34.0M [00:15&lt;00:09, 1.44MB/s]
+
+
+Downloading teff=2700:  62%|██████▏   | 21.1M/34.0M [00:15&lt;00:08, 1.52MB/s]
+
+
+Downloading teff=2700:  63%|██████▎   | 21.5M/34.0M [00:15&lt;00:07, 1.74MB/s]
+
+
+Downloading teff=2700:  64%|██████▍   | 21.8M/34.0M [00:15&lt;00:07, 1.64MB/s]
+
+
+Downloading teff=2700:  65%|██████▌   | 22.1M/34.0M [00:16&lt;00:07, 1.66MB/s]
+
+
+Downloading teff=2700:  66%|██████▌   | 22.4M/34.0M [00:16&lt;00:07, 1.65MB/s]
+
+
+Downloading teff=2700:  67%|██████▋   | 22.7M/34.0M [00:16&lt;00:06, 1.87MB/s]
+
+
+Downloading teff=2700:  68%|██████▊   | 23.0M/34.0M [00:16&lt;00:05, 1.85MB/s]
+
+
+Downloading teff=2700:  69%|██████▊   | 23.3M/34.0M [00:16&lt;00:06, 1.66MB/s]
+
+
+Downloading teff=2700:  69%|██████▉   | 23.5M/34.0M [00:17&lt;00:06, 1.51MB/s]
+
+
+Downloading teff=2700:  70%|███████   | 23.8M/34.0M [00:17&lt;00:06, 1.49MB/s]
+
+
+Downloading teff=2700:  71%|███████   | 24.2M/34.0M [00:17&lt;00:05, 1.66MB/s]
+
+
+Downloading teff=2700:  72%|███████▏  | 24.4M/34.0M [00:17&lt;00:06, 1.44MB/s]
+
+
+Downloading teff=2700:  73%|███████▎  | 24.6M/34.0M [00:17&lt;00:06, 1.43MB/s]
+
+
+Downloading teff=2700:  74%|███████▎  | 25.0M/34.0M [00:18&lt;00:05, 1.54MB/s]
+
+
+Downloading teff=2700:  75%|███████▍  | 25.3M/34.0M [00:18&lt;00:05, 1.62MB/s]
+
+
+Downloading teff=2700:  76%|███████▌  | 25.6M/34.0M [00:18&lt;00:05, 1.62MB/s]
+
+
+Downloading teff=2700:  77%|███████▋  | 26.1M/34.0M [00:18&lt;00:04, 1.76MB/s]
+
+
+Downloading teff=2700:  78%|███████▊  | 26.3M/34.0M [00:18&lt;00:04, 1.64MB/s]
+
+
+Downloading teff=2700:  78%|███████▊  | 26.5M/34.0M [00:18&lt;00:05, 1.48MB/s]
+
+
+Downloading teff=2700:  79%|███████▉  | 26.8M/34.0M [00:19&lt;00:04, 1.52MB/s]
+
+
+Downloading teff=2700:  80%|████████  | 27.2M/34.0M [00:19&lt;00:04, 1.60MB/s]
+
+
+Downloading teff=2700:  81%|████████  | 27.6M/34.0M [00:19&lt;00:03, 1.71MB/s]
+
+
+Downloading teff=2700:  82%|████████▏ | 27.8M/34.0M [00:19&lt;00:03, 1.55MB/s]
+
+
+Downloading teff=2700:  83%|████████▎ | 28.1M/34.0M [00:19&lt;00:03, 1.61MB/s]
+
+
+Downloading teff=2700:  84%|████████▍ | 28.4M/34.0M [00:20&lt;00:03, 1.62MB/s]
+
+
+Downloading teff=2700:  85%|████████▍ | 28.8M/34.0M [00:20&lt;00:02, 1.77MB/s]
+
+
+Downloading teff=2700:  86%|████████▌ | 29.1M/34.0M [00:20&lt;00:02, 1.65MB/s]
+
+
+Downloading teff=2700:  86%|████████▋ | 29.4M/34.0M [00:20&lt;00:02, 1.53MB/s]
+
+
+Downloading teff=2700:  87%|████████▋ | 29.6M/34.0M [00:20&lt;00:02, 1.48MB/s]
+
+
+Downloading teff=2700:  88%|████████▊ | 29.9M/34.0M [00:21&lt;00:02, 1.42MB/s]
+
+
+Downloading teff=2700:  89%|████████▉ | 30.2M/34.0M [00:21&lt;00:02, 1.50MB/s]
+
+
+Downloading teff=2700:  91%|█████████ | 30.8M/34.0M [00:21&lt;00:01, 1.99MB/s]
+
+
+Downloading teff=2700:  92%|█████████▏| 31.1M/34.0M [00:21&lt;00:01, 1.88MB/s]
+
+
+Downloading teff=2700:  92%|█████████▏| 31.4M/34.0M [00:21&lt;00:01, 1.70MB/s]
+
+
+Downloading teff=2700:  93%|█████████▎| 31.7M/34.0M [00:22&lt;00:01, 1.70MB/s]
+
+
+Downloading teff=2700:  94%|█████████▍| 31.9M/34.0M [00:22&lt;00:01, 1.57MB/s]
+
+
+Downloading teff=2700:  95%|█████████▍| 32.3M/34.0M [00:22&lt;00:01, 1.61MB/s]
+
+
+Downloading teff=2700:  96%|█████████▌| 32.7M/34.0M [00:22&lt;00:00, 1.78MB/s]
+
+
+Downloading teff=2700:  97%|█████████▋| 33.0M/34.0M [00:22&lt;00:00, 1.78MB/s]
+
+
+Downloading teff=2700:  99%|█████████▊| 33.5M/34.0M [00:23&lt;00:00, 1.94MB/s]
+Downloading teff=2700: 100%|██████████| 34.0M/34.0M [00:23&lt;00:00, 1.47MB/s]
+
+
+Loading Spectra:  29%|██▉       | 5/17 [02:21&lt;05:24, 27.08s/it]PHOENIX grid for 2800 not found. Downloading...
+
+
+
+Downloading teff=2800:   0%|          | 0.00/33.9M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2800:   0%|          | 4.10k/33.9M [00:00&lt;48:54, 11.5kB/s]
+
+
+Downloading teff=2800:   0%|          | 32.8k/33.9M [00:00&lt;06:45, 83.4kB/s]
+
+
+Downloading teff=2800:   0%|          | 119k/33.9M [00:00&lt;02:11, 256kB/s]
+
+
+Downloading teff=2800:   1%|          | 217k/33.9M [00:00&lt;01:22, 409kB/s]
+
+
+Downloading teff=2800:   1%|          | 373k/33.9M [00:00&lt;00:59, 566kB/s]
+
+
+Downloading teff=2800:   2%|▏         | 537k/33.9M [00:01&lt;00:49, 669kB/s]
+
+
+Downloading teff=2800:   2%|▏         | 717k/33.9M [00:01&lt;00:43, 757kB/s]
+
+
+Downloading teff=2800:   3%|▎         | 897k/33.9M [00:01&lt;00:40, 816kB/s]
+
+
+Downloading teff=2800:   3%|▎         | 1.06M/33.9M [00:01&lt;00:39, 828kB/s]
+
+
+Downloading teff=2800:   4%|▎         | 1.22M/33.9M [00:01&lt;00:39, 829kB/s]
+
+
+Downloading teff=2800:   4%|▍         | 1.42M/33.9M [00:02&lt;00:36, 889kB/s]
+
+
+Downloading teff=2800:   5%|▍         | 1.60M/33.9M [00:02&lt;00:35, 904kB/s]
+
+
+Downloading teff=2800:   5%|▌         | 1.84M/33.9M [00:02&lt;00:31, 1.02MB/s]
+
+
+Downloading teff=2800:   6%|▌         | 2.06M/33.9M [00:02&lt;00:30, 1.05MB/s]
+
+
+Downloading teff=2800:   7%|▋         | 2.25M/33.9M [00:02&lt;00:30, 1.04MB/s]
+
+
+Downloading teff=2800:   7%|▋         | 2.47M/33.9M [00:03&lt;00:29, 1.06MB/s]
+
+
+Downloading teff=2800:   8%|▊         | 2.66M/33.9M [00:03&lt;00:29, 1.05MB/s]
+
+
+Downloading teff=2800:   8%|▊         | 2.84M/33.9M [00:03&lt;00:30, 1.02MB/s]
+
+
+Downloading teff=2800:   9%|▉         | 3.04M/33.9M [00:03&lt;00:30, 1.02MB/s]
+
+
+Downloading teff=2800:  10%|▉         | 3.26M/33.9M [00:03&lt;00:28, 1.06MB/s]
+
+
+Downloading teff=2800:  10%|▉         | 3.38M/33.9M [00:03&lt;00:28, 1.06MB/s]
+
+
+Downloading teff=2800:  10%|█         | 3.49M/33.9M [00:04&lt;00:28, 1.07MB/s]
+
+
+Downloading teff=2800:  11%|█         | 3.72M/33.9M [00:04&lt;00:27, 1.11MB/s]
+
+
+Downloading teff=2800:  12%|█▏        | 3.94M/33.9M [00:04&lt;00:26, 1.11MB/s]
+
+
+Downloading teff=2800:  12%|█▏        | 4.13M/33.9M [00:04&lt;00:27, 1.08MB/s]
+
+
+Downloading teff=2800:  13%|█▎        | 4.33M/33.9M [00:04&lt;00:27, 1.06MB/s]
+
+
+Downloading teff=2800:  13%|█▎        | 4.58M/33.9M [00:05&lt;00:25, 1.13MB/s]
+
+
+Downloading teff=2800:  14%|█▍        | 4.80M/33.9M [00:05&lt;00:25, 1.15MB/s]
+
+
+Downloading teff=2800:  15%|█▍        | 5.00M/33.9M [00:05&lt;00:26, 1.11MB/s]
+
+
+Downloading teff=2800:  15%|█▌        | 5.18M/33.9M [00:05&lt;00:27, 1.06MB/s]
+
+
+Downloading teff=2800:  16%|█▌        | 5.41M/33.9M [00:05&lt;00:26, 1.09MB/s]
+
+
+Downloading teff=2800:  17%|█▋        | 5.62M/33.9M [00:05&lt;00:25, 1.10MB/s]
+
+
+Downloading teff=2800:  17%|█▋        | 5.85M/33.9M [00:06&lt;00:25, 1.12MB/s]
+
+
+Downloading teff=2800:  18%|█▊        | 6.01M/33.9M [00:06&lt;00:26, 1.04MB/s]
+
+
+Downloading teff=2800:  18%|█▊        | 6.21M/33.9M [00:06&lt;00:26, 1.03MB/s]
+
+
+Downloading teff=2800:  19%|█▉        | 6.41M/33.9M [00:06&lt;00:26, 1.03MB/s]
+
+
+Downloading teff=2800:  20%|█▉        | 6.62M/33.9M [00:06&lt;00:25, 1.05MB/s]
+
+
+Downloading teff=2800:  20%|██        | 6.88M/33.9M [00:07&lt;00:23, 1.14MB/s]
+
+
+Downloading teff=2800:  21%|██        | 7.06M/33.9M [00:07&lt;00:24, 1.08MB/s]
+
+
+Downloading teff=2800:  21%|██▏       | 7.27M/33.9M [00:07&lt;00:24, 1.09MB/s]
+
+
+Downloading teff=2800:  22%|██▏       | 7.45M/33.9M [00:07&lt;00:25, 1.04MB/s]
+
+
+Downloading teff=2800:  23%|██▎       | 7.66M/33.9M [00:07&lt;00:24, 1.06MB/s]
+
+
+Downloading teff=2800:  23%|██▎       | 7.93M/33.9M [00:08&lt;00:22, 1.15MB/s]
+
+
+Downloading teff=2800:  24%|██▍       | 8.14M/33.9M [00:08&lt;00:22, 1.14MB/s]
+
+
+Downloading teff=2800:  25%|██▍       | 8.42M/33.9M [00:08&lt;00:20, 1.23MB/s]
+
+
+Downloading teff=2800:  26%|██▌       | 8.65M/33.9M [00:08&lt;00:20, 1.22MB/s]
+
+
+Downloading teff=2800:  26%|██▌       | 8.84M/33.9M [00:08&lt;00:21, 1.16MB/s]
+
+
+Downloading teff=2800:  27%|██▋       | 9.04M/33.9M [00:09&lt;00:22, 1.12MB/s]
+
+
+Downloading teff=2800:  27%|██▋       | 9.20M/33.9M [00:09&lt;00:23, 1.04MB/s]
+
+
+Downloading teff=2800:  28%|██▊       | 9.40M/33.9M [00:09&lt;00:23, 1.03MB/s]
+
+
+Downloading teff=2800:  29%|██▉       | 9.77M/33.9M [00:09&lt;00:18, 1.30MB/s]
+
+
+Downloading teff=2800:  29%|██▉       | 9.99M/33.9M [00:09&lt;00:19, 1.24MB/s]
+
+
+Downloading teff=2800:  30%|███       | 10.2M/33.9M [00:10&lt;00:19, 1.20MB/s]
+
+
+Downloading teff=2800:  31%|███       | 10.4M/33.9M [00:10&lt;00:19, 1.22MB/s]
+
+
+Downloading teff=2800:  32%|███▏      | 10.7M/33.9M [00:10&lt;00:17, 1.29MB/s]
+
+
+Downloading teff=2800:  32%|███▏      | 11.0M/33.9M [00:10&lt;00:17, 1.31MB/s]
+
+
+Downloading teff=2800:  33%|███▎      | 11.2M/33.9M [00:10&lt;00:18, 1.25MB/s]
+
+
+Downloading teff=2800:  34%|███▎      | 11.4M/33.9M [00:10&lt;00:18, 1.21MB/s]
+
+
+Downloading teff=2800:  34%|███▍      | 11.6M/33.9M [00:11&lt;00:20, 1.10MB/s]
+
+
+Downloading teff=2800:  35%|███▍      | 11.8M/33.9M [00:11&lt;00:19, 1.12MB/s]
+
+
+Downloading teff=2800:  35%|███▌      | 12.0M/33.9M [00:11&lt;00:19, 1.12MB/s]
+
+
+Downloading teff=2800:  36%|███▌      | 12.2M/33.9M [00:11&lt;00:18, 1.14MB/s]
+
+
+Downloading teff=2800:  37%|███▋      | 12.5M/33.9M [00:11&lt;00:18, 1.18MB/s]
+
+
+Downloading teff=2800:  38%|███▊      | 12.7M/33.9M [00:12&lt;00:17, 1.21MB/s]
+
+
+Downloading teff=2800:  38%|███▊      | 13.0M/33.9M [00:12&lt;00:16, 1.28MB/s]
+
+
+Downloading teff=2800:  39%|███▉      | 13.3M/33.9M [00:12&lt;00:15, 1.30MB/s]
+
+
+Downloading teff=2800:  40%|████      | 13.6M/33.9M [00:12&lt;00:13, 1.47MB/s]
+
+
+Downloading teff=2800:  41%|████      | 13.8M/33.9M [00:12&lt;00:14, 1.36MB/s]
+
+
+Downloading teff=2800:  41%|████▏     | 14.0M/33.9M [00:13&lt;00:15, 1.26MB/s]
+
+
+Downloading teff=2800:  42%|████▏     | 14.3M/33.9M [00:13&lt;00:15, 1.26MB/s]
+
+
+Downloading teff=2800:  43%|████▎     | 14.5M/33.9M [00:13&lt;00:15, 1.27MB/s]
+
+
+Downloading teff=2800:  44%|████▎     | 14.8M/33.9M [00:13&lt;00:15, 1.24MB/s]
+
+
+Downloading teff=2800:  44%|████▍     | 15.0M/33.9M [00:13&lt;00:15, 1.25MB/s]
+
+
+Downloading teff=2800:  45%|████▌     | 15.3M/33.9M [00:14&lt;00:14, 1.25MB/s]
+
+
+Downloading teff=2800:  46%|████▌     | 15.5M/33.9M [00:14&lt;00:15, 1.21MB/s]
+
+
+Downloading teff=2800:  46%|████▋     | 15.7M/33.9M [00:14&lt;00:15, 1.20MB/s]
+
+
+Downloading teff=2800:  48%|████▊     | 16.1M/33.9M [00:14&lt;00:12, 1.45MB/s]
+
+
+Downloading teff=2800:  48%|████▊     | 16.4M/33.9M [00:14&lt;00:11, 1.47MB/s]
+
+
+Downloading teff=2800:  49%|████▉     | 16.7M/33.9M [00:15&lt;00:11, 1.46MB/s]
+
+
+Downloading teff=2800:  50%|█████     | 17.0M/33.9M [00:15&lt;00:11, 1.48MB/s]
+
+
+Downloading teff=2800:  51%|█████     | 17.2M/33.9M [00:15&lt;00:11, 1.42MB/s]
+
+
+Downloading teff=2800:  51%|█████▏    | 17.4M/33.9M [00:15&lt;00:12, 1.32MB/s]
+
+
+Downloading teff=2800:  52%|█████▏    | 17.7M/33.9M [00:15&lt;00:12, 1.33MB/s]
+
+
+Downloading teff=2800:  53%|█████▎    | 17.9M/33.9M [00:16&lt;00:12, 1.32MB/s]
+
+
+Downloading teff=2800:  54%|█████▎    | 18.2M/33.9M [00:16&lt;00:12, 1.26MB/s]
+
+
+Downloading teff=2800:  54%|█████▍    | 18.4M/33.9M [00:16&lt;00:11, 1.32MB/s]
+
+
+Downloading teff=2800:  55%|█████▌    | 18.8M/33.9M [00:16&lt;00:10, 1.48MB/s]
+
+
+Downloading teff=2800:  56%|█████▋    | 19.1M/33.9M [00:16&lt;00:09, 1.57MB/s]
+
+
+Downloading teff=2800:  57%|█████▋    | 19.4M/33.9M [00:16&lt;00:09, 1.48MB/s]
+
+
+Downloading teff=2800:  58%|█████▊    | 19.7M/33.9M [00:17&lt;00:09, 1.54MB/s]
+
+
+Downloading teff=2800:  59%|█████▉    | 20.0M/33.9M [00:17&lt;00:09, 1.49MB/s]
+
+
+Downloading teff=2800:  60%|██████    | 20.4M/33.9M [00:17&lt;00:08, 1.65MB/s]
+
+
+Downloading teff=2800:  61%|██████    | 20.7M/33.9M [00:17&lt;00:08, 1.64MB/s]
+
+
+Downloading teff=2800:  62%|██████▏   | 21.0M/33.9M [00:17&lt;00:08, 1.61MB/s]
+
+
+Downloading teff=2800:  63%|██████▎   | 21.3M/33.9M [00:18&lt;00:08, 1.56MB/s]
+
+
+Downloading teff=2800:  63%|██████▎   | 21.5M/33.9M [00:18&lt;00:08, 1.40MB/s]
+
+
+Downloading teff=2800:  64%|██████▍   | 21.8M/33.9M [00:18&lt;00:08, 1.49MB/s]
+
+
+Downloading teff=2800:  65%|██████▍   | 22.0M/33.9M [00:18&lt;00:08, 1.38MB/s]
+
+
+Downloading teff=2800:  66%|██████▌   | 22.3M/33.9M [00:18&lt;00:07, 1.51MB/s]
+
+
+Downloading teff=2800:  67%|██████▋   | 22.7M/33.9M [00:19&lt;00:07, 1.54MB/s]
+
+
+Downloading teff=2800:  68%|██████▊   | 22.9M/33.9M [00:19&lt;00:07, 1.49MB/s]
+
+
+Downloading teff=2800:  68%|██████▊   | 23.2M/33.9M [00:19&lt;00:07, 1.50MB/s]
+
+
+Downloading teff=2800:  69%|██████▉   | 23.5M/33.9M [00:19&lt;00:07, 1.46MB/s]
+
+
+Downloading teff=2800:  70%|███████   | 23.7M/33.9M [00:19&lt;00:07, 1.43MB/s]
+
+
+Downloading teff=2800:  71%|███████   | 24.0M/33.9M [00:20&lt;00:06, 1.43MB/s]
+
+
+Downloading teff=2800:  72%|███████▏  | 24.5M/33.9M [00:20&lt;00:05, 1.68MB/s]
+
+
+Downloading teff=2800:  73%|███████▎  | 24.8M/33.9M [00:20&lt;00:05, 1.77MB/s]
+
+
+Downloading teff=2800:  74%|███████▍  | 25.1M/33.9M [00:20&lt;00:05, 1.59MB/s]
+
+
+Downloading teff=2800:  75%|███████▍  | 25.3M/33.9M [00:20&lt;00:05, 1.50MB/s]
+
+
+Downloading teff=2800:  75%|███████▌  | 25.6M/33.9M [00:21&lt;00:05, 1.48MB/s]
+
+
+Downloading teff=2800:  76%|███████▋  | 25.9M/33.9M [00:21&lt;00:05, 1.47MB/s]
+
+
+Downloading teff=2800:  77%|███████▋  | 26.1M/33.9M [00:21&lt;00:05, 1.39MB/s]
+
+
+Downloading teff=2800:  78%|███████▊  | 26.3M/33.9M [00:21&lt;00:05, 1.33MB/s]
+
+
+Downloading teff=2800:  79%|███████▉  | 26.7M/33.9M [00:21&lt;00:04, 1.51MB/s]
+
+
+Downloading teff=2800:  80%|███████▉  | 27.0M/33.9M [00:22&lt;00:04, 1.59MB/s]
+
+
+Downloading teff=2800:  81%|████████  | 27.3M/33.9M [00:22&lt;00:04, 1.55MB/s]
+
+
+Downloading teff=2800:  82%|████████▏ | 27.7M/33.9M [00:22&lt;00:03, 1.62MB/s]
+
+
+Downloading teff=2800:  82%|████████▏ | 27.9M/33.9M [00:22&lt;00:03, 1.52MB/s]
+
+
+Downloading teff=2800:  83%|████████▎ | 28.2M/33.9M [00:22&lt;00:03, 1.55MB/s]
+
+
+Downloading teff=2800:  84%|████████▍ | 28.4M/33.9M [00:22&lt;00:03, 1.39MB/s]
+
+
+Downloading teff=2800:  85%|████████▍ | 28.7M/33.9M [00:23&lt;00:03, 1.37MB/s]
+
+
+Downloading teff=2800:  86%|████████▌ | 29.0M/33.9M [00:23&lt;00:03, 1.47MB/s]
+
+
+Downloading teff=2800:  87%|████████▋ | 29.4M/33.9M [00:23&lt;00:02, 1.69MB/s]
+
+
+Downloading teff=2800:  88%|████████▊ | 29.7M/33.9M [00:23&lt;00:02, 1.67MB/s]
+
+
+Downloading teff=2800:  89%|████████▊ | 30.0M/33.9M [00:23&lt;00:02, 1.60MB/s]
+
+
+Downloading teff=2800:  90%|████████▉ | 30.4M/33.9M [00:24&lt;00:02, 1.68MB/s]
+
+
+Downloading teff=2800:  91%|█████████ | 30.7M/33.9M [00:24&lt;00:01, 1.71MB/s]
+
+
+Downloading teff=2800:  92%|█████████▏| 31.0M/33.9M [00:24&lt;00:01, 1.65MB/s]
+
+
+Downloading teff=2800:  93%|█████████▎| 31.4M/33.9M [00:24&lt;00:01, 1.72MB/s]
+
+
+Downloading teff=2800:  93%|█████████▎| 31.7M/33.9M [00:24&lt;00:01, 1.66MB/s]
+
+
+Downloading teff=2800:  94%|█████████▍| 31.9M/33.9M [00:25&lt;00:01, 1.55MB/s]
+
+
+Downloading teff=2800:  95%|█████████▍| 32.2M/33.9M [00:25&lt;00:01, 1.49MB/s]
+
+
+Downloading teff=2800:  96%|█████████▌| 32.5M/33.9M [00:25&lt;00:00, 1.55MB/s]
+
+
+Downloading teff=2800:  97%|█████████▋| 32.8M/33.9M [00:25&lt;00:00, 1.51MB/s]
+
+
+Downloading teff=2800:  98%|█████████▊| 33.1M/33.9M [00:25&lt;00:00, 1.50MB/s]
+
+
+Downloading teff=2800:  98%|█████████▊| 33.4M/33.9M [00:26&lt;00:00, 1.53MB/s]
+
+
+Downloading teff=2800:  99%|█████████▉| 33.7M/33.9M [00:26&lt;00:00, 1.58MB/s]
+Downloading teff=2800: 100%|██████████| 33.9M/33.9M [00:26&lt;00:00, 1.29MB/s]
+
+
+Loading Spectra:  35%|███▌      | 6/17 [02:48&lt;04:57, 27.05s/it]PHOENIX grid for 2900 not found. Downloading...
+
+
+
+Downloading teff=2900:   0%|          | 0.00/33.8M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2900:   0%|          | 4.10k/33.8M [00:00&lt;53:30, 10.5kB/s]
+
+
+Downloading teff=2900:   0%|          | 45.1k/33.8M [00:00&lt;05:45, 97.7kB/s]
+
+
+Downloading teff=2900:   1%|          | 180k/33.8M [00:00&lt;01:42, 327kB/s]
+
+
+Downloading teff=2900:   1%|          | 393k/33.8M [00:00&lt;00:55, 602kB/s]
+
+
+Downloading teff=2900:   2%|▏         | 655k/33.8M [00:01&lt;00:38, 856kB/s]
+
+
+Downloading teff=2900:   3%|▎         | 852k/33.8M [00:01&lt;00:36, 909kB/s]
+
+
+Downloading teff=2900:   3%|▎         | 1.03M/33.8M [00:01&lt;00:36, 911kB/s]
+
+
+Downloading teff=2900:   4%|▍         | 1.32M/33.8M [00:01&lt;00:29, 1.10MB/s]
+
+
+Downloading teff=2900:   5%|▌         | 1.70M/33.8M [00:01&lt;00:23, 1.36MB/s]
+
+
+Downloading teff=2900:   6%|▌         | 2.03M/33.8M [00:02&lt;00:21, 1.47MB/s]
+
+
+Downloading teff=2900:   7%|▋         | 2.37M/33.8M [00:02&lt;00:20, 1.56MB/s]
+
+
+Downloading teff=2900:   8%|▊         | 2.68M/33.8M [00:02&lt;00:19, 1.58MB/s]
+
+
+Downloading teff=2900:   9%|▊         | 2.90M/33.8M [00:02&lt;00:21, 1.44MB/s]
+
+
+Downloading teff=2900:  10%|▉         | 3.28M/33.8M [00:02&lt;00:19, 1.61MB/s]
+
+
+Downloading teff=2900:  11%|█         | 3.58M/33.8M [00:03&lt;00:19, 1.58MB/s]
+
+
+Downloading teff=2900:  11%|█▏        | 3.83M/33.8M [00:03&lt;00:20, 1.49MB/s]
+
+
+Downloading teff=2900:  12%|█▏        | 4.12M/33.8M [00:03&lt;00:19, 1.50MB/s]
+
+
+Downloading teff=2900:  13%|█▎        | 4.43M/33.8M [00:03&lt;00:19, 1.54MB/s]
+
+
+Downloading teff=2900:  14%|█▍        | 4.68M/33.8M [00:03&lt;00:20, 1.46MB/s]
+
+
+Downloading teff=2900:  16%|█▌        | 5.42M/33.8M [00:03&lt;00:11, 2.54MB/s]
+
+
+Downloading teff=2900:  18%|█▊        | 6.23M/33.8M [00:04&lt;00:08, 3.12MB/s]
+
+
+Downloading teff=2900:  19%|█▉        | 6.59M/33.8M [00:05&lt;00:31, 856kB/s]
+
+
+Downloading teff=2900:  20%|██        | 6.87M/33.8M [00:05&lt;00:28, 938kB/s]
+
+
+Downloading teff=2900:  25%|██▍       | 8.41M/33.8M [00:05&lt;00:11, 2.19MB/s]
+
+
+Downloading teff=2900:  28%|██▊       | 9.52M/33.8M [00:06&lt;00:08, 2.88MB/s]
+
+
+Downloading teff=2900:  31%|███       | 10.5M/33.8M [00:06&lt;00:06, 3.72MB/s]
+
+
+Downloading teff=2900:  33%|███▎      | 11.2M/33.8M [00:06&lt;00:06, 3.70MB/s]
+
+
+Downloading teff=2900:  35%|███▍      | 11.8M/33.8M [00:06&lt;00:07, 3.09MB/s]
+
+
+Downloading teff=2900:  38%|███▊      | 12.8M/33.8M [00:06&lt;00:05, 3.59MB/s]
+
+
+Downloading teff=2900:  39%|███▉      | 13.3M/33.8M [00:07&lt;00:06, 3.19MB/s]
+
+
+Downloading teff=2900:  41%|████      | 13.8M/33.8M [00:07&lt;00:06, 3.09MB/s]
+
+
+Downloading teff=2900:  42%|████▏     | 14.3M/33.8M [00:07&lt;00:07, 2.62MB/s]
+
+
+Downloading teff=2900:  44%|████▍     | 14.8M/33.8M [00:07&lt;00:06, 2.97MB/s]
+
+
+Downloading teff=2900:  46%|████▌     | 15.5M/33.8M [00:07&lt;00:05, 3.55MB/s]
+
+
+Downloading teff=2900:  48%|████▊     | 16.3M/33.8M [00:07&lt;00:04, 3.73MB/s]
+
+
+Downloading teff=2900:  50%|████▉     | 16.9M/33.8M [00:08&lt;00:03, 4.26MB/s]
+
+
+Downloading teff=2900:  52%|█████▏    | 17.7M/33.8M [00:08&lt;00:03, 4.27MB/s]
+
+
+Downloading teff=2900:  55%|█████▍    | 18.5M/33.8M [00:08&lt;00:03, 4.15MB/s]
+
+
+Downloading teff=2900:  57%|█████▋    | 19.4M/33.8M [00:08&lt;00:03, 4.44MB/s]
+
+
+Downloading teff=2900:  60%|██████    | 20.4M/33.8M [00:08&lt;00:02, 5.39MB/s]
+
+
+Downloading teff=2900:  62%|██████▏   | 21.0M/33.8M [00:08&lt;00:02, 4.63MB/s]
+
+
+Downloading teff=2900:  64%|██████▍   | 21.8M/33.8M [00:09&lt;00:02, 4.51MB/s]
+
+
+Downloading teff=2900:  67%|██████▋   | 22.7M/33.8M [00:09&lt;00:02, 4.56MB/s]
+
+
+Downloading teff=2900:  70%|██████▉   | 23.6M/33.8M [00:09&lt;00:01, 5.35MB/s]
+
+
+Downloading teff=2900:  71%|███████▏  | 24.2M/33.8M [00:09&lt;00:02, 4.59MB/s]
+
+
+Downloading teff=2900:  73%|███████▎  | 24.8M/33.8M [00:09&lt;00:02, 4.09MB/s]
+
+
+Downloading teff=2900:  76%|███████▌  | 25.8M/33.8M [00:10&lt;00:01, 4.46MB/s]
+
+
+Downloading teff=2900:  79%|███████▉  | 26.8M/33.8M [00:10&lt;00:01, 4.63MB/s]
+
+
+Downloading teff=2900:  82%|████████▏ | 27.6M/33.8M [00:10&lt;00:01, 4.63MB/s]
+
+
+Downloading teff=2900:  84%|████████▍ | 28.5M/33.8M [00:10&lt;00:01, 4.56MB/s]
+
+
+Downloading teff=2900:  87%|████████▋ | 29.4M/33.8M [00:10&lt;00:00, 4.59MB/s]
+
+
+Downloading teff=2900:  89%|████████▉ | 30.2M/33.8M [00:10&lt;00:00, 4.53MB/s]
+
+
+Downloading teff=2900:  92%|█████████▏| 31.2M/33.8M [00:11&lt;00:00, 4.68MB/s]
+
+
+Downloading teff=2900:  95%|█████████▍| 32.1M/33.8M [00:11&lt;00:00, 4.66MB/s]
+
+
+Downloading teff=2900:  98%|█████████▊| 33.1M/33.8M [00:11&lt;00:00, 4.82MB/s]
+Downloading teff=2900: 100%|██████████| 33.8M/33.8M [00:11&lt;00:00, 2.90MB/s]
+
+
+Loading Spectra:  41%|████      | 7/17 [03:00&lt;03:43, 22.36s/it]PHOENIX grid for 3000 not found. Downloading...
+
+
+
+Downloading teff=3000:   0%|          | 0.00/33.8M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3000:   0%|          | 4.10k/33.8M [00:00&lt;53:44, 10.5kB/s]
+
+
+Downloading teff=3000:   0%|          | 41.0k/33.8M [00:00&lt;06:35, 85.4kB/s]
+
+
+Downloading teff=3000:   1%|          | 176k/33.8M [00:00&lt;01:46, 315kB/s]
+
+
+Downloading teff=3000:   1%|          | 336k/33.8M [00:00&lt;01:07, 494kB/s]
+
+
+Downloading teff=3000:   2%|▏         | 565k/33.8M [00:01&lt;00:45, 725kB/s]
+
+
+Downloading teff=3000:   2%|▏         | 795k/33.8M [00:01&lt;00:37, 875kB/s]
+
+
+Downloading teff=3000:   3%|▎         | 1.01M/33.8M [00:01&lt;00:34, 947kB/s]
+
+
+Downloading teff=3000:   4%|▎         | 1.19M/33.8M [00:01&lt;00:34, 944kB/s]
+
+
+Downloading teff=3000:   4%|▍         | 1.38M/33.8M [00:01&lt;00:33, 969kB/s]
+
+
+Downloading teff=3000:   5%|▍         | 1.63M/33.8M [00:02&lt;00:30, 1.06MB/s]
+
+
+Downloading teff=3000:   6%|▌         | 1.86M/33.8M [00:02&lt;00:28, 1.10MB/s]
+
+
+Downloading teff=3000:   6%|▌         | 2.09M/33.8M [00:02&lt;00:28, 1.13MB/s]
+
+
+Downloading teff=3000:   7%|▋         | 2.30M/33.8M [00:02&lt;00:28, 1.12MB/s]
+
+
+Downloading teff=3000:   8%|▊         | 2.54M/33.8M [00:02&lt;00:26, 1.16MB/s]
+
+
+Downloading teff=3000:   8%|▊         | 2.76M/33.8M [00:03&lt;00:27, 1.14MB/s]
+
+
+Downloading teff=3000:   9%|▉         | 2.99M/33.8M [00:03&lt;00:26, 1.16MB/s]
+
+
+Downloading teff=3000:  10%|▉         | 3.23M/33.8M [00:03&lt;00:25, 1.19MB/s]
+
+
+Downloading teff=3000:  10%|█         | 3.51M/33.8M [00:03&lt;00:23, 1.27MB/s]
+
+
+Downloading teff=3000:  11%|█         | 3.74M/33.8M [00:03&lt;00:24, 1.25MB/s]
+
+
+Downloading teff=3000:  12%|█▏        | 3.95M/33.8M [00:04&lt;00:24, 1.20MB/s]
+
+
+Downloading teff=3000:  12%|█▏        | 4.15M/33.8M [00:04&lt;00:25, 1.15MB/s]
+
+
+Downloading teff=3000:  13%|█▎        | 4.36M/33.8M [00:04&lt;00:25, 1.14MB/s]
+
+
+Downloading teff=3000:  13%|█▎        | 4.55M/33.8M [00:04&lt;00:26, 1.10MB/s]
+
+
+Downloading teff=3000:  14%|█▍        | 4.77M/33.8M [00:04&lt;00:26, 1.10MB/s]
+
+
+Downloading teff=3000:  15%|█▍        | 4.96M/33.8M [00:05&lt;00:26, 1.08MB/s]
+
+
+Downloading teff=3000:  15%|█▌        | 5.19M/33.8M [00:05&lt;00:25, 1.11MB/s]
+
+
+Downloading teff=3000:  16%|█▌        | 5.47M/33.8M [00:05&lt;00:23, 1.21MB/s]
+
+
+Downloading teff=3000:  17%|█▋        | 5.69M/33.8M [00:05&lt;00:23, 1.18MB/s]
+
+
+Downloading teff=3000:  18%|█▊        | 6.01M/33.8M [00:05&lt;00:20, 1.34MB/s]
+
+
+Downloading teff=3000:  19%|█▊        | 6.29M/33.8M [00:05&lt;00:20, 1.37MB/s]
+
+
+Downloading teff=3000:  20%|█▉        | 6.60M/33.8M [00:06&lt;00:18, 1.44MB/s]
+
+
+Downloading teff=3000:  20%|██        | 6.91M/33.8M [00:06&lt;00:18, 1.49MB/s]
+
+
+Downloading teff=3000:  21%|██▏       | 7.22M/33.8M [00:06&lt;00:17, 1.53MB/s]
+
+
+Downloading teff=3000:  22%|██▏       | 7.40M/33.8M [00:06&lt;00:19, 1.35MB/s]
+
+
+Downloading teff=3000:  23%|██▎       | 7.68M/33.8M [00:06&lt;00:18, 1.38MB/s]
+
+
+Downloading teff=3000:  23%|██▎       | 7.89M/33.8M [00:07&lt;00:19, 1.30MB/s]
+
+
+Downloading teff=3000:  24%|██▍       | 8.09M/33.8M [00:07&lt;00:21, 1.22MB/s]
+
+
+Downloading teff=3000:  25%|██▍       | 8.30M/33.8M [00:07&lt;00:21, 1.18MB/s]
+
+
+Downloading teff=3000:  25%|██▌       | 8.52M/33.8M [00:07&lt;00:21, 1.16MB/s]
+
+
+Downloading teff=3000:  26%|██▌       | 8.72M/33.8M [00:07&lt;00:22, 1.14MB/s]
+
+
+Downloading teff=3000:  27%|██▋       | 8.97M/33.8M [00:08&lt;00:21, 1.18MB/s]
+
+
+Downloading teff=3000:  27%|██▋       | 9.22M/33.8M [00:08&lt;00:20, 1.21MB/s]
+
+
+Downloading teff=3000:  28%|██▊       | 9.43M/33.8M [00:08&lt;00:20, 1.18MB/s]
+
+
+Downloading teff=3000:  29%|██▊       | 9.66M/33.8M [00:08&lt;00:20, 1.18MB/s]
+
+
+Downloading teff=3000:  29%|██▉       | 9.87M/33.8M [00:08&lt;00:20, 1.16MB/s]
+
+
+Downloading teff=3000:  30%|██▉       | 10.1M/33.8M [00:09&lt;00:20, 1.14MB/s]
+
+
+Downloading teff=3000:  31%|███       | 10.4M/33.8M [00:09&lt;00:18, 1.23MB/s]
+
+
+Downloading teff=3000:  31%|███▏      | 10.6M/33.8M [00:09&lt;00:18, 1.27MB/s]
+
+
+Downloading teff=3000:  32%|███▏      | 10.8M/33.8M [00:09&lt;00:18, 1.21MB/s]
+
+
+Downloading teff=3000:  33%|███▎      | 11.1M/33.8M [00:09&lt;00:18, 1.23MB/s]
+
+
+Downloading teff=3000:  33%|███▎      | 11.3M/33.8M [00:10&lt;00:18, 1.19MB/s]
+
+
+Downloading teff=3000:  34%|███▍      | 11.5M/33.8M [00:10&lt;00:19, 1.14MB/s]
+
+
+Downloading teff=3000:  35%|███▍      | 11.8M/33.8M [00:10&lt;00:17, 1.28MB/s]
+
+
+Downloading teff=3000:  36%|███▌      | 12.0M/33.8M [00:10&lt;00:18, 1.21MB/s]
+
+
+Downloading teff=3000:  36%|███▋      | 12.3M/33.8M [00:10&lt;00:17, 1.25MB/s]
+
+
+Downloading teff=3000:  37%|███▋      | 12.5M/33.8M [00:10&lt;00:17, 1.23MB/s]
+
+
+Downloading teff=3000:  38%|███▊      | 12.7M/33.8M [00:11&lt;00:17, 1.19MB/s]
+
+
+Downloading teff=3000:  38%|███▊      | 12.9M/33.8M [00:11&lt;00:17, 1.19MB/s]
+
+
+Downloading teff=3000:  39%|███▉      | 13.2M/33.8M [00:11&lt;00:17, 1.19MB/s]
+
+
+Downloading teff=3000:  40%|███▉      | 13.4M/33.8M [00:11&lt;00:16, 1.21MB/s]
+
+
+Downloading teff=3000:  40%|████      | 13.6M/33.8M [00:11&lt;00:16, 1.21MB/s]
+
+
+Downloading teff=3000:  41%|████      | 13.9M/33.8M [00:12&lt;00:16, 1.20MB/s]
+
+
+Downloading teff=3000:  42%|████▏     | 14.1M/33.8M [00:12&lt;00:16, 1.20MB/s]
+
+
+Downloading teff=3000:  42%|████▏     | 14.3M/33.8M [00:12&lt;00:16, 1.17MB/s]
+
+
+Downloading teff=3000:  43%|████▎     | 14.5M/33.8M [00:12&lt;00:16, 1.15MB/s]
+
+
+Downloading teff=3000:  44%|████▎     | 14.7M/33.8M [00:12&lt;00:16, 1.14MB/s]
+
+
+Downloading teff=3000:  44%|████▍     | 14.9M/33.8M [00:13&lt;00:16, 1.13MB/s]
+
+
+Downloading teff=3000:  45%|████▍     | 15.1M/33.8M [00:13&lt;00:17, 1.07MB/s]
+
+
+Downloading teff=3000:  46%|████▌     | 15.4M/33.8M [00:13&lt;00:15, 1.15MB/s]
+
+
+Downloading teff=3000:  46%|████▌     | 15.6M/33.8M [00:13&lt;00:16, 1.09MB/s]
+
+
+Downloading teff=3000:  47%|████▋     | 15.9M/33.8M [00:13&lt;00:14, 1.25MB/s]
+
+
+Downloading teff=3000:  48%|████▊     | 16.1M/33.8M [00:14&lt;00:14, 1.23MB/s]
+
+
+Downloading teff=3000:  48%|████▊     | 16.4M/33.8M [00:14&lt;00:13, 1.27MB/s]
+
+
+Downloading teff=3000:  49%|████▉     | 16.6M/33.8M [00:14&lt;00:13, 1.25MB/s]
+
+
+Downloading teff=3000:  50%|████▉     | 16.9M/33.8M [00:14&lt;00:12, 1.33MB/s]
+
+
+Downloading teff=3000:  51%|█████     | 17.1M/33.8M [00:14&lt;00:13, 1.21MB/s]
+
+
+Downloading teff=3000:  51%|█████     | 17.3M/33.8M [00:15&lt;00:13, 1.20MB/s]
+
+
+Downloading teff=3000:  52%|█████▏    | 17.5M/33.8M [00:15&lt;00:13, 1.17MB/s]
+
+
+Downloading teff=3000:  52%|█████▏    | 17.7M/33.8M [00:15&lt;00:14, 1.13MB/s]
+
+
+Downloading teff=3000:  53%|█████▎    | 17.9M/33.8M [00:15&lt;00:13, 1.17MB/s]
+
+
+Downloading teff=3000:  54%|█████▍    | 18.2M/33.8M [00:15&lt;00:13, 1.15MB/s]
+
+
+Downloading teff=3000:  54%|█████▍    | 18.4M/33.8M [00:15&lt;00:13, 1.14MB/s]
+
+
+Downloading teff=3000:  55%|█████▌    | 18.6M/33.8M [00:16&lt;00:13, 1.15MB/s]
+
+
+Downloading teff=3000:  56%|█████▌    | 18.8M/33.8M [00:16&lt;00:13, 1.14MB/s]
+
+
+Downloading teff=3000:  56%|█████▌    | 19.0M/33.8M [00:16&lt;00:13, 1.08MB/s]
+
+
+Downloading teff=3000:  57%|█████▋    | 19.2M/33.8M [00:16&lt;00:13, 1.06MB/s]
+
+
+Downloading teff=3000:  58%|█████▊    | 19.4M/33.8M [00:16&lt;00:12, 1.12MB/s]
+
+
+Downloading teff=3000:  58%|█████▊    | 19.7M/33.8M [00:17&lt;00:12, 1.17MB/s]
+
+
+Downloading teff=3000:  59%|█████▉    | 19.9M/33.8M [00:17&lt;00:11, 1.23MB/s]
+
+
+Downloading teff=3000:  60%|█████▉    | 20.2M/33.8M [00:17&lt;00:10, 1.24MB/s]
+
+
+Downloading teff=3000:  60%|██████    | 20.4M/33.8M [00:17&lt;00:10, 1.23MB/s]
+
+
+Downloading teff=3000:  61%|██████    | 20.6M/33.8M [00:17&lt;00:11, 1.19MB/s]
+
+
+Downloading teff=3000:  62%|██████▏   | 20.8M/33.8M [00:18&lt;00:11, 1.17MB/s]
+
+
+Downloading teff=3000:  62%|██████▏   | 21.0M/33.8M [00:18&lt;00:11, 1.12MB/s]
+
+
+Downloading teff=3000:  63%|██████▎   | 21.3M/33.8M [00:18&lt;00:11, 1.12MB/s]
+
+
+Downloading teff=3000:  64%|██████▍   | 21.5M/33.8M [00:18&lt;00:09, 1.24MB/s]
+
+
+Downloading teff=3000:  64%|██████▍   | 21.7M/33.8M [00:18&lt;00:10, 1.14MB/s]
+
+
+Downloading teff=3000:  65%|██████▍   | 22.0M/33.8M [00:19&lt;00:10, 1.16MB/s]
+
+
+Downloading teff=3000:  66%|██████▌   | 22.2M/33.8M [00:19&lt;00:09, 1.17MB/s]
+
+
+Downloading teff=3000:  66%|██████▋   | 22.4M/33.8M [00:19&lt;00:09, 1.15MB/s]
+
+
+Downloading teff=3000:  67%|██████▋   | 22.6M/33.8M [00:19&lt;00:09, 1.13MB/s]
+
+
+Downloading teff=3000:  68%|██████▊   | 22.9M/33.8M [00:19&lt;00:08, 1.22MB/s]
+
+
+Downloading teff=3000:  68%|██████▊   | 23.1M/33.8M [00:20&lt;00:08, 1.19MB/s]
+
+
+Downloading teff=3000:  69%|██████▉   | 23.3M/33.8M [00:20&lt;00:08, 1.19MB/s]
+
+
+Downloading teff=3000:  70%|██████▉   | 23.6M/33.8M [00:20&lt;00:08, 1.23MB/s]
+
+
+Downloading teff=3000:  70%|███████   | 23.8M/33.8M [00:20&lt;00:08, 1.13MB/s]
+
+
+Downloading teff=3000:  71%|███████   | 23.9M/33.8M [00:20&lt;00:08, 1.13MB/s]
+
+
+Downloading teff=3000:  71%|███████▏  | 24.1M/33.8M [00:20&lt;00:08, 1.12MB/s]
+
+
+Downloading teff=3000:  72%|███████▏  | 24.3M/33.8M [00:21&lt;00:08, 1.17MB/s]
+
+
+Downloading teff=3000:  73%|███████▎  | 24.6M/33.8M [00:21&lt;00:07, 1.23MB/s]
+
+
+Downloading teff=3000:  74%|███████▎  | 24.8M/33.8M [00:21&lt;00:07, 1.22MB/s]
+
+
+Downloading teff=3000:  74%|███████▍  | 25.1M/33.8M [00:21&lt;00:05, 1.51MB/s]
+
+
+Downloading teff=3000:  75%|███████▍  | 25.3M/33.8M [00:21&lt;00:06, 1.30MB/s]
+
+
+Downloading teff=3000:  75%|███████▌  | 25.5M/33.8M [00:21&lt;00:06, 1.20MB/s]
+
+
+Downloading teff=3000:  76%|███████▋  | 25.8M/33.8M [00:22&lt;00:06, 1.30MB/s]
+
+
+Downloading teff=3000:  77%|███████▋  | 26.0M/33.8M [00:22&lt;00:05, 1.35MB/s]
+
+
+Downloading teff=3000:  78%|███████▊  | 26.2M/33.8M [00:22&lt;00:06, 1.25MB/s]
+
+
+Downloading teff=3000:  78%|███████▊  | 26.5M/33.8M [00:22&lt;00:05, 1.25MB/s]
+
+
+Downloading teff=3000:  79%|███████▉  | 26.8M/33.8M [00:22&lt;00:05, 1.31MB/s]
+
+
+Downloading teff=3000:  80%|███████▉  | 27.0M/33.8M [00:23&lt;00:05, 1.30MB/s]
+
+
+Downloading teff=3000:  81%|████████  | 27.2M/33.8M [00:23&lt;00:05, 1.22MB/s]
+
+
+Downloading teff=3000:  81%|████████▏ | 27.5M/33.8M [00:23&lt;00:05, 1.26MB/s]
+
+
+Downloading teff=3000:  82%|████████▏ | 27.7M/33.8M [00:23&lt;00:04, 1.26MB/s]
+
+
+Downloading teff=3000:  83%|████████▎ | 27.9M/33.8M [00:23&lt;00:04, 1.21MB/s]
+
+
+Downloading teff=3000:  83%|████████▎ | 28.2M/33.8M [00:24&lt;00:04, 1.23MB/s]
+
+
+Downloading teff=3000:  84%|████████▍ | 28.4M/33.8M [00:24&lt;00:04, 1.25MB/s]
+
+
+Downloading teff=3000:  85%|████████▍ | 28.6M/33.8M [00:24&lt;00:04, 1.13MB/s]
+
+
+Downloading teff=3000:  85%|████████▌ | 28.8M/33.8M [00:24&lt;00:04, 1.10MB/s]
+
+
+Downloading teff=3000:  86%|████████▌ | 29.0M/33.8M [00:24&lt;00:04, 1.15MB/s]
+
+
+Downloading teff=3000:  87%|████████▋ | 29.4M/33.8M [00:25&lt;00:03, 1.39MB/s]
+
+
+Downloading teff=3000:  88%|████████▊ | 29.8M/33.8M [00:25&lt;00:02, 1.56MB/s]
+
+
+Downloading teff=3000:  89%|████████▉ | 30.1M/33.8M [00:25&lt;00:02, 1.57MB/s]
+
+
+Downloading teff=3000:  90%|████████▉ | 30.4M/33.8M [00:25&lt;00:02, 1.58MB/s]
+
+
+Downloading teff=3000:  91%|█████████ | 30.7M/33.8M [00:25&lt;00:01, 1.60MB/s]
+
+
+Downloading teff=3000:  92%|█████████▏| 31.0M/33.8M [00:26&lt;00:01, 1.54MB/s]
+
+
+Downloading teff=3000:  92%|█████████▏| 31.2M/33.8M [00:26&lt;00:01, 1.46MB/s]
+
+
+Downloading teff=3000:  93%|█████████▎| 31.5M/33.8M [00:26&lt;00:01, 1.48MB/s]
+
+
+Downloading teff=3000:  94%|█████████▍| 31.8M/33.8M [00:26&lt;00:01, 1.52MB/s]
+
+
+Downloading teff=3000:  95%|█████████▍| 32.1M/33.8M [00:26&lt;00:01, 1.41MB/s]
+
+
+Downloading teff=3000:  96%|█████████▌| 32.3M/33.8M [00:26&lt;00:01, 1.35MB/s]
+
+
+Downloading teff=3000:  96%|█████████▋| 32.6M/33.8M [00:27&lt;00:00, 1.35MB/s]
+
+
+Downloading teff=3000:  97%|█████████▋| 32.8M/33.8M [00:27&lt;00:00, 1.30MB/s]
+
+
+Downloading teff=3000:  98%|█████████▊| 33.0M/33.8M [00:27&lt;00:00, 1.27MB/s]
+
+
+Downloading teff=3000:  99%|█████████▉| 33.4M/33.8M [00:27&lt;00:00, 1.48MB/s]
+
+
+Downloading teff=3000: 100%|█████████▉| 33.7M/33.8M [00:27&lt;00:00, 1.57MB/s]
+Downloading teff=3000: 100%|██████████| 33.8M/33.8M [00:27&lt;00:00, 1.21MB/s]
+
+
+Loading Spectra:  47%|████▋     | 8/17 [03:29&lt;03:39, 24.35s/it]PHOENIX grid for 3100 not found. Downloading...
+
+
+
+Downloading teff=3100:   0%|          | 0.00/33.7M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3100:   0%|          | 4.10k/33.7M [00:00&lt;49:37, 11.3kB/s]
+
+
+Downloading teff=3100:   0%|          | 32.8k/33.7M [00:00&lt;06:42, 83.7kB/s]
+
+
+Downloading teff=3100:   0%|          | 115k/33.7M [00:00&lt;02:18, 243kB/s]
+
+
+Downloading teff=3100:   1%|          | 254k/33.7M [00:00&lt;01:06, 500kB/s]
+
+
+Downloading teff=3100:   2%|▏         | 516k/33.7M [00:00&lt;00:39, 838kB/s]
+
+
+Downloading teff=3100:   2%|▏         | 713k/33.7M [00:01&lt;00:36, 904kB/s]
+
+
+Downloading teff=3100:   3%|▎         | 926k/33.7M [00:01&lt;00:33, 972kB/s]
+
+
+Downloading teff=3100:   3%|▎         | 1.17M/33.7M [00:01&lt;00:30, 1.07MB/s]
+
+
+Downloading teff=3100:   4%|▍         | 1.40M/33.7M [00:01&lt;00:29, 1.11MB/s]
+
+
+Downloading teff=3100:   5%|▍         | 1.61M/33.7M [00:01&lt;00:29, 1.11MB/s]
+
+
+Downloading teff=3100:   5%|▌         | 1.79M/33.7M [00:02&lt;00:30, 1.05MB/s]
+
+
+Downloading teff=3100:   6%|▌         | 2.00M/33.7M [00:02&lt;00:29, 1.06MB/s]
+
+
+Downloading teff=3100:   7%|▋         | 2.25M/33.7M [00:02&lt;00:27, 1.13MB/s]
+
+
+Downloading teff=3100:   7%|▋         | 2.49M/33.7M [00:02&lt;00:26, 1.17MB/s]
+
+
+Downloading teff=3100:   8%|▊         | 2.67M/33.7M [00:02&lt;00:28, 1.10MB/s]
+
+
+Downloading teff=3100:   9%|▊         | 2.89M/33.7M [00:03&lt;00:28, 1.10MB/s]
+
+
+Downloading teff=3100:   9%|▉         | 3.00M/33.7M [00:03&lt;00:28, 1.09MB/s]
+
+
+Downloading teff=3100:   9%|▉         | 3.11M/33.7M [00:03&lt;00:28, 1.08MB/s]
+
+
+Downloading teff=3100:  10%|▉         | 3.28M/33.7M [00:03&lt;00:30, 1.01MB/s]
+
+
+Downloading teff=3100:  10%|█         | 3.48M/33.7M [00:03&lt;00:29, 1.01MB/s]
+
+
+Downloading teff=3100:  11%|█         | 3.72M/33.7M [00:03&lt;00:27, 1.10MB/s]
+
+
+Downloading teff=3100:  12%|█▏        | 3.89M/33.7M [00:04&lt;00:29, 1.01MB/s]
+
+
+Downloading teff=3100:  12%|█▏        | 4.11M/33.7M [00:04&lt;00:27, 1.06MB/s]
+
+
+Downloading teff=3100:  13%|█▎        | 4.29M/33.7M [00:04&lt;00:28, 1.02MB/s]
+
+
+Downloading teff=3100:  13%|█▎        | 4.51M/33.7M [00:04&lt;00:27, 1.05MB/s]
+
+
+Downloading teff=3100:  14%|█▍        | 4.70M/33.7M [00:04&lt;00:27, 1.04MB/s]
+
+
+Downloading teff=3100:  15%|█▍        | 4.92M/33.7M [00:05&lt;00:27, 1.06MB/s]
+
+
+Downloading teff=3100:  15%|█▌        | 5.16M/33.7M [00:05&lt;00:25, 1.12MB/s]
+
+
+Downloading teff=3100:  16%|█▌        | 5.34M/33.7M [00:05&lt;00:26, 1.07MB/s]
+
+
+Downloading teff=3100:  16%|█▋        | 5.54M/33.7M [00:05&lt;00:26, 1.05MB/s]
+
+
+Downloading teff=3100:  17%|█▋        | 5.73M/33.7M [00:05&lt;00:26, 1.04MB/s]
+
+
+Downloading teff=3100:  17%|█▋        | 5.90M/33.7M [00:06&lt;00:28, 983kB/s]
+
+
+Downloading teff=3100:  18%|█▊        | 6.06M/33.7M [00:06&lt;00:29, 938kB/s]
+
+
+Downloading teff=3100:  19%|█▊        | 6.32M/33.7M [00:06&lt;00:25, 1.06MB/s]
+
+
+Downloading teff=3100:  19%|█▉        | 6.50M/33.7M [00:06&lt;00:26, 1.02MB/s]
+
+
+Downloading teff=3100:  20%|█▉        | 6.70M/33.7M [00:06&lt;00:26, 1.02MB/s]
+
+
+Downloading teff=3100:  20%|██        | 6.88M/33.7M [00:06&lt;00:26, 996kB/s]
+
+
+Downloading teff=3100:  21%|██        | 7.16M/33.7M [00:07&lt;00:23, 1.13MB/s]
+
+
+Downloading teff=3100:  22%|██▏       | 7.35M/33.7M [00:07&lt;00:24, 1.10MB/s]
+
+
+Downloading teff=3100:  22%|██▏       | 7.58M/33.7M [00:07&lt;00:23, 1.12MB/s]
+
+
+Downloading teff=3100:  23%|██▎       | 7.78M/33.7M [00:07&lt;00:23, 1.09MB/s]
+
+
+Downloading teff=3100:  24%|██▎       | 7.99M/33.7M [00:07&lt;00:23, 1.10MB/s]
+
+
+Downloading teff=3100:  24%|██▍       | 8.22M/33.7M [00:08&lt;00:22, 1.12MB/s]
+
+
+Downloading teff=3100:  25%|██▌       | 8.43M/33.7M [00:08&lt;00:22, 1.11MB/s]
+
+
+Downloading teff=3100:  26%|██▌       | 8.69M/33.7M [00:08&lt;00:21, 1.19MB/s]
+
+
+Downloading teff=3100:  26%|██▋       | 8.87M/33.7M [00:08&lt;00:22, 1.11MB/s]
+
+
+Downloading teff=3100:  27%|██▋       | 9.07M/33.7M [00:08&lt;00:22, 1.08MB/s]
+
+
+Downloading teff=3100:  28%|██▊       | 9.30M/33.7M [00:09&lt;00:21, 1.12MB/s]
+
+
+Downloading teff=3100:  28%|██▊       | 9.48M/33.7M [00:09&lt;00:22, 1.06MB/s]
+
+
+Downloading teff=3100:  29%|██▊       | 9.64M/33.7M [00:09&lt;00:24, 997kB/s]
+
+
+Downloading teff=3100:  29%|██▉       | 9.89M/33.7M [00:09&lt;00:22, 1.08MB/s]
+
+
+Downloading teff=3100:  30%|███       | 10.1M/33.7M [00:09&lt;00:20, 1.14MB/s]
+
+
+Downloading teff=3100:  31%|███       | 10.3M/33.7M [00:10&lt;00:20, 1.12MB/s]
+
+
+Downloading teff=3100:  31%|███▏      | 10.5M/33.7M [00:10&lt;00:21, 1.09MB/s]
+
+
+Downloading teff=3100:  32%|███▏      | 10.7M/33.7M [00:10&lt;00:22, 1.04MB/s]
+
+
+Downloading teff=3100:  32%|███▏      | 10.9M/33.7M [00:10&lt;00:19, 1.15MB/s]
+
+
+Downloading teff=3100:  33%|███▎      | 11.0M/33.7M [00:10&lt;00:23, 980kB/s]
+
+
+Downloading teff=3100:  33%|███▎      | 11.1M/33.7M [00:10&lt;00:25, 898kB/s]
+
+
+Downloading teff=3100:  34%|███▎      | 11.3M/33.7M [00:11&lt;00:23, 935kB/s]
+
+
+Downloading teff=3100:  34%|███▍      | 11.5M/33.7M [00:11&lt;00:23, 934kB/s]
+
+
+Downloading teff=3100:  35%|███▍      | 11.7M/33.7M [00:11&lt;00:23, 935kB/s]
+
+
+Downloading teff=3100:  36%|███▌      | 12.0M/33.7M [00:11&lt;00:19, 1.09MB/s]
+
+
+Downloading teff=3100:  36%|███▌      | 12.2M/33.7M [00:11&lt;00:20, 1.07MB/s]
+
+
+Downloading teff=3100:  37%|███▋      | 12.4M/33.7M [00:12&lt;00:20, 1.02MB/s]
+
+
+Downloading teff=3100:  37%|███▋      | 12.5M/33.7M [00:12&lt;00:21, 995kB/s]
+
+
+Downloading teff=3100:  38%|███▊      | 12.7M/33.7M [00:12&lt;00:21, 977kB/s]
+
+
+Downloading teff=3100:  38%|███▊      | 12.9M/33.7M [00:12&lt;00:20, 1.02MB/s]
+
+
+Downloading teff=3100:  39%|███▉      | 13.1M/33.7M [00:12&lt;00:20, 990kB/s]
+
+
+Downloading teff=3100:  40%|███▉      | 13.3M/33.7M [00:13&lt;00:19, 1.02MB/s]
+
+
+Downloading teff=3100:  40%|███▉      | 13.5M/33.7M [00:13&lt;00:18, 1.10MB/s]
+
+
+Downloading teff=3100:  41%|████      | 13.7M/33.7M [00:13&lt;00:18, 1.11MB/s]
+
+
+Downloading teff=3100:  41%|████      | 13.9M/33.7M [00:13&lt;00:18, 1.05MB/s]
+
+
+Downloading teff=3100:  42%|████▏     | 14.1M/33.7M [00:13&lt;00:18, 1.06MB/s]
+
+
+Downloading teff=3100:  42%|████▏     | 14.3M/33.7M [00:13&lt;00:17, 1.13MB/s]
+
+
+Downloading teff=3100:  43%|████▎     | 14.6M/33.7M [00:14&lt;00:16, 1.16MB/s]
+
+
+Downloading teff=3100:  44%|████▍     | 14.8M/33.7M [00:14&lt;00:16, 1.12MB/s]
+
+
+Downloading teff=3100:  44%|████▍     | 15.0M/33.7M [00:14&lt;00:17, 1.09MB/s]
+
+
+Downloading teff=3100:  45%|████▌     | 15.2M/33.7M [00:14&lt;00:16, 1.12MB/s]
+
+
+Downloading teff=3100:  46%|████▌     | 15.4M/33.7M [00:14&lt;00:17, 1.06MB/s]
+
+
+Downloading teff=3100:  46%|████▌     | 15.5M/33.7M [00:15&lt;00:17, 1.02MB/s]
+
+
+Downloading teff=3100:  47%|████▋     | 15.7M/33.7M [00:15&lt;00:17, 1.02MB/s]
+
+
+Downloading teff=3100:  47%|████▋     | 15.9M/33.7M [00:15&lt;00:17, 997kB/s]
+
+
+Downloading teff=3100:  48%|████▊     | 16.1M/33.7M [00:15&lt;00:18, 974kB/s]
+
+
+Downloading teff=3100:  49%|████▊     | 16.4M/33.7M [00:15&lt;00:14, 1.19MB/s]
+
+
+Downloading teff=3100:  50%|████▉     | 16.7M/33.7M [00:16&lt;00:13, 1.26MB/s]
+
+
+Downloading teff=3100:  50%|█████     | 17.0M/33.7M [00:16&lt;00:12, 1.31MB/s]
+
+
+Downloading teff=3100:  51%|█████     | 17.2M/33.7M [00:16&lt;00:12, 1.30MB/s]
+
+
+Downloading teff=3100:  52%|█████▏    | 17.4M/33.7M [00:16&lt;00:13, 1.19MB/s]
+
+
+Downloading teff=3100:  52%|█████▏    | 17.6M/33.7M [00:16&lt;00:13, 1.17MB/s]
+
+
+Downloading teff=3100:  53%|█████▎    | 17.8M/33.7M [00:17&lt;00:13, 1.15MB/s]
+
+
+Downloading teff=3100:  54%|█████▎    | 18.1M/33.7M [00:17&lt;00:13, 1.18MB/s]
+
+
+Downloading teff=3100:  54%|█████▍    | 18.3M/33.7M [00:17&lt;00:13, 1.18MB/s]
+
+
+Downloading teff=3100:  55%|█████▍    | 18.5M/33.7M [00:17&lt;00:12, 1.19MB/s]
+
+
+Downloading teff=3100:  56%|█████▌    | 18.7M/33.7M [00:17&lt;00:13, 1.13MB/s]
+
+
+Downloading teff=3100:  56%|█████▋    | 19.0M/33.7M [00:17&lt;00:12, 1.17MB/s]
+
+
+Downloading teff=3100:  57%|█████▋    | 19.2M/33.7M [00:18&lt;00:12, 1.15MB/s]
+
+
+Downloading teff=3100:  58%|█████▊    | 19.5M/33.7M [00:18&lt;00:11, 1.26MB/s]
+
+
+Downloading teff=3100:  58%|█████▊    | 19.7M/33.7M [00:18&lt;00:11, 1.22MB/s]
+
+
+Downloading teff=3100:  59%|█████▉    | 19.9M/33.7M [00:18&lt;00:11, 1.23MB/s]
+
+
+Downloading teff=3100:  60%|██████    | 20.3M/33.7M [00:18&lt;00:09, 1.42MB/s]
+
+
+Downloading teff=3100:  61%|██████    | 20.5M/33.7M [00:19&lt;00:10, 1.30MB/s]
+
+
+Downloading teff=3100:  61%|██████▏   | 20.7M/33.7M [00:19&lt;00:10, 1.24MB/s]
+
+
+Downloading teff=3100:  62%|██████▏   | 21.0M/33.7M [00:19&lt;00:10, 1.27MB/s]
+
+
+Downloading teff=3100:  63%|██████▎   | 21.2M/33.7M [00:19&lt;00:10, 1.20MB/s]
+
+
+Downloading teff=3100:  64%|██████▎   | 21.4M/33.7M [00:19&lt;00:10, 1.22MB/s]
+
+
+Downloading teff=3100:  64%|██████▍   | 21.6M/33.7M [00:20&lt;00:10, 1.13MB/s]
+
+
+Downloading teff=3100:  65%|██████▍   | 21.8M/33.7M [00:20&lt;00:10, 1.12MB/s]
+
+
+Downloading teff=3100:  65%|██████▌   | 22.0M/33.7M [00:20&lt;00:10, 1.09MB/s]
+
+
+Downloading teff=3100:  66%|██████▋   | 22.3M/33.7M [00:20&lt;00:08, 1.30MB/s]
+
+
+Downloading teff=3100:  67%|██████▋   | 22.6M/33.7M [00:20&lt;00:08, 1.29MB/s]
+
+
+Downloading teff=3100:  68%|██████▊   | 22.9M/33.7M [00:21&lt;00:08, 1.31MB/s]
+
+
+Downloading teff=3100:  68%|██████▊   | 23.0M/33.7M [00:21&lt;00:08, 1.22MB/s]
+
+
+Downloading teff=3100:  69%|██████▉   | 23.3M/33.7M [00:21&lt;00:08, 1.26MB/s]
+
+
+Downloading teff=3100:  70%|██████▉   | 23.5M/33.7M [00:21&lt;00:08, 1.19MB/s]
+
+
+Downloading teff=3100:  70%|███████   | 23.7M/33.7M [00:21&lt;00:08, 1.16MB/s]
+
+
+Downloading teff=3100:  71%|███████   | 24.0M/33.7M [00:22&lt;00:08, 1.20MB/s]
+
+
+Downloading teff=3100:  72%|███████▏  | 24.2M/33.7M [00:22&lt;00:08, 1.17MB/s]
+
+
+Downloading teff=3100:  72%|███████▏  | 24.4M/33.7M [00:22&lt;00:07, 1.17MB/s]
+
+
+Downloading teff=3100:  73%|███████▎  | 24.7M/33.7M [00:22&lt;00:07, 1.20MB/s]
+
+
+Downloading teff=3100:  74%|███████▍  | 24.9M/33.7M [00:22&lt;00:06, 1.27MB/s]
+
+
+Downloading teff=3100:  75%|███████▍  | 25.2M/33.7M [00:23&lt;00:06, 1.24MB/s]
+
+
+Downloading teff=3100:  75%|███████▌  | 25.4M/33.7M [00:23&lt;00:06, 1.23MB/s]
+
+
+Downloading teff=3100:  76%|███████▌  | 25.6M/33.7M [00:23&lt;00:06, 1.19MB/s]
+
+
+Downloading teff=3100:  77%|███████▋  | 25.9M/33.7M [00:23&lt;00:05, 1.31MB/s]
+
+
+Downloading teff=3100:  78%|███████▊  | 26.1M/33.7M [00:23&lt;00:05, 1.28MB/s]
+
+
+Downloading teff=3100:  78%|███████▊  | 26.4M/33.7M [00:23&lt;00:06, 1.22MB/s]
+
+
+Downloading teff=3100:  79%|███████▉  | 26.6M/33.7M [00:24&lt;00:05, 1.24MB/s]
+
+
+Downloading teff=3100:  80%|███████▉  | 27.0M/33.7M [00:24&lt;00:04, 1.43MB/s]
+
+
+Downloading teff=3100:  81%|████████  | 27.2M/33.7M [00:24&lt;00:04, 1.35MB/s]
+
+
+Downloading teff=3100:  81%|████████▏ | 27.4M/33.7M [00:24&lt;00:04, 1.35MB/s]
+
+
+Downloading teff=3100:  82%|████████▏ | 27.7M/33.7M [00:24&lt;00:04, 1.28MB/s]
+
+
+Downloading teff=3100:  83%|████████▎ | 28.0M/33.7M [00:25&lt;00:04, 1.38MB/s]
+
+
+Downloading teff=3100:  84%|████████▎ | 28.2M/33.7M [00:25&lt;00:04, 1.32MB/s]
+
+
+Downloading teff=3100:  84%|████████▍ | 28.4M/33.7M [00:25&lt;00:04, 1.21MB/s]
+
+
+Downloading teff=3100:  85%|████████▍ | 28.6M/33.7M [00:25&lt;00:04, 1.20MB/s]
+
+
+Downloading teff=3100:  85%|████████▌ | 28.8M/33.7M [00:25&lt;00:04, 1.14MB/s]
+
+
+Downloading teff=3100:  86%|████████▌ | 29.0M/33.7M [00:26&lt;00:04, 1.16MB/s]
+
+
+Downloading teff=3100:  87%|████████▋ | 29.2M/33.7M [00:26&lt;00:03, 1.14MB/s]
+
+
+Downloading teff=3100:  87%|████████▋ | 29.4M/33.7M [00:26&lt;00:03, 1.10MB/s]
+
+
+Downloading teff=3100:  88%|████████▊ | 29.8M/33.7M [00:26&lt;00:03, 1.25MB/s]
+
+
+Downloading teff=3100:  89%|████████▉ | 29.9M/33.7M [00:26&lt;00:03, 1.18MB/s]
+
+
+Downloading teff=3100:  90%|████████▉ | 30.2M/33.7M [00:27&lt;00:02, 1.18MB/s]
+
+
+Downloading teff=3100:  90%|█████████ | 30.5M/33.7M [00:27&lt;00:02, 1.26MB/s]
+
+
+Downloading teff=3100:  91%|█████████ | 30.8M/33.7M [00:27&lt;00:02, 1.34MB/s]
+
+
+Downloading teff=3100:  92%|█████████▏| 31.0M/33.7M [00:27&lt;00:02, 1.34MB/s]
+
+
+Downloading teff=3100:  92%|█████████▏| 31.2M/33.7M [00:27&lt;00:02, 1.17MB/s]
+
+
+Downloading teff=3100:  93%|█████████▎| 31.3M/33.7M [00:28&lt;00:02, 1.10MB/s]
+
+
+Downloading teff=3100:  94%|█████████▎| 31.5M/33.7M [00:28&lt;00:02, 1.07MB/s]
+
+
+Downloading teff=3100:  94%|█████████▍| 31.7M/33.7M [00:28&lt;00:01, 1.03MB/s]
+
+
+Downloading teff=3100:  95%|█████████▍| 31.9M/33.7M [00:28&lt;00:01, 1.05MB/s]
+
+
+Downloading teff=3100:  95%|█████████▌| 32.1M/33.7M [00:28&lt;00:01, 1.04MB/s]
+
+
+Downloading teff=3100:  96%|█████████▌| 32.3M/33.7M [00:28&lt;00:01, 1.06MB/s]
+
+
+Downloading teff=3100:  97%|█████████▋| 32.6M/33.7M [00:29&lt;00:01, 1.09MB/s]
+
+
+Downloading teff=3100:  97%|█████████▋| 32.8M/33.7M [00:29&lt;00:00, 1.07MB/s]
+
+
+Downloading teff=3100:  98%|█████████▊| 33.0M/33.7M [00:29&lt;00:00, 1.08MB/s]
+
+
+Downloading teff=3100:  99%|█████████▊| 33.2M/33.7M [00:29&lt;00:00, 1.16MB/s]
+
+
+Downloading teff=3100:  99%|█████████▉| 33.4M/33.7M [00:29&lt;00:00, 1.10MB/s]
+Downloading teff=3100: 100%|██████████| 33.7M/33.7M [00:30&lt;00:00, 1.12MB/s]
+
+
+Loading Spectra:  53%|█████▎    | 9/17 [04:00&lt;03:31, 26.38s/it]
+
+Loading Spectra:  59%|█████▉    | 10/17 [04:00&lt;02:08, 18.33s/it]
+
+Loading Spectra:  65%|██████▍   | 11/17 [04:00&lt;01:16, 12.81s/it]
+
+Loading Spectra:  71%|███████   | 12/17 [04:01&lt;00:44,  9.00s/it]PHOENIX grid for 3500 not found. Downloading...
+
+
+
+Downloading teff=3500:   0%|          | 0.00/33.4M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3500:   0%|          | 4.10k/33.4M [00:00&lt;56:44, 9.81kB/s]
+
+
+Downloading teff=3500:   0%|          | 41.0k/33.4M [00:00&lt;06:24, 86.9kB/s]
+
+
+Downloading teff=3500:   0%|          | 90.1k/33.4M [00:00&lt;03:11, 174kB/s]
+
+
+Downloading teff=3500:   1%|          | 176k/33.4M [00:00&lt;01:38, 338kB/s]
+
+
+Downloading teff=3500:   1%|          | 356k/33.4M [00:01&lt;00:57, 577kB/s]
+
+
+Downloading teff=3500:   2%|▏         | 520k/33.4M [00:01&lt;00:48, 677kB/s]
+
+
+Downloading teff=3500:   2%|▏         | 717k/33.4M [00:01&lt;00:41, 795kB/s]
+
+
+Downloading teff=3500:   3%|▎         | 942k/33.4M [00:01&lt;00:35, 919kB/s]
+
+
+Downloading teff=3500:   3%|▎         | 1.14M/33.4M [00:01&lt;00:33, 952kB/s]
+
+
+Downloading teff=3500:   4%|▍         | 1.35M/33.4M [00:01&lt;00:32, 1.00MB/s]
+
+
+Downloading teff=3500:   5%|▍         | 1.58M/33.4M [00:02&lt;00:30, 1.06MB/s]
+
+
+Downloading teff=3500:   5%|▌         | 1.81M/33.4M [00:02&lt;00:28, 1.10MB/s]
+
+
+Downloading teff=3500:   6%|▌         | 2.01M/33.4M [00:02&lt;00:29, 1.07MB/s]
+
+
+Downloading teff=3500:   7%|▋         | 2.19M/33.4M [00:02&lt;00:30, 1.03MB/s]
+
+
+Downloading teff=3500:   7%|▋         | 2.40M/33.4M [00:02&lt;00:29, 1.05MB/s]
+
+
+Downloading teff=3500:   8%|▊         | 2.65M/33.4M [00:03&lt;00:27, 1.12MB/s]
+
+
+Downloading teff=3500:   8%|▊         | 2.83M/33.4M [00:03&lt;00:28, 1.07MB/s]
+
+
+Downloading teff=3500:   9%|▉         | 3.15M/33.4M [00:03&lt;00:24, 1.25MB/s]
+
+
+Downloading teff=3500:  10%|█         | 3.41M/33.4M [00:03&lt;00:23, 1.28MB/s]
+
+
+Downloading teff=3500:  11%|█         | 3.66M/33.4M [00:03&lt;00:23, 1.28MB/s]
+
+
+Downloading teff=3500:  12%|█▏        | 3.99M/33.4M [00:04&lt;00:20, 1.41MB/s]
+
+
+Downloading teff=3500:  13%|█▎        | 4.40M/33.4M [00:04&lt;00:17, 1.62MB/s]
+
+
+Downloading teff=3500:  14%|█▎        | 4.59M/33.4M [00:04&lt;00:19, 1.44MB/s]
+
+
+Downloading teff=3500:  15%|█▍        | 4.98M/33.4M [00:04&lt;00:17, 1.62MB/s]
+
+
+Downloading teff=3500:  16%|█▌        | 5.23M/33.4M [00:04&lt;00:18, 1.51MB/s]
+
+
+Downloading teff=3500:  17%|█▋        | 5.54M/33.4M [00:05&lt;00:18, 1.54MB/s]
+
+
+Downloading teff=3500:  18%|█▊        | 5.90M/33.4M [00:05&lt;00:16, 1.64MB/s]
+
+
+Downloading teff=3500:  18%|█▊        | 6.08M/33.4M [00:05&lt;00:19, 1.43MB/s]
+
+
+Downloading teff=3500:  19%|█▉        | 6.31M/33.4M [00:05&lt;00:19, 1.36MB/s]
+
+
+Downloading teff=3500:  20%|█▉        | 6.64M/33.4M [00:05&lt;00:18, 1.46MB/s]
+
+
+Downloading teff=3500:  21%|██        | 6.88M/33.4M [00:06&lt;00:18, 1.40MB/s]
+
+
+Downloading teff=3500:  21%|██▏       | 7.14M/33.4M [00:06&lt;00:18, 1.39MB/s]
+
+
+Downloading teff=3500:  22%|██▏       | 7.39M/33.4M [00:06&lt;00:19, 1.35MB/s]
+
+
+Downloading teff=3500:  23%|██▎       | 7.70M/33.4M [00:06&lt;00:17, 1.43MB/s]
+
+
+Downloading teff=3500:  24%|██▍       | 7.96M/33.4M [00:06&lt;00:18, 1.41MB/s]
+
+
+Downloading teff=3500:  25%|██▍       | 8.20M/33.4M [00:06&lt;00:18, 1.37MB/s]
+
+
+Downloading teff=3500:  25%|██▌       | 8.45M/33.4M [00:07&lt;00:18, 1.34MB/s]
+
+
+Downloading teff=3500:  26%|██▌       | 8.68M/33.4M [00:07&lt;00:19, 1.30MB/s]
+
+
+Downloading teff=3500:  27%|██▋       | 8.86M/33.4M [00:07&lt;00:17, 1.39MB/s]
+
+
+Downloading teff=3500:  28%|██▊       | 9.35M/33.4M [00:07&lt;00:13, 1.78MB/s]
+
+
+Downloading teff=3500:  29%|██▉       | 9.67M/33.4M [00:07&lt;00:13, 1.75MB/s]
+
+
+Downloading teff=3500:  30%|███       | 10.0M/33.4M [00:08&lt;00:13, 1.78MB/s]
+
+
+Downloading teff=3500:  31%|███▏      | 10.5M/33.4M [00:08&lt;00:11, 1.91MB/s]
+
+
+Downloading teff=3500:  33%|███▎      | 10.9M/33.4M [00:08&lt;00:10, 2.08MB/s]
+
+
+Downloading teff=3500:  33%|███▎      | 11.2M/33.4M [00:08&lt;00:12, 1.84MB/s]
+
+
+Downloading teff=3500:  34%|███▍      | 11.4M/33.4M [00:08&lt;00:14, 1.57MB/s]
+
+
+Downloading teff=3500:  35%|███▍      | 11.7M/33.4M [00:09&lt;00:14, 1.55MB/s]
+
+
+Downloading teff=3500:  36%|███▌      | 12.0M/33.4M [00:09&lt;00:12, 1.67MB/s]
+
+
+Downloading teff=3500:  37%|███▋      | 12.5M/33.4M [00:09&lt;00:11, 1.86MB/s]
+
+
+Downloading teff=3500:  38%|███▊      | 12.8M/33.4M [00:09&lt;00:11, 1.86MB/s]
+
+
+Downloading teff=3500:  40%|███▉      | 13.3M/33.4M [00:09&lt;00:10, 1.95MB/s]
+
+
+Downloading teff=3500:  40%|████      | 13.5M/33.4M [00:09&lt;00:11, 1.67MB/s]
+
+
+Downloading teff=3500:  41%|████      | 13.7M/33.4M [00:10&lt;00:12, 1.58MB/s]
+
+
+Downloading teff=3500:  42%|████▏     | 14.0M/33.4M [00:10&lt;00:13, 1.49MB/s]
+
+
+Downloading teff=3500:  43%|████▎     | 14.4M/33.4M [00:10&lt;00:10, 1.78MB/s]
+
+
+Downloading teff=3500:  44%|████▍     | 14.8M/33.4M [00:10&lt;00:10, 1.83MB/s]
+
+
+Downloading teff=3500:  45%|████▌     | 15.2M/33.4M [00:10&lt;00:09, 1.87MB/s]
+
+
+Downloading teff=3500:  46%|████▋     | 15.5M/33.4M [00:11&lt;00:09, 1.79MB/s]
+
+
+Downloading teff=3500:  47%|████▋     | 15.7M/33.4M [00:11&lt;00:11, 1.54MB/s]
+
+
+Downloading teff=3500:  48%|████▊     | 15.9M/33.4M [00:11&lt;00:12, 1.38MB/s]
+
+
+Downloading teff=3500:  48%|████▊     | 16.1M/33.4M [00:11&lt;00:13, 1.27MB/s]
+
+
+Downloading teff=3500:  49%|████▉     | 16.4M/33.4M [00:11&lt;00:11, 1.45MB/s]
+
+
+Downloading teff=3500:  50%|█████     | 16.8M/33.4M [00:12&lt;00:10, 1.55MB/s]
+
+
+Downloading teff=3500:  51%|█████     | 17.0M/33.4M [00:12&lt;00:11, 1.47MB/s]
+
+
+Downloading teff=3500:  51%|█████▏    | 17.2M/33.4M [00:12&lt;00:12, 1.28MB/s]
+
+
+Downloading teff=3500:  53%|█████▎    | 17.7M/33.4M [00:12&lt;00:09, 1.63MB/s]
+
+
+Downloading teff=3500:  53%|█████▎    | 17.9M/33.4M [00:12&lt;00:10, 1.45MB/s]
+
+
+Downloading teff=3500:  54%|█████▍    | 18.0M/33.4M [00:13&lt;00:12, 1.27MB/s]
+
+
+Downloading teff=3500:  55%|█████▍    | 18.3M/33.4M [00:13&lt;00:11, 1.32MB/s]
+
+
+Downloading teff=3500:  55%|█████▌    | 18.5M/33.4M [00:13&lt;00:12, 1.23MB/s]
+
+
+Downloading teff=3500:  56%|█████▌    | 18.8M/33.4M [00:13&lt;00:11, 1.29MB/s]
+
+
+Downloading teff=3500:  58%|█████▊    | 19.2M/33.4M [00:13&lt;00:08, 1.62MB/s]
+
+
+Downloading teff=3500:  58%|█████▊    | 19.4M/33.4M [00:14&lt;00:09, 1.44MB/s]
+
+
+Downloading teff=3500:  59%|█████▊    | 19.6M/33.4M [00:14&lt;00:11, 1.24MB/s]
+
+
+Downloading teff=3500:  59%|█████▉    | 19.8M/33.4M [00:14&lt;00:10, 1.30MB/s]
+
+
+Downloading teff=3500:  60%|██████    | 20.1M/33.4M [00:14&lt;00:10, 1.28MB/s]
+
+
+Downloading teff=3500:  61%|██████    | 20.4M/33.4M [00:14&lt;00:09, 1.31MB/s]
+
+
+Downloading teff=3500:  62%|██████▏   | 20.8M/33.4M [00:14&lt;00:08, 1.55MB/s]
+
+
+Downloading teff=3500:  63%|██████▎   | 21.2M/33.4M [00:15&lt;00:07, 1.72MB/s]
+
+
+Downloading teff=3500:  65%|██████▍   | 21.6M/33.4M [00:15&lt;00:06, 1.92MB/s]
+
+
+Downloading teff=3500:  66%|██████▌   | 22.0M/33.4M [00:15&lt;00:06, 1.85MB/s]
+
+
+Downloading teff=3500:  67%|██████▋   | 22.3M/33.4M [00:15&lt;00:05, 1.85MB/s]
+
+
+Downloading teff=3500:  67%|██████▋   | 22.5M/33.4M [00:15&lt;00:06, 1.60MB/s]
+
+
+Downloading teff=3500:  69%|██████▊   | 22.9M/33.4M [00:16&lt;00:05, 1.76MB/s]
+
+
+Downloading teff=3500:  69%|██████▉   | 23.2M/33.4M [00:16&lt;00:06, 1.62MB/s]
+
+
+Downloading teff=3500:  70%|██████▉   | 23.3M/33.4M [00:16&lt;00:07, 1.39MB/s]
+
+
+Downloading teff=3500:  71%|███████   | 23.7M/33.4M [00:16&lt;00:06, 1.51MB/s]
+
+
+Downloading teff=3500:  72%|███████▏  | 24.0M/33.4M [00:16&lt;00:06, 1.49MB/s]
+
+
+Downloading teff=3500:  73%|███████▎  | 24.4M/33.4M [00:17&lt;00:05, 1.67MB/s]
+
+
+Downloading teff=3500:  74%|███████▍  | 24.7M/33.4M [00:17&lt;00:05, 1.62MB/s]
+
+
+Downloading teff=3500:  75%|███████▍  | 24.9M/33.4M [00:17&lt;00:05, 1.59MB/s]
+
+
+Downloading teff=3500:  76%|███████▌  | 25.4M/33.4M [00:17&lt;00:04, 1.78MB/s]
+
+
+Downloading teff=3500:  77%|███████▋  | 25.7M/33.4M [00:17&lt;00:04, 1.75MB/s]
+
+
+Downloading teff=3500:  79%|███████▉  | 26.4M/33.4M [00:18&lt;00:03, 2.29MB/s]
+
+
+Downloading teff=3500:  80%|███████▉  | 26.7M/33.4M [00:18&lt;00:03, 2.11MB/s]
+
+
+Downloading teff=3500:  81%|████████  | 27.1M/33.4M [00:18&lt;00:03, 2.04MB/s]
+
+
+Downloading teff=3500:  82%|████████▏ | 27.3M/33.4M [00:18&lt;00:03, 1.84MB/s]
+
+
+Downloading teff=3500:  83%|████████▎ | 27.6M/33.4M [00:18&lt;00:03, 1.72MB/s]
+
+
+Downloading teff=3500:  83%|████████▎ | 27.8M/33.4M [00:19&lt;00:03, 1.56MB/s]
+
+
+Downloading teff=3500:  84%|████████▍ | 28.2M/33.4M [00:19&lt;00:03, 1.68MB/s]
+
+
+Downloading teff=3500:  87%|████████▋ | 29.0M/33.4M [00:19&lt;00:01, 2.36MB/s]
+
+
+Downloading teff=3500:  88%|████████▊ | 29.2M/33.4M [00:19&lt;00:02, 2.04MB/s]
+
+
+Downloading teff=3500:  88%|████████▊ | 29.5M/33.4M [00:19&lt;00:02, 1.89MB/s]
+
+
+Downloading teff=3500:  89%|████████▉ | 29.9M/33.4M [00:19&lt;00:01, 1.83MB/s]
+
+
+Downloading teff=3500:  90%|█████████ | 30.2M/33.4M [00:20&lt;00:01, 1.74MB/s]
+
+
+Downloading teff=3500:  91%|█████████ | 30.4M/33.4M [00:20&lt;00:01, 1.63MB/s]
+
+
+Downloading teff=3500:  92%|█████████▏| 30.7M/33.4M [00:20&lt;00:01, 1.59MB/s]
+
+
+Downloading teff=3500:  93%|█████████▎| 31.1M/33.4M [00:20&lt;00:01, 1.72MB/s]
+
+
+Downloading teff=3500:  94%|█████████▍| 31.4M/33.4M [00:20&lt;00:01, 1.72MB/s]
+
+
+Downloading teff=3500:  95%|█████████▍| 31.6M/33.4M [00:21&lt;00:01, 1.47MB/s]
+
+
+Downloading teff=3500:  95%|█████████▌| 31.8M/33.4M [00:21&lt;00:01, 1.37MB/s]
+
+
+Downloading teff=3500:  96%|█████████▌| 32.0M/33.4M [00:21&lt;00:01, 1.32MB/s]
+
+
+Downloading teff=3500:  97%|█████████▋| 32.4M/33.4M [00:21&lt;00:00, 1.51MB/s]
+
+
+Downloading teff=3500:  98%|█████████▊| 32.7M/33.4M [00:21&lt;00:00, 1.51MB/s]
+
+
+Downloading teff=3500:  99%|█████████▉| 33.1M/33.4M [00:22&lt;00:00, 1.62MB/s]
+
+
+Downloading teff=3500: 100%|█████████▉| 33.3M/33.4M [00:22&lt;00:00, 1.51MB/s]
+Downloading teff=3500: 100%|██████████| 33.4M/33.4M [00:22&lt;00:00, 1.50MB/s]
+
+
+Loading Spectra:  76%|███████▋  | 13/17 [04:24&lt;00:53, 13.28s/it]PHOENIX grid for 3600 not found. Downloading...
+
+
+
+Downloading teff=3600:   0%|          | 0.00/33.3M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3600:   0%|          | 4.10k/33.3M [00:00&lt;54:37, 10.2kB/s]
+
+
+Downloading teff=3600:   0%|          | 32.8k/33.3M [00:00&lt;07:20, 75.7kB/s]
+
+
+Downloading teff=3600:   0%|          | 106k/33.3M [00:00&lt;02:23, 232kB/s]
+
+
+Downloading teff=3600:   1%|          | 229k/33.3M [00:00&lt;01:20, 412kB/s]
+
+
+Downloading teff=3600:   1%|          | 401k/33.3M [00:01&lt;00:56, 588kB/s]
+
+
+Downloading teff=3600:   2%|▏         | 614k/33.3M [00:01&lt;00:42, 762kB/s]
+
+
+Downloading teff=3600:   2%|▏         | 811k/33.3M [00:01&lt;00:38, 841kB/s]
+
+
+Downloading teff=3600:   3%|▎         | 1.02M/33.3M [00:01&lt;00:35, 920kB/s]
+
+
+Downloading teff=3600:   4%|▎         | 1.20M/33.3M [00:01&lt;00:34, 919kB/s]
+
+
+Downloading teff=3600:   4%|▍         | 1.40M/33.3M [00:02&lt;00:33, 944kB/s]
+
+
+Downloading teff=3600:   5%|▍         | 1.61M/33.3M [00:02&lt;00:32, 988kB/s]
+
+
+Downloading teff=3600:   5%|▌         | 1.81M/33.3M [00:02&lt;00:31, 991kB/s]
+
+
+Downloading teff=3600:   6%|▌         | 2.01M/33.3M [00:02&lt;00:31, 994kB/s]
+
+
+Downloading teff=3600:   7%|▋         | 2.22M/33.3M [00:02&lt;00:30, 1.01MB/s]
+
+
+Downloading teff=3600:   7%|▋         | 2.46M/33.3M [00:02&lt;00:28, 1.09MB/s]
+
+
+Downloading teff=3600:   8%|▊         | 2.72M/33.3M [00:03&lt;00:26, 1.16MB/s]
+
+
+Downloading teff=3600:   9%|▉         | 2.94M/33.3M [00:03&lt;00:26, 1.14MB/s]
+
+
+Downloading teff=3600:   9%|▉         | 3.15M/33.3M [00:03&lt;00:26, 1.12MB/s]
+
+
+Downloading teff=3600:  10%|█         | 3.44M/33.3M [00:03&lt;00:24, 1.23MB/s]
+
+
+Downloading teff=3600:  11%|█         | 3.67M/33.3M [00:03&lt;00:24, 1.21MB/s]
+
+
+Downloading teff=3600:  12%|█▏        | 3.92M/33.3M [00:04&lt;00:24, 1.21MB/s]
+
+
+Downloading teff=3600:  12%|█▏        | 4.17M/33.3M [00:04&lt;00:23, 1.22MB/s]
+
+
+Downloading teff=3600:  13%|█▎        | 4.37M/33.3M [00:04&lt;00:24, 1.17MB/s]
+
+
+Downloading teff=3600:  14%|█▍        | 4.64M/33.3M [00:04&lt;00:23, 1.22MB/s]
+
+
+Downloading teff=3600:  14%|█▍        | 4.80M/33.3M [00:04&lt;00:25, 1.11MB/s]
+
+
+Downloading teff=3600:  15%|█▌        | 5.08M/33.3M [00:05&lt;00:23, 1.20MB/s]
+
+
+Downloading teff=3600:  16%|█▌        | 5.41M/33.3M [00:05&lt;00:20, 1.34MB/s]
+
+
+Downloading teff=3600:  17%|█▋        | 5.64M/33.3M [00:05&lt;00:21, 1.29MB/s]
+
+
+Downloading teff=3600:  17%|█▋        | 5.83M/33.3M [00:05&lt;00:22, 1.20MB/s]
+
+
+Downloading teff=3600:  18%|█▊        | 6.09M/33.3M [00:05&lt;00:21, 1.24MB/s]
+
+
+Downloading teff=3600:  19%|█▉        | 6.34M/33.3M [00:06&lt;00:21, 1.24MB/s]
+
+
+Downloading teff=3600:  20%|█▉        | 6.55M/33.3M [00:06&lt;00:22, 1.19MB/s]
+
+
+Downloading teff=3600:  20%|██        | 6.78M/33.3M [00:06&lt;00:22, 1.18MB/s]
+
+
+Downloading teff=3600:  21%|██        | 6.99M/33.3M [00:06&lt;00:22, 1.15MB/s]
+
+
+Downloading teff=3600:  22%|██▏       | 7.22M/33.3M [00:06&lt;00:22, 1.16MB/s]
+
+
+Downloading teff=3600:  22%|██▏       | 7.47M/33.3M [00:07&lt;00:21, 1.18MB/s]
+
+
+Downloading teff=3600:  23%|██▎       | 7.71M/33.3M [00:07&lt;00:21, 1.20MB/s]
+
+
+Downloading teff=3600:  24%|██▎       | 7.91M/33.3M [00:07&lt;00:22, 1.14MB/s]
+
+
+Downloading teff=3600:  25%|██▍       | 8.17M/33.3M [00:07&lt;00:20, 1.20MB/s]
+
+
+Downloading teff=3600:  25%|██▌       | 8.35M/33.3M [00:07&lt;00:22, 1.12MB/s]
+
+
+Downloading teff=3600:  25%|██▌       | 8.48M/33.3M [00:08&lt;00:21, 1.15MB/s]
+
+
+Downloading teff=3600:  26%|██▋       | 8.79M/33.3M [00:08&lt;00:19, 1.29MB/s]
+
+
+Downloading teff=3600:  27%|██▋       | 9.05M/33.3M [00:08&lt;00:18, 1.30MB/s]
+
+
+Downloading teff=3600:  28%|██▊       | 9.30M/33.3M [00:08&lt;00:18, 1.29MB/s]
+
+
+Downloading teff=3600:  29%|██▊       | 9.54M/33.3M [00:08&lt;00:18, 1.27MB/s]
+
+
+Downloading teff=3600:  29%|██▉       | 9.81M/33.3M [00:09&lt;00:18, 1.29MB/s]
+
+
+Downloading teff=3600:  30%|███       | 10.1M/33.3M [00:09&lt;00:18, 1.28MB/s]
+
+
+Downloading teff=3600:  31%|███       | 10.3M/33.3M [00:09&lt;00:18, 1.25MB/s]
+
+
+Downloading teff=3600:  32%|███▏      | 10.6M/33.3M [00:09&lt;00:16, 1.39MB/s]
+
+
+Downloading teff=3600:  32%|███▏      | 10.8M/33.3M [00:09&lt;00:17, 1.27MB/s]
+
+
+Downloading teff=3600:  33%|███▎      | 11.0M/33.3M [00:09&lt;00:19, 1.17MB/s]
+
+
+Downloading teff=3600:  34%|███▎      | 11.2M/33.3M [00:10&lt;00:18, 1.19MB/s]
+
+
+Downloading teff=3600:  34%|███▍      | 11.5M/33.3M [00:10&lt;00:18, 1.16MB/s]
+
+
+Downloading teff=3600:  35%|███▌      | 11.7M/33.3M [00:10&lt;00:17, 1.21MB/s]
+
+
+Downloading teff=3600:  36%|███▌      | 11.9M/33.3M [00:10&lt;00:17, 1.20MB/s]
+
+
+Downloading teff=3600:  36%|███▋      | 12.2M/33.3M [00:10&lt;00:18, 1.16MB/s]
+
+
+Downloading teff=3600:  37%|███▋      | 12.4M/33.3M [00:11&lt;00:17, 1.19MB/s]
+
+
+Downloading teff=3600:  38%|███▊      | 12.7M/33.3M [00:11&lt;00:17, 1.21MB/s]
+
+
+Downloading teff=3600:  39%|███▊      | 12.9M/33.3M [00:11&lt;00:17, 1.16MB/s]
+
+
+Downloading teff=3600:  39%|███▉      | 13.1M/33.3M [00:11&lt;00:17, 1.14MB/s]
+
+
+Downloading teff=3600:  40%|████      | 13.4M/33.3M [00:11&lt;00:16, 1.25MB/s]
+
+
+Downloading teff=3600:  41%|████      | 13.6M/33.3M [00:12&lt;00:16, 1.17MB/s]
+
+
+Downloading teff=3600:  41%|████▏     | 13.8M/33.3M [00:12&lt;00:17, 1.15MB/s]
+
+
+Downloading teff=3600:  42%|████▏     | 14.0M/33.3M [00:12&lt;00:17, 1.13MB/s]
+
+
+Downloading teff=3600:  43%|████▎     | 14.2M/33.3M [00:12&lt;00:16, 1.16MB/s]
+
+
+Downloading teff=3600:  43%|████▎     | 14.5M/33.3M [00:12&lt;00:15, 1.19MB/s]
+
+
+Downloading teff=3600:  44%|████▍     | 14.7M/33.3M [00:13&lt;00:15, 1.18MB/s]
+
+
+Downloading teff=3600:  45%|████▍     | 14.9M/33.3M [00:13&lt;00:16, 1.15MB/s]
+
+
+Downloading teff=3600:  46%|████▌     | 15.2M/33.3M [00:13&lt;00:15, 1.20MB/s]
+
+
+Downloading teff=3600:  46%|████▌     | 15.4M/33.3M [00:13&lt;00:15, 1.19MB/s]
+
+
+Downloading teff=3600:  47%|████▋     | 15.6M/33.3M [00:13&lt;00:14, 1.18MB/s]
+
+
+Downloading teff=3600:  48%|████▊     | 15.9M/33.3M [00:14&lt;00:15, 1.15MB/s]
+
+
+Downloading teff=3600:  48%|████▊     | 16.1M/33.3M [00:14&lt;00:14, 1.18MB/s]
+
+
+Downloading teff=3600:  49%|████▉     | 16.3M/33.3M [00:14&lt;00:14, 1.20MB/s]
+
+
+Downloading teff=3600:  50%|████▉     | 16.6M/33.3M [00:14&lt;00:14, 1.19MB/s]
+
+
+Downloading teff=3600:  50%|█████     | 16.8M/33.3M [00:14&lt;00:14, 1.16MB/s]
+
+
+Downloading teff=3600:  51%|█████     | 17.0M/33.3M [00:15&lt;00:14, 1.13MB/s]
+
+
+Downloading teff=3600:  52%|█████▏    | 17.2M/33.3M [00:15&lt;00:14, 1.09MB/s]
+
+
+Downloading teff=3600:  52%|█████▏    | 17.4M/33.3M [00:15&lt;00:14, 1.09MB/s]
+
+
+Downloading teff=3600:  53%|█████▎    | 17.6M/33.3M [00:15&lt;00:14, 1.11MB/s]
+
+
+Downloading teff=3600:  54%|█████▎    | 17.9M/33.3M [00:15&lt;00:14, 1.10MB/s]
+
+
+Downloading teff=3600:  54%|█████▍    | 18.0M/33.3M [00:15&lt;00:13, 1.10MB/s]
+
+
+Downloading teff=3600:  54%|█████▍    | 18.2M/33.3M [00:16&lt;00:14, 1.08MB/s]
+
+
+Downloading teff=3600:  55%|█████▌    | 18.4M/33.3M [00:16&lt;00:13, 1.11MB/s]
+
+
+Downloading teff=3600:  56%|█████▌    | 18.7M/33.3M [00:16&lt;00:12, 1.18MB/s]
+
+
+Downloading teff=3600:  56%|█████▋    | 18.8M/33.3M [00:16&lt;00:12, 1.17MB/s]
+
+
+Downloading teff=3600:  57%|█████▋    | 19.0M/33.3M [00:16&lt;00:13, 1.11MB/s]
+
+
+Downloading teff=3600:  57%|█████▋    | 19.2M/33.3M [00:17&lt;00:12, 1.09MB/s]
+
+
+Downloading teff=3600:  58%|█████▊    | 19.4M/33.3M [00:17&lt;00:12, 1.09MB/s]
+
+
+Downloading teff=3600:  59%|█████▉    | 19.6M/33.3M [00:17&lt;00:12, 1.08MB/s]
+
+
+Downloading teff=3600:  60%|█████▉    | 19.8M/33.3M [00:17&lt;00:11, 1.14MB/s]
+
+
+Downloading teff=3600:  60%|██████    | 20.1M/33.3M [00:17&lt;00:11, 1.20MB/s]
+
+
+Downloading teff=3600:  61%|██████    | 20.3M/33.3M [00:18&lt;00:11, 1.16MB/s]
+
+
+Downloading teff=3600:  62%|██████▏   | 20.6M/33.3M [00:18&lt;00:10, 1.19MB/s]
+
+
+Downloading teff=3600:  62%|██████▏   | 20.8M/33.3M [00:18&lt;00:10, 1.16MB/s]
+
+
+Downloading teff=3600:  63%|██████▎   | 21.1M/33.3M [00:18&lt;00:09, 1.31MB/s]
+
+
+Downloading teff=3600:  64%|██████▍   | 21.3M/33.3M [00:18&lt;00:09, 1.21MB/s]
+
+
+Downloading teff=3600:  65%|██████▍   | 21.5M/33.3M [00:19&lt;00:09, 1.20MB/s]
+
+
+Downloading teff=3600:  65%|██████▌   | 21.8M/33.3M [00:19&lt;00:09, 1.23MB/s]
+
+
+Downloading teff=3600:  66%|██████▌   | 22.0M/33.3M [00:19&lt;00:09, 1.24MB/s]
+
+
+Downloading teff=3600:  67%|██████▋   | 22.2M/33.3M [00:19&lt;00:09, 1.19MB/s]
+
+
+Downloading teff=3600:  67%|██████▋   | 22.4M/33.3M [00:19&lt;00:09, 1.14MB/s]
+
+
+Downloading teff=3600:  68%|██████▊   | 22.7M/33.3M [00:20&lt;00:09, 1.12MB/s]
+
+
+Downloading teff=3600:  69%|██████▊   | 22.9M/33.3M [00:20&lt;00:08, 1.18MB/s]
+
+
+Downloading teff=3600:  70%|██████▉   | 23.2M/33.3M [00:20&lt;00:08, 1.25MB/s]
+
+
+Downloading teff=3600:  70%|███████   | 23.4M/33.3M [00:20&lt;00:08, 1.20MB/s]
+
+
+Downloading teff=3600:  71%|███████   | 23.7M/33.3M [00:20&lt;00:07, 1.21MB/s]
+
+
+Downloading teff=3600:  72%|███████▏  | 23.9M/33.3M [00:21&lt;00:08, 1.15MB/s]
+
+
+Downloading teff=3600:  72%|███████▏  | 24.1M/33.3M [00:21&lt;00:08, 1.13MB/s]
+
+
+Downloading teff=3600:  73%|███████▎  | 24.3M/33.3M [00:21&lt;00:07, 1.14MB/s]
+
+
+Downloading teff=3600:  74%|███████▎  | 24.5M/33.3M [00:21&lt;00:07, 1.17MB/s]
+
+
+Downloading teff=3600:  74%|███████▍  | 24.8M/33.3M [00:21&lt;00:07, 1.20MB/s]
+
+
+Downloading teff=3600:  75%|███████▍  | 25.0M/33.3M [00:21&lt;00:07, 1.16MB/s]
+
+
+Downloading teff=3600:  76%|███████▌  | 25.2M/33.3M [00:22&lt;00:07, 1.11MB/s]
+
+
+Downloading teff=3600:  76%|███████▌  | 25.4M/33.3M [00:22&lt;00:07, 1.08MB/s]
+
+
+Downloading teff=3600:  77%|███████▋  | 25.6M/33.3M [00:22&lt;00:06, 1.15MB/s]
+
+
+Downloading teff=3600:  78%|███████▊  | 25.9M/33.3M [00:22&lt;00:06, 1.13MB/s]
+
+
+Downloading teff=3600:  78%|███████▊  | 26.1M/33.3M [00:22&lt;00:06, 1.12MB/s]
+
+
+Downloading teff=3600:  79%|███████▉  | 26.3M/33.3M [00:23&lt;00:06, 1.11MB/s]
+
+
+Downloading teff=3600:  79%|███████▉  | 26.5M/33.3M [00:23&lt;00:06, 1.07MB/s]
+
+
+Downloading teff=3600:  80%|████████  | 26.7M/33.3M [00:23&lt;00:06, 1.08MB/s]
+
+
+Downloading teff=3600:  81%|████████  | 26.9M/33.3M [00:23&lt;00:06, 1.05MB/s]
+
+
+Downloading teff=3600:  81%|████████  | 27.1M/33.3M [00:23&lt;00:06, 1.04MB/s]
+
+
+Downloading teff=3600:  82%|████████▏ | 27.3M/33.3M [00:24&lt;00:05, 1.05MB/s]
+
+
+Downloading teff=3600:  82%|████████▏ | 27.5M/33.3M [00:24&lt;00:05, 1.04MB/s]
+
+
+Downloading teff=3600:  83%|████████▎ | 27.8M/33.3M [00:24&lt;00:04, 1.14MB/s]
+
+
+Downloading teff=3600:  84%|████████▍ | 28.0M/33.3M [00:24&lt;00:04, 1.13MB/s]
+
+
+Downloading teff=3600:  85%|████████▍ | 28.2M/33.3M [00:24&lt;00:04, 1.11MB/s]
+
+
+Downloading teff=3600:  85%|████████▌ | 28.4M/33.3M [00:25&lt;00:03, 1.30MB/s]
+
+
+Downloading teff=3600:  86%|████████▌ | 28.6M/33.3M [00:25&lt;00:04, 1.11MB/s]
+
+
+Downloading teff=3600:  86%|████████▋ | 28.8M/33.3M [00:25&lt;00:04, 1.10MB/s]
+
+
+Downloading teff=3600:  87%|████████▋ | 29.0M/33.3M [00:25&lt;00:03, 1.10MB/s]
+
+
+Downloading teff=3600:  87%|████████▋ | 29.2M/33.3M [00:25&lt;00:04, 1.04MB/s]
+
+
+Downloading teff=3600:  88%|████████▊ | 29.4M/33.3M [00:26&lt;00:03, 1.06MB/s]
+
+
+Downloading teff=3600:  89%|████████▊ | 29.6M/33.3M [00:26&lt;00:03, 1.06MB/s]
+
+
+Downloading teff=3600:  90%|████████▉ | 29.9M/33.3M [00:26&lt;00:02, 1.16MB/s]
+
+
+Downloading teff=3600:  90%|█████████ | 30.1M/33.3M [00:26&lt;00:02, 1.19MB/s]
+
+
+Downloading teff=3600:  91%|█████████ | 30.3M/33.3M [00:26&lt;00:02, 1.16MB/s]
+
+
+Downloading teff=3600:  92%|█████████▏| 30.6M/33.3M [00:27&lt;00:02, 1.19MB/s]
+
+
+Downloading teff=3600:  92%|█████████▏| 30.8M/33.3M [00:27&lt;00:02, 1.20MB/s]
+
+
+Downloading teff=3600:  93%|█████████▎| 31.0M/33.3M [00:27&lt;00:02, 1.14MB/s]
+
+
+Downloading teff=3600:  94%|█████████▎| 31.2M/33.3M [00:27&lt;00:01, 1.13MB/s]
+
+
+Downloading teff=3600:  94%|█████████▍| 31.4M/33.3M [00:27&lt;00:01, 1.16MB/s]
+
+
+Downloading teff=3600:  95%|█████████▍| 31.6M/33.3M [00:27&lt;00:01, 1.13MB/s]
+
+
+Downloading teff=3600:  95%|█████████▌| 31.8M/33.3M [00:28&lt;00:01, 1.16MB/s]
+
+
+Downloading teff=3600:  96%|█████████▌| 32.0M/33.3M [00:28&lt;00:01, 1.16MB/s]
+
+
+Downloading teff=3600:  97%|█████████▋| 32.2M/33.3M [00:28&lt;00:00, 1.11MB/s]
+
+
+Downloading teff=3600:  97%|█████████▋| 32.5M/33.3M [00:28&lt;00:00, 1.10MB/s]
+
+
+Downloading teff=3600:  98%|█████████▊| 32.7M/33.3M [00:28&lt;00:00, 1.17MB/s]
+
+
+Downloading teff=3600:  99%|█████████▉| 32.9M/33.3M [00:29&lt;00:00, 1.17MB/s]
+
+
+Downloading teff=3600:  99%|█████████▉| 33.2M/33.3M [00:29&lt;00:00, 1.15MB/s]
+Downloading teff=3600: 100%|██████████| 33.3M/33.3M [00:29&lt;00:00, 1.14MB/s]
+
+
+Loading Spectra:  82%|████████▏ | 14/17 [04:54&lt;00:55, 18.38s/it]PHOENIX grid for 3700 not found. Downloading...
+
+
+
+Downloading teff=3700:   0%|          | 0.00/33.3M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3700:   0%|          | 4.10k/33.3M [00:00&lt;57:05, 9.72kB/s]
+
+
+Downloading teff=3700:   0%|          | 41.0k/33.3M [00:00&lt;06:47, 81.7kB/s]
+
+
+Downloading teff=3700:   1%|          | 184k/33.3M [00:00&lt;01:43, 321kB/s]
+
+
+Downloading teff=3700:   1%|          | 369k/33.3M [00:00&lt;01:01, 537kB/s]
+
+
+Downloading teff=3700:   2%|▏         | 598k/33.3M [00:01&lt;00:43, 749kB/s]
+
+
+Downloading teff=3700:   2%|▏         | 795k/33.3M [00:01&lt;00:38, 836kB/s]
+
+
+Downloading teff=3700:   3%|▎         | 958k/33.3M [00:01&lt;00:38, 841kB/s]
+
+
+Downloading teff=3700:   4%|▎         | 1.19M/33.3M [00:01&lt;00:33, 947kB/s]
+
+
+Downloading teff=3700:   4%|▍         | 1.40M/33.3M [00:01&lt;00:32, 996kB/s]
+
+
+Downloading teff=3700:   5%|▍         | 1.66M/33.3M [00:02&lt;00:28, 1.10MB/s]
+
+
+Downloading teff=3700:   6%|▌         | 1.95M/33.3M [00:02&lt;00:25, 1.23MB/s]
+
+
+Downloading teff=3700:   7%|▋         | 2.20M/33.3M [00:02&lt;00:24, 1.24MB/s]
+
+
+Downloading teff=3700:   7%|▋         | 2.41M/33.3M [00:02&lt;00:25, 1.20MB/s]
+
+
+Downloading teff=3700:   8%|▊         | 2.64M/33.3M [00:02&lt;00:25, 1.20MB/s]
+
+
+Downloading teff=3700:   9%|▊         | 2.87M/33.3M [00:03&lt;00:25, 1.20MB/s]
+
+
+Downloading teff=3700:   9%|▉         | 3.10M/33.3M [00:03&lt;00:25, 1.20MB/s]
+
+
+Downloading teff=3700:  10%|█         | 3.38M/33.3M [00:03&lt;00:23, 1.27MB/s]
+
+
+Downloading teff=3700:  11%|█         | 3.62M/33.3M [00:03&lt;00:23, 1.27MB/s]
+
+
+Downloading teff=3700:  11%|█▏        | 3.82M/33.3M [00:03&lt;00:24, 1.19MB/s]
+
+
+Downloading teff=3700:  12%|█▏        | 4.05M/33.3M [00:04&lt;00:24, 1.19MB/s]
+
+
+Downloading teff=3700:  13%|█▎        | 4.26M/33.3M [00:04&lt;00:24, 1.17MB/s]
+
+
+Downloading teff=3700:  14%|█▎        | 4.51M/33.3M [00:04&lt;00:23, 1.20MB/s]
+
+
+Downloading teff=3700:  14%|█▍        | 4.75M/33.3M [00:04&lt;00:23, 1.22MB/s]
+
+
+Downloading teff=3700:  15%|█▌        | 5.00M/33.3M [00:04&lt;00:22, 1.24MB/s]
+
+
+Downloading teff=3700:  16%|█▌        | 5.23M/33.3M [00:05&lt;00:22, 1.22MB/s]
+
+
+Downloading teff=3700:  16%|█▋        | 5.49M/33.3M [00:05&lt;00:22, 1.26MB/s]
+
+
+Downloading teff=3700:  17%|█▋        | 5.70M/33.3M [00:05&lt;00:22, 1.22MB/s]
+
+
+Downloading teff=3700:  18%|█▊        | 5.94M/33.3M [00:05&lt;00:22, 1.23MB/s]
+
+
+Downloading teff=3700:  19%|█▊        | 6.17M/33.3M [00:05&lt;00:22, 1.22MB/s]
+
+
+Downloading teff=3700:  19%|█▉        | 6.40M/33.3M [00:06&lt;00:22, 1.21MB/s]
+
+
+Downloading teff=3700:  20%|█▉        | 6.62M/33.3M [00:06&lt;00:22, 1.18MB/s]
+
+
+Downloading teff=3700:  20%|██        | 6.80M/33.3M [00:06&lt;00:23, 1.11MB/s]
+
+
+Downloading teff=3700:  21%|██        | 7.04M/33.3M [00:06&lt;00:22, 1.16MB/s]
+
+
+Downloading teff=3700:  22%|██▏       | 7.25M/33.3M [00:06&lt;00:22, 1.14MB/s]
+
+
+Downloading teff=3700:  22%|██▏       | 7.48M/33.3M [00:06&lt;00:22, 1.16MB/s]
+
+
+Downloading teff=3700:  23%|██▎       | 7.70M/33.3M [00:07&lt;00:22, 1.14MB/s]
+
+
+Downloading teff=3700:  24%|██▍       | 7.94M/33.3M [00:07&lt;00:21, 1.17MB/s]
+
+
+Downloading teff=3700:  25%|██▍       | 8.20M/33.3M [00:07&lt;00:20, 1.23MB/s]
+
+
+Downloading teff=3700:  25%|██▌       | 8.40M/33.3M [00:07&lt;00:21, 1.17MB/s]
+
+
+Downloading teff=3700:  26%|██▌       | 8.68M/33.3M [00:07&lt;00:19, 1.25MB/s]
+
+
+Downloading teff=3700:  27%|██▋       | 8.89M/33.3M [00:08&lt;00:20, 1.21MB/s]
+
+
+Downloading teff=3700:  28%|██▊       | 9.20M/33.3M [00:08&lt;00:18, 1.33MB/s]
+
+
+Downloading teff=3700:  28%|██▊       | 9.38M/33.3M [00:08&lt;00:19, 1.21MB/s]
+
+
+Downloading teff=3700:  29%|██▉       | 9.63M/33.3M [00:08&lt;00:19, 1.23MB/s]
+
+
+Downloading teff=3700:  30%|██▉       | 9.84M/33.3M [00:08&lt;00:19, 1.19MB/s]
+
+
+Downloading teff=3700:  30%|███       | 10.1M/33.3M [00:09&lt;00:18, 1.24MB/s]
+
+
+Downloading teff=3700:  31%|███       | 10.3M/33.3M [00:09&lt;00:18, 1.25MB/s]
+
+
+Downloading teff=3700:  32%|███▏      | 10.5M/33.3M [00:09&lt;00:19, 1.16MB/s]
+
+
+Downloading teff=3700:  32%|███▏      | 10.7M/33.3M [00:09&lt;00:20, 1.09MB/s]
+
+
+Downloading teff=3700:  33%|███▎      | 10.9M/33.3M [00:09&lt;00:19, 1.12MB/s]
+
+
+Downloading teff=3700:  34%|███▎      | 11.2M/33.3M [00:10&lt;00:18, 1.19MB/s]
+
+
+Downloading teff=3700:  34%|███▍      | 11.5M/33.3M [00:10&lt;00:17, 1.27MB/s]
+
+
+Downloading teff=3700:  35%|███▌      | 11.7M/33.3M [00:10&lt;00:17, 1.22MB/s]
+
+
+Downloading teff=3700:  36%|███▌      | 12.0M/33.3M [00:10&lt;00:15, 1.39MB/s]
+
+
+Downloading teff=3700:  37%|███▋      | 12.4M/33.3M [00:10&lt;00:13, 1.50MB/s]
+
+
+Downloading teff=3700:  38%|███▊      | 12.7M/33.3M [00:11&lt;00:12, 1.58MB/s]
+
+
+Downloading teff=3700:  39%|███▉      | 13.1M/33.3M [00:11&lt;00:12, 1.64MB/s]
+
+
+Downloading teff=3700:  40%|████      | 13.4M/33.3M [00:11&lt;00:11, 1.66MB/s]
+
+
+Downloading teff=3700:  41%|████      | 13.6M/33.3M [00:11&lt;00:13, 1.49MB/s]
+
+
+Downloading teff=3700:  41%|████▏     | 13.8M/33.3M [00:11&lt;00:14, 1.35MB/s]
+
+
+Downloading teff=3700:  42%|████▏     | 14.1M/33.3M [00:11&lt;00:13, 1.46MB/s]
+
+
+Downloading teff=3700:  43%|████▎     | 14.3M/33.3M [00:12&lt;00:13, 1.45MB/s]
+
+
+Downloading teff=3700:  44%|████▎     | 14.5M/33.3M [00:12&lt;00:13, 1.39MB/s]
+
+
+Downloading teff=3700:  44%|████▍     | 14.8M/33.3M [00:12&lt;00:13, 1.41MB/s]
+
+
+Downloading teff=3700:  45%|████▌     | 15.0M/33.3M [00:12&lt;00:14, 1.28MB/s]
+
+
+Downloading teff=3700:  46%|████▌     | 15.2M/33.3M [00:12&lt;00:14, 1.25MB/s]
+
+
+Downloading teff=3700:  46%|████▋     | 15.4M/33.3M [00:13&lt;00:14, 1.23MB/s]
+
+
+Downloading teff=3700:  47%|████▋     | 15.7M/33.3M [00:13&lt;00:14, 1.25MB/s]
+
+
+Downloading teff=3700:  48%|████▊     | 15.9M/33.3M [00:13&lt;00:14, 1.18MB/s]
+
+
+Downloading teff=3700:  49%|████▊     | 16.2M/33.3M [00:13&lt;00:13, 1.31MB/s]
+
+
+Downloading teff=3700:  49%|████▉     | 16.4M/33.3M [00:13&lt;00:13, 1.24MB/s]
+
+
+Downloading teff=3700:  50%|████▉     | 16.6M/33.3M [00:14&lt;00:14, 1.18MB/s]
+
+
+Downloading teff=3700:  51%|█████     | 16.9M/33.3M [00:14&lt;00:13, 1.25MB/s]
+
+
+Downloading teff=3700:  51%|█████▏    | 17.1M/33.3M [00:14&lt;00:13, 1.24MB/s]
+
+
+Downloading teff=3700:  52%|█████▏    | 17.3M/33.3M [00:14&lt;00:13, 1.20MB/s]
+
+
+Downloading teff=3700:  53%|█████▎    | 17.5M/33.3M [00:14&lt;00:13, 1.17MB/s]
+
+
+Downloading teff=3700:  53%|█████▎    | 17.8M/33.3M [00:14&lt;00:12, 1.23MB/s]
+
+
+Downloading teff=3700:  54%|█████▍    | 18.0M/33.3M [00:15&lt;00:12, 1.22MB/s]
+
+
+Downloading teff=3700:  55%|█████▍    | 18.3M/33.3M [00:15&lt;00:11, 1.28MB/s]
+
+
+Downloading teff=3700:  56%|█████▌    | 18.6M/33.3M [00:15&lt;00:11, 1.28MB/s]
+
+
+Downloading teff=3700:  56%|█████▋    | 18.8M/33.3M [00:15&lt;00:11, 1.25MB/s]
+
+
+Downloading teff=3700:  57%|█████▋    | 19.0M/33.3M [00:15&lt;00:12, 1.18MB/s]
+
+
+Downloading teff=3700:  58%|█████▊    | 19.2M/33.3M [00:16&lt;00:12, 1.16MB/s]
+
+
+Downloading teff=3700:  58%|█████▊    | 19.4M/33.3M [00:16&lt;00:12, 1.14MB/s]
+
+
+Downloading teff=3700:  59%|█████▉    | 19.7M/33.3M [00:16&lt;00:10, 1.28MB/s]
+
+
+Downloading teff=3700:  60%|█████▉    | 19.9M/33.3M [00:16&lt;00:10, 1.33MB/s]
+
+
+Downloading teff=3700:  60%|██████    | 20.1M/33.3M [00:16&lt;00:10, 1.30MB/s]
+
+
+Downloading teff=3700:  61%|██████▏   | 20.4M/33.3M [00:17&lt;00:09, 1.37MB/s]
+
+
+Downloading teff=3700:  62%|██████▏   | 20.7M/33.3M [00:17&lt;00:09, 1.39MB/s]
+
+
+Downloading teff=3700:  63%|██████▎   | 20.9M/33.3M [00:17&lt;00:09, 1.30MB/s]
+
+
+Downloading teff=3700:  63%|██████▎   | 21.1M/33.3M [00:17&lt;00:09, 1.27MB/s]
+
+
+Downloading teff=3700:  64%|██████▍   | 21.3M/33.3M [00:17&lt;00:09, 1.25MB/s]
+
+
+Downloading teff=3700:  65%|██████▍   | 21.6M/33.3M [00:17&lt;00:09, 1.22MB/s]
+
+
+Downloading teff=3700:  66%|██████▌   | 21.8M/33.3M [00:18&lt;00:09, 1.24MB/s]
+
+
+Downloading teff=3700:  66%|██████▋   | 22.1M/33.3M [00:18&lt;00:08, 1.32MB/s]
+
+
+Downloading teff=3700:  67%|██████▋   | 22.4M/33.3M [00:18&lt;00:07, 1.44MB/s]
+
+
+Downloading teff=3700:  68%|██████▊   | 22.7M/33.3M [00:18&lt;00:07, 1.38MB/s]
+
+
+Downloading teff=3700:  69%|██████▉   | 22.9M/33.3M [00:18&lt;00:07, 1.31MB/s]
+
+
+Downloading teff=3700:  69%|██████▉   | 23.1M/33.3M [00:19&lt;00:08, 1.25MB/s]
+
+
+Downloading teff=3700:  70%|███████   | 23.3M/33.3M [00:19&lt;00:08, 1.21MB/s]
+
+
+Downloading teff=3700:  71%|███████▏  | 23.8M/33.3M [00:19&lt;00:06, 1.51MB/s]
+
+
+Downloading teff=3700:  72%|███████▏  | 24.1M/33.3M [00:19&lt;00:06, 1.51MB/s]
+
+
+Downloading teff=3700:  73%|███████▎  | 24.4M/33.3M [00:19&lt;00:05, 1.54MB/s]
+
+
+Downloading teff=3700:  74%|███████▍  | 24.7M/33.3M [00:20&lt;00:05, 1.55MB/s]
+
+
+Downloading teff=3700:  75%|███████▍  | 24.9M/33.3M [00:20&lt;00:05, 1.44MB/s]
+
+
+Downloading teff=3700:  76%|███████▌  | 25.2M/33.3M [00:20&lt;00:05, 1.49MB/s]
+
+
+Downloading teff=3700:  77%|███████▋  | 25.5M/33.3M [00:20&lt;00:05, 1.43MB/s]
+
+
+Downloading teff=3700:  77%|███████▋  | 25.7M/33.3M [00:20&lt;00:05, 1.43MB/s]
+
+
+Downloading teff=3700:  78%|███████▊  | 26.0M/33.3M [00:21&lt;00:04, 1.46MB/s]
+
+
+Downloading teff=3700:  79%|███████▉  | 26.4M/33.3M [00:21&lt;00:04, 1.61MB/s]
+
+
+Downloading teff=3700:  80%|████████  | 26.7M/33.3M [00:21&lt;00:04, 1.56MB/s]
+
+
+Downloading teff=3700:  81%|████████  | 26.9M/33.3M [00:21&lt;00:04, 1.44MB/s]
+
+
+Downloading teff=3700:  82%|████████▏ | 27.2M/33.3M [00:21&lt;00:04, 1.41MB/s]
+
+
+Downloading teff=3700:  83%|████████▎ | 27.6M/33.3M [00:22&lt;00:03, 1.55MB/s]
+
+
+Downloading teff=3700:  84%|████████▎ | 27.8M/33.3M [00:22&lt;00:03, 1.47MB/s]
+
+
+Downloading teff=3700:  84%|████████▍ | 28.1M/33.3M [00:22&lt;00:03, 1.44MB/s]
+
+
+Downloading teff=3700:  85%|████████▍ | 28.3M/33.3M [00:22&lt;00:03, 1.31MB/s]
+
+
+Downloading teff=3700:  86%|████████▌ | 28.5M/33.3M [00:22&lt;00:03, 1.35MB/s]
+
+
+Downloading teff=3700:  86%|████████▌ | 28.7M/33.3M [00:22&lt;00:03, 1.40MB/s]
+
+
+Downloading teff=3700:  87%|████████▋ | 29.0M/33.3M [00:23&lt;00:02, 1.52MB/s]
+
+
+Downloading teff=3700:  88%|████████▊ | 29.3M/33.3M [00:23&lt;00:02, 1.42MB/s]
+
+
+Downloading teff=3700:  89%|████████▊ | 29.5M/33.3M [00:23&lt;00:02, 1.37MB/s]
+
+
+Downloading teff=3700:  89%|████████▉ | 29.8M/33.3M [00:23&lt;00:02, 1.34MB/s]
+
+
+Downloading teff=3700:  90%|█████████ | 30.1M/33.3M [00:23&lt;00:02, 1.45MB/s]
+
+
+Downloading teff=3700:  92%|█████████▏| 30.5M/33.3M [00:24&lt;00:01, 1.65MB/s]
+
+
+Downloading teff=3700:  94%|█████████▍| 31.3M/33.3M [00:24&lt;00:00, 2.35MB/s]
+
+
+Downloading teff=3700:  95%|█████████▍| 31.5M/33.3M [00:24&lt;00:00, 2.03MB/s]
+
+
+Downloading teff=3700:  95%|█████████▌| 31.7M/33.3M [00:24&lt;00:00, 1.78MB/s]
+
+
+Downloading teff=3700:  96%|█████████▌| 31.9M/33.3M [00:24&lt;00:00, 1.53MB/s]
+
+
+Downloading teff=3700:  96%|█████████▋| 32.1M/33.3M [00:25&lt;00:00, 1.35MB/s]
+
+
+Downloading teff=3700:  99%|█████████▊| 32.8M/33.3M [00:25&lt;00:00, 2.02MB/s]
+
+
+Downloading teff=3700:  99%|█████████▉| 33.0M/33.3M [00:25&lt;00:00, 1.80MB/s]
+Downloading teff=3700: 100%|██████████| 33.3M/33.3M [00:25&lt;00:00, 1.30MB/s]
+
+
+Loading Spectra:  88%|████████▊ | 15/17 [05:20&lt;00:41, 20.82s/it]PHOENIX grid for 3800 not found. Downloading...
+
+
+
+Downloading teff=3800:   0%|          | 0.00/33.2M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3800:   0%|          | 4.10k/33.2M [00:00&lt;52:29, 10.5kB/s]
+
+
+Downloading teff=3800:   0%|          | 41.0k/33.2M [00:00&lt;05:55, 93.2kB/s]
+
+
+Downloading teff=3800:   0%|          | 143k/33.2M [00:00&lt;01:50, 299kB/s]
+
+
+Downloading teff=3800:   1%|          | 344k/33.2M [00:00&lt;00:56, 587kB/s]
+
+
+Downloading teff=3800:   2%|▏         | 598k/33.2M [00:01&lt;00:38, 845kB/s]
+
+
+Downloading teff=3800:   2%|▏         | 795k/33.2M [00:01&lt;00:35, 903kB/s]
+
+
+Downloading teff=3800:   3%|▎         | 1.01M/33.2M [00:01&lt;00:33, 967kB/s]
+
+
+Downloading teff=3800:   4%|▍         | 1.29M/33.2M [00:01&lt;00:28, 1.11MB/s]
+
+
+Downloading teff=3800:   5%|▍         | 1.55M/33.2M [00:01&lt;00:26, 1.19MB/s]
+
+
+Downloading teff=3800:   5%|▌         | 1.81M/33.2M [00:02&lt;00:25, 1.24MB/s]
+
+
+Downloading teff=3800:   6%|▌         | 2.04M/33.2M [00:02&lt;00:25, 1.22MB/s]
+
+
+Downloading teff=3800:   7%|▋         | 2.23M/33.2M [00:02&lt;00:26, 1.16MB/s]
+
+
+Downloading teff=3800:   7%|▋         | 2.45M/33.2M [00:02&lt;00:26, 1.14MB/s]
+
+
+Downloading teff=3800:   8%|▊         | 2.63M/33.2M [00:02&lt;00:28, 1.08MB/s]
+
+
+Downloading teff=3800:   9%|▊         | 2.84M/33.2M [00:02&lt;00:27, 1.09MB/s]
+
+
+Downloading teff=3800:   9%|▉         | 3.08M/33.2M [00:03&lt;00:26, 1.15MB/s]
+
+
+Downloading teff=3800:  10%|█         | 3.38M/33.2M [00:03&lt;00:23, 1.26MB/s]
+
+
+Downloading teff=3800:  11%|█         | 3.54M/33.2M [00:03&lt;00:26, 1.14MB/s]
+
+
+Downloading teff=3800:  11%|█▏        | 3.76M/33.2M [00:03&lt;00:26, 1.13MB/s]
+
+
+Downloading teff=3800:  12%|█▏        | 3.97M/33.2M [00:03&lt;00:26, 1.12MB/s]
+
+
+Downloading teff=3800:  13%|█▎        | 4.21M/33.2M [00:04&lt;00:24, 1.16MB/s]
+
+
+Downloading teff=3800:  13%|█▎        | 4.46M/33.2M [00:04&lt;00:24, 1.20MB/s]
+
+
+Downloading teff=3800:  14%|█▍        | 4.72M/33.2M [00:04&lt;00:22, 1.25MB/s]
+
+
+Downloading teff=3800:  15%|█▍        | 4.98M/33.2M [00:04&lt;00:22, 1.28MB/s]
+
+
+Downloading teff=3800:  16%|█▌        | 5.24M/33.2M [00:04&lt;00:21, 1.31MB/s]
+
+
+Downloading teff=3800:  16%|█▋        | 5.46M/33.2M [00:05&lt;00:22, 1.25MB/s]
+
+
+Downloading teff=3800:  17%|█▋        | 5.77M/33.2M [00:05&lt;00:20, 1.36MB/s]
+
+
+Downloading teff=3800:  18%|█▊        | 6.00M/33.2M [00:05&lt;00:20, 1.30MB/s]
+
+
+Downloading teff=3800:  19%|█▊        | 6.21M/33.2M [00:05&lt;00:21, 1.24MB/s]
+
+
+Downloading teff=3800:  19%|█▉        | 6.40M/33.2M [00:05&lt;00:22, 1.17MB/s]
+
+
+Downloading teff=3800:  20%|█▉        | 6.58M/33.2M [00:06&lt;00:24, 1.10MB/s]
+
+
+Downloading teff=3800:  21%|██        | 7.01M/33.2M [00:06&lt;00:18, 1.44MB/s]
+
+
+Downloading teff=3800:  22%|██▏       | 7.30M/33.2M [00:06&lt;00:17, 1.47MB/s]
+
+
+Downloading teff=3800:  23%|██▎       | 7.65M/33.2M [00:06&lt;00:16, 1.56MB/s]
+
+
+Downloading teff=3800:  25%|██▍       | 8.16M/33.2M [00:06&lt;00:13, 1.88MB/s]
+
+
+Downloading teff=3800:  26%|██▌       | 8.50M/33.2M [00:07&lt;00:13, 1.85MB/s]
+
+
+Downloading teff=3800:  26%|██▋       | 8.74M/33.2M [00:07&lt;00:14, 1.68MB/s]
+
+
+Downloading teff=3800:  27%|██▋       | 8.99M/33.2M [00:07&lt;00:15, 1.56MB/s]
+
+
+Downloading teff=3800:  28%|██▊       | 9.25M/33.2M [00:07&lt;00:15, 1.50MB/s]
+
+
+Downloading teff=3800:  29%|██▊       | 9.51M/33.2M [00:07&lt;00:16, 1.46MB/s]
+
+
+Downloading teff=3800:  29%|██▉       | 9.77M/33.2M [00:07&lt;00:16, 1.43MB/s]
+
+
+Downloading teff=3800:  31%|███       | 10.2M/33.2M [00:08&lt;00:13, 1.66MB/s]
+
+
+Downloading teff=3800:  32%|███▏      | 10.7M/33.2M [00:08&lt;00:12, 1.87MB/s]
+
+
+Downloading teff=3800:  33%|███▎      | 11.0M/33.2M [00:08&lt;00:12, 1.79MB/s]
+
+
+Downloading teff=3800:  35%|███▍      | 11.6M/33.2M [00:08&lt;00:09, 2.17MB/s]
+
+
+Downloading teff=3800:  36%|███▌      | 11.8M/33.2M [00:08&lt;00:11, 1.90MB/s]
+
+
+Downloading teff=3800:  36%|███▋      | 12.0M/33.2M [00:09&lt;00:12, 1.71MB/s]
+
+
+Downloading teff=3800:  37%|███▋      | 12.3M/33.2M [00:09&lt;00:13, 1.58MB/s]
+
+
+Downloading teff=3800:  38%|███▊      | 12.7M/33.2M [00:09&lt;00:11, 1.79MB/s]
+
+
+Downloading teff=3800:  40%|███▉      | 13.2M/33.2M [00:09&lt;00:10, 1.97MB/s]
+
+
+Downloading teff=3800:  40%|████      | 13.4M/33.2M [00:09&lt;00:11, 1.76MB/s]
+
+
+Downloading teff=3800:  41%|████      | 13.6M/33.2M [00:10&lt;00:12, 1.57MB/s]
+
+
+Downloading teff=3800:  42%|████▏     | 14.0M/33.2M [00:10&lt;00:11, 1.66MB/s]
+
+
+Downloading teff=3800:  43%|████▎     | 14.2M/33.2M [00:10&lt;00:13, 1.42MB/s]
+
+
+Downloading teff=3800:  44%|████▎     | 14.5M/33.2M [00:10&lt;00:12, 1.55MB/s]
+
+
+Downloading teff=3800:  45%|████▍     | 14.9M/33.2M [00:10&lt;00:11, 1.64MB/s]
+
+
+Downloading teff=3800:  46%|████▌     | 15.1M/33.2M [00:10&lt;00:10, 1.79MB/s]
+
+
+Downloading teff=3800:  46%|████▌     | 15.3M/33.2M [00:11&lt;00:11, 1.53MB/s]
+
+
+Downloading teff=3800:  47%|████▋     | 15.7M/33.2M [00:11&lt;00:11, 1.59MB/s]
+
+
+Downloading teff=3800:  48%|████▊     | 16.0M/33.2M [00:11&lt;00:10, 1.67MB/s]
+
+
+Downloading teff=3800:  50%|████▉     | 16.5M/33.2M [00:11&lt;00:08, 1.87MB/s]
+
+
+Downloading teff=3800:  51%|█████     | 16.9M/33.2M [00:11&lt;00:07, 2.04MB/s]
+
+
+Downloading teff=3800:  52%|█████▏    | 17.2M/33.2M [00:12&lt;00:08, 1.84MB/s]
+
+
+Downloading teff=3800:  53%|█████▎    | 17.7M/33.2M [00:12&lt;00:07, 2.10MB/s]
+
+
+Downloading teff=3800:  55%|█████▍    | 18.2M/33.2M [00:12&lt;00:06, 2.16MB/s]
+
+
+Downloading teff=3800:  56%|█████▌    | 18.6M/33.2M [00:12&lt;00:06, 2.20MB/s]
+
+
+Downloading teff=3800:  57%|█████▋    | 18.8M/33.2M [00:12&lt;00:07, 1.91MB/s]
+
+
+Downloading teff=3800:  59%|█████▊    | 19.5M/33.2M [00:13&lt;00:05, 2.31MB/s]
+
+
+Downloading teff=3800:  59%|█████▉    | 19.7M/33.2M [00:13&lt;00:06, 1.98MB/s]
+
+
+Downloading teff=3800:  60%|█████▉    | 19.9M/33.2M [00:13&lt;00:07, 1.70MB/s]
+
+
+Downloading teff=3800:  61%|██████    | 20.2M/33.2M [00:13&lt;00:07, 1.69MB/s]
+
+
+Downloading teff=3800:  61%|██████▏   | 20.4M/33.2M [00:13&lt;00:08, 1.45MB/s]
+
+
+Downloading teff=3800:  62%|██████▏   | 20.6M/33.2M [00:14&lt;00:09, 1.36MB/s]
+
+
+Downloading teff=3800:  63%|██████▎   | 20.9M/33.2M [00:14&lt;00:08, 1.45MB/s]
+
+
+Downloading teff=3800:  64%|██████▍   | 21.4M/33.2M [00:14&lt;00:06, 1.78MB/s]
+
+
+Downloading teff=3800:  65%|██████▌   | 21.7M/33.2M [00:14&lt;00:07, 1.60MB/s]
+
+
+Downloading teff=3800:  66%|██████▌   | 22.0M/33.2M [00:14&lt;00:06, 1.63MB/s]
+
+
+Downloading teff=3800:  67%|██████▋   | 22.3M/33.2M [00:15&lt;00:06, 1.57MB/s]
+
+
+Downloading teff=3800:  67%|██████▋   | 22.4M/33.2M [00:15&lt;00:07, 1.36MB/s]
+
+
+Downloading teff=3800:  68%|██████▊   | 22.6M/33.2M [00:15&lt;00:08, 1.21MB/s]
+
+
+Downloading teff=3800:  70%|██████▉   | 23.1M/33.2M [00:15&lt;00:06, 1.68MB/s]
+
+
+Downloading teff=3800:  70%|███████   | 23.4M/33.2M [00:15&lt;00:06, 1.56MB/s]
+
+
+Downloading teff=3800:  71%|███████▏  | 23.7M/33.2M [00:16&lt;00:05, 1.62MB/s]
+
+
+Downloading teff=3800:  72%|███████▏  | 24.0M/33.2M [00:16&lt;00:06, 1.52MB/s]
+
+
+Downloading teff=3800:  73%|███████▎  | 24.3M/33.2M [00:16&lt;00:05, 1.62MB/s]
+
+
+Downloading teff=3800:  74%|███████▍  | 24.7M/33.2M [00:16&lt;00:04, 2.01MB/s]
+
+
+Downloading teff=3800:  75%|███████▌  | 24.9M/33.2M [00:16&lt;00:04, 2.07MB/s]
+
+
+Downloading teff=3800:  76%|███████▋  | 25.4M/33.2M [00:16&lt;00:03, 2.11MB/s]
+
+
+Downloading teff=3800:  77%|███████▋  | 25.7M/33.2M [00:16&lt;00:03, 1.97MB/s]
+
+
+Downloading teff=3800:  78%|███████▊  | 25.9M/33.2M [00:17&lt;00:04, 1.68MB/s]
+
+
+Downloading teff=3800:  78%|███████▊  | 26.1M/33.2M [00:17&lt;00:04, 1.45MB/s]
+
+
+Downloading teff=3800:  79%|███████▉  | 26.3M/33.2M [00:17&lt;00:04, 1.40MB/s]
+
+
+Downloading teff=3800:  80%|███████▉  | 26.5M/33.2M [00:17&lt;00:05, 1.20MB/s]
+
+
+Downloading teff=3800:  81%|████████  | 26.8M/33.2M [00:17&lt;00:04, 1.36MB/s]
+
+
+Downloading teff=3800:  82%|████████▏ | 27.1M/33.2M [00:18&lt;00:04, 1.44MB/s]
+
+
+Downloading teff=3800:  82%|████████▏ | 27.3M/33.2M [00:18&lt;00:04, 1.25MB/s]
+
+
+Downloading teff=3800:  83%|████████▎ | 27.6M/33.2M [00:18&lt;00:04, 1.39MB/s]
+
+
+Downloading teff=3800:  84%|████████▎ | 27.8M/33.2M [00:18&lt;00:04, 1.23MB/s]
+
+
+Downloading teff=3800:  84%|████████▍ | 27.9M/33.2M [00:18&lt;00:04, 1.11MB/s]
+
+
+Downloading teff=3800:  85%|████████▍ | 28.1M/33.2M [00:19&lt;00:04, 1.09MB/s]
+
+
+Downloading teff=3800:  86%|████████▌ | 28.5M/33.2M [00:19&lt;00:03, 1.32MB/s]
+
+
+Downloading teff=3800:  87%|████████▋ | 28.8M/33.2M [00:19&lt;00:02, 1.49MB/s]
+
+
+Downloading teff=3800:  87%|████████▋ | 29.0M/33.2M [00:19&lt;00:03, 1.30MB/s]
+
+
+Downloading teff=3800:  88%|████████▊ | 29.4M/33.2M [00:19&lt;00:02, 1.49MB/s]
+
+
+Downloading teff=3800:  89%|████████▉ | 29.6M/33.2M [00:20&lt;00:02, 1.45MB/s]
+
+
+Downloading teff=3800:  90%|████████▉ | 29.8M/33.2M [00:20&lt;00:02, 1.32MB/s]
+
+
+Downloading teff=3800:  91%|█████████ | 30.1M/33.2M [00:20&lt;00:02, 1.38MB/s]
+
+
+Downloading teff=3800:  92%|█████████▏| 30.6M/33.2M [00:20&lt;00:01, 1.66MB/s]
+
+
+Downloading teff=3800:  93%|█████████▎| 30.9M/33.2M [00:20&lt;00:01, 1.67MB/s]
+
+
+Downloading teff=3800:  94%|█████████▍| 31.2M/33.2M [00:21&lt;00:01, 1.68MB/s]
+
+
+Downloading teff=3800:  95%|█████████▌| 31.7M/33.2M [00:21&lt;00:00, 1.86MB/s]
+
+
+Downloading teff=3800:  97%|█████████▋| 32.1M/33.2M [00:21&lt;00:00, 1.94MB/s]
+
+
+Downloading teff=3800:  98%|█████████▊| 32.5M/33.2M [00:21&lt;00:00, 2.07MB/s]
+
+
+Downloading teff=3800:  99%|█████████▊| 32.7M/33.2M [00:21&lt;00:00, 1.77MB/s]
+
+
+Downloading teff=3800: 100%|█████████▉| 33.1M/33.2M [00:21&lt;00:00, 1.81MB/s]
+Downloading teff=3800: 100%|██████████| 33.2M/33.2M [00:22&lt;00:00, 1.51MB/s]
+
+
+Loading Spectra:  94%|█████████▍| 16/17 [05:43&lt;00:21, 21.39s/it]PHOENIX grid for 3900 not found. Downloading...
+
+
+
+Downloading teff=3900:   0%|          | 0.00/33.2M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3900:   0%|          | 4.10k/33.2M [00:00&lt;2:03:07, 4.49kB/s]
+
+
+Downloading teff=3900:   0%|          | 77.8k/33.2M [00:01&lt;05:58, 92.3kB/s]
+
+
+Downloading teff=3900:   1%|          | 291k/33.2M [00:01&lt;01:35, 344kB/s]
+
+
+Downloading teff=3900:   1%|▏         | 471k/33.2M [00:01&lt;01:05, 499kB/s]
+
+
+Downloading teff=3900:   2%|▏         | 668k/33.2M [00:01&lt;00:50, 641kB/s]
+
+
+Downloading teff=3900:   3%|▎         | 881k/33.2M [00:01&lt;00:41, 770kB/s]
+
+
+Downloading teff=3900:   3%|▎         | 1.12M/33.2M [00:02&lt;00:35, 908kB/s]
+
+
+Downloading teff=3900:   4%|▍         | 1.35M/33.2M [00:02&lt;00:32, 987kB/s]
+
+
+Downloading teff=3900:   5%|▍         | 1.58M/33.2M [00:02&lt;00:30, 1.05MB/s]
+
+
+Downloading teff=3900:   5%|▌         | 1.78M/33.2M [00:02&lt;00:30, 1.04MB/s]
+
+
+Downloading teff=3900:   6%|▌         | 1.96M/33.2M [00:02&lt;00:31, 1.01MB/s]
+
+
+Downloading teff=3900:   6%|▋         | 2.14M/33.2M [00:03&lt;00:31, 985kB/s]
+
+
+Downloading teff=3900:   7%|▋         | 2.32M/33.2M [00:03&lt;00:31, 969kB/s]
+
+
+Downloading teff=3900:   8%|▊         | 2.51M/33.2M [00:03&lt;00:31, 984kB/s]
+
+
+Downloading teff=3900:   8%|▊         | 2.73M/33.2M [00:03&lt;00:29, 1.02MB/s]
+
+
+Downloading teff=3900:   9%|▊         | 2.89M/33.2M [00:03&lt;00:31, 966kB/s]
+
+
+Downloading teff=3900:   9%|▉         | 3.07M/33.2M [00:04&lt;00:31, 956kB/s]
+
+
+Downloading teff=3900:  10%|▉         | 3.25M/33.2M [00:04&lt;00:31, 943kB/s]
+
+
+Downloading teff=3900:  10%|█         | 3.48M/33.2M [00:04&lt;00:29, 1.02MB/s]
+
+
+Downloading teff=3900:  11%|█▏        | 3.74M/33.2M [00:04&lt;00:26, 1.12MB/s]
+
+
+Downloading teff=3900:  12%|█▏        | 3.85M/33.2M [00:04&lt;00:26, 1.12MB/s]
+
+
+Downloading teff=3900:  12%|█▏        | 4.10M/33.2M [00:04&lt;00:24, 1.17MB/s]
+
+
+Downloading teff=3900:  13%|█▎        | 4.22M/33.2M [00:04&lt;00:25, 1.16MB/s]
+
+
+Downloading teff=3900:  13%|█▎        | 4.36M/33.2M [00:05&lt;00:28, 1.01MB/s]
+
+
+Downloading teff=3900:  14%|█▎        | 4.54M/33.2M [00:05&lt;00:29, 983kB/s]
+
+
+Downloading teff=3900:  14%|█▍        | 4.77M/33.2M [00:05&lt;00:27, 1.05MB/s]
+
+
+Downloading teff=3900:  15%|█▌        | 5.00M/33.2M [00:05&lt;00:25, 1.09MB/s]
+
+
+Downloading teff=3900:  16%|█▌        | 5.23M/33.2M [00:05&lt;00:24, 1.12MB/s]
+
+
+Downloading teff=3900:  16%|█▋        | 5.44M/33.2M [00:06&lt;00:25, 1.11MB/s]
+
+
+Downloading teff=3900:  17%|█▋        | 5.73M/33.2M [00:06&lt;00:22, 1.23MB/s]
+
+
+Downloading teff=3900:  18%|█▊        | 5.91M/33.2M [00:06&lt;00:23, 1.14MB/s]
+
+
+Downloading teff=3900:  18%|█▊        | 6.09M/33.2M [00:06&lt;00:25, 1.08MB/s]
+
+
+Downloading teff=3900:  19%|█▉        | 6.37M/33.2M [00:06&lt;00:22, 1.19MB/s]
+
+
+Downloading teff=3900:  20%|█▉        | 6.60M/33.2M [00:07&lt;00:22, 1.19MB/s]
+
+
+Downloading teff=3900:  20%|██        | 6.78M/33.2M [00:07&lt;00:23, 1.11MB/s]
+
+
+Downloading teff=3900:  21%|██        | 6.96M/33.2M [00:07&lt;00:24, 1.06MB/s]
+
+
+Downloading teff=3900:  22%|██▏       | 7.16M/33.2M [00:07&lt;00:24, 1.05MB/s]
+
+
+Downloading teff=3900:  22%|██▏       | 7.42M/33.2M [00:07&lt;00:22, 1.13MB/s]
+
+
+Downloading teff=3900:  23%|██▎       | 7.61M/33.2M [00:08&lt;00:23, 1.10MB/s]
+
+
+Downloading teff=3900:  24%|██▎       | 7.83M/33.2M [00:08&lt;00:23, 1.10MB/s]
+
+
+Downloading teff=3900:  24%|██▍       | 8.04M/33.2M [00:08&lt;00:22, 1.10MB/s]
+
+
+Downloading teff=3900:  25%|██▍       | 8.24M/33.2M [00:08&lt;00:23, 1.07MB/s]
+
+
+Downloading teff=3900:  25%|██▌       | 8.42M/33.2M [00:08&lt;00:24, 1.03MB/s]
+
+
+Downloading teff=3900:  27%|██▋       | 8.79M/33.2M [00:09&lt;00:18, 1.30MB/s]
+
+
+Downloading teff=3900:  27%|██▋       | 9.04M/33.2M [00:09&lt;00:18, 1.29MB/s]
+
+
+Downloading teff=3900:  28%|██▊       | 9.24M/33.2M [00:09&lt;00:19, 1.21MB/s]
+
+
+Downloading teff=3900:  29%|██▊       | 9.52M/33.2M [00:09&lt;00:18, 1.27MB/s]
+
+
+Downloading teff=3900:  29%|██▉       | 9.74M/33.2M [00:09&lt;00:18, 1.24MB/s]
+
+
+Downloading teff=3900:  30%|██▉       | 9.94M/33.2M [00:10&lt;00:19, 1.18MB/s]
+
+
+Downloading teff=3900:  31%|███       | 10.2M/33.2M [00:10&lt;00:19, 1.18MB/s]
+
+
+Downloading teff=3900:  31%|███▏      | 10.4M/33.2M [00:10&lt;00:19, 1.19MB/s]
+
+
+Downloading teff=3900:  32%|███▏      | 10.6M/33.2M [00:10&lt;00:19, 1.17MB/s]
+
+
+Downloading teff=3900:  33%|███▎      | 11.0M/33.2M [00:10&lt;00:16, 1.32MB/s]
+
+
+Downloading teff=3900:  34%|███▎      | 11.2M/33.2M [00:10&lt;00:17, 1.28MB/s]
+
+
+Downloading teff=3900:  34%|███▍      | 11.4M/33.2M [00:11&lt;00:17, 1.28MB/s]
+
+
+Downloading teff=3900:  35%|███▌      | 11.7M/33.2M [00:11&lt;00:16, 1.32MB/s]
+
+
+Downloading teff=3900:  36%|███▌      | 11.9M/33.2M [00:11&lt;00:16, 1.27MB/s]
+
+
+Downloading teff=3900:  37%|███▋      | 12.2M/33.2M [00:11&lt;00:16, 1.27MB/s]
+
+
+Downloading teff=3900:  37%|███▋      | 12.4M/33.2M [00:11&lt;00:16, 1.24MB/s]
+
+
+Downloading teff=3900:  38%|███▊      | 12.6M/33.2M [00:12&lt;00:16, 1.22MB/s]
+
+
+Downloading teff=3900:  39%|███▊      | 12.8M/33.2M [00:12&lt;00:17, 1.14MB/s]
+
+
+Downloading teff=3900:  39%|███▉      | 13.1M/33.2M [00:12&lt;00:16, 1.22MB/s]
+
+
+Downloading teff=3900:  40%|████      | 13.3M/33.2M [00:12&lt;00:16, 1.23MB/s]
+
+
+Downloading teff=3900:  41%|████      | 13.6M/33.2M [00:12&lt;00:16, 1.22MB/s]
+
+
+Downloading teff=3900:  42%|████▏     | 13.8M/33.2M [00:13&lt;00:16, 1.18MB/s]
+
+
+Downloading teff=3900:  42%|████▏     | 14.0M/33.2M [00:13&lt;00:15, 1.21MB/s]
+
+
+Downloading teff=3900:  43%|████▎     | 14.3M/33.2M [00:13&lt;00:15, 1.23MB/s]
+
+
+Downloading teff=3900:  44%|████▍     | 14.6M/33.2M [00:13&lt;00:13, 1.39MB/s]
+
+
+Downloading teff=3900:  45%|████▍     | 14.8M/33.2M [00:13&lt;00:14, 1.28MB/s]
+
+
+Downloading teff=3900:  46%|████▌     | 15.1M/33.2M [00:14&lt;00:12, 1.40MB/s]
+
+
+Downloading teff=3900:  47%|████▋     | 15.5M/33.2M [00:14&lt;00:10, 1.62MB/s]
+
+
+Downloading teff=3900:  48%|████▊     | 15.8M/33.2M [00:14&lt;00:11, 1.51MB/s]
+
+
+Downloading teff=3900:  48%|████▊     | 16.0M/33.2M [00:14&lt;00:12, 1.38MB/s]
+
+
+Downloading teff=3900:  49%|████▉     | 16.2M/33.2M [00:14&lt;00:13, 1.30MB/s]
+
+
+Downloading teff=3900:  50%|████▉     | 16.4M/33.2M [00:15&lt;00:13, 1.26MB/s]
+
+
+Downloading teff=3900:  51%|█████     | 16.8M/33.2M [00:15&lt;00:11, 1.39MB/s]
+
+
+Downloading teff=3900:  51%|█████     | 17.0M/33.2M [00:15&lt;00:12, 1.31MB/s]
+
+
+Downloading teff=3900:  52%|█████▏    | 17.2M/33.2M [00:15&lt;00:12, 1.25MB/s]
+
+
+Downloading teff=3900:  53%|█████▎    | 17.5M/33.2M [00:15&lt;00:11, 1.38MB/s]
+
+
+Downloading teff=3900:  54%|█████▍    | 17.9M/33.2M [00:16&lt;00:10, 1.48MB/s]
+
+
+Downloading teff=3900:  55%|█████▍    | 18.1M/33.2M [00:16&lt;00:10, 1.46MB/s]
+
+
+Downloading teff=3900:  55%|█████▌    | 18.3M/33.2M [00:16&lt;00:11, 1.32MB/s]
+
+
+Downloading teff=3900:  56%|█████▌    | 18.6M/33.2M [00:16&lt;00:11, 1.28MB/s]
+
+
+Downloading teff=3900:  57%|█████▋    | 18.8M/33.2M [00:16&lt;00:10, 1.31MB/s]
+
+
+Downloading teff=3900:  57%|█████▋    | 19.0M/33.2M [00:16&lt;00:11, 1.27MB/s]
+
+
+Downloading teff=3900:  58%|█████▊    | 19.3M/33.2M [00:17&lt;00:11, 1.22MB/s]
+
+
+Downloading teff=3900:  59%|█████▉    | 19.5M/33.2M [00:17&lt;00:11, 1.24MB/s]
+
+
+Downloading teff=3900:  60%|█████▉    | 19.8M/33.2M [00:17&lt;00:10, 1.27MB/s]
+
+
+Downloading teff=3900:  60%|██████    | 20.0M/33.2M [00:17&lt;00:10, 1.27MB/s]
+
+
+Downloading teff=3900:  61%|██████    | 20.2M/33.2M [00:17&lt;00:10, 1.22MB/s]
+
+
+Downloading teff=3900:  62%|██████▏   | 20.4M/33.2M [00:18&lt;00:11, 1.15MB/s]
+
+
+Downloading teff=3900:  62%|██████▏   | 20.7M/33.2M [00:18&lt;00:10, 1.24MB/s]
+
+
+Downloading teff=3900:  63%|██████▎   | 20.9M/33.2M [00:18&lt;00:10, 1.22MB/s]
+
+
+Downloading teff=3900:  64%|██████▍   | 21.2M/33.2M [00:18&lt;00:09, 1.29MB/s]
+
+
+Downloading teff=3900:  65%|██████▍   | 21.4M/33.2M [00:18&lt;00:09, 1.21MB/s]
+
+
+Downloading teff=3900:  65%|██████▌   | 21.6M/33.2M [00:19&lt;00:09, 1.20MB/s]
+
+
+Downloading teff=3900:  66%|██████▌   | 21.8M/33.2M [00:19&lt;00:09, 1.17MB/s]
+
+
+Downloading teff=3900:  67%|██████▋   | 22.1M/33.2M [00:19&lt;00:09, 1.20MB/s]
+
+
+Downloading teff=3900:  67%|██████▋   | 22.3M/33.2M [00:19&lt;00:08, 1.22MB/s]
+
+
+Downloading teff=3900:  68%|██████▊   | 22.5M/33.2M [00:19&lt;00:08, 1.18MB/s]
+
+
+Downloading teff=3900:  69%|██████▊   | 22.7M/33.2M [00:20&lt;00:09, 1.13MB/s]
+
+
+Downloading teff=3900:  69%|██████▉   | 23.0M/33.2M [00:20&lt;00:08, 1.15MB/s]
+
+
+Downloading teff=3900:  70%|██████▉   | 23.2M/33.2M [00:20&lt;00:08, 1.14MB/s]
+
+
+Downloading teff=3900:  71%|███████   | 23.4M/33.2M [00:20&lt;00:08, 1.17MB/s]
+
+
+Downloading teff=3900:  71%|███████▏  | 23.6M/33.2M [00:20&lt;00:08, 1.15MB/s]
+
+
+Downloading teff=3900:  72%|███████▏  | 24.0M/33.2M [00:21&lt;00:07, 1.29MB/s]
+
+
+Downloading teff=3900:  73%|███████▎  | 24.2M/33.2M [00:21&lt;00:06, 1.31MB/s]
+
+
+Downloading teff=3900:  74%|███████▍  | 24.5M/33.2M [00:21&lt;00:06, 1.32MB/s]
+
+
+Downloading teff=3900:  75%|███████▍  | 24.7M/33.2M [00:21&lt;00:06, 1.30MB/s]
+
+
+Downloading teff=3900:  75%|███████▌  | 24.9M/33.2M [00:21&lt;00:06, 1.19MB/s]
+
+
+Downloading teff=3900:  76%|███████▌  | 25.1M/33.2M [00:22&lt;00:07, 1.14MB/s]
+
+
+Downloading teff=3900:  76%|███████▌  | 25.3M/33.2M [00:22&lt;00:07, 1.10MB/s]
+
+
+Downloading teff=3900:  77%|███████▋  | 25.6M/33.2M [00:22&lt;00:06, 1.23MB/s]
+
+
+Downloading teff=3900:  78%|███████▊  | 25.8M/33.2M [00:22&lt;00:05, 1.27MB/s]
+
+
+Downloading teff=3900:  79%|███████▊  | 26.0M/33.2M [00:22&lt;00:05, 1.19MB/s]
+
+
+Downloading teff=3900:  79%|███████▉  | 26.3M/33.2M [00:22&lt;00:05, 1.29MB/s]
+
+
+Downloading teff=3900:  80%|████████  | 26.6M/33.2M [00:23&lt;00:05, 1.25MB/s]
+
+
+Downloading teff=3900:  81%|████████  | 26.8M/33.2M [00:23&lt;00:05, 1.21MB/s]
+
+
+Downloading teff=3900:  82%|████████▏ | 27.1M/33.2M [00:23&lt;00:04, 1.30MB/s]
+
+
+Downloading teff=3900:  82%|████████▏ | 27.2M/33.2M [00:23&lt;00:04, 1.30MB/s]
+
+
+Downloading teff=3900:  83%|████████▎ | 27.4M/33.2M [00:23&lt;00:04, 1.18MB/s]
+
+
+Downloading teff=3900:  83%|████████▎ | 27.6M/33.2M [00:24&lt;00:04, 1.13MB/s]
+
+
+Downloading teff=3900:  84%|████████▎ | 27.8M/33.2M [00:24&lt;00:04, 1.09MB/s]
+
+
+Downloading teff=3900:  84%|████████▍ | 28.0M/33.2M [00:24&lt;00:04, 1.12MB/s]
+
+
+Downloading teff=3900:  86%|████████▌ | 28.5M/33.2M [00:24&lt;00:03, 1.48MB/s]
+
+
+Downloading teff=3900:  87%|████████▋ | 28.7M/33.2M [00:24&lt;00:03, 1.44MB/s]
+
+
+Downloading teff=3900:  87%|████████▋ | 29.0M/33.2M [00:25&lt;00:02, 1.43MB/s]
+
+
+Downloading teff=3900:  88%|████████▊ | 29.2M/33.2M [00:25&lt;00:02, 1.41MB/s]
+
+
+Downloading teff=3900:  89%|████████▉ | 29.5M/33.2M [00:25&lt;00:02, 1.34MB/s]
+
+
+Downloading teff=3900:  90%|████████▉ | 29.7M/33.2M [00:25&lt;00:02, 1.35MB/s]
+
+
+Downloading teff=3900:  91%|█████████ | 30.1M/33.2M [00:25&lt;00:02, 1.45MB/s]
+
+
+Downloading teff=3900:  92%|█████████▏| 30.4M/33.2M [00:25&lt;00:01, 1.53MB/s]
+
+
+Downloading teff=3900:  92%|█████████▏| 30.6M/33.2M [00:26&lt;00:01, 1.42MB/s]
+
+
+Downloading teff=3900:  93%|█████████▎| 31.0M/33.2M [00:26&lt;00:01, 1.58MB/s]
+
+
+Downloading teff=3900:  94%|█████████▍| 31.2M/33.2M [00:26&lt;00:01, 1.49MB/s]
+
+
+Downloading teff=3900:  95%|█████████▌| 31.6M/33.2M [00:26&lt;00:01, 1.57MB/s]
+
+
+Downloading teff=3900:  96%|█████████▌| 31.9M/33.2M [00:26&lt;00:00, 1.51MB/s]
+
+
+Downloading teff=3900:  97%|█████████▋| 32.1M/33.2M [00:27&lt;00:00, 1.51MB/s]
+
+
+Downloading teff=3900:  98%|█████████▊| 32.5M/33.2M [00:27&lt;00:00, 1.57MB/s]
+
+
+Downloading teff=3900:  98%|█████████▊| 32.6M/33.2M [00:27&lt;00:00, 1.56MB/s]
+
+
+Downloading teff=3900:  99%|█████████▉| 32.9M/33.2M [00:27&lt;00:00, 1.44MB/s]
+
+
+Downloading teff=3900: 100%|█████████▉| 33.2M/33.2M [00:27&lt;00:00, 1.46MB/s]
+Downloading teff=3900: 100%|██████████| 33.2M/33.2M [00:27&lt;00:00, 1.19MB/s]
+
+
+Loading Spectra: 100%|██████████| 17/17 [06:12&lt;00:00, 23.56s/it]
+Loading Spectra: 100%|██████████| 17/17 [06:12&lt;00:00, 21.89s/it]
+
+Build Spectra:   2%|▎         | 1/40 [06:13&lt;4:02:39, 373.32s/it]
+Build Spectra:   5%|▌         | 2/40 [06:14&lt;1:37:44, 154.32s/it]
+Build Spectra:   8%|▊         | 3/40 [06:15&lt;52:00, 84.33s/it]
+Build Spectra:  10%|█         | 4/40 [06:16&lt;30:51, 51.44s/it]
+Build Spectra:  12%|█▎        | 5/40 [06:17&lt;19:24, 33.26s/it]
+Build Spectra:  15%|█▌        | 6/40 [06:18&lt;12:38, 22.31s/it]
+Build Spectra:  18%|█▊        | 7/40 [06:19&lt;08:26, 15.35s/it]
+Build Spectra:  20%|██        | 8/40 [06:20&lt;05:45, 10.80s/it]
+Build Spectra:  22%|██▎       | 9/40 [06:21&lt;04:00,  7.74s/it]
+Build Spectra:  25%|██▌       | 10/40 [06:22&lt;02:50,  5.67s/it]
+Build Spectra:  28%|██▊       | 11/40 [06:23&lt;02:03,  4.25s/it]
+Build Spectra:  30%|███       | 12/40 [06:24&lt;01:31,  3.27s/it]
+Build Spectra:  32%|███▎      | 13/40 [06:25&lt;01:10,  2.59s/it]
+Build Spectra:  35%|███▌      | 14/40 [06:26&lt;00:55,  2.12s/it]
+Build Spectra:  38%|███▊      | 15/40 [06:27&lt;00:44,  1.79s/it]
+Build Spectra:  40%|████      | 16/40 [06:28&lt;00:37,  1.57s/it]
+Build Spectra:  42%|████▎     | 17/40 [06:29&lt;00:32,  1.41s/it]
+Build Spectra:  45%|████▌     | 18/40 [06:30&lt;00:28,  1.30s/it]
+Build Spectra:  48%|████▊     | 19/40 [06:31&lt;00:25,  1.22s/it]
+Build Spectra:  50%|█████     | 20/40 [06:32&lt;00:23,  1.17s/it]
+Build Spectra:  52%|█████▎    | 21/40 [06:34&lt;00:21,  1.13s/it]
+Build Spectra:  55%|█████▌    | 22/40 [06:35&lt;00:19,  1.10s/it]
+Build Spectra:  57%|█████▊    | 23/40 [06:36&lt;00:18,  1.08s/it]
+Build Spectra:  60%|██████    | 24/40 [06:37&lt;00:17,  1.07s/it]
+Build Spectra:  62%|██████▎   | 25/40 [06:38&lt;00:15,  1.06s/it]
+Build Spectra:  65%|██████▌   | 26/40 [06:39&lt;00:14,  1.06s/it]
+Build Spectra:  68%|██████▊   | 27/40 [06:40&lt;00:13,  1.05s/it]
+Build Spectra:  70%|███████   | 28/40 [06:41&lt;00:12,  1.04s/it]
+Build Spectra:  72%|███████▎  | 29/40 [06:42&lt;00:11,  1.04s/it]
+Build Spectra:  75%|███████▌  | 30/40 [06:43&lt;00:10,  1.04s/it]
+Build Spectra:  78%|███████▊  | 31/40 [06:44&lt;00:09,  1.03s/it]
+Build Spectra:  80%|████████  | 32/40 [06:45&lt;00:08,  1.04s/it]
+Build Spectra:  82%|████████▎ | 33/40 [06:46&lt;00:07,  1.03s/it]
+Build Spectra:  85%|████████▌ | 34/40 [06:47&lt;00:06,  1.03s/it]
+Build Spectra:  88%|████████▊ | 35/40 [06:48&lt;00:05,  1.03s/it]
+Build Spectra:  90%|█████████ | 36/40 [06:49&lt;00:04,  1.03s/it]
+Build Spectra:  92%|█████████▎| 37/40 [06:50&lt;00:03,  1.03s/it]
+Build Spectra:  95%|█████████▌| 38/40 [06:51&lt;00:02,  1.03s/it]
+Build Spectra:  98%|█████████▊| 39/40 [06:52&lt;00:01,  1.03s/it]
+Build Spectra: 100%|██████████| 40/40 [06:53&lt;00:00,  1.03s/it]
+Build Spectra: 100%|██████████| 40/40 [06:53&lt;00:00, 10.34s/it]
+</pre></div>
+</div>
+</section>
+<section id="load-in-the-data">
+<h2>Load in the data<a class="headerlink" href="#load-in-the-data" title="Link to this heading">#</a></h2>
+<p>We can use VSPEC to read in the synthetic
+data we just created.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">PhaseAnalyzer</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="s1">&#39;all_model&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.11.12/x64/lib/python3.11/site-packages/VSPEC/analysis.py:116: RuntimeWarning: No Layer info, maybe globes or molecular signatures are off
+  warnings.warn(
+</pre></div>
+</div>
+</section>
+<section id="get-the-lightcurve">
+<h2>Get the lightcurve<a class="headerlink" href="#get-the-lightcurve" title="Link to this heading">#</a></h2>
+<p>We will look in a few different wavelengths.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl_pixels</span></a> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">700</span><span class="p">]</span>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity.to" title="astropy.units.Quantity.to" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-method"><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">to</span></a><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">day</span></a><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl_pixels</span></a><span class="p">:</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">wavelength</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lc</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">lightcurve</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s1">&#39;star&#39;</span><span class="p">,</span>
+        <span class="n">pixel</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">,</span>
+        <span class="n">normalize</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time</span></a><span class="p">,</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lc</span></a><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl</span></a><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend" title="matplotlib.pyplot.legend" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel" title="matplotlib.pyplot.xlabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span></a><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;time (</span><span class="si">{</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity.unit" title="astropy.units.Quantity.unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-attribute"><span class="n">time</span><span class="o">.</span><span class="n">unit</span></a><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/text_api.html#matplotlib.text.Text" title="matplotlib.text.Text" class="sphx-glr-backref-module-matplotlib-text sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s1">&#39;Flux (normalized)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../../_images/sphx_glr_plot_spot_lightcurve_001.png" srcset="../../../_images/sphx_glr_plot_spot_lightcurve_001.png" alt="plot spot lightcurve" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (7 minutes 3.285 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-other-star-plot-spot-lightcurve-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/9f7a6676769825f0cac5edd3c770479f/plot_spot_lightcurve.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_spot_lightcurve.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/7629a17a626bf8a2abef9b39dbf5d4fa/plot_spot_lightcurve.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_spot_lightcurve.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/bec65e95f1df7fb9248247c8308bc819/plot_spot_lightcurve.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_spot_lightcurve.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">VSPEC Star Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_granulation_lightcurve.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Plot the lightcurve stellar granulation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initialize-the-vspec-run">Initialize the VSPEC run</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-in-the-data">Load in the data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-the-lightcurve">Get the lightcurve</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/auto_examples/other/star/plot_spot_lightcurve.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, The VSPEC Collaboration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

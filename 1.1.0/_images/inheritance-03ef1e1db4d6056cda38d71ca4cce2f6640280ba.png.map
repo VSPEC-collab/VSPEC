@@ -1,0 +1,27 @@
+<map id="inheritance416338e084" name="inheritance416338e084">
+<area shape="rect" id="node1" title="The particulars of the grid of stellar spectral models." alt="" coords="190,41,367,67"/>
+<area shape="rect" id="node4" href="api/VSPEC.params.BlackbodyGridParameters.html#VSPEC.params.BlackbodyGridParameters" target="_top" title="Parameter container for a forward&#45;model blackbody stellar spectrum." alt="" coords="424,5,615,31"/>
+<area shape="rect" id="node22" href="api/VSPEC.params.VSPECGridParameters.html#VSPEC.params.VSPECGridParameters" target="_top" title="Parameter container for the default VSPEC grid." alt="" coords="437,55,602,80"/>
+<area shape="rect" id="node2" href="api/VSPEC.params.BaseParameters.html#VSPEC.params.BaseParameters" target="_top" title="Base class for Parameters" alt="" coords="5,511,133,536"/>
+<area shape="rect" id="node3" href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters" target="_top" title="Class to store bandpass parameters for observations." alt="" coords="199,91,358,116"/>
+<area shape="rect" id="node6" href="api/VSPEC.params.TelescopeParameters.html#VSPEC.params.TelescopeParameters" target="_top" title="Base class for telescope Parameters." alt="" coords="199,140,359,165"/>
+<area shape="rect" id="node7" href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters" target="_top" title="Class to store detector parameters for observations." alt="" coords="203,189,355,215"/>
+<area shape="rect" id="node8" href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters" target="_top" title="Facula Parameters" alt="" coords="210,239,347,264"/>
+<area shape="rect" id="node9" href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters" target="_top" title="Class to store stellar flare parameters" alt="" coords="214,288,343,313"/>
+<area shape="rect" id="node10" href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters" target="_top" title="Granulation Parameters" alt="" coords="193,337,365,363"/>
+<area shape="rect" id="node11" href="api/VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters" target="_top" title="Class representing gravity parameters." alt="" coords="207,387,351,412"/>
+<area shape="rect" id="node12" href="api/VSPEC.params.Header.html#VSPEC.params.Header" target="_top" title="Header for VSPEC simulation" alt="" coords="243,436,315,461"/>
+<area shape="rect" id="node13" href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters" target="_top" title="Class to store instrument parameters for observations." alt="" coords="195,485,362,511"/>
+<area shape="rect" id="node14" href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters" target="_top" title="Class to store parameters for a VSPEC simulation." alt="" coords="205,535,352,560"/>
+<area shape="rect" id="node15" href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters" target="_top" title="Limb Darkening Parameters for the Quadratic" alt="" coords="181,584,376,609"/>
+<area shape="rect" id="node16" href="api/VSPEC.params.ObservationParameters.html#VSPEC.params.ObservationParameters" target="_top" title="Class storing parameters for observations." alt="" coords="191,633,366,659"/>
+<area shape="rect" id="node17" href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters" target="_top" title="Class representing planet parameters." alt="" coords="210,683,347,708"/>
+<area shape="rect" id="node19" href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters" target="_top" title="Parameters controling variability from star spots." alt="" coords="216,732,341,757"/>
+<area shape="rect" id="node20" href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters" target="_top" title="Parameters describing the ``VSPEC`` stellar model." alt="" coords="217,781,340,807"/>
+<area shape="rect" id="node21" href="api/VSPEC.params.SystemParameters.html#VSPEC.params.SystemParameters" target="_top" title="Class representing system parameters." alt="" coords="206,831,351,856"/>
+<area shape="rect" id="node23" href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters" target="_top" title="Class to store CCD parameters for observations." alt="" coords="219,880,338,905"/>
+<area shape="rect" id="node24" href="api/VSPEC.params.gcmParameters.html#VSPEC.params.gcmParameters" target="_top" title="Class to store GCM parameters." alt="" coords="217,929,341,955"/>
+<area shape="rect" id="node25" href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters" target="_top" title="Class to store parameters for the Planetary Spectrum Generator (PSG)." alt="" coords="219,979,338,1004"/>
+<area shape="rect" id="node5" href="api/VSPEC.params.CoronagraphParameters.html#VSPEC.params.CoronagraphParameters" target="_top" title="Parameters for a coronagraph telescope." alt="" coords="430,116,609,141"/>
+<area shape="rect" id="node18" href="api/VSPEC.params.SingleDishParameters.html#VSPEC.params.SingleDishParameters" target="_top" title="Parameters for a single dish telescope." alt="" coords="437,165,602,191"/>
+</map>

@@ -1,0 +1,17 @@
+ObservationParameters
+=====================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: ObservationParameters
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ObservationParameters.total_images
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: total_images
