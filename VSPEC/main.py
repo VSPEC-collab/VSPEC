@@ -79,9 +79,8 @@ class ObservationModel:
         self.bb = ForwardSpectra.blackbody()
         self.logger = logging.Logger('VSPEC')
         self.logger.setLevel(logging.DEBUG)
-        with open(self.directories['log'], 'w', encoding='utf-8') as f:
-            f.write('')
-        fh = logging.FileHandler(self.directories['log'],mode='w')
+        self._log_path.unlink(missing_ok=True)
+        fh = logging.FileHandler(self._log_path,mode='w')
         fh.setLevel(logging.DEBUG)
         self.logger.addHandler(fh)
         # warn if the planet sampling is too low.
@@ -126,7 +125,6 @@ class ObservationModel:
         'psg_noise': 'PSGNoise',
         'psg_layers': 'PSGLayers',
         'psg_configs': 'PSGConfig',
-        'log': 'psg.log',
     }
 
     @property
@@ -145,6 +143,10 @@ class ObservationModel:
         dir_dict = {key: parent_dir/value for key,
                     value in self._directories.items()}
         return dir_dict
+
+    @property
+    def _log_path(self):
+        return self.directories['parent'] / 'psg.log'
 
     def _wrap_iterator(self, iterator, **kwargs):
         """
@@ -534,7 +536,7 @@ class ObservationModel:
         try:
             self._build_planet()
         except Exception as e:
-            with open(self.directories['parent'] / 'psg.log', 'r', encoding='utf-8') as f:
+            with open(self._log_path, 'r', encoding='utf-8') as f:
                 e.add_note(f.read())
             raise
     def _build_planet(self):
