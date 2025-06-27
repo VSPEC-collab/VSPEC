@@ -164,7 +164,7 @@ This URL is used to access the PSG web interface externally.
 :type: str
 """
 
-PSG_CFG_MAX_LINES = 1500
+PSG_CFG_MAX_LINES = 1000
 """
 The maximum number of lines to allow in
 the PSG config file. Do not set this over 2000,
