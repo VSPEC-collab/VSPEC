@@ -49,5 +49,5 @@ jobs:
         pip install coveralls
         python -c "import libpypsg; libpypsg.settings.save_settings(api_key='$PSG_KEY')"
         python -c "from libpypsg.globes.waccm.waccm import download_test_data; download_test_data()"
-        coverage run --source=VSPEC -m pytest --timeout=1000 --test1 test/end_to_end_tests/test1/test_test1.py test/pytest
+        coverage run --source=VSPEC -m pytest --timeout=1000 --test1 --external test/end_to_end_tests/test1/test_test1.py test/pytest
         coveralls

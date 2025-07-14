@@ -3,7 +3,7 @@
 requires = ["setuptools", "wheel"]  # PEP 508 specifications.
 
 [project]
-version = "1.0.0"
+version = "1.1.0"
 name = "VSPEC"
 authors = [
     { name = "Ted Johnson", email = "ted.johnson@unlv.edu" },
@@ -23,6 +23,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
 ]
 dependencies = [
@@ -34,9 +36,9 @@ dependencies = [
     "pathlib",
     "netCDF4",
     "pyyaml",
-    "libpypsg~=0.4.0",
+    "libpypsg>=0.5.0",
     "vspec-vsm~=0.3.7",
-    "GridPolator~=0.4.1",
+    "GridPolator~=0.5",
 ]
 [project.optional-dependencies]
 plot = ["matplotlib","cartopy"]
@@ -56,7 +58,7 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://vspec-collab.github.io/VSPEC/1.0.0/"
+Documentation = "https://vspec-collab.github.io/VSPEC/latest/"
 Repository = "https://github.com/VSPEC-collab/VSPEC"
 Issues = "https://github.com/VSPEC-collab/VSPEC/issues"
 

@@ -6,6 +6,7 @@ perform all of the model aggregation from the rest of the package
 and PSG.
 """
 
+import logging.handlers
 from pathlib import Path
 import warnings
 import logging
@@ -78,7 +79,8 @@ class ObservationModel:
         self.bb = ForwardSpectra.blackbody()
         self.logger = logging.Logger('VSPEC')
         self.logger.setLevel(logging.DEBUG)
-        fh = logging.FileHandler(self.directories['parent'] / 'psg.log',mode='w')
+        self._log_path.unlink(missing_ok=True)
+        fh = logging.FileHandler(self._log_path,mode='w')
         fh.setLevel(logging.DEBUG)
         self.logger.addHandler(fh)
         # warn if the planet sampling is too low.
@@ -122,7 +124,7 @@ class ObservationModel:
         'psg_thermal': 'PSGThermalSpectra',
         'psg_noise': 'PSGNoise',
         'psg_layers': 'PSGLayers',
-        'psg_configs': 'PSGConfig'
+        'psg_configs': 'PSGConfig',
     }
 
     @property
@@ -141,6 +143,10 @@ class ObservationModel:
         dir_dict = {key: parent_dir/value for key,
                     value in self._directories.items()}
         return dir_dict
+
+    @property
+    def _log_path(self):
+        return self.directories['parent'] / 'psg.log'
 
     def _wrap_iterator(self, iterator, **kwargs):
         """
@@ -527,6 +533,13 @@ class ObservationModel:
         Build Planet: 100%|██████████| 36/36 [00:07<00:00,  4.60it/s]
 
         """
+        try:
+            self._build_planet()
+        except Exception as e:
+            with open(self._log_path, 'r', encoding='utf-8') as f:
+                e.add_note(f.read())
+            raise
+    def _build_planet(self):
         # check that psg is running
         self._check_psg()
         # for not using globes, append all configurations instead of rewritting

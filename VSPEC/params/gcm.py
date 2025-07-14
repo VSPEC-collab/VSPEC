@@ -11,8 +11,10 @@ from libpypsg.globes import waccm_to_pygcm, PyGCM, exocam_to_pygcm, GCMdecoder, 
 from libpypsg.globes.exocam import exocam
 from libpypsg.globes.waccm import waccm
 
-from VSPEC.params.base import BaseParameters
-from VSPEC.gcm.heat_transfer import to_pygcm as vspec_to_pygcm
+from .base import BaseParameters
+from ..gcm import vspec_to_pygcm, twoface_to_pygcm
+
+LOW_ABN = 1e-20
 
 
 def parse_molec_list(molec_list: list):
@@ -86,7 +88,7 @@ class gcmParameters(BaseParameters):
                 return PyGCM.from_decoder(GCMdecoder.from_psg(path))
             return cls(
                 gcm_getter=fun,
-                mean_molec_weight=mean_molec_weight,
+                mean_molec_weight=float(gcm_dict['mean_molec_weight']),
                 is_static=True
             )
         elif 'vspec' in gcm_dict:
@@ -115,7 +117,7 @@ class gcmParameters(BaseParameters):
                 )
             return cls(
                 gcm_getter=fun,
-                mean_molec_weight=mean_molec_weight,
+                mean_molec_weight=float(gcm_dict['mean_molec_weight']),
                 is_static=True
             )
         elif 'waccm' in gcm_dict:
@@ -150,7 +152,7 @@ class gcmParameters(BaseParameters):
                         )
             return cls(
                 gcm_getter=fun,
-                mean_molec_weight=mean_molec_weight,
+                mean_molec_weight=float(gcm_dict['mean_molec_weight']),
                 is_static=is_static
             )
         elif 'exocam' in gcm_dict:
@@ -186,7 +188,7 @@ class gcmParameters(BaseParameters):
                         )
             return cls(
                 gcm_getter=fun,
-                mean_molec_weight=mean_molec_weight,
+                mean_molec_weight=float(gcm_dict['mean_molec_weight']),
                 is_static=is_static
             )
         elif 'exoplasim' in gcm_dict:
@@ -207,7 +209,39 @@ class gcmParameters(BaseParameters):
                     )
             return cls(
                 gcm_getter=fun,
-                mean_molec_weight=mean_molec_weight,
+                mean_molec_weight=float(gcm_dict['mean_molec_weight']),
+                is_static=True
+            )
+        elif 'twoface' in gcm_dict:
+            args_dict: dict = gcm_dict['twoface']
+            def fun():
+                return twoface_to_pygcm(
+                    p0d=u.Quantity(args_dict['p0d']),
+                    p1d=u.Quantity(args_dict['p1d']),
+                    t0d=u.Quantity(args_dict['t0d']),
+                    t1d=u.Quantity(args_dict['t1d']),
+                    p0n=u.Quantity(args_dict['p0n']),
+                    p1n=u.Quantity(args_dict['p1n']),
+                    t0n=u.Quantity(args_dict['t0n']),
+                    t1n=u.Quantity(args_dict['t1n']),
+                    n_linear=int(args_dict['n_linear']),
+                    n_const=int(args_dict['n_const']),
+                    p_top=u.Quantity(args_dict['p_top']),
+                    nphi=int(args_dict['nphi']),
+                    ntheta=int(args_dict['ntheta']),
+                    scheme=args_dict.get('scheme', 'cos2'),
+                    h2o_d0=u.Quantity(args_dict.get('h2o_d0', LOW_ABN)),
+                    h2o_d1=u.Quantity(args_dict.get('h2o_d1', LOW_ABN)),
+                    h2o_n0=u.Quantity(args_dict.get('h2o_n0', LOW_ABN)),
+                    h2o_n1=u.Quantity(args_dict.get('h2o_n1', LOW_ABN)),
+                    co2=u.Quantity(args_dict.get('co2', LOW_ABN)),
+                    o3=u.Quantity(args_dict.get('o3', LOW_ABN)),
+                    no2=u.Quantity(args_dict.get('no2', LOW_ABN)),
+                    albedo=float(args_dict['albedo'])
+                )
+            return cls(
+                gcm_getter=fun,
+                mean_molec_weight=float(gcm_dict['mean_molec_weight']),
                 is_static=True
             )
 

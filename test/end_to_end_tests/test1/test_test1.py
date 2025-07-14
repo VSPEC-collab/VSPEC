@@ -8,12 +8,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from astropy import units as u
 import numpy as np
-import libpypsg
 import pytest
 
 import VSPEC
-
-libpypsg.docker.set_url_and_run()
 
 CFG_PATH = Path(__file__).parent / 'test1.yaml'
 FIG_PATH = Path(__file__).parent / 'out.png'
@@ -130,6 +127,6 @@ def run():
 
 
 if __name__ in '__main__':
-    pytest.main(args=[Path(__file__), '--test1'])
+    pytest.main(args=[Path(__file__), '--test1', '--external'])
     data = read_data()
     make_fig(data)
