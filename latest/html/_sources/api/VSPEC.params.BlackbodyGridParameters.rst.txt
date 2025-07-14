@@ -1,0 +1,19 @@
+BlackbodyGridParameters
+=======================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: BlackbodyGridParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BlackbodyGridParameters.build
+      ~BlackbodyGridParameters.from_dict
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: build
+   .. automethod:: from_dict

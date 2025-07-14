@@ -4,6 +4,14 @@
         "url": "https://VSPEC-collab.github.io/VSPEC/latest/index.html"
     },
     {
+        "version": "1.1.0",
+        "url": "https://VSPEC-collab.github.io/VSPEC/1.1.0/index.html"
+    },
+    {
+        "version": "1.0.0",
+        "url": "https://VSPEC-collab.github.io/VSPEC/1.0.0/index.html"
+    },
+    {
         "version": "0.6.0",
         "url": "https://VSPEC-collab.github.io/VSPEC/0.6.0/index.html"
     }

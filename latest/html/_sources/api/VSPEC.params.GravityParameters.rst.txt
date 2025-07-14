@@ -1,0 +1,27 @@
+GravityParameters
+=================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: GravityParameters
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~GravityParameters.value
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~GravityParameters.from_dict
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: value
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_dict

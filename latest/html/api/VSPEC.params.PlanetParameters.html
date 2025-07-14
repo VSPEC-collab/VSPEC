@@ -1,0 +1,767 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PlanetParameters &#8212; VSPEC 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/table_fix.css?v=fdc28d34" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f32b83b8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/VSPEC.params.PlanetParameters';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://VSPEC-collab.github.io/VSPEC/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SingleDishParameters" href="VSPEC.params.SingleDishParameters.html" />
+    <link rel="prev" title="ObservationParameters" href="VSPEC.params.ObservationParameters.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/vspec_logo.png" class="logo__image only-light" alt="VSPEC 1.1.0 documentation - Home"/>
+    <img src="../_static/vspec_logo.png" class="logo__image only-dark pst-js-only" alt="VSPEC 1.1.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../auto_examples/end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../auto_examples/other/index.html">
+    Other Examples
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../references.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/other/index.html">
+    Other Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../inputs.html" class="nav-link">Inputs</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PlanetParameters</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="planetparameters">
+<h1>PlanetParameters<a class="headerlink" href="#planetparameters" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">VSPEC.params.</span></span><span class="sig-name descname"><span class="pre">PlanetParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gravity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters" title="VSPEC.params.planet.GravityParameters"><span class="pre">GravityParameters</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">semimajor_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbit_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">eccentricity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obliquity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">obliquity_direction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_substellar_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VSPEC.params.PlanetParameters" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="VSPEC.params.BaseParameters.html#VSPEC.params.BaseParameters" title="VSPEC.params.base.BaseParameters"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseParameters</span></code></a></p>
+<p>Class representing planet parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the planet. Any characters are allowed.
+If you find that PSG is changing the name internally
+please submit an issue.</p></li>
+<li><p><strong>radius</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The radius of the planet.</p></li>
+<li><p><strong>gravity</strong> (<a class="reference internal" href="VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters" title="VSPEC.params.GravityParameters"><em>GravityParameters</em></a>) – The gravity parameters of the planet.</p></li>
+<li><p><strong>semimajor_axis</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The semi-major axis of the planet’s orbit.</p></li>
+<li><p><strong>orbit_period</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The period of the planet’s orbit.</p></li>
+<li><p><strong>rotation_period</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The rotation period of the planet.</p></li>
+<li><p><strong>eccentricity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The eccentricity of the planet’s orbit</p></li>
+<li><p><strong>obliquity</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The obliquity (tilt) of the planet.</p></li>
+<li><p><strong>obliquity_direction</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The direction of the planet’s obliquity. The true anomaly
+at which the planet’s north pole faces away from the star.</p></li>
+<li><p><strong>init_phase</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The initial phase of the planet.</p></li>
+<li><p><strong>init_substellar_lon</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The initial substellar longitude of the planet.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.name" title="Link to this definition">#</a></dt>
+<dd><p>The name of the planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.radius">
+<span class="sig-name descname"><span class="pre">radius</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.radius" title="Link to this definition">#</a></dt>
+<dd><p>The radius of the planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.gravity">
+<span class="sig-name descname"><span class="pre">gravity</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.gravity" title="Link to this definition">#</a></dt>
+<dd><p>The gravity parameters of the planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters" title="VSPEC.params.GravityParameters">GravityParameters</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.semimajor_axis">
+<span class="sig-name descname"><span class="pre">semimajor_axis</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.semimajor_axis" title="Link to this definition">#</a></dt>
+<dd><p>The semi-major axis of the planet’s orbit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.orbit_period">
+<span class="sig-name descname"><span class="pre">orbit_period</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.orbit_period" title="Link to this definition">#</a></dt>
+<dd><p>The period of the planet’s orbit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.rotation_period">
+<span class="sig-name descname"><span class="pre">rotation_period</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.rotation_period" title="Link to this definition">#</a></dt>
+<dd><p>The rotation period of the planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.eccentricity">
+<span class="sig-name descname"><span class="pre">eccentricity</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.eccentricity" title="Link to this definition">#</a></dt>
+<dd><p>The eccentricity of the planet’s orbit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.obliquity">
+<span class="sig-name descname"><span class="pre">obliquity</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.obliquity" title="Link to this definition">#</a></dt>
+<dd><p>The obliquity (tilt) of the planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.obliquity_direction">
+<span class="sig-name descname"><span class="pre">obliquity_direction</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.obliquity_direction" title="Link to this definition">#</a></dt>
+<dd><p>The direction of the planet’s obliquity. The true anomaly
+at which the planet’s north pole faces away from the star.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.init_phase">
+<span class="sig-name descname"><span class="pre">init_phase</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.init_phase" title="Link to this definition">#</a></dt>
+<dd><p>The initial phase of the planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.init_substellar_lon">
+<span class="sig-name descname"><span class="pre">init_substellar_lon</span></span><a class="headerlink" href="#VSPEC.params.PlanetParameters.init_substellar_lon" title="Link to this definition">#</a></dt>
+<dd><p>The initial substellar longitude of the planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)">astropy.units.Quantity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>The <cite>proxcenb</cite> class method initializes parameters specific to Proxima Centauri b.</p></li>
+<li><p>The <cite>std</cite> class method initializes parameters for a standard exoplanet.</p></li>
+</ul>
+<p class="rubric">Methods Summary</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#VSPEC.params.PlanetParameters.proxcenb" title="VSPEC.params.PlanetParameters.proxcenb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">proxcenb</span></code></a>(init_phase, init_substellar_lon)</p></td>
+<td><p>Proxima Centauri b <span id="id1">[<a class="reference internal" href="../references.html#id4" title="J. P. Faria, A. Suárez Mascareño, P. Figueira, A. M. Silva, M. Damasso, O. Demangeon, F. Pepe, N. C. Santos, R. Rebolo, S. Cristiani, V. Adibekyan, Y. Alibert, R. Allart, S. C. C. Barros, A. Cabral, V. D'Odorico, P. Di Marcantonio, X. Dumusque, D. Ehrenreich, J. I. González Hernández, N. Hara, J. Lillo-Box, G. Lo Curto, C. Lovis, C. J. A. P. Martins, D. Mégevand, A. Mehner, G. Micela, P. Molaro, N. J. Nunes, E. Pallé, E. Poretti, S. G. Sousa, A. Sozzetti, H. Tabernero, S. Udry, and M. R. Zapatero Osorio. A candidate short-period sub-Earth orbiting Proxima Centauri. \aap , 658:A115, February 2022. arXiv:2202.05188, doi:10.1051/0004-6361/202142337.">Faria <em>et al.</em>, 2022</a>]</span></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#VSPEC.params.PlanetParameters.std" title="VSPEC.params.PlanetParameters.std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></a>(init_phase, init_substellar_lon)</p></td>
+<td><p>The default VSPEC planet.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.proxcenb">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">proxcenb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_substellar_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VSPEC.params.PlanetParameters.proxcenb" title="Link to this definition">#</a></dt>
+<dd><p>Proxima Centauri b <span id="id2">[<a class="reference internal" href="../references.html#id4" title="J. P. Faria, A. Suárez Mascareño, P. Figueira, A. M. Silva, M. Damasso, O. Demangeon, F. Pepe, N. C. Santos, R. Rebolo, S. Cristiani, V. Adibekyan, Y. Alibert, R. Allart, S. C. C. Barros, A. Cabral, V. D'Odorico, P. Di Marcantonio, X. Dumusque, D. Ehrenreich, J. I. González Hernández, N. Hara, J. Lillo-Box, G. Lo Curto, C. Lovis, C. J. A. P. Martins, D. Mégevand, A. Mehner, G. Micela, P. Molaro, N. J. Nunes, E. Pallé, E. Poretti, S. G. Sousa, A. Sozzetti, H. Tabernero, S. Udry, and M. R. Zapatero Osorio. A candidate short-period sub-Earth orbiting Proxima Centauri. \aap , 658:A115, February 2022. arXiv:2202.05188, doi:10.1051/0004-6361/202142337.">Faria <em>et al.</em>, 2022</a>]</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_phase</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The initial phase of the planet.</p></li>
+<li><p><strong>init_substellar_lon</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The initial subsolar longitude of the planet.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The planet parameters for Proxima Centauri b.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#VSPEC.params.PlanetParameters" title="VSPEC.params.PlanetParameters">PlanetParameters</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="VSPEC.params.PlanetParameters.std">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">std</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init_phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_substellar_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity"><code class="docutils literal notranslate"><span class="pre">astropy.units.Quantity</span></code></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#VSPEC.params.PlanetParameters.std" title="Link to this definition">#</a></dt>
+<dd><p>The default VSPEC planet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_phase</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The initial phase of the planet.</p></li>
+<li><p><strong>init_substellar_lon</strong> (<a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="(in Astropy v7.1)"><em>astropy.units.Quantity</em></a>) – The initial subsolar longitude of the planet.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The planet parameters for the default VSPEC exoplanet.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#VSPEC.params.PlanetParameters" title="VSPEC.params.PlanetParameters">PlanetParameters</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VSPEC.params.ObservationParameters.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">ObservationParameters</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VSPEC.params.SingleDishParameters.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">SingleDishParameters</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters"><code class="docutils literal notranslate"><span class="pre">PlanetParameters</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.name"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.radius"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.radius</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.gravity"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.gravity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.semimajor_axis"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.semimajor_axis</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.orbit_period"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.orbit_period</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.rotation_period"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.rotation_period</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.eccentricity"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.eccentricity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.obliquity"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.obliquity</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.obliquity_direction"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.obliquity_direction</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.init_phase"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.init_phase</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.init_substellar_lon"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.init_substellar_lon</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.proxcenb"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.proxcenb()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#VSPEC.params.PlanetParameters.std"><code class="docutils literal notranslate"><span class="pre">PlanetParameters.std()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/VSPEC.params.PlanetParameters.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, The VSPEC Collaboration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

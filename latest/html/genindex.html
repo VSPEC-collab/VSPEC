@@ -1,0 +1,1151 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; VSPEC 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="_static/css/table_fix.css?v=fdc28d34" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=f32b83b8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=fc837d61"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://VSPEC-collab.github.io/VSPEC/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'latest';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/vspec_logo.png" class="logo__image only-light" alt="VSPEC 1.1.0 documentation - Home"/>
+    <img src="_static/vspec_logo.png" class="logo__image only-dark pst-js-only" alt="VSPEC 1.1.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="references.html">
+    References
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="auto_examples/end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="auto_examples/other/index.html">
+    Other Examples
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="references.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="auto_examples/other/index.html">
+    Other Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
+ 
+</div>
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.alpha">alpha (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.amp">amp (VSPEC.params.GranulationParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.TelescopeParameters.html#VSPEC.params.TelescopeParameters.aperture">aperture (VSPEC.params.TelescopeParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.area_logmean">area_logmean (VSPEC.params.SpotParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.area_logsigma">area_logsigma (VSPEC.params.SpotParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.atmosphere">atmosphere (VSPEC.params.InternalParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters.bandpass">bandpass (VSPEC.params.InstrumentParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters">BandpassParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.BaseParameters.html#VSPEC.params.BaseParameters">BaseParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters.beam_width">beam_width (VSPEC.params.DetectorParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.beta">beta (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BlackbodyGridParameters.html#VSPEC.params.BlackbodyGridParameters">BlackbodyGridParameters (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.BlackbodyGridParameters.html#VSPEC.params.BlackbodyGridParameters.build">build() (VSPEC.params.BlackbodyGridParameters method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.VSPECGridParameters.html#VSPEC.params.VSPECGridParameters.build">(VSPEC.params.VSPECGridParameters method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.ObservationModel.html#VSPEC.ObservationModel.build_planet">build_planet() (VSPEC.ObservationModel method)</a>
+</li>
+      <li><a href="api/VSPEC.ObservationModel.html#VSPEC.ObservationModel.build_spectra">build_spectra() (VSPEC.ObservationModel method)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.burn_in">burn_in (VSPEC.params.FaculaParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.burn_in">(VSPEC.params.SpotParameters attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters.ccd">ccd (VSPEC.params.DetectorParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters">ccdParameters (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.cluster_size">cluster_size (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.gcmParameters.html#VSPEC.params.gcmParameters.content">content() (VSPEC.params.gcmParameters method)</a>
+</li>
+      <li><a href="api/VSPEC.params.CoronagraphParameters.html#VSPEC.params.CoronagraphParameters">CoronagraphParameters (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.dark_current">dark_current (VSPEC.params.ccdParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.Header.html#VSPEC.params.Header.data_path">data_path (VSPEC.params.Header attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.decay_rate">decay_rate (VSPEC.params.SpotParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.depth">depth (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.Header.html#VSPEC.params.Header.desc">desc (VSPEC.params.Header attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters.detector">detector (VSPEC.params.InstrumentParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters">DetectorParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.ObservationModel.html#VSPEC.ObservationModel.directories">directories (VSPEC.ObservationModel attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.dist_fwhm_logsigma">dist_fwhm_logsigma (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.dist_fwhm_mean">dist_fwhm_mean (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.dist_teff_mean">dist_teff_mean (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.dist_teff_sigma">dist_teff_sigma (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SystemParameters.html#VSPEC.params.SystemParameters.distance">distance (VSPEC.params.SystemParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.distribution">distribution (VSPEC.params.FaculaParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.distribution">(VSPEC.params.SpotParameters attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.dteff">dteff (VSPEC.params.GranulationParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.eccentricity">eccentricity (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.emissivity">emissivity (VSPEC.params.ccdParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.equillibrium_coverage">equillibrium_coverage (VSPEC.params.FaculaParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.equillibrium_coverage">(VSPEC.params.SpotParameters attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.faculae">faculae (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters">FaculaParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer.fits">fits (VSPEC.PhaseAnalyzer attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters">FlareParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.flares">flares (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.flaring_proxima">flaring_proxima() (VSPEC.params.StarParameters class method)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.floor_teff_base_dteff">floor_teff_base_dteff (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.floor_teff_min_rad">floor_teff_min_rad (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.floor_teff_slope">floor_teff_slope (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.flux_correction">flux_correction (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.flux_unit">flux_unit (VSPEC.params.BandpassParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BaseParameters.html#VSPEC.params.BaseParameters.from_dict">from_dict() (VSPEC.params.BaseParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.BlackbodyGridParameters.html#VSPEC.params.BlackbodyGridParameters.from_dict">(VSPEC.params.BlackbodyGridParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters.from_dict">(VSPEC.params.GravityParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.from_dict">(VSPEC.params.InternalParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.from_dict">(VSPEC.params.StarParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.VSPECGridParameters.html#VSPEC.params.VSPECGridParameters.from_dict">(VSPEC.params.VSPECGridParameters class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer.from_model">from_model() (VSPEC.PhaseAnalyzer class method)</a>
+</li>
+      <li><a href="api/VSPEC.params.BaseParameters.html#VSPEC.params.BaseParameters.from_preset">from_preset() (VSPEC.params.BaseParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.from_preset">(VSPEC.params.FaculaParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.from_preset">(VSPEC.params.FlareParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.from_preset">(VSPEC.params.GranulationParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters.from_preset">(VSPEC.params.InstrumentParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.from_preset">(VSPEC.params.SpotParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.from_preset">(VSPEC.params.StarParameters class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.ObservationModel.html#VSPEC.ObservationModel.from_yaml">from_yaml() (VSPEC.ObservationModel class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.from_yaml">(VSPEC.params.InternalParameters class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.gcm">gcm (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters.gcm_binning">gcm_binning (VSPEC.params.psgParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.gcmParameters.html#VSPEC.params.gcmParameters">gcmParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.generator">generator (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.geometry">geometry (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer.get_layer">get_layer() (VSPEC.PhaseAnalyzer method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.ObservationModel.html#VSPEC.ObservationModel.get_observation_parameters">get_observation_parameters() (VSPEC.ObservationModel method)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.granulation">granulation (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters">GranulationParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.gravity">gravity (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters">GravityParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.grid_params">grid_params (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.growth_rate">growth_rate (VSPEC.params.SpotParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.Header.html#VSPEC.params.Header">Header (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.header">header (VSPEC.params.InternalParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.SystemParameters.html#VSPEC.params.SystemParameters.inclination">inclination (VSPEC.params.SystemParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.init_phase">init_phase (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.init_substellar_lon">init_substellar_lon (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.initial_area">initial_area (VSPEC.params.SpotParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.initial_coverage">initial_coverage (VSPEC.params.SpotParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.inst">inst (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters">InstrumentParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters.integration_time">integration_time (VSPEC.params.DetectorParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.ObservationParameters.html#VSPEC.params.ObservationParameters.integration_time">(VSPEC.params.ObservationParameters attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters">InternalParameters (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.SingleDishParameters.html#VSPEC.params.SingleDishParameters.jwst">jwst() (VSPEC.params.SingleDishParameters class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters.lambertian">lambertian() (VSPEC.params.LimbDarkeningParameters class method)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.ld">ld (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer.lightcurve">lightcurve() (VSPEC.PhaseAnalyzer method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters">LimbDarkeningParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters.lmax">lmax (VSPEC.params.psgParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.logsigma_radius">logsigma_radius (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.logsigma_timescale">logsigma_timescale (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.mass">mass (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.Header.html#VSPEC.params.Header.max_teff">max_teff (VSPEC.params.Header attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.mdwarf">mdwarf() (VSPEC.params.SpotParameters class method)</a>
+</li>
+      <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.mean">mean (VSPEC.params.GranulationParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.mean_radius">mean_radius (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.mean_timescale">mean_timescale (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.min_energy">min_energy (VSPEC.params.FlareParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.Header.html#VSPEC.params.Header.min_teff">min_teff (VSPEC.params.Header attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.mirecle">mirecle() (VSPEC.params.BandpassParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.mirecle">(VSPEC.params.ccdParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters.mirecle">(VSPEC.params.DetectorParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters.mirecle">(VSPEC.params.InstrumentParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.SingleDishParameters.html#VSPEC.params.SingleDishParameters.mirecle">(VSPEC.params.SingleDishParameters class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.miri_lrs">miri_lrs() (VSPEC.params.BandpassParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.miri_lrs">(VSPEC.params.ccdParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters.miri_lrs">(VSPEC.params.DetectorParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters.miri_lrs">(VSPEC.params.InstrumentParameters class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.misalignment">misalignment (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.misalignment_dir">misalignment_dir (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.TelescopeParameters.html#VSPEC.params.TelescopeParameters.mode">mode (VSPEC.params.TelescopeParameters attribute)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="inputs.html#module-VSPEC.params">VSPEC.params</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.name">name (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.niriss_soss">niriss_soss() (VSPEC.params.BandpassParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.niriss_soss">(VSPEC.params.ccdParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.DetectorParameters.html#VSPEC.params.DetectorParameters.niriss_soss">(VSPEC.params.DetectorParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters.niriss_soss">(VSPEC.params.InstrumentParameters class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters.nmax">nmax (VSPEC.params.psgParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.noise">noise (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.none">none() (VSPEC.params.FaculaParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.none">(VSPEC.params.FlareParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.none">(VSPEC.params.GranulationParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.none">(VSPEC.params.SpotParameters class method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.obliquity">obliquity (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.obliquity_direction">obliquity_direction (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.obs">obs (VSPEC.params.InternalParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.ObservationParameters.html#VSPEC.params.ObservationParameters.observation_time">observation_time (VSPEC.params.ObservationParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.ObservationModel.html#VSPEC.ObservationModel">ObservationModel (class in VSPEC)</a>
+</li>
+      <li><a href="api/VSPEC.params.ObservationParameters.html#VSPEC.params.ObservationParameters">ObservationParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.orbit_period">orbit_period (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.period">period (VSPEC.params.GranulationParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.period">(VSPEC.params.StarParameters attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters.phase_binning">phase_binning (VSPEC.params.psgParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SystemParameters.html#VSPEC.params.SystemParameters.phase_of_periastron">phase_of_periastron (VSPEC.params.SystemParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer">PhaseAnalyzer (class in VSPEC)</a>
+</li>
+      <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.pixel_sampling">pixel_sampling (VSPEC.params.ccdParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.planet">planet (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.planet_total_images">planet_total_images (VSPEC.params.InternalParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters">PlanetParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.proxcenb">proxcenb() (VSPEC.params.PlanetParameters class method)</a>
+</li>
+      <li><a href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters.proxima">proxima() (VSPEC.params.LimbDarkeningParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.proxima">(VSPEC.params.StarParameters class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.psg">psg (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.psg_rad_mapper">psg_rad_mapper (VSPEC.params.BandpassParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.psg_star_template">psg_star_template (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters">psgParameters (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.radius">radius (VSPEC.params.PlanetParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.radius">(VSPEC.params.StarParameters attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.read_noise">read_noise (VSPEC.params.ccdParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.resolving_power">resolving_power (VSPEC.params.BandpassParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.rotation_period">rotation_period (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.Header.html#VSPEC.params.Header.seed">seed (VSPEC.params.Header attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.semimajor_axis">semimajor_axis (VSPEC.params.PlanetParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SingleDishParameters.html#VSPEC.params.SingleDishParameters">SingleDishParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters.solar">solar() (VSPEC.params.LimbDarkeningParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.solar">(VSPEC.params.SpotParameters class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.spectral_grid">spectral_grid (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer.spectrum">spectrum() (VSPEC.PhaseAnalyzer method)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters">SpotParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.spots">spots (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.spotted_proxima">spotted_proxima() (VSPEC.params.StarParameters class method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.star">star (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.star_total_images">star_total_images (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters">StarParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.static_proxima">static_proxima() (VSPEC.params.StarParameters class method)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.std">std() (VSPEC.params.FaculaParameters class method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.std">(VSPEC.params.FlareParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.std">(VSPEC.params.GranulationParameters class method)</a>
+</li>
+        <li><a href="api/VSPEC.params.PlanetParameters.html#VSPEC.params.PlanetParameters.std">(VSPEC.params.PlanetParameters class method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.surface">surface (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.system">system (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SystemParameters.html#VSPEC.params.SystemParameters">SystemParameters (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.target">target (VSPEC.params.InternalParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.teff">teff (VSPEC.params.StarParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.teff_penumbra">teff_penumbra (VSPEC.params.SpotParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.teff_umbra">teff_umbra (VSPEC.params.SpotParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.InstrumentParameters.html#VSPEC.params.InstrumentParameters.telescope">telescope (VSPEC.params.InstrumentParameters attribute)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.telescope">(VSPEC.params.InternalParameters attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.TelescopeParameters.html#VSPEC.params.TelescopeParameters">TelescopeParameters (class in VSPEC.params)</a>
+</li>
+      <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.temperature">temperature (VSPEC.params.ccdParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.ccdParameters.html#VSPEC.params.ccdParameters.throughput">throughput (VSPEC.params.ccdParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.to_generator">to_generator() (VSPEC.params.FaculaParameters method)</a>
+
+      <ul>
+        <li><a href="api/VSPEC.params.FlareParameters.html#VSPEC.params.FlareParameters.to_generator">(VSPEC.params.FlareParameters method)</a>
+</li>
+        <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.to_generator">(VSPEC.params.GranulationParameters method)</a>
+</li>
+        <li><a href="api/VSPEC.params.SpotParameters.html#VSPEC.params.SpotParameters.to_generator">(VSPEC.params.SpotParameters method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.gcmParameters.html#VSPEC.params.gcmParameters.to_pycfg">to_pycfg() (VSPEC.params.gcmParameters method)</a>
+</li>
+      <li><a href="api/VSPEC.params.InternalParameters.html#VSPEC.params.InternalParameters.to_pyconfig">to_pyconfig() (VSPEC.params.InternalParameters method)</a>
+</li>
+      <li><a href="api/VSPEC.params.StarParameters.html#VSPEC.params.StarParameters.to_star">to_star() (VSPEC.params.StarParameters method)</a>
+</li>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer.to_twocolumn">to_twocolumn() (VSPEC.PhaseAnalyzer method)</a>
+</li>
+      <li><a href="api/VSPEC.params.ObservationParameters.html#VSPEC.params.ObservationParameters.total_images">total_images (VSPEC.params.ObservationParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters.trappist">trappist() (VSPEC.params.LimbDarkeningParameters class method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters.u1">u1 (VSPEC.params.LimbDarkeningParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.LimbDarkeningParameters.html#VSPEC.params.LimbDarkeningParameters.u2">u2 (VSPEC.params.LimbDarkeningParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters.use_continuum_stellar">use_continuum_stellar (VSPEC.params.psgParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.psgParameters.html#VSPEC.params.psgParameters.use_molecular_signatures">use_molecular_signatures (VSPEC.params.psgParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.GranulationParameters.html#VSPEC.params.GranulationParameters.validate">validate() (VSPEC.params.GranulationParameters method)</a>
+</li>
+      <li><a href="api/VSPEC.params.GravityParameters.html#VSPEC.params.GravityParameters.value">value (VSPEC.params.GravityParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.Header.html#VSPEC.params.Header.verbose">verbose (VSPEC.params.Header attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    VSPEC.params
+
+      <ul>
+        <li><a href="inputs.html#module-VSPEC.params">module</a>
+</li>
+      </ul></li>
+      <li><a href="api/VSPEC.params.VSPECGridParameters.html#VSPEC.params.VSPECGridParameters">VSPECGridParameters (class in VSPEC.params)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.wall_teff_intercept">wall_teff_intercept (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.FaculaParameters.html#VSPEC.params.FaculaParameters.wall_teff_slope">wall_teff_slope (VSPEC.params.FaculaParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.wavelength_unit">wavelength_unit (VSPEC.params.BandpassParameters attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.wl_blue">wl_blue (VSPEC.params.BandpassParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.params.BandpassParameters.html#VSPEC.params.BandpassParameters.wl_red">wl_red (VSPEC.params.BandpassParameters attribute)</a>
+</li>
+      <li><a href="api/VSPEC.PhaseAnalyzer.html#VSPEC.PhaseAnalyzer.write_fits">write_fits() (VSPEC.PhaseAnalyzer method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/VSPEC.params.TelescopeParameters.html#VSPEC.params.TelescopeParameters.zodi">zodi (VSPEC.params.TelescopeParameters attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, The VSPEC Collaboration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

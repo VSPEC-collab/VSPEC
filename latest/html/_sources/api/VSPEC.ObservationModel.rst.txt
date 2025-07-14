@@ -1,0 +1,33 @@
+ObservationModel
+================
+
+.. currentmodule:: VSPEC
+
+.. autoclass:: ObservationModel
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~ObservationModel.directories
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ObservationModel.build_planet
+      ~ObservationModel.build_spectra
+      ~ObservationModel.from_yaml
+      ~ObservationModel.get_observation_parameters
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: directories
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: build_planet
+   .. automethod:: build_spectra
+   .. automethod:: from_yaml
+   .. automethod:: get_observation_parameters
