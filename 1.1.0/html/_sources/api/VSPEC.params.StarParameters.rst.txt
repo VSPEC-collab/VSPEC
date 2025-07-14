@@ -1,0 +1,29 @@
+StarParameters
+==============
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: StarParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~StarParameters.flaring_proxima
+      ~StarParameters.from_dict
+      ~StarParameters.from_preset
+      ~StarParameters.proxima
+      ~StarParameters.spotted_proxima
+      ~StarParameters.static_proxima
+      ~StarParameters.to_star
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: flaring_proxima
+   .. automethod:: from_dict
+   .. automethod:: from_preset
+   .. automethod:: proxima
+   .. automethod:: spotted_proxima
+   .. automethod:: static_proxima
+   .. automethod:: to_star

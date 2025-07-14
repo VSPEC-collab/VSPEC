@@ -1,0 +1,19 @@
+VSPECGridParameters
+===================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: VSPECGridParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~VSPECGridParameters.build
+      ~VSPECGridParameters.from_dict
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: build
+   .. automethod:: from_dict

@@ -1,0 +1,25 @@
+GranulationParameters
+=====================
+
+.. currentmodule:: VSPEC.params
+
+.. autoclass:: GranulationParameters
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~GranulationParameters.from_preset
+      ~GranulationParameters.none
+      ~GranulationParameters.std
+      ~GranulationParameters.to_generator
+      ~GranulationParameters.validate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: from_preset
+   .. automethod:: none
+   .. automethod:: std
+   .. automethod:: to_generator
+   .. automethod:: validate

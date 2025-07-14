@@ -1,0 +1,1439 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Plot the lightcurve of a spotted star &#8212; VSPEC 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/table_fix.css?v=fdc28d34" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f32b83b8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/other/star/plot_spot_lightcurve';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://VSPEC-collab.github.io/VSPEC/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.0-beta';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Plot the lightcurve stellar granulation" href="plot_granulation_lightcurve.html" />
+    <link rel="prev" title="VSPEC Star Examples" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/vspec_logo.png" class="logo__image only-light" alt="VSPEC 1.1.0 documentation - Home"/>
+    <img src="../../../_static/vspec_logo.png" class="logo__image only-dark pst-js-only" alt="VSPEC 1.1.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../index.html">
+    Other Examples
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../references.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../end_to_end/index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Other Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Other Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">VSPEC Star Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Plot the lightcurve of a spotted star</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-other-star-plot-spot-lightcurve-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="plot-the-lightcurve-of-a-spotted-star">
+<span id="sphx-glr-auto-examples-other-star-plot-spot-lightcurve-py"></span><h1>Plot the lightcurve of a spotted star<a class="headerlink" href="#plot-the-lightcurve-of-a-spotted-star" title="Link to this heading">#</a></h1>
+<p>This example plots the lightcurve caused by a
+spotted photosphere.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">libpypsg</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">VSPEC</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservationModel</span><span class="p">,</span><span class="n">PhaseAnalyzer</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CFG_PATH</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;spot_lightcurve.yaml&#39;</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CFG_PATH</span></a> <span class="o">=</span> <span class="s1">&#39;spot_lightcurve.yaml&#39;</span>
+
+<span class="n">libpypsg</span><span class="o">.</span><span class="n">docker</span><span class="o">.</span><span class="n">set_url_and_run</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="initialize-the-vspec-run">
+<h2>Initialize the VSPEC run<a class="headerlink" href="#initialize-the-vspec-run" title="Link to this heading">#</a></h2>
+<p>We read in the config file and run the model.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ObservationModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CFG_PATH</span></a><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">build_planet</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">build_spectra</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/VSPEC/main.py:91: RuntimeWarning: Planet sampling is too low (4.00 d &gt; 1.25 d)
+  warnings.warn(msg, RuntimeWarning)
+Starting at phase 0.0 deg, observe for 40.0 d in 10 steps
+Phases = [  0. 144. 288.  72. 216.   0. 144. 288.  72. 216.   0.] deg
+
+Build Planet:   0%|          | 0/11 [00:00&lt;?, ?it/s]
+Build Planet:   9%|▉         | 1/11 [00:00&lt;00:05,  1.95it/s]
+Build Planet:  18%|█▊        | 2/11 [00:00&lt;00:04,  2.05it/s]
+Build Planet:  27%|██▋       | 3/11 [00:01&lt;00:04,  1.93it/s]
+Build Planet:  36%|███▋      | 4/11 [00:02&lt;00:03,  2.00it/s]
+Build Planet:  45%|████▌     | 5/11 [00:02&lt;00:02,  2.08it/s]
+Build Planet:  55%|█████▍    | 6/11 [00:02&lt;00:02,  2.10it/s]
+Build Planet:  64%|██████▎   | 7/11 [00:03&lt;00:01,  2.14it/s]
+Build Planet:  73%|███████▎  | 8/11 [00:03&lt;00:01,  2.15it/s]
+Build Planet:  82%|████████▏ | 9/11 [00:04&lt;00:00,  2.14it/s]
+Build Planet:  91%|█████████ | 10/11 [00:04&lt;00:00,  2.16it/s]
+Build Planet: 100%|██████████| 11/11 [00:05&lt;00:00,  2.16it/s]
+Build Planet: 100%|██████████| 11/11 [00:05&lt;00:00,  2.11it/s]
+Generated 2 mature spots
+Creating interpolators:
+thermal
+thermal, combined
+thermal, combined, stellar
+thermal, combined, stellar, photon noise
+thermal, combined, stellar, photon noise, detector noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
+Finished!
+
+Build Spectra:   0%|          | 0/40 [00:00&lt;?, ?it/s]
+
+Loading Spectra:   0%|          | 0/17 [00:00&lt;?, ?it/s]PHOENIX grid for 2300 not found. Downloading...
+
+
+
+Downloading teff=2300:   0%|          | 0.00/33.8M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2300:   0%|          | 4.10k/33.8M [00:00&lt;47:06, 12.0kB/s]
+
+
+Downloading teff=2300:   0%|          | 28.7k/33.8M [00:00&lt;08:40, 64.9kB/s]
+
+
+Downloading teff=2300:   0%|          | 111k/33.8M [00:00&lt;02:13, 253kB/s]
+
+
+Downloading teff=2300:   1%|          | 414k/33.8M [00:00&lt;00:41, 807kB/s]
+
+
+Downloading teff=2300:   3%|▎         | 950k/33.8M [00:00&lt;00:17, 1.87MB/s]
+
+
+Downloading teff=2300:   8%|▊         | 2.55M/33.8M [00:01&lt;00:05, 5.42MB/s]
+
+
+Downloading teff=2300:  17%|█▋        | 5.73M/33.8M [00:01&lt;00:02, 12.4MB/s]
+
+
+Downloading teff=2300:  28%|██▊       | 9.58M/33.8M [00:01&lt;00:01, 19.5MB/s]
+
+
+Downloading teff=2300:  35%|███▌      | 11.8M/33.8M [00:01&lt;00:01, 20.1MB/s]
+
+
+Downloading teff=2300:  42%|████▏     | 14.1M/33.8M [00:01&lt;00:00, 20.6MB/s]
+
+
+Downloading teff=2300:  52%|█████▏    | 17.7M/33.8M [00:01&lt;00:00, 24.5MB/s]
+
+
+Downloading teff=2300:  64%|██████▍   | 21.8M/33.8M [00:01&lt;00:00, 28.3MB/s]
+
+
+Downloading teff=2300:  76%|███████▋  | 25.8M/33.8M [00:01&lt;00:00, 31.6MB/s]
+
+
+Downloading teff=2300:  88%|████████▊ | 29.6M/33.8M [00:01&lt;00:00, 33.3MB/s]
+
+
+Downloading teff=2300:  99%|█████████▉| 33.6M/33.8M [00:01&lt;00:00, 35.0MB/s]
+Downloading teff=2300: 100%|██████████| 33.8M/33.8M [00:01&lt;00:00, 17.4MB/s]
+
+
+Loading Spectra:   6%|▌         | 1/17 [00:02&lt;00:41,  2.62s/it]PHOENIX grid for 2400 not found. Downloading...
+
+
+
+Downloading teff=2400:   0%|          | 0.00/33.9M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2400:   0%|          | 4.10k/33.9M [00:00&lt;48:51, 11.6kB/s]
+
+
+Downloading teff=2400:   0%|          | 41.0k/33.9M [00:00&lt;05:57, 94.7kB/s]
+
+
+Downloading teff=2400:   0%|          | 123k/33.9M [00:00&lt;02:06, 268kB/s]
+
+
+Downloading teff=2400:   1%|▏         | 438k/33.9M [00:00&lt;00:39, 849kB/s]
+
+
+Downloading teff=2400:   3%|▎         | 1.04M/33.9M [00:00&lt;00:15, 2.08MB/s]
+
+
+Downloading teff=2400:   6%|▋         | 2.14M/33.9M [00:01&lt;00:07, 4.24MB/s]
+
+
+Downloading teff=2400:  16%|█▌        | 5.28M/33.9M [00:01&lt;00:02, 11.4MB/s]
+
+
+Downloading teff=2400:  26%|██▋       | 8.96M/33.9M [00:01&lt;00:01, 18.3MB/s]
+
+
+Downloading teff=2400:  37%|███▋      | 12.4M/33.9M [00:01&lt;00:00, 22.1MB/s]
+
+
+Downloading teff=2400:  49%|████▊     | 16.4M/33.9M [00:01&lt;00:00, 27.0MB/s]
+
+
+Downloading teff=2400:  61%|██████    | 20.5M/33.9M [00:01&lt;00:00, 30.8MB/s]
+
+
+Downloading teff=2400:  72%|███████▏  | 24.5M/33.9M [00:01&lt;00:00, 33.4MB/s]
+
+
+Downloading teff=2400:  84%|████████▍ | 28.6M/33.9M [00:01&lt;00:00, 35.4MB/s]
+
+
+Downloading teff=2400:  95%|█████████▌| 32.3M/33.9M [00:01&lt;00:00, 36.0MB/s]
+Downloading teff=2400: 100%|██████████| 33.9M/33.9M [00:01&lt;00:00, 17.7MB/s]
+
+
+Loading Spectra:  12%|█▏        | 2/17 [00:05&lt;00:38,  2.59s/it]PHOENIX grid for 2500 not found. Downloading...
+
+
+
+Downloading teff=2500:   0%|          | 0.00/34.0M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2500:   0%|          | 4.10k/34.0M [00:00&lt;1:02:08, 9.11kB/s]
+
+
+Downloading teff=2500:   0%|          | 41.0k/34.0M [00:00&lt;06:14, 90.7kB/s]
+
+
+Downloading teff=2500:   0%|          | 111k/34.0M [00:00&lt;02:43, 207kB/s]
+
+
+Downloading teff=2500:   1%|          | 422k/34.0M [00:00&lt;00:40, 834kB/s]
+
+
+Downloading teff=2500:   3%|▎         | 979k/34.0M [00:01&lt;00:19, 1.71MB/s]
+
+
+Downloading teff=2500:   8%|▊         | 2.77M/34.0M [00:01&lt;00:05, 5.43MB/s]
+
+
+Downloading teff=2500:  17%|█▋        | 5.72M/34.0M [00:01&lt;00:02, 11.4MB/s]
+
+
+Downloading teff=2500:  27%|██▋       | 9.30M/34.0M [00:01&lt;00:01, 17.7MB/s]
+
+
+Downloading teff=2500:  39%|███▊      | 13.1M/34.0M [00:01&lt;00:00, 23.2MB/s]
+
+
+Downloading teff=2500:  48%|████▊     | 16.1M/34.0M [00:01&lt;00:00, 25.3MB/s]
+
+
+Downloading teff=2500:  59%|█████▊    | 19.9M/34.0M [00:01&lt;00:00, 28.8MB/s]
+
+
+Downloading teff=2500:  70%|███████   | 23.8M/34.0M [00:01&lt;00:00, 31.7MB/s]
+
+
+Downloading teff=2500:  80%|████████  | 27.3M/34.0M [00:01&lt;00:00, 32.5MB/s]
+
+
+Downloading teff=2500:  90%|█████████ | 30.7M/34.0M [00:01&lt;00:00, 32.8MB/s]
+Downloading teff=2500: 100%|██████████| 34.0M/34.0M [00:02&lt;00:00, 16.7MB/s]
+
+
+Loading Spectra:  18%|█▊        | 3/17 [00:07&lt;00:36,  2.64s/it]PHOENIX grid for 2600 not found. Downloading...
+
+
+
+Downloading teff=2600:   0%|          | 0.00/34.0M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2600:   0%|          | 4.10k/34.0M [00:00&lt;51:25, 11.0kB/s]
+
+
+Downloading teff=2600:   0%|          | 28.7k/34.0M [00:00&lt;08:39, 65.3kB/s]
+
+
+Downloading teff=2600:   0%|          | 111k/34.0M [00:00&lt;02:21, 240kB/s]
+
+
+Downloading teff=2600:   1%|▏         | 426k/34.0M [00:00&lt;00:40, 822kB/s]
+
+
+Downloading teff=2600:   3%|▎         | 1.06M/34.0M [00:00&lt;00:15, 2.06MB/s]
+
+
+Downloading teff=2600:   9%|▉         | 2.98M/34.0M [00:01&lt;00:04, 6.23MB/s]
+
+
+Downloading teff=2600:  18%|█▊        | 6.07M/34.0M [00:01&lt;00:02, 12.6MB/s]
+
+
+Downloading teff=2600:  28%|██▊       | 9.66M/34.0M [00:01&lt;00:01, 18.9MB/s]
+
+
+Downloading teff=2600:  39%|███▉      | 13.3M/34.0M [00:01&lt;00:00, 23.7MB/s]
+
+
+Downloading teff=2600:  49%|████▉     | 16.7M/34.0M [00:01&lt;00:00, 26.7MB/s]
+
+
+Downloading teff=2600:  60%|██████    | 20.5M/34.0M [00:01&lt;00:00, 30.0MB/s]
+
+
+Downloading teff=2600:  71%|███████   | 24.2M/34.0M [00:01&lt;00:00, 32.0MB/s]
+
+
+Downloading teff=2600:  81%|████████  | 27.5M/34.0M [00:01&lt;00:00, 31.8MB/s]
+
+
+Downloading teff=2600:  91%|█████████▏| 31.0M/34.0M [00:01&lt;00:00, 32.7MB/s]
+Downloading teff=2600: 100%|██████████| 34.0M/34.0M [00:01&lt;00:00, 18.2MB/s]
+
+
+Loading Spectra:  24%|██▎       | 4/17 [00:10&lt;00:33,  2.59s/it]PHOENIX grid for 2700 not found. Downloading...
+
+
+
+Downloading teff=2700:   0%|          | 0.00/34.0M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2700:   0%|          | 4.10k/34.0M [00:00&lt;55:54, 10.1kB/s]
+
+
+Downloading teff=2700:   0%|          | 41.0k/34.0M [00:00&lt;06:46, 83.5kB/s]
+
+
+Downloading teff=2700:   1%|          | 201k/34.0M [00:00&lt;01:34, 357kB/s]
+
+
+Downloading teff=2700:   3%|▎         | 889k/34.0M [00:00&lt;00:22, 1.46MB/s]
+
+
+Downloading teff=2700:   8%|▊         | 2.57M/34.0M [00:01&lt;00:06, 4.57MB/s]
+
+
+Downloading teff=2700:  15%|█▌        | 5.16M/34.0M [00:01&lt;00:03, 9.36MB/s]
+
+
+Downloading teff=2700:  26%|██▌       | 8.70M/34.0M [00:01&lt;00:01, 15.7MB/s]
+
+
+Downloading teff=2700:  35%|███▌      | 12.0M/34.0M [00:01&lt;00:01, 20.2MB/s]
+
+
+Downloading teff=2700:  46%|████▌     | 15.6M/34.0M [00:01&lt;00:00, 24.5MB/s]
+
+
+Downloading teff=2700:  56%|█████▋    | 19.1M/34.0M [00:01&lt;00:00, 27.4MB/s]
+
+
+Downloading teff=2700:  68%|██████▊   | 23.0M/34.0M [00:01&lt;00:00, 30.0MB/s]
+
+
+Downloading teff=2700:  78%|███████▊  | 26.6M/34.0M [00:01&lt;00:00, 31.7MB/s]
+
+
+Downloading teff=2700:  90%|█████████ | 30.6M/34.0M [00:01&lt;00:00, 33.9MB/s]
+Downloading teff=2700: 100%|██████████| 34.0M/34.0M [00:01&lt;00:00, 17.7MB/s]
+
+
+Loading Spectra:  29%|██▉       | 5/17 [00:12&lt;00:31,  2.59s/it]PHOENIX grid for 2800 not found. Downloading...
+
+
+
+Downloading teff=2800:   0%|          | 0.00/33.9M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2800:   0%|          | 4.10k/33.9M [00:00&lt;49:34, 11.4kB/s]
+
+
+Downloading teff=2800:   0%|          | 32.8k/33.9M [00:00&lt;07:04, 79.8kB/s]
+
+
+Downloading teff=2800:   0%|          | 119k/33.9M [00:00&lt;02:14, 251kB/s]
+
+
+Downloading teff=2800:   1%|          | 254k/33.9M [00:00&lt;01:04, 525kB/s]
+
+
+Downloading teff=2800:   2%|▏         | 659k/33.9M [00:00&lt;00:22, 1.45MB/s]
+
+
+Downloading teff=2800:   3%|▎         | 1.07M/33.9M [00:00&lt;00:15, 2.16MB/s]
+
+
+Downloading teff=2800:   6%|▋         | 2.16M/33.9M [00:01&lt;00:07, 4.52MB/s]
+
+
+Downloading teff=2800:  13%|█▎        | 4.35M/33.9M [00:01&lt;00:03, 9.07MB/s]
+
+
+Downloading teff=2800:  20%|██        | 6.87M/33.9M [00:01&lt;00:01, 13.5MB/s]
+
+
+Downloading teff=2800:  28%|██▊       | 9.53M/33.9M [00:01&lt;00:01, 17.2MB/s]
+
+
+Downloading teff=2800:  36%|███▋      | 12.3M/33.9M [00:01&lt;00:01, 20.3MB/s]
+
+
+Downloading teff=2800:  45%|████▍     | 15.2M/33.9M [00:01&lt;00:00, 22.8MB/s]
+
+
+Downloading teff=2800:  54%|█████▎    | 18.2M/33.9M [00:01&lt;00:00, 23.9MB/s]
+
+
+Downloading teff=2800:  62%|██████▏   | 21.1M/33.9M [00:01&lt;00:00, 25.3MB/s]
+
+
+Downloading teff=2800:  71%|███████▏  | 24.2M/33.9M [00:01&lt;00:00, 26.8MB/s]
+
+
+Downloading teff=2800:  81%|████████  | 27.5M/33.9M [00:02&lt;00:00, 28.3MB/s]
+
+
+Downloading teff=2800:  92%|█████████▏| 31.2M/33.9M [00:02&lt;00:00, 30.7MB/s]
+Downloading teff=2800: 100%|██████████| 33.9M/33.9M [00:02&lt;00:00, 15.8MB/s]
+
+
+Loading Spectra:  35%|███▌      | 6/17 [00:15&lt;00:29,  2.65s/it]PHOENIX grid for 2900 not found. Downloading...
+
+
+
+Downloading teff=2900:   0%|          | 0.00/33.8M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=2900:   0%|          | 4.10k/33.8M [00:00&lt;1:05:39, 8.59kB/s]
+
+
+Downloading teff=2900:   0%|          | 77.8k/33.8M [00:00&lt;03:23, 166kB/s]
+
+
+Downloading teff=2900:   1%|          | 258k/33.8M [00:00&lt;01:10, 475kB/s]
+
+
+Downloading teff=2900:   2%|▏         | 582k/33.8M [00:00&lt;00:32, 1.03MB/s]
+
+
+Downloading teff=2900:   4%|▍         | 1.42M/33.8M [00:01&lt;00:11, 2.74MB/s]
+
+
+Downloading teff=2900:   8%|▊         | 2.88M/33.8M [00:01&lt;00:05, 5.69MB/s]
+
+
+Downloading teff=2900:  16%|█▌        | 5.49M/33.8M [00:01&lt;00:02, 11.1MB/s]
+
+
+Downloading teff=2900:  24%|██▍       | 8.08M/33.8M [00:01&lt;00:01, 15.1MB/s]
+
+
+Downloading teff=2900:  34%|███▍      | 11.6M/33.8M [00:01&lt;00:01, 20.7MB/s]
+
+
+Downloading teff=2900:  46%|████▌     | 15.6M/33.8M [00:01&lt;00:00, 25.4MB/s]
+
+
+Downloading teff=2900:  58%|█████▊    | 19.6M/33.8M [00:01&lt;00:00, 28.9MB/s]
+
+
+Downloading teff=2900:  70%|██████▉   | 23.6M/33.8M [00:01&lt;00:00, 31.7MB/s]
+
+
+Downloading teff=2900:  79%|███████▉  | 26.8M/33.8M [00:01&lt;00:00, 31.7MB/s]
+
+
+Downloading teff=2900:  90%|████████▉ | 30.3M/33.8M [00:01&lt;00:00, 32.5MB/s]
+Downloading teff=2900: 100%|██████████| 33.8M/33.8M [00:01&lt;00:00, 17.3MB/s]
+
+
+Loading Spectra:  41%|████      | 7/17 [00:18&lt;00:26,  2.65s/it]PHOENIX grid for 3000 not found. Downloading...
+
+
+
+Downloading teff=3000:   0%|          | 0.00/33.8M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3000:   0%|          | 4.10k/33.8M [00:00&lt;59:15, 9.50kB/s]
+
+
+Downloading teff=3000:   0%|          | 45.1k/33.8M [00:00&lt;05:12, 108kB/s]
+
+
+Downloading teff=3000:   1%|          | 213k/33.8M [00:00&lt;01:20, 419kB/s]
+
+
+Downloading teff=3000:   2%|▏         | 520k/33.8M [00:00&lt;00:32, 1.03MB/s]
+
+
+Downloading teff=3000:   5%|▌         | 1.80M/33.8M [00:01&lt;00:09, 3.24MB/s]
+
+
+Downloading teff=3000:  12%|█▏        | 4.19M/33.8M [00:01&lt;00:03, 7.91MB/s]
+
+
+Downloading teff=3000:  23%|██▎       | 7.73M/33.8M [00:01&lt;00:01, 14.5MB/s]
+
+
+Downloading teff=3000:  34%|███▎      | 11.4M/33.8M [00:01&lt;00:01, 20.2MB/s]
+
+
+Downloading teff=3000:  45%|████▌     | 15.3M/33.8M [00:01&lt;00:00, 25.0MB/s]
+
+
+Downloading teff=3000:  56%|█████▌    | 18.9M/33.8M [00:01&lt;00:00, 27.6MB/s]
+
+
+Downloading teff=3000:  66%|██████▌   | 22.2M/33.8M [00:01&lt;00:00, 29.4MB/s]
+
+
+Downloading teff=3000:  75%|███████▌  | 25.4M/33.8M [00:01&lt;00:00, 29.3MB/s]
+
+
+Downloading teff=3000:  86%|████████▋ | 29.2M/33.8M [00:01&lt;00:00, 31.4MB/s]
+
+
+Downloading teff=3000:  97%|█████████▋| 32.8M/33.8M [00:01&lt;00:00, 32.9MB/s]
+Downloading teff=3000: 100%|██████████| 33.8M/33.8M [00:01&lt;00:00, 17.4MB/s]
+
+
+Loading Spectra:  47%|████▋     | 8/17 [00:20&lt;00:23,  2.63s/it]PHOENIX grid for 3100 not found. Downloading...
+
+
+
+Downloading teff=3100:   0%|          | 0.00/33.7M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3100:   0%|          | 4.10k/33.7M [00:00&lt;1:00:52, 9.23kB/s]
+
+
+Downloading teff=3100:   0%|          | 45.1k/33.7M [00:00&lt;05:22, 104kB/s]
+
+
+Downloading teff=3100:   1%|          | 193k/33.7M [00:00&lt;01:21, 410kB/s]
+
+
+Downloading teff=3100:   1%|▏         | 422k/33.7M [00:00&lt;00:41, 797kB/s]
+
+
+Downloading teff=3100:   3%|▎         | 881k/33.7M [00:00&lt;00:19, 1.69MB/s]
+
+
+Downloading teff=3100:   5%|▌         | 1.81M/33.7M [00:01&lt;00:08, 3.64MB/s]
+
+
+Downloading teff=3100:  11%|█         | 3.68M/33.7M [00:01&lt;00:03, 7.64MB/s]
+
+
+Downloading teff=3100:  22%|██▏       | 7.29M/33.7M [00:01&lt;00:01, 15.5MB/s]
+
+
+Downloading teff=3100:  33%|███▎      | 11.1M/33.7M [00:01&lt;00:01, 20.6MB/s]
+
+
+Downloading teff=3100:  44%|████▍     | 14.8M/33.7M [00:01&lt;00:00, 25.0MB/s]
+
+
+Downloading teff=3100:  54%|█████▍    | 18.3M/33.7M [00:01&lt;00:00, 27.4MB/s]
+
+
+Downloading teff=3100:  66%|██████▌   | 22.3M/33.7M [00:01&lt;00:00, 30.5MB/s]
+
+
+Downloading teff=3100:  78%|███████▊  | 26.3M/33.7M [00:01&lt;00:00, 32.9MB/s]
+
+
+Downloading teff=3100:  90%|█████████ | 30.4M/33.7M [00:01&lt;00:00, 34.6MB/s]
+Downloading teff=3100: 100%|██████████| 33.7M/33.7M [00:01&lt;00:00, 17.7MB/s]
+
+
+Loading Spectra:  53%|█████▎    | 9/17 [00:23&lt;00:20,  2.61s/it]
+
+Loading Spectra:  59%|█████▉    | 10/17 [00:23&lt;00:13,  1.89s/it]
+
+Loading Spectra:  65%|██████▍   | 11/17 [00:24&lt;00:08,  1.40s/it]
+
+Loading Spectra:  71%|███████   | 12/17 [00:24&lt;00:05,  1.06s/it]PHOENIX grid for 3500 not found. Downloading...
+
+
+
+Downloading teff=3500:   0%|          | 0.00/33.4M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3500:   0%|          | 4.10k/33.4M [00:00&lt;53:45, 10.4kB/s]
+
+
+Downloading teff=3500:   0%|          | 12.3k/33.4M [00:00&lt;19:04, 29.2kB/s]
+
+
+Downloading teff=3500:   0%|          | 94.2k/33.4M [00:00&lt;02:23, 232kB/s]
+
+
+Downloading teff=3500:   1%|          | 225k/33.4M [00:00&lt;01:08, 483kB/s]
+
+
+Downloading teff=3500:   2%|▏         | 512k/33.4M [00:00&lt;00:31, 1.03MB/s]
+
+
+Downloading teff=3500:   5%|▌         | 1.77M/33.4M [00:00&lt;00:08, 3.81MB/s]
+
+
+Downloading teff=3500:  12%|█▏        | 3.93M/33.4M [00:01&lt;00:03, 7.79MB/s]
+
+
+Downloading teff=3500:  23%|██▎       | 7.61M/33.4M [00:01&lt;00:01, 14.0MB/s]
+
+
+Downloading teff=3500:  34%|███▎      | 11.3M/33.4M [00:01&lt;00:01, 19.7MB/s]
+
+
+Downloading teff=3500:  46%|████▌     | 15.3M/33.4M [00:01&lt;00:00, 25.0MB/s]
+
+
+Downloading teff=3500:  58%|█████▊    | 19.3M/33.4M [00:01&lt;00:00, 29.1MB/s]
+
+
+Downloading teff=3500:  69%|██████▉   | 23.2M/33.4M [00:01&lt;00:00, 31.7MB/s]
+
+
+Downloading teff=3500:  81%|████████  | 27.1M/33.4M [00:01&lt;00:00, 33.3MB/s]
+
+
+Downloading teff=3500:  92%|█████████▏| 30.6M/33.4M [00:01&lt;00:00, 33.7MB/s]
+Downloading teff=3500: 100%|██████████| 33.4M/33.4M [00:01&lt;00:00, 17.7MB/s]
+
+
+Loading Spectra:  76%|███████▋  | 13/17 [00:27&lt;00:06,  1.52s/it]PHOENIX grid for 3600 not found. Downloading...
+
+
+
+Downloading teff=3600:   0%|          | 0.00/33.3M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3600:   0%|          | 4.10k/33.3M [00:00&lt;46:00, 12.1kB/s]
+
+
+Downloading teff=3600:   0%|          | 41.0k/33.3M [00:00&lt;05:56, 93.5kB/s]
+
+
+Downloading teff=3600:   0%|          | 98.3k/33.3M [00:00&lt;02:36, 213kB/s]
+
+
+Downloading teff=3600:   1%|▏         | 438k/33.3M [00:00&lt;00:38, 858kB/s]
+
+
+Downloading teff=3600:   3%|▎         | 958k/33.3M [00:00&lt;00:17, 1.87MB/s]
+
+
+Downloading teff=3600:   7%|▋         | 2.36M/33.3M [00:01&lt;00:06, 4.91MB/s]
+
+
+Downloading teff=3600:  16%|█▌        | 5.24M/33.3M [00:01&lt;00:02, 11.2MB/s]
+
+
+Downloading teff=3600:  26%|██▋       | 8.83M/33.3M [00:01&lt;00:01, 18.0MB/s]
+
+
+Downloading teff=3600:  38%|███▊      | 12.6M/33.3M [00:01&lt;00:00, 23.5MB/s]
+
+
+Downloading teff=3600:  48%|████▊     | 16.2M/33.3M [00:01&lt;00:00, 27.0MB/s]
+
+
+Downloading teff=3600:  60%|█████▉    | 19.9M/33.3M [00:01&lt;00:00, 29.9MB/s]
+
+
+Downloading teff=3600:  70%|██████▉   | 23.3M/33.3M [00:01&lt;00:00, 31.1MB/s]
+
+
+Downloading teff=3600:  79%|███████▉  | 26.5M/33.3M [00:01&lt;00:00, 30.5MB/s]
+
+
+Downloading teff=3600:  89%|████████▉ | 29.6M/33.3M [00:01&lt;00:00, 23.9MB/s]
+
+
+Downloading teff=3600:  99%|█████████▉| 33.1M/33.3M [00:02&lt;00:00, 26.6MB/s]
+Downloading teff=3600: 100%|██████████| 33.3M/33.3M [00:02&lt;00:00, 16.5MB/s]
+
+
+Loading Spectra:  82%|████████▏ | 14/17 [00:29&lt;00:05,  1.87s/it]PHOENIX grid for 3700 not found. Downloading...
+
+
+
+Downloading teff=3700:   0%|          | 0.00/33.3M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3700:   0%|          | 4.10k/33.3M [00:00&lt;51:56, 10.7kB/s]
+
+
+Downloading teff=3700:   0%|          | 49.2k/33.3M [00:00&lt;04:52, 114kB/s]
+
+
+Downloading teff=3700:   1%|          | 193k/33.3M [00:00&lt;01:19, 417kB/s]
+
+
+Downloading teff=3700:   2%|▏         | 528k/33.3M [00:00&lt;00:32, 1.02MB/s]
+
+
+Downloading teff=3700:   5%|▍         | 1.65M/33.3M [00:00&lt;00:09, 3.26MB/s]
+
+
+Downloading teff=3700:  13%|█▎        | 4.35M/33.3M [00:01&lt;00:03, 7.98MB/s]
+
+
+Downloading teff=3700:  25%|██▍       | 8.22M/33.3M [00:01&lt;00:01, 15.2MB/s]
+
+
+Downloading teff=3700:  36%|███▌      | 11.9M/33.3M [00:01&lt;00:01, 20.5MB/s]
+
+
+Downloading teff=3700:  47%|████▋     | 15.7M/33.3M [00:01&lt;00:00, 25.1MB/s]
+
+
+Downloading teff=3700:  59%|█████▊    | 19.5M/33.3M [00:01&lt;00:00, 28.7MB/s]
+
+
+Downloading teff=3700:  70%|███████   | 23.5M/33.3M [00:01&lt;00:00, 31.6MB/s]
+
+
+Downloading teff=3700:  81%|████████  | 27.0M/33.3M [00:01&lt;00:00, 32.6MB/s]
+
+
+Downloading teff=3700:  92%|█████████▏| 30.7M/33.3M [00:01&lt;00:00, 33.9MB/s]
+Downloading teff=3700: 100%|██████████| 33.3M/33.3M [00:01&lt;00:00, 18.1MB/s]
+
+
+Loading Spectra:  88%|████████▊ | 15/17 [00:32&lt;00:04,  2.05s/it]PHOENIX grid for 3800 not found. Downloading...
+
+
+
+Downloading teff=3800:   0%|          | 0.00/33.2M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3800:   0%|          | 4.10k/33.2M [00:00&lt;54:34, 10.1kB/s]
+
+
+Downloading teff=3800:   0%|          | 41.0k/33.2M [00:00&lt;06:01, 91.8kB/s]
+
+
+Downloading teff=3800:   0%|          | 143k/33.2M [00:00&lt;01:42, 323kB/s]
+
+
+Downloading teff=3800:   1%|          | 377k/33.2M [00:00&lt;00:38, 850kB/s]
+
+
+Downloading teff=3800:   2%|▏         | 647k/33.2M [00:00&lt;00:24, 1.35MB/s]
+
+
+Downloading teff=3800:   4%|▍         | 1.42M/33.2M [00:00&lt;00:10, 3.14MB/s]
+
+
+Downloading teff=3800:   8%|▊         | 2.53M/33.2M [00:01&lt;00:05, 5.40MB/s]
+
+
+Downloading teff=3800:  15%|█▍        | 4.92M/33.2M [00:01&lt;00:02, 10.8MB/s]
+
+
+Downloading teff=3800:  23%|██▎       | 7.76M/33.2M [00:01&lt;00:01, 15.9MB/s]
+
+
+Downloading teff=3800:  33%|███▎      | 10.8M/33.2M [00:01&lt;00:01, 20.2MB/s]
+
+
+Downloading teff=3800:  44%|████▎     | 14.5M/33.2M [00:01&lt;00:00, 24.8MB/s]
+
+
+Downloading teff=3800:  53%|█████▎    | 17.5M/33.2M [00:01&lt;00:00, 26.1MB/s]
+
+
+Downloading teff=3800:  65%|██████▍   | 21.5M/33.2M [00:01&lt;00:00, 29.8MB/s]
+
+
+Downloading teff=3800:  77%|███████▋  | 25.5M/33.2M [00:01&lt;00:00, 32.2MB/s]
+
+
+Downloading teff=3800:  88%|████████▊ | 29.2M/33.2M [00:01&lt;00:00, 33.0MB/s]
+Downloading teff=3800: 100%|██████████| 33.2M/33.2M [00:01&lt;00:00, 17.4MB/s]
+
+
+Loading Spectra:  94%|█████████▍| 16/17 [00:34&lt;00:02,  2.20s/it]PHOENIX grid for 3900 not found. Downloading...
+
+
+
+Downloading teff=3900:   0%|          | 0.00/33.2M [00:00&lt;?, ?B/s]
+
+
+Downloading teff=3900:   0%|          | 4.10k/33.2M [00:00&lt;45:34, 12.1kB/s]
+
+
+Downloading teff=3900:   0%|          | 36.9k/33.2M [00:00&lt;06:31, 84.6kB/s]
+
+
+Downloading teff=3900:   0%|          | 115k/33.2M [00:00&lt;02:07, 260kB/s]
+
+
+Downloading teff=3900:   1%|▏         | 434k/33.2M [00:00&lt;00:38, 847kB/s]
+
+
+Downloading teff=3900:   3%|▎         | 1.02M/33.2M [00:00&lt;00:15, 2.04MB/s]
+
+
+Downloading teff=3900:   9%|▉         | 3.04M/33.2M [00:01&lt;00:04, 6.62MB/s]
+
+
+Downloading teff=3900:  19%|█▉        | 6.23M/33.2M [00:01&lt;00:02, 13.3MB/s]
+
+
+Downloading teff=3900:  28%|██▊       | 9.27M/33.2M [00:01&lt;00:01, 18.0MB/s]
+
+
+Downloading teff=3900:  39%|███▉      | 12.9M/33.2M [00:01&lt;00:00, 23.2MB/s]
+
+
+Downloading teff=3900:  49%|████▉     | 16.3M/33.2M [00:01&lt;00:00, 26.2MB/s]
+
+
+Downloading teff=3900:  58%|█████▊    | 19.1M/33.2M [00:01&lt;00:00, 24.8MB/s]
+
+
+Downloading teff=3900:  65%|██████▌   | 21.7M/33.2M [00:01&lt;00:00, 15.8MB/s]
+
+
+Downloading teff=3900:  72%|███████▏  | 23.8M/33.2M [00:02&lt;00:00, 13.5MB/s]
+
+
+Downloading teff=3900:  77%|███████▋  | 25.5M/33.2M [00:02&lt;00:00, 11.4MB/s]
+
+
+Downloading teff=3900:  81%|████████▏ | 27.0M/33.2M [00:02&lt;00:00, 11.8MB/s]
+
+
+Downloading teff=3900:  86%|████████▌ | 28.4M/33.2M [00:02&lt;00:00, 10.2MB/s]
+
+
+Downloading teff=3900:  89%|████████▉ | 29.6M/33.2M [00:02&lt;00:00, 10.3MB/s]
+
+
+Downloading teff=3900:  93%|█████████▎| 30.8M/33.2M [00:02&lt;00:00, 10.2MB/s]
+
+
+Downloading teff=3900:  96%|█████████▌| 31.9M/33.2M [00:02&lt;00:00, 9.92MB/s]
+
+
+Downloading teff=3900:  99%|█████████▉| 32.9M/33.2M [00:03&lt;00:00, 9.71MB/s]
+Downloading teff=3900: 100%|██████████| 33.2M/33.2M [00:03&lt;00:00, 10.8MB/s]
+
+
+Loading Spectra: 100%|██████████| 17/17 [00:38&lt;00:00,  2.72s/it]
+Loading Spectra: 100%|██████████| 17/17 [00:38&lt;00:00,  2.27s/it]
+
+Build Spectra:   2%|▎         | 1/40 [00:39&lt;25:49, 39.74s/it]
+Build Spectra:   5%|▌         | 2/40 [00:40&lt;10:44, 16.96s/it]
+Build Spectra:   8%|▊         | 3/40 [00:41&lt;05:57,  9.67s/it]
+Build Spectra:  10%|█         | 4/40 [00:42&lt;03:45,  6.25s/it]
+Build Spectra:  12%|█▎        | 5/40 [00:43&lt;02:32,  4.36s/it]
+Build Spectra:  15%|█▌        | 6/40 [00:44&lt;01:49,  3.22s/it]
+Build Spectra:  18%|█▊        | 7/40 [00:45&lt;01:22,  2.50s/it]
+Build Spectra:  20%|██        | 8/40 [00:46&lt;01:04,  2.02s/it]
+Build Spectra:  22%|██▎       | 9/40 [00:47&lt;00:52,  1.71s/it]
+Build Spectra:  25%|██▌       | 10/40 [00:48&lt;00:44,  1.49s/it]
+Build Spectra:  28%|██▊       | 11/40 [00:49&lt;00:38,  1.34s/it]
+Build Spectra:  30%|███       | 12/40 [00:50&lt;00:34,  1.24s/it]
+Build Spectra:  32%|███▎      | 13/40 [00:51&lt;00:31,  1.17s/it]
+Build Spectra:  35%|███▌      | 14/40 [00:52&lt;00:29,  1.12s/it]
+Build Spectra:  38%|███▊      | 15/40 [00:53&lt;00:27,  1.09s/it]
+Build Spectra:  40%|████      | 16/40 [00:54&lt;00:25,  1.06s/it]
+Build Spectra:  42%|████▎     | 17/40 [00:55&lt;00:24,  1.05s/it]
+Build Spectra:  45%|████▌     | 18/40 [00:56&lt;00:22,  1.04s/it]
+Build Spectra:  48%|████▊     | 19/40 [00:57&lt;00:21,  1.03s/it]
+Build Spectra:  50%|█████     | 20/40 [00:58&lt;00:20,  1.02s/it]
+Build Spectra:  52%|█████▎    | 21/40 [00:59&lt;00:19,  1.02s/it]
+Build Spectra:  55%|█████▌    | 22/40 [01:00&lt;00:18,  1.02s/it]
+Build Spectra:  57%|█████▊    | 23/40 [01:01&lt;00:17,  1.02s/it]
+Build Spectra:  60%|██████    | 24/40 [01:02&lt;00:16,  1.02s/it]
+Build Spectra:  62%|██████▎   | 25/40 [01:03&lt;00:15,  1.01s/it]
+Build Spectra:  65%|██████▌   | 26/40 [01:04&lt;00:14,  1.02s/it]
+Build Spectra:  68%|██████▊   | 27/40 [01:05&lt;00:13,  1.01s/it]
+Build Spectra:  70%|███████   | 28/40 [01:06&lt;00:12,  1.01s/it]
+Build Spectra:  72%|███████▎  | 29/40 [01:07&lt;00:11,  1.01s/it]
+Build Spectra:  75%|███████▌  | 30/40 [01:08&lt;00:10,  1.01s/it]
+Build Spectra:  78%|███████▊  | 31/40 [01:09&lt;00:09,  1.01s/it]
+Build Spectra:  80%|████████  | 32/40 [01:11&lt;00:08,  1.01s/it]
+Build Spectra:  82%|████████▎ | 33/40 [01:12&lt;00:07,  1.01s/it]
+Build Spectra:  85%|████████▌ | 34/40 [01:13&lt;00:06,  1.01s/it]
+Build Spectra:  88%|████████▊ | 35/40 [01:14&lt;00:05,  1.01s/it]
+Build Spectra:  90%|█████████ | 36/40 [01:15&lt;00:04,  1.01s/it]
+Build Spectra:  92%|█████████▎| 37/40 [01:16&lt;00:03,  1.01s/it]
+Build Spectra:  95%|█████████▌| 38/40 [01:17&lt;00:02,  1.01s/it]
+Build Spectra:  98%|█████████▊| 39/40 [01:18&lt;00:01,  1.01s/it]
+Build Spectra: 100%|██████████| 40/40 [01:19&lt;00:00,  1.01s/it]
+Build Spectra: 100%|██████████| 40/40 [01:19&lt;00:00,  1.98s/it]
+</pre></div>
+</div>
+</section>
+<section id="load-in-the-data">
+<h2>Load in the data<a class="headerlink" href="#load-in-the-data" title="Link to this heading">#</a></h2>
+<p>We can use VSPEC to read in the synthetic
+data we just created.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">PhaseAnalyzer</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="s1">&#39;all_model&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/opt/hostedtoolcache/Python/3.11.13/x64/lib/python3.11/site-packages/VSPEC/analysis.py:116: RuntimeWarning: No Layer info, maybe globes or molecular signatures are off
+  warnings.warn(
+</pre></div>
+</div>
+</section>
+<section id="get-the-lightcurve">
+<h2>Get the lightcurve<a class="headerlink" href="#get-the-lightcurve" title="Link to this heading">#</a></h2>
+<p>We will look in a few different wavelengths.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl_pixels</span></a> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">300</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">700</span><span class="p">]</span>
+<a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity.to" title="astropy.units.Quantity.to" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-method"><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">to</span></a><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">day</span></a><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl_pixels</span></a><span class="p">:</span>
+    <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl</span></a> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">wavelength</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lc</span></a> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">lightcurve</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s1">&#39;star&#39;</span><span class="p">,</span>
+        <span class="n">pixel</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">,</span>
+        <span class="n">normalize</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time</span></a><span class="p">,</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lc</span></a><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">wl</span></a><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend" title="matplotlib.pyplot.legend" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel" title="matplotlib.pyplot.xlabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span></a><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;time (</span><span class="si">{</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity.unit" title="astropy.units.Quantity.unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-attribute"><span class="n">time</span><span class="o">.</span><span class="n">unit</span></a><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/text_api.html#matplotlib.text.Text" title="matplotlib.text.Text" class="sphx-glr-backref-module-matplotlib-text sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s1">&#39;Flux (normalized)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../../_images/sphx_glr_plot_spot_lightcurve_001.png" srcset="../../../_images/sphx_glr_plot_spot_lightcurve_001.png" alt="plot spot lightcurve" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 28.934 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-other-star-plot-spot-lightcurve-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/9f7a6676769825f0cac5edd3c770479f/plot_spot_lightcurve.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_spot_lightcurve.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/7629a17a626bf8a2abef9b39dbf5d4fa/plot_spot_lightcurve.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_spot_lightcurve.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../../_downloads/bec65e95f1df7fb9248247c8308bc819/plot_spot_lightcurve.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_spot_lightcurve.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">VSPEC Star Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_granulation_lightcurve.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Plot the lightcurve stellar granulation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initialize-the-vspec-run">Initialize the VSPEC run</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-in-the-data">Load in the data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-the-lightcurve">Get the lightcurve</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/auto_examples/other/star/plot_spot_lightcurve.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, The VSPEC Collaboration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

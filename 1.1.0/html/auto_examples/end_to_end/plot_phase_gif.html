@@ -1,0 +1,984 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Make a phase curve GIF &#8212; VSPEC 1.1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/table_fix.css?v=fdc28d34" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=f32b83b8" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/end_to_end/plot_phase_gif';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://VSPEC-collab.github.io/VSPEC/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '1.1.0-beta';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Observe the MIRECLE Phase Curve of Proxima Centauri b" href="plot_mirecle_proxcenb.html" />
+    <link rel="prev" title="Plot the spectrum of a transiting planet" href="plot_transit_spectrum.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/vspec_logo.png" class="logo__image only-light" alt="VSPEC 1.1.0 documentation - Home"/>
+    <img src="../../_static/vspec_logo.png" class="logo__image only-dark pst-js-only" alt="VSPEC 1.1.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../other/index.html">
+    Other Examples
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../intro.html">
+    Introduction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../components.html">
+    VSPEC API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../inputs.html">
+    Inputs
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../references.html">
+    References
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    End-to-End Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../other/index.html">
+    Other Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">End-to-End Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Make a phase curve GIF</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-end-to-end-plot-phase-gif-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="make-a-phase-curve-gif">
+<span id="sphx-glr-auto-examples-end-to-end-plot-phase-gif-py"></span><h1>Make a phase curve GIF<a class="headerlink" href="#make-a-phase-curve-gif" title="Link to this heading">#</a></h1>
+<p>This example turns a phase curve into a gif.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imageio.v2</span><span class="w"> </span><span class="kn">import</span> <span class="n">imread</span><span class="p">,</span> <span class="n">mimsave</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cartopy</span><span class="w"> </span><span class="kn">import</span> <span class="n">crs</span> <span class="k">as</span> <span class="n">ccrs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">libpypsg</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">libpypsg.globes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyGCM</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">VSPEC</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservationModel</span><span class="p">,</span><span class="n">PhaseAnalyzer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">VSPEC.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemGeometry</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CONFIG_PATH</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s1">&#39;phase_gif.yaml&#39;</span>
+<span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CONFIG_PATH</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="s1">&#39;phase_gif.yaml&#39;</span><span class="p">)</span>
+
+<span class="n">libpypsg</span><span class="o">.</span><span class="n">docker</span><span class="o">.</span><span class="n">set_url_and_run</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="load-in-the-configuration">
+<h2>Load in the configuration<a class="headerlink" href="#load-in-the-configuration" title="Link to this heading">#</a></h2>
+<p>It is stored in a YAML file.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">ObservationModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CONFIG_PATH</span></a><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">build_planet</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">build_spectra</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Starting at phase 0.0 deg, observe for 10.0 d in 120 steps
+Phases = [  0.   3.   6.   9.  12.  15.  18.  21.  24.  27.  30.  33.  36.  39.
+  42.  45.  48.  51.  54.  57.  60.  63.  66.  69.  72.  75.  78.  81.
+  84.  87.  90.  93.  96.  99. 102. 105. 108. 111. 114. 117. 120. 123.
+ 126. 129. 132. 135. 138. 141. 144. 147. 150. 153. 156. 159. 162. 165.
+ 168. 171. 174. 177. 180. 183. 186. 189. 192. 195. 198. 201. 204. 207.
+ 210. 213. 216. 219. 222. 225. 228. 231. 234. 237. 240. 243. 246. 249.
+ 252. 255. 258. 261. 264. 267. 270. 273. 276. 279. 282. 285. 288. 291.
+ 294. 297. 300. 303. 306. 309. 312. 315. 318. 321. 324. 327. 330. 333.
+ 336. 339. 342. 345. 348. 351. 354. 357.   0.] deg
+
+Build Planet:   0%|          | 0/121 [00:00&lt;?, ?it/s]
+Build Planet:   1%|          | 1/121 [00:00&lt;01:03,  1.88it/s]
+Build Planet:   2%|▏         | 2/121 [00:01&lt;01:02,  1.89it/s]
+Build Planet:   2%|▏         | 3/121 [00:01&lt;01:06,  1.76it/s]
+Build Planet:   3%|▎         | 4/121 [00:02&lt;01:05,  1.80it/s]
+Build Planet:   4%|▍         | 5/121 [00:02&lt;01:02,  1.87it/s]
+Build Planet:   5%|▍         | 6/121 [00:03&lt;01:02,  1.84it/s]
+Build Planet:   6%|▌         | 7/121 [00:03&lt;01:01,  1.86it/s]
+Build Planet:   7%|▋         | 8/121 [00:04&lt;01:07,  1.67it/s]
+Build Planet:   7%|▋         | 9/121 [00:05&lt;01:04,  1.74it/s]
+Build Planet:   8%|▊         | 10/121 [00:05&lt;01:00,  1.83it/s]
+Build Planet:   9%|▉         | 11/121 [00:06&lt;00:58,  1.88it/s]
+Build Planet:  10%|▉         | 12/121 [00:06&lt;00:56,  1.94it/s]
+Build Planet:  11%|█         | 13/121 [00:07&lt;00:55,  1.93it/s]
+Build Planet:  12%|█▏        | 14/121 [00:07&lt;00:55,  1.93it/s]
+Build Planet:  12%|█▏        | 15/121 [00:08&lt;00:54,  1.94it/s]
+Build Planet:  13%|█▎        | 16/121 [00:08&lt;00:53,  1.97it/s]
+Build Planet:  14%|█▍        | 17/121 [00:09&lt;00:52,  1.96it/s]
+Build Planet:  15%|█▍        | 18/121 [00:09&lt;00:51,  1.98it/s]
+Build Planet:  16%|█▌        | 19/121 [00:10&lt;00:51,  1.97it/s]
+Build Planet:  17%|█▋        | 20/121 [00:10&lt;00:50,  2.00it/s]
+Build Planet:  17%|█▋        | 21/121 [00:11&lt;00:49,  2.01it/s]
+Build Planet:  18%|█▊        | 22/121 [00:11&lt;00:50,  1.96it/s]
+Build Planet:  19%|█▉        | 23/121 [00:12&lt;00:49,  1.99it/s]
+Build Planet:  20%|█▉        | 24/121 [00:12&lt;00:48,  2.00it/s]
+Build Planet:  21%|██        | 25/121 [00:13&lt;00:47,  2.01it/s]
+Build Planet:  21%|██▏       | 26/121 [00:13&lt;00:47,  1.99it/s]
+Build Planet:  22%|██▏       | 27/121 [00:14&lt;00:47,  2.00it/s]
+Build Planet:  23%|██▎       | 28/121 [00:14&lt;00:46,  2.02it/s]
+Build Planet:  24%|██▍       | 29/121 [00:15&lt;00:45,  2.01it/s]
+Build Planet:  25%|██▍       | 30/121 [00:15&lt;00:45,  2.01it/s]
+Build Planet:  26%|██▌       | 31/121 [00:16&lt;00:44,  2.01it/s]
+Build Planet:  26%|██▋       | 32/121 [00:16&lt;00:44,  2.01it/s]
+Build Planet:  27%|██▋       | 33/121 [00:17&lt;00:43,  2.02it/s]
+Build Planet:  28%|██▊       | 34/121 [00:17&lt;00:42,  2.04it/s]
+Build Planet:  29%|██▉       | 35/121 [00:17&lt;00:42,  2.04it/s]
+Build Planet:  30%|██▉       | 36/121 [00:18&lt;00:41,  2.04it/s]
+Build Planet:  31%|███       | 37/121 [00:19&lt;00:41,  2.00it/s]
+Build Planet:  31%|███▏      | 38/121 [00:19&lt;00:41,  2.02it/s]
+Build Planet:  32%|███▏      | 39/121 [00:19&lt;00:40,  2.04it/s]
+Build Planet:  33%|███▎      | 40/121 [00:20&lt;00:40,  2.02it/s]
+Build Planet:  34%|███▍      | 41/121 [00:20&lt;00:40,  2.00it/s]
+Build Planet:  35%|███▍      | 42/121 [00:21&lt;00:39,  2.01it/s]
+Build Planet:  36%|███▌      | 43/121 [00:22&lt;00:40,  1.91it/s]
+Build Planet:  36%|███▋      | 44/121 [00:22&lt;00:39,  1.94it/s]
+Build Planet:  37%|███▋      | 45/121 [00:23&lt;00:38,  1.96it/s]
+Build Planet:  38%|███▊      | 46/121 [00:23&lt;00:38,  1.97it/s]
+Build Planet:  39%|███▉      | 47/121 [00:24&lt;00:36,  2.00it/s]
+Build Planet:  40%|███▉      | 48/121 [00:24&lt;00:36,  2.01it/s]
+Build Planet:  40%|████      | 49/121 [00:25&lt;00:36,  1.96it/s]
+Build Planet:  41%|████▏     | 50/121 [00:25&lt;00:36,  1.96it/s]
+Build Planet:  42%|████▏     | 51/121 [00:26&lt;00:35,  1.96it/s]
+Build Planet:  43%|████▎     | 52/121 [00:26&lt;00:35,  1.96it/s]
+Build Planet:  44%|████▍     | 53/121 [00:27&lt;00:34,  1.98it/s]
+Build Planet:  45%|████▍     | 54/121 [00:27&lt;00:33,  2.01it/s]
+Build Planet:  45%|████▌     | 55/121 [00:28&lt;00:32,  2.02it/s]
+Build Planet:  46%|████▋     | 56/121 [00:28&lt;00:32,  2.00it/s]
+Build Planet:  47%|████▋     | 57/121 [00:29&lt;00:31,  2.02it/s]
+Build Planet:  48%|████▊     | 58/121 [00:29&lt;00:31,  2.03it/s]
+Build Planet:  49%|████▉     | 59/121 [00:30&lt;00:30,  2.04it/s]
+Build Planet:  50%|████▉     | 60/121 [00:30&lt;00:29,  2.04it/s]
+Build Planet:  50%|█████     | 61/121 [00:31&lt;00:29,  2.05it/s]
+Build Planet:  51%|█████     | 62/121 [00:31&lt;00:29,  2.02it/s]
+Build Planet:  52%|█████▏    | 63/121 [00:32&lt;00:28,  2.03it/s]
+Build Planet:  53%|█████▎    | 64/121 [00:32&lt;00:28,  2.03it/s]
+Build Planet:  54%|█████▎    | 65/121 [00:32&lt;00:27,  2.03it/s]
+Build Planet:  55%|█████▍    | 66/121 [00:33&lt;00:27,  2.02it/s]
+Build Planet:  55%|█████▌    | 67/121 [00:33&lt;00:26,  2.04it/s]
+Build Planet:  56%|█████▌    | 68/121 [00:34&lt;00:25,  2.05it/s]
+Build Planet:  57%|█████▋    | 69/121 [00:34&lt;00:25,  2.05it/s]
+Build Planet:  58%|█████▊    | 70/121 [00:35&lt;00:25,  1.99it/s]
+Build Planet:  59%|█████▊    | 71/121 [00:35&lt;00:24,  2.02it/s]
+Build Planet:  60%|█████▉    | 72/121 [00:36&lt;00:24,  2.01it/s]
+Build Planet:  60%|██████    | 73/121 [00:36&lt;00:23,  2.01it/s]
+Build Planet:  61%|██████    | 74/121 [00:37&lt;00:23,  1.99it/s]
+Build Planet:  62%|██████▏   | 75/121 [00:38&lt;00:23,  1.92it/s]
+Build Planet:  63%|██████▎   | 76/121 [00:38&lt;00:23,  1.91it/s]
+Build Planet:  64%|██████▎   | 77/121 [00:39&lt;00:22,  1.95it/s]
+Build Planet:  64%|██████▍   | 78/121 [00:39&lt;00:22,  1.95it/s]
+Build Planet:  65%|██████▌   | 79/121 [00:40&lt;00:21,  1.97it/s]
+Build Planet:  66%|██████▌   | 80/121 [00:40&lt;00:20,  1.99it/s]
+Build Planet:  67%|██████▋   | 81/121 [00:41&lt;00:20,  1.98it/s]
+Build Planet:  68%|██████▊   | 82/121 [00:41&lt;00:19,  2.01it/s]
+Build Planet:  69%|██████▊   | 83/121 [00:42&lt;00:19,  1.99it/s]
+Build Planet:  69%|██████▉   | 84/121 [00:42&lt;00:18,  2.00it/s]
+Build Planet:  70%|███████   | 85/121 [00:43&lt;00:17,  2.03it/s]
+Build Planet:  71%|███████   | 86/121 [00:43&lt;00:17,  1.97it/s]
+Build Planet:  72%|███████▏  | 87/121 [00:44&lt;00:17,  1.97it/s]
+Build Planet:  73%|███████▎  | 88/121 [00:44&lt;00:16,  1.96it/s]
+Build Planet:  74%|███████▎  | 89/121 [00:45&lt;00:16,  1.97it/s]
+Build Planet:  74%|███████▍  | 90/121 [00:45&lt;00:15,  1.99it/s]
+Build Planet:  75%|███████▌  | 91/121 [00:46&lt;00:15,  1.97it/s]
+Build Planet:  76%|███████▌  | 92/121 [00:46&lt;00:14,  2.00it/s]
+Build Planet:  77%|███████▋  | 93/121 [00:47&lt;00:14,  1.97it/s]
+Build Planet:  78%|███████▊  | 94/121 [00:47&lt;00:13,  2.00it/s]
+Build Planet:  79%|███████▊  | 95/121 [00:48&lt;00:12,  2.02it/s]
+Build Planet:  79%|███████▉  | 96/121 [00:48&lt;00:12,  2.02it/s]
+Build Planet:  80%|████████  | 97/121 [00:49&lt;00:11,  2.02it/s]
+Build Planet:  81%|████████  | 98/121 [00:49&lt;00:11,  1.99it/s]
+Build Planet:  82%|████████▏ | 99/121 [00:50&lt;00:11,  1.95it/s]
+Build Planet:  83%|████████▎ | 100/121 [00:50&lt;00:10,  1.97it/s]
+Build Planet:  83%|████████▎ | 101/121 [00:51&lt;00:10,  1.98it/s]
+Build Planet:  84%|████████▍ | 102/121 [00:51&lt;00:09,  2.01it/s]
+Build Planet:  85%|████████▌ | 103/121 [00:52&lt;00:08,  2.01it/s]
+Build Planet:  86%|████████▌ | 104/121 [00:52&lt;00:08,  1.99it/s]
+Build Planet:  87%|████████▋ | 105/121 [00:53&lt;00:08,  1.99it/s]
+Build Planet:  88%|████████▊ | 106/121 [00:53&lt;00:07,  2.00it/s]
+Build Planet:  88%|████████▊ | 107/121 [00:54&lt;00:07,  1.99it/s]
+Build Planet:  89%|████████▉ | 108/121 [00:54&lt;00:06,  2.00it/s]
+Build Planet:  90%|█████████ | 109/121 [00:55&lt;00:06,  2.00it/s]
+Build Planet:  91%|█████████ | 110/121 [00:55&lt;00:05,  2.00it/s]
+Build Planet:  92%|█████████▏| 111/121 [00:56&lt;00:05,  2.00it/s]
+Build Planet:  93%|█████████▎| 112/121 [00:56&lt;00:04,  2.02it/s]
+Build Planet:  93%|█████████▎| 113/121 [00:57&lt;00:04,  1.99it/s]
+Build Planet:  94%|█████████▍| 114/121 [00:57&lt;00:03,  2.00it/s]
+Build Planet:  95%|█████████▌| 115/121 [00:58&lt;00:02,  2.01it/s]
+Build Planet:  96%|█████████▌| 116/121 [00:58&lt;00:02,  2.02it/s]
+Build Planet:  97%|█████████▋| 117/121 [00:59&lt;00:01,  2.02it/s]
+Build Planet:  98%|█████████▊| 118/121 [00:59&lt;00:01,  2.01it/s]
+Build Planet:  98%|█████████▊| 119/121 [01:00&lt;00:01,  2.00it/s]
+Build Planet:  99%|█████████▉| 120/121 [01:00&lt;00:00,  2.00it/s]
+Build Planet: 100%|██████████| 121/121 [01:01&lt;00:00,  1.99it/s]
+Build Planet: 100%|██████████| 121/121 [01:01&lt;00:00,  1.98it/s]
+Creating interpolators:
+thermal
+thermal, combined
+thermal, combined, stellar
+thermal, combined, stellar, photon noise
+thermal, combined, stellar, photon noise, detector noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise
+thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
+Finished!
+
+Build Spectra:   0%|          | 0/120 [00:00&lt;?, ?it/s]
+
+Loading Spectra:   0%|          | 0/3 [00:00&lt;?, ?it/s]
+
+Loading Spectra:  33%|███▎      | 1/3 [00:00&lt;00:00,  3.34it/s]
+
+Loading Spectra:  67%|██████▋   | 2/3 [00:00&lt;00:00,  3.34it/s]
+
+Loading Spectra: 100%|██████████| 3/3 [00:00&lt;00:00,  3.33it/s]
+Loading Spectra: 100%|██████████| 3/3 [00:00&lt;00:00,  3.33it/s]
+
+Build Spectra:   1%|          | 1/120 [00:01&lt;02:33,  1.29s/it]
+Build Spectra:   2%|▏         | 2/120 [00:01&lt;01:28,  1.34it/s]
+Build Spectra:   2%|▎         | 3/120 [00:02&lt;01:07,  1.74it/s]
+Build Spectra:   3%|▎         | 4/120 [00:02&lt;00:57,  2.03it/s]
+Build Spectra:   4%|▍         | 5/120 [00:02&lt;00:51,  2.23it/s]
+Build Spectra:   5%|▌         | 6/120 [00:03&lt;00:48,  2.37it/s]
+Build Spectra:   6%|▌         | 7/120 [00:03&lt;00:45,  2.48it/s]
+Build Spectra:   7%|▋         | 8/120 [00:03&lt;00:43,  2.55it/s]
+Build Spectra:   8%|▊         | 9/120 [00:04&lt;00:42,  2.60it/s]
+Build Spectra:   8%|▊         | 10/120 [00:04&lt;00:41,  2.64it/s]
+Build Spectra:   9%|▉         | 11/120 [00:04&lt;00:40,  2.66it/s]
+Build Spectra:  10%|█         | 12/120 [00:05&lt;00:40,  2.68it/s]
+Build Spectra:  11%|█         | 13/120 [00:05&lt;00:39,  2.69it/s]
+Build Spectra:  12%|█▏        | 14/120 [00:06&lt;00:39,  2.69it/s]
+Build Spectra:  12%|█▎        | 15/120 [00:06&lt;00:38,  2.70it/s]
+Build Spectra:  13%|█▎        | 16/120 [00:06&lt;00:38,  2.70it/s]
+Build Spectra:  14%|█▍        | 17/120 [00:07&lt;00:38,  2.70it/s]
+Build Spectra:  15%|█▌        | 18/120 [00:07&lt;00:37,  2.71it/s]
+Build Spectra:  16%|█▌        | 19/120 [00:07&lt;00:37,  2.71it/s]
+Build Spectra:  17%|█▋        | 20/120 [00:08&lt;00:36,  2.71it/s]
+Build Spectra:  18%|█▊        | 21/120 [00:08&lt;00:36,  2.70it/s]
+Build Spectra:  18%|█▊        | 22/120 [00:09&lt;00:36,  2.71it/s]
+Build Spectra:  19%|█▉        | 23/120 [00:09&lt;00:35,  2.72it/s]
+Build Spectra:  20%|██        | 24/120 [00:09&lt;00:35,  2.72it/s]
+Build Spectra:  21%|██        | 25/120 [00:10&lt;00:34,  2.72it/s]
+Build Spectra:  22%|██▏       | 26/120 [00:10&lt;00:34,  2.73it/s]
+Build Spectra:  22%|██▎       | 27/120 [00:10&lt;00:34,  2.72it/s]
+Build Spectra:  23%|██▎       | 28/120 [00:11&lt;00:34,  2.70it/s]
+Build Spectra:  24%|██▍       | 29/120 [00:11&lt;00:33,  2.69it/s]
+Build Spectra:  25%|██▌       | 30/120 [00:11&lt;00:33,  2.69it/s]
+Build Spectra:  26%|██▌       | 31/120 [00:12&lt;00:33,  2.69it/s]
+Build Spectra:  27%|██▋       | 32/120 [00:12&lt;00:32,  2.69it/s]
+Build Spectra:  28%|██▊       | 33/120 [00:13&lt;00:32,  2.68it/s]
+Build Spectra:  28%|██▊       | 34/120 [00:13&lt;00:32,  2.68it/s]
+Build Spectra:  29%|██▉       | 35/120 [00:13&lt;00:31,  2.68it/s]
+Build Spectra:  30%|███       | 36/120 [00:14&lt;00:31,  2.68it/s]
+Build Spectra:  31%|███       | 37/120 [00:14&lt;00:30,  2.68it/s]
+Build Spectra:  32%|███▏      | 38/120 [00:14&lt;00:30,  2.67it/s]
+Build Spectra:  32%|███▎      | 39/120 [00:15&lt;00:30,  2.68it/s]
+Build Spectra:  33%|███▎      | 40/120 [00:15&lt;00:29,  2.69it/s]
+Build Spectra:  34%|███▍      | 41/120 [00:16&lt;00:29,  2.69it/s]
+Build Spectra:  35%|███▌      | 42/120 [00:16&lt;00:28,  2.70it/s]
+Build Spectra:  36%|███▌      | 43/120 [00:16&lt;00:28,  2.70it/s]
+Build Spectra:  37%|███▋      | 44/120 [00:17&lt;00:28,  2.70it/s]
+Build Spectra:  38%|███▊      | 45/120 [00:17&lt;00:27,  2.70it/s]
+Build Spectra:  38%|███▊      | 46/120 [00:17&lt;00:27,  2.70it/s]
+Build Spectra:  39%|███▉      | 47/120 [00:18&lt;00:27,  2.70it/s]
+Build Spectra:  40%|████      | 48/120 [00:18&lt;00:26,  2.70it/s]
+Build Spectra:  41%|████      | 49/120 [00:19&lt;00:26,  2.70it/s]
+Build Spectra:  42%|████▏     | 50/120 [00:19&lt;00:25,  2.70it/s]
+Build Spectra:  42%|████▎     | 51/120 [00:19&lt;00:25,  2.70it/s]
+Build Spectra:  43%|████▎     | 52/120 [00:20&lt;00:25,  2.70it/s]
+Build Spectra:  44%|████▍     | 53/120 [00:20&lt;00:24,  2.70it/s]
+Build Spectra:  45%|████▌     | 54/120 [00:20&lt;00:24,  2.70it/s]
+Build Spectra:  46%|████▌     | 55/120 [00:21&lt;00:24,  2.69it/s]
+Build Spectra:  47%|████▋     | 56/120 [00:21&lt;00:23,  2.70it/s]
+Build Spectra:  48%|████▊     | 57/120 [00:22&lt;00:23,  2.70it/s]
+Build Spectra:  48%|████▊     | 58/120 [00:22&lt;00:22,  2.70it/s]
+Build Spectra:  49%|████▉     | 59/120 [00:22&lt;00:22,  2.70it/s]
+Build Spectra:  50%|█████     | 60/120 [00:23&lt;00:22,  2.70it/s]
+Build Spectra:  51%|█████     | 61/120 [00:23&lt;00:21,  2.70it/s]
+Build Spectra:  52%|█████▏    | 62/120 [00:23&lt;00:21,  2.70it/s]
+Build Spectra:  52%|█████▎    | 63/120 [00:24&lt;00:21,  2.70it/s]
+Build Spectra:  53%|█████▎    | 64/120 [00:24&lt;00:20,  2.71it/s]
+Build Spectra:  54%|█████▍    | 65/120 [00:24&lt;00:20,  2.72it/s]
+Build Spectra:  55%|█████▌    | 66/120 [00:25&lt;00:19,  2.72it/s]
+Build Spectra:  56%|█████▌    | 67/120 [00:25&lt;00:19,  2.73it/s]
+Build Spectra:  57%|█████▋    | 68/120 [00:26&lt;00:19,  2.73it/s]
+Build Spectra:  57%|█████▊    | 69/120 [00:26&lt;00:18,  2.73it/s]
+Build Spectra:  58%|█████▊    | 70/120 [00:26&lt;00:18,  2.73it/s]
+Build Spectra:  59%|█████▉    | 71/120 [00:27&lt;00:17,  2.73it/s]
+Build Spectra:  60%|██████    | 72/120 [00:27&lt;00:17,  2.73it/s]
+Build Spectra:  61%|██████    | 73/120 [00:27&lt;00:17,  2.73it/s]
+Build Spectra:  62%|██████▏   | 74/120 [00:28&lt;00:16,  2.72it/s]
+Build Spectra:  62%|██████▎   | 75/120 [00:28&lt;00:16,  2.73it/s]
+Build Spectra:  63%|██████▎   | 76/120 [00:28&lt;00:16,  2.73it/s]
+Build Spectra:  64%|██████▍   | 77/120 [00:29&lt;00:15,  2.71it/s]
+Build Spectra:  65%|██████▌   | 78/120 [00:29&lt;00:15,  2.70it/s]
+Build Spectra:  66%|██████▌   | 79/120 [00:30&lt;00:15,  2.70it/s]
+Build Spectra:  67%|██████▋   | 80/120 [00:30&lt;00:14,  2.69it/s]
+Build Spectra:  68%|██████▊   | 81/120 [00:30&lt;00:14,  2.69it/s]
+Build Spectra:  68%|██████▊   | 82/120 [00:31&lt;00:14,  2.69it/s]
+Build Spectra:  69%|██████▉   | 83/120 [00:31&lt;00:13,  2.69it/s]
+Build Spectra:  70%|███████   | 84/120 [00:31&lt;00:13,  2.69it/s]
+Build Spectra:  71%|███████   | 85/120 [00:32&lt;00:13,  2.68it/s]
+Build Spectra:  72%|███████▏  | 86/120 [00:32&lt;00:12,  2.68it/s]
+Build Spectra:  72%|███████▎  | 87/120 [00:33&lt;00:12,  2.68it/s]
+Build Spectra:  73%|███████▎  | 88/120 [00:33&lt;00:11,  2.68it/s]
+Build Spectra:  74%|███████▍  | 89/120 [00:33&lt;00:11,  2.68it/s]
+Build Spectra:  75%|███████▌  | 90/120 [00:34&lt;00:11,  2.68it/s]
+Build Spectra:  76%|███████▌  | 91/120 [00:34&lt;00:10,  2.69it/s]
+Build Spectra:  77%|███████▋  | 92/120 [00:34&lt;00:10,  2.69it/s]
+Build Spectra:  78%|███████▊  | 93/120 [00:35&lt;00:10,  2.69it/s]
+Build Spectra:  78%|███████▊  | 94/120 [00:35&lt;00:09,  2.69it/s]
+Build Spectra:  79%|███████▉  | 95/120 [00:36&lt;00:09,  2.68it/s]
+Build Spectra:  80%|████████  | 96/120 [00:36&lt;00:08,  2.68it/s]
+Build Spectra:  81%|████████  | 97/120 [00:36&lt;00:08,  2.68it/s]
+Build Spectra:  82%|████████▏ | 98/120 [00:37&lt;00:08,  2.68it/s]
+Build Spectra:  82%|████████▎ | 99/120 [00:37&lt;00:07,  2.66it/s]
+Build Spectra:  83%|████████▎ | 100/120 [00:37&lt;00:07,  2.67it/s]
+Build Spectra:  84%|████████▍ | 101/120 [00:38&lt;00:07,  2.67it/s]
+Build Spectra:  85%|████████▌ | 102/120 [00:38&lt;00:06,  2.66it/s]
+Build Spectra:  86%|████████▌ | 103/120 [00:39&lt;00:06,  2.66it/s]
+Build Spectra:  87%|████████▋ | 104/120 [00:39&lt;00:05,  2.67it/s]
+Build Spectra:  88%|████████▊ | 105/120 [00:39&lt;00:05,  2.67it/s]
+Build Spectra:  88%|████████▊ | 106/120 [00:40&lt;00:05,  2.67it/s]
+Build Spectra:  89%|████████▉ | 107/120 [00:40&lt;00:04,  2.67it/s]
+Build Spectra:  90%|█████████ | 108/120 [00:40&lt;00:04,  2.67it/s]
+Build Spectra:  91%|█████████ | 109/120 [00:41&lt;00:04,  2.67it/s]
+Build Spectra:  92%|█████████▏| 110/120 [00:41&lt;00:03,  2.68it/s]
+Build Spectra:  92%|█████████▎| 111/120 [00:42&lt;00:03,  2.68it/s]
+Build Spectra:  93%|█████████▎| 112/120 [00:42&lt;00:02,  2.68it/s]
+Build Spectra:  94%|█████████▍| 113/120 [00:42&lt;00:02,  2.68it/s]
+Build Spectra:  95%|█████████▌| 114/120 [00:43&lt;00:02,  2.68it/s]
+Build Spectra:  96%|█████████▌| 115/120 [00:43&lt;00:01,  2.68it/s]
+Build Spectra:  97%|█████████▋| 116/120 [00:43&lt;00:01,  2.68it/s]
+Build Spectra:  98%|█████████▊| 117/120 [00:44&lt;00:01,  2.68it/s]
+Build Spectra:  98%|█████████▊| 118/120 [00:44&lt;00:00,  2.69it/s]
+Build Spectra:  99%|█████████▉| 119/120 [00:45&lt;00:00,  2.69it/s]
+Build Spectra: 100%|██████████| 120/120 [00:45&lt;00:00,  2.70it/s]
+Build Spectra: 100%|██████████| 120/120 [00:45&lt;00:00,  2.64it/s]
+</pre></div>
+</div>
+</section>
+<section id="write-a-figure-making-function">
+<h2>Write a figure making function<a class="headerlink" href="#write-a-figure-making-function" title="Link to this heading">#</a></h2>
+<p>So we can make a GIF later.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">make_fig</span><span class="p">(</span><span class="n">data</span><span class="p">:</span><span class="n">PhaseAnalyzer</span><span class="p">,</span><span class="n">geo</span><span class="p">:</span><span class="n">SystemGeometry</span><span class="p">,</span><span class="n">gcm</span><span class="p">:</span><span class="n">PyGCM</span><span class="p">,</span><span class="n">s</span><span class="p">:</span><span class="nb">tuple</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    data is the simulation data</span>
+<span class="sd">    s is the phase index (start, stop)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.mean.html#numpy.mean" title="numpy.mean" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">mean</span></a><span class="p">(</span><span class="n">s</span><span class="p">))</span> <span class="c1"># int representation of s</span>
+    <span class="n">p</span><span class="p">,</span><span class="n">q</span> <span class="o">=</span> <span class="n">s</span>
+
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+    <span class="n">gs</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.add_gridspec.html#matplotlib.figure.Figure.add_gridspec" title="matplotlib.figure.Figure.add_gridspec" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">add_gridspec</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">prof_ax</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.add_subplot.html#matplotlib.figure.Figure.add_subplot" title="matplotlib.figure.Figure.add_subplot" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span></a><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">pressure</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.mean.html#numpy.mean" title="numpy.mean" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">mean</span></a><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="s1">&#39;Pressure&#39;</span><span class="p">)[</span><span class="n">p</span><span class="p">:</span><span class="n">q</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">temp</span> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.mean.html#numpy.mean" title="numpy.mean" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">mean</span></a><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get_layer</span><span class="p">(</span><span class="s1">&#39;Temp&#39;</span><span class="p">)[</span><span class="n">p</span><span class="p">:</span><span class="n">q</span><span class="p">,:],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">prof_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span><span class="n">pressure</span><span class="p">)</span>
+    <span class="n">prof_ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+    <span class="n">prof_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Temperature (K)&#39;</span><span class="p">)</span>
+    <span class="n">prof_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Pressure (bar)&#39;</span><span class="p">)</span>
+    <span class="n">prof_ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.flip.html#numpy.flip" title="numpy.flip" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">flip</span></a><span class="p">(</span><span class="n">prof_ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()))</span>
+    <span class="n">prof_ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">290</span><span class="p">)</span>
+
+    <span class="n">phase</span> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">phase</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span>
+    <span class="n">inax</span> <span class="o">=</span> <span class="n">prof_ax</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.4</span><span class="p">])</span>
+    <span class="n">inax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">geo</span><span class="o">.</span><span class="n">get_system_visual</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">inax</span><span class="p">)</span>
+
+    <span class="n">pl_spec</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="s1">&#39;thermal&#39;</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">star_spec</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="s1">&#39;star&#39;</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">noi_spec</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="s1">&#39;noise&#39;</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">wl</span> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity.to_value" title="astropy.units.Quantity.to_value" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-method"><span class="n">data</span><span class="o">.</span><span class="n">wavelength</span><span class="o">.</span><span class="n">to_value</span></a><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.PrefixUnit.html#astropy.units.PrefixUnit" title="astropy.units.PrefixUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">um</span></a><span class="p">)</span>
+
+    <span class="n">cont</span> <span class="o">=</span> <span class="p">((</span><span class="n">pl_spec</span><span class="p">)</span><span class="o">/</span><span class="n">star_spec</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.CompositeUnit.html#astropy.units.CompositeUnit" title="astropy.units.CompositeUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">dimensionless_unscaled</span></a><span class="p">)</span>
+    <span class="n">contp</span> <span class="o">=</span> <span class="p">((</span><span class="n">pl_spec</span><span class="o">+</span><span class="n">noi_spec</span><span class="p">)</span><span class="o">/</span><span class="n">star_spec</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.CompositeUnit.html#astropy.units.CompositeUnit" title="astropy.units.CompositeUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">dimensionless_unscaled</span></a><span class="p">)</span>
+    <span class="n">contm</span> <span class="o">=</span> <span class="p">((</span><span class="n">pl_spec</span><span class="o">-</span><span class="n">noi_spec</span><span class="p">)</span><span class="o">/</span><span class="n">star_spec</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.CompositeUnit.html#astropy.units.CompositeUnit" title="astropy.units.CompositeUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">dimensionless_unscaled</span></a><span class="p">)</span>
+
+    <span class="n">spec_ax</span> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.add_subplot.html#matplotlib.figure.Figure.add_subplot" title="matplotlib.figure.Figure.add_subplot" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span></a><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span><span class="n">projection</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span><span class="n">cont</span><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">wl</span><span class="p">,</span><span class="n">contp</span><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span><span class="n">contm</span><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Wavelength (um)&#39;</span><span class="p">)</span>
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Thermal emission (ppm)&#39;</span><span class="p">)</span>
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span><span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;out&#39;</span><span class="p">)</span>
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html#numpy.arange" title="numpy.arange" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">arange</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">spec_ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html#numpy.arange" title="numpy.arange" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">arange</span></a><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pl_sub_obs_lat</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
+    <span class="n">time</span> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity" title="astropy.units.Quantity" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">time</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">geo</span><span class="o">.</span><span class="n">get_pl_sub_obs_lon</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">phase</span><span class="p">)</span>
+    <span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">Orthographic</span><span class="p">(</span>
+        <span class="n">central_latitude</span><span class="o">=</span><span class="n">lat</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">),</span>
+        <span class="n">central_longitude</span><span class="o">=</span><span class="n">lon</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.Unit.html#astropy.units.Unit" title="astropy.units.Unit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">deg</span></a><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">mapax</span> <span class="o">=</span> <span class="n">spec_ax</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">([</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.4</span><span class="p">,</span><span class="mf">0.4</span><span class="p">],</span><span class="n">projection</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
+    <span class="n">cbarax</span> <span class="o">=</span> <span class="n">spec_ax</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.4</span><span class="p">],</span><span class="n">projection</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+    <span class="n">cbarax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+    <span class="n">tsurf</span> <span class="o">=</span> <a href="https://docs.astropy.org/en/stable/api/astropy.units.Quantity.html#astropy.units.Quantity.to_value" title="astropy.units.Quantity.to_value" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-method"><span class="n">gcm</span><span class="o">.</span><span class="n">tsurf</span><span class="o">.</span><span class="n">dat</span><span class="o">.</span><span class="n">to_value</span></a><span class="p">(</span><a href="https://docs.astropy.org/en/stable/api/astropy.units.IrreducibleUnit.html#astropy.units.IrreducibleUnit" title="astropy.units.IrreducibleUnit" class="sphx-glr-backref-module-astropy-units sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">u</span><span class="o">.</span><span class="n">K</span></a><span class="p">)</span>
+    <span class="n">lats</span> <span class="o">=</span> <span class="n">gcm</span><span class="o">.</span><span class="n">lats</span>
+    <span class="n">lons</span> <span class="o">=</span> <span class="n">gcm</span><span class="o">.</span><span class="n">lons</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">mapax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span><span class="n">lats</span><span class="p">,</span><span class="n">tsurf</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gist_heat&#39;</span><span class="p">,</span><span class="n">transform</span><span class="o">=</span><span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">())</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.colorbar.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span></a><span class="p">(</span><span class="n">im</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">cbarax</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;$T_{</span><span class="se">\\</span><span class="s1">rm surf}$ (K)&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a>
+</pre></div>
+</div>
+</section>
+<section id="get-the-data">
+<h2>Get the data<a class="headerlink" href="#get-the-data" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">PhaseAnalyzer</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">directories</span><span class="p">[</span><span class="s1">&#39;all_model&#39;</span><span class="p">])</span>
+<span class="n">geometry</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_observation_parameters</span><span class="p">()</span>
+<span class="n">gcm</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">gcm</span><span class="o">.</span><span class="n">get_gcm</span><span class="p">()</span>
+<span class="c1"># gcm = GCMdecoder.from_psg(model.params.gcm.content())</span>
+</pre></div>
+</div>
+</section>
+<section id="display-one-frame">
+<h2>Display one frame<a class="headerlink" href="#display-one-frame" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <span class="n">make_fig</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">geometry</span><span class="p">,</span><span class="n">gcm</span><span class="p">,(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">))</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_plot_phase_gif_001.png" srcset="../../_images/sphx_glr_plot_phase_gif_001.png" alt="plot phase gif" class = "sphx-glr-single-img"/></section>
+<section id="make-a-gif">
+<h2>Make a GIF<a class="headerlink" href="#make-a-gif" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">gif_image</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="o">-</span><span class="mi">10</span><span class="p">),</span><span class="nb">min</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">n_images</span></a><span class="o">-</span><span class="mi">1</span><span class="p">,</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="o">+</span><span class="mi">10</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">make_fig</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="n">geometry</span><span class="p">,</span><span class="n">gcm</span><span class="p">,</span><span class="n">s</span><span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">images</span></a> <span class="o">=</span> <span class="p">[]</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fname</span></a><span class="o">=</span><span class="s1">&#39;temp.png&#39;</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data</span><span class="o">.</span><span class="n">n_images</span></a><span class="p">):</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <span class="n">gif_image</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.savefig.html#matplotlib.figure.Figure.savefig" title="matplotlib.figure.Figure.savefig" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">savefig</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fname</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">)</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">images</span></a><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imread</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fname</span></a><span class="p">))</span>
+    <a href="https://docs.python.org/3/library/os.html#os.remove" title="os.remove" class="sphx-glr-backref-module-os sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">remove</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fname</span></a><span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filename</span></a> <span class="o">=</span> <span class="s1">&#39;phase_curve.gif&#39;</span>
+<span class="n">_</span><span class="o">=</span><span class="n">mimsave</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filename</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">images</span></a><span class="p">,</span><span class="n">fps</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (3 minutes 14.803 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-end-to-end-plot-phase-gif-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/fa6e6fb3ce50b79e7478873ceabcc4ef/plot_phase_gif.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_phase_gif.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/f2a6ef5e2d12644bd2e74f53347e2af2/plot_phase_gif.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_phase_gif.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/06032f695340b9c82a7033a0d6e3d09b/plot_phase_gif.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_phase_gif.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plot_transit_spectrum.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Plot the spectrum of a transiting planet</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="plot_mirecle_proxcenb.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Observe the MIRECLE Phase Curve of Proxima Centauri b</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-in-the-configuration">Load in the configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#write-a-figure-making-function">Write a figure making function</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-the-data">Get the data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-one-frame">Display one frame</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-a-gif">Make a GIF</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/auto_examples/end_to_end/plot_phase_gif.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, The VSPEC Collaboration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
