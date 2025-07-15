@@ -292,7 +292,7 @@ Run the spotless model
     Creating interpolators:
     thermal    thermal, combined    thermal, combined, stellar    thermal, combined, stellar, photon noise    thermal, combined, stellar, photon noise, detector noise    thermal, combined, stellar, photon noise, detector noise, telescope noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
     Finished!
-    Loading Spectra:   0%|          | 0/12 [00:00<?, ?it/s]    Loading Spectra:   8%|▊         | 1/12 [00:00<00:03,  3.40it/s]    Loading Spectra:  17%|█▋        | 2/12 [00:00<00:02,  3.40it/s]    Loading Spectra:  25%|██▌       | 3/12 [00:00<00:02,  3.40it/s]    Loading Spectra:  33%|███▎      | 4/12 [00:01<00:02,  3.40it/s]    Loading Spectra:  42%|████▏     | 5/12 [00:01<00:02,  3.39it/s]    Loading Spectra:  50%|█████     | 6/12 [00:01<00:01,  3.40it/s]    Loading Spectra:  58%|█████▊    | 7/12 [00:02<00:01,  3.40it/s]    Loading Spectra:  67%|██████▋   | 8/12 [00:02<00:01,  3.40it/s]    Loading Spectra:  75%|███████▌  | 9/12 [00:02<00:00,  3.40it/s]    Loading Spectra:  83%|████████▎ | 10/12 [00:02<00:00,  3.41it/s]    Loading Spectra:  92%|█████████▏| 11/12 [00:03<00:00,  3.40it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.40it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.40it/s]
+    Loading Spectra:   0%|          | 0/12 [00:00<?, ?it/s]    Loading Spectra:   8%|▊         | 1/12 [00:00<00:03,  3.43it/s]    Loading Spectra:  17%|█▋        | 2/12 [00:00<00:02,  3.43it/s]    Loading Spectra:  25%|██▌       | 3/12 [00:00<00:02,  3.42it/s]    Loading Spectra:  33%|███▎      | 4/12 [00:01<00:02,  3.42it/s]    Loading Spectra:  42%|████▏     | 5/12 [00:01<00:02,  3.42it/s]    Loading Spectra:  50%|█████     | 6/12 [00:01<00:01,  3.43it/s]    Loading Spectra:  58%|█████▊    | 7/12 [00:02<00:01,  3.43it/s]    Loading Spectra:  67%|██████▋   | 8/12 [00:02<00:01,  3.44it/s]    Loading Spectra:  75%|███████▌  | 9/12 [00:02<00:00,  3.43it/s]    Loading Spectra:  83%|████████▎ | 10/12 [00:02<00:00,  3.43it/s]    Loading Spectra:  92%|█████████▏| 11/12 [00:03<00:00,  3.43it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.43it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.43it/s]
 
 
 
@@ -465,7 +465,7 @@ are overwriting our old data.
     Creating interpolators:
     thermal    thermal, combined    thermal, combined, stellar    thermal, combined, stellar, photon noise    thermal, combined, stellar, photon noise, detector noise    thermal, combined, stellar, photon noise, detector noise, telescope noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
     Finished!
-    Loading Spectra:   0%|          | 0/12 [00:00<?, ?it/s]    Loading Spectra:   8%|▊         | 1/12 [00:00<00:03,  3.37it/s]    Loading Spectra:  17%|█▋        | 2/12 [00:00<00:02,  3.38it/s]    Loading Spectra:  25%|██▌       | 3/12 [00:00<00:02,  3.39it/s]    Loading Spectra:  33%|███▎      | 4/12 [00:01<00:02,  3.36it/s]    Loading Spectra:  42%|████▏     | 5/12 [00:01<00:02,  3.31it/s]    Loading Spectra:  50%|█████     | 6/12 [00:01<00:01,  3.34it/s]    Loading Spectra:  58%|█████▊    | 7/12 [00:02<00:01,  3.37it/s]    Loading Spectra:  67%|██████▋   | 8/12 [00:02<00:01,  3.38it/s]    Loading Spectra:  75%|███████▌  | 9/12 [00:02<00:00,  3.39it/s]    Loading Spectra:  83%|████████▎ | 10/12 [00:02<00:00,  3.39it/s]    Loading Spectra:  92%|█████████▏| 11/12 [00:03<00:00,  3.39it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.40it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.38it/s]
+    Loading Spectra:   0%|          | 0/12 [00:00<?, ?it/s]    Loading Spectra:   8%|▊         | 1/12 [00:00<00:03,  3.43it/s]    Loading Spectra:  17%|█▋        | 2/12 [00:00<00:02,  3.42it/s]    Loading Spectra:  25%|██▌       | 3/12 [00:00<00:02,  3.42it/s]    Loading Spectra:  33%|███▎      | 4/12 [00:01<00:02,  3.42it/s]    Loading Spectra:  42%|████▏     | 5/12 [00:01<00:02,  3.43it/s]    Loading Spectra:  50%|█████     | 6/12 [00:01<00:01,  3.43it/s]    Loading Spectra:  58%|█████▊    | 7/12 [00:02<00:01,  3.44it/s]    Loading Spectra:  67%|██████▋   | 8/12 [00:02<00:01,  3.44it/s]    Loading Spectra:  75%|███████▌  | 9/12 [00:02<00:00,  3.44it/s]    Loading Spectra:  83%|████████▎ | 10/12 [00:02<00:00,  3.43it/s]    Loading Spectra:  92%|█████████▏| 11/12 [00:03<00:00,  3.43it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.43it/s]    Loading Spectra: 100%|██████████| 12/12 [00:03<00:00,  3.43it/s]
 
 
 
@@ -631,7 +631,7 @@ is actaully due to spots.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (10 minutes 14.807 seconds)
+   **Total running time of the script:** (11 minutes 47.397 seconds)
 
 
 .. _sphx_glr_download_auto_examples_end_to_end_plot_gj1214b_kempton23.py:

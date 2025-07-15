@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**17:15.278** total execution time for 5 files **from auto_examples/end_to_end**:
+**20:15.258** total execution time for 5 files **from auto_examples/end_to_end**:
 
 .. container::
 
@@ -33,17 +33,17 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_gj1214b_kempton23.py` (``plot_gj1214b_kempton23.py``)
-     - 10:14.807
+     - 11:47.397
      - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_phase_gif.py` (``plot_phase_gif.py``)
-     - 03:14.803
+     - 03:52.344
      - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_spotted_transit.py` (``plot_spotted_transit.py``)
-     - 02:03.476
+     - 02:31.581
      - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_mirecle_proxcenb.py` (``plot_mirecle_proxcenb.py``)
-     - 00:51.883
+     - 01:06.080
      - 0.0
    * - :ref:`sphx_glr_auto_examples_end_to_end_plot_transit_spectrum.py` (``plot_transit_spectrum.py``)
-     - 00:50.309
+     - 00:57.857
      - 0.0

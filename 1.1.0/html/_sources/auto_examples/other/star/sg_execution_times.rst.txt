@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**17:21.959** total execution time for 5 files **from auto_examples/other/star**:
+**26:11.372** total execution time for 5 files **from auto_examples/other/star**:
 
 .. container::
 
@@ -32,18 +32,18 @@ Computation times
    * - Example
      - Time
      - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_other_star_plot_spot_lightcurve.py` (``plot_spot_lightcurve.py``)
+     - 06:44.749
+     - 0.0
    * - :ref:`sphx_glr_auto_examples_other_star_plot_faculae_lightcurve.py` (``plot_faculae_lightcurve.py``)
-     - 04:56.057
+     - 05:58.613
      - 0.0
    * - :ref:`sphx_glr_auto_examples_other_star_plot_granulation_lightcurve.py` (``plot_granulation_lightcurve.py``)
-     - 04:47.515
+     - 05:53.850
      - 0.0
    * - :ref:`sphx_glr_auto_examples_other_star_plot_flare_lightcurve.py` (``plot_flare_lightcurve.py``)
-     - 04:34.461
+     - 05:35.843
      - 0.0
    * - :ref:`sphx_glr_auto_examples_other_star_plot_flare_spot_lightcurve.py` (``plot_flare_spot_lightcurve.py``)
-     - 01:34.992
-     - 0.0
-   * - :ref:`sphx_glr_auto_examples_other_star_plot_spot_lightcurve.py` (``plot_spot_lightcurve.py``)
-     - 01:28.934
+     - 01:58.318
      - 0.0

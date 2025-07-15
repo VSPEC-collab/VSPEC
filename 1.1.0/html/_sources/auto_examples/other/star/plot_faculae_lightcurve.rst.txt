@@ -189,7 +189,7 @@ Run the simulation
     Creating interpolators:
     thermal    thermal, combined    thermal, combined, stellar    thermal, combined, stellar, photon noise    thermal, combined, stellar, photon noise, detector noise    thermal, combined, stellar, photon noise, detector noise, telescope noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
     Finished!
-    Loading Spectra:   0%|          | 0/17 [00:00<?, ?it/s]    Loading Spectra:   6%|▌         | 1/17 [00:00<00:04,  3.45it/s]    Loading Spectra:  12%|█▏        | 2/17 [00:00<00:04,  3.42it/s]    Loading Spectra:  18%|█▊        | 3/17 [00:00<00:04,  3.41it/s]    Loading Spectra:  24%|██▎       | 4/17 [00:01<00:03,  3.40it/s]    Loading Spectra:  29%|██▉       | 5/17 [00:01<00:03,  3.40it/s]    Loading Spectra:  35%|███▌      | 6/17 [00:01<00:03,  3.40it/s]    Loading Spectra:  41%|████      | 7/17 [00:02<00:02,  3.40it/s]    Loading Spectra:  47%|████▋     | 8/17 [00:02<00:02,  3.40it/s]    Loading Spectra:  53%|█████▎    | 9/17 [00:02<00:02,  3.40it/s]    Loading Spectra:  59%|█████▉    | 10/17 [00:02<00:02,  3.40it/s]    Loading Spectra:  65%|██████▍   | 11/17 [00:03<00:01,  3.40it/s]    Loading Spectra:  71%|███████   | 12/17 [00:03<00:01,  3.40it/s]    Loading Spectra:  76%|███████▋  | 13/17 [00:03<00:01,  3.40it/s]    Loading Spectra:  82%|████████▏ | 14/17 [00:04<00:00,  3.40it/s]    Loading Spectra:  88%|████████▊ | 15/17 [00:04<00:00,  3.39it/s]    Loading Spectra:  94%|█████████▍| 16/17 [00:04<00:00,  3.40it/s]    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.41it/s]    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.40it/s]
+    Loading Spectra:   0%|          | 0/17 [00:00<?, ?it/s]    Loading Spectra:   6%|▌         | 1/17 [00:00<00:04,  3.44it/s]    Loading Spectra:  12%|█▏        | 2/17 [00:00<00:04,  3.43it/s]    Loading Spectra:  18%|█▊        | 3/17 [00:00<00:04,  3.42it/s]    Loading Spectra:  24%|██▎       | 4/17 [00:01<00:03,  3.42it/s]    Loading Spectra:  29%|██▉       | 5/17 [00:01<00:03,  3.42it/s]    Loading Spectra:  35%|███▌      | 6/17 [00:01<00:03,  3.42it/s]    Loading Spectra:  41%|████      | 7/17 [00:02<00:02,  3.43it/s]    Loading Spectra:  47%|████▋     | 8/17 [00:02<00:02,  3.43it/s]    Loading Spectra:  53%|█████▎    | 9/17 [00:02<00:02,  3.43it/s]    Loading Spectra:  59%|█████▉    | 10/17 [00:02<00:02,  3.43it/s]    Loading Spectra:  65%|██████▍   | 11/17 [00:03<00:01,  3.43it/s]    Loading Spectra:  71%|███████   | 12/17 [00:03<00:01,  3.43it/s]    Loading Spectra:  76%|███████▋  | 13/17 [00:03<00:01,  3.43it/s]    Loading Spectra:  82%|████████▏ | 14/17 [00:04<00:00,  3.44it/s]    Loading Spectra:  88%|████████▊ | 15/17 [00:04<00:00,  3.44it/s]    Loading Spectra:  94%|█████████▍| 16/17 [00:04<00:00,  3.44it/s]    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.45it/s]    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.43it/s]
 
 
 
@@ -256,7 +256,7 @@ We will look in a few different wavelengths.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 56.057 seconds)
+   **Total running time of the script:** (5 minutes 58.613 seconds)
 
 
 .. _sphx_glr_download_auto_examples_other_star_plot_faculae_lightcurve.py:

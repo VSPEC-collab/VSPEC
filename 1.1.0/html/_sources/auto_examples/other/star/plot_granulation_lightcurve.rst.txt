@@ -178,7 +178,7 @@ Run the simulation
     Creating interpolators:
     thermal    thermal, combined    thermal, combined, stellar    thermal, combined, stellar, photon noise    thermal, combined, stellar, photon noise, detector noise    thermal, combined, stellar, photon noise, detector noise, telescope noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
     Finished!
-    Loading Spectra:   0%|          | 0/5 [00:00<?, ?it/s]    Loading Spectra:  20%|██        | 1/5 [00:00<00:01,  3.44it/s]    Loading Spectra:  40%|████      | 2/5 [00:00<00:00,  3.41it/s]    Loading Spectra:  60%|██████    | 3/5 [00:00<00:00,  3.39it/s]    Loading Spectra:  80%|████████  | 4/5 [00:01<00:00,  3.34it/s]    Loading Spectra: 100%|██████████| 5/5 [00:01<00:00,  3.30it/s]    Loading Spectra: 100%|██████████| 5/5 [00:01<00:00,  3.33it/s]
+    Loading Spectra:   0%|          | 0/5 [00:00<?, ?it/s]    Loading Spectra:  20%|██        | 1/5 [00:00<00:01,  3.47it/s]    Loading Spectra:  40%|████      | 2/5 [00:00<00:00,  3.45it/s]    Loading Spectra:  60%|██████    | 3/5 [00:00<00:00,  3.41it/s]    Loading Spectra:  80%|████████  | 4/5 [00:01<00:00,  3.41it/s]    Loading Spectra: 100%|██████████| 5/5 [00:01<00:00,  3.41it/s]    Loading Spectra: 100%|██████████| 5/5 [00:01<00:00,  3.42it/s]
 
 
 
@@ -225,7 +225,7 @@ data we just created.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (4 minutes 47.515 seconds)
+   **Total running time of the script:** (5 minutes 53.850 seconds)
 
 
 .. _sphx_glr_download_auto_examples_other_star_plot_granulation_lightcurve.py:

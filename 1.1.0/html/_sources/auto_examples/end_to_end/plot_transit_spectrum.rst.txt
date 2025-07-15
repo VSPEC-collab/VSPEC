@@ -75,7 +75,7 @@ We read in the config file and run the model.
     Starting at phase 178.8 deg, observe for 1.5 h in 18 steps
     Phases = [178.8  178.92 179.05 179.18 179.3  179.42 179.55 179.68 179.8  179.92
      180.05 180.17 180.3  180.42 180.55 180.67 180.8  180.92 181.05] deg
-    Build Planet:   0%|          | 0/19 [00:00<?, ?it/s]    Build Planet:   5%|▌         | 1/19 [00:00<00:14,  1.28it/s]    Build Planet:  11%|█         | 2/19 [00:01<00:13,  1.25it/s]    Build Planet:  16%|█▌        | 3/19 [00:02<00:12,  1.27it/s]    Build Planet:  21%|██        | 4/19 [00:03<00:12,  1.16it/s]    Build Planet:  26%|██▋       | 5/19 [00:04<00:13,  1.06it/s]    Build Planet:  32%|███▏      | 6/19 [00:05<00:12,  1.05it/s]    Build Planet:  37%|███▋      | 7/19 [00:06<00:11,  1.03it/s]    Build Planet:  42%|████▏     | 8/19 [00:07<00:10,  1.03it/s]    Build Planet:  47%|████▋     | 9/19 [00:08<00:09,  1.00it/s]    Build Planet:  53%|█████▎    | 10/19 [00:09<00:08,  1.02it/s]    Build Planet:  58%|█████▊    | 11/19 [00:10<00:07,  1.02it/s]    Build Planet:  63%|██████▎   | 12/19 [00:11<00:06,  1.05it/s]    Build Planet:  68%|██████▊   | 13/19 [00:12<00:05,  1.07it/s]    Build Planet:  74%|███████▎  | 14/19 [00:13<00:04,  1.06it/s]    Build Planet:  79%|███████▉  | 15/19 [00:14<00:03,  1.05it/s]    Build Planet:  84%|████████▍ | 16/19 [00:14<00:02,  1.06it/s]    Build Planet:  89%|████████▉ | 17/19 [00:15<00:01,  1.07it/s]    Build Planet:  95%|█████████▍| 18/19 [00:16<00:00,  1.11it/s]    Build Planet: 100%|██████████| 19/19 [00:17<00:00,  1.18it/s]    Build Planet: 100%|██████████| 19/19 [00:17<00:00,  1.09it/s]
+    Build Planet:   0%|          | 0/19 [00:00<?, ?it/s]    Build Planet:   5%|▌         | 1/19 [00:01<00:20,  1.15s/it]    Build Planet:  11%|█         | 2/19 [00:02<00:19,  1.17s/it]    Build Planet:  16%|█▌        | 3/19 [00:03<00:18,  1.17s/it]    Build Planet:  21%|██        | 4/19 [00:04<00:18,  1.23s/it]    Build Planet:  26%|██▋       | 5/19 [00:06<00:17,  1.27s/it]    Build Planet:  32%|███▏      | 6/19 [00:07<00:16,  1.29s/it]    Build Planet:  37%|███▋      | 7/19 [00:08<00:15,  1.31s/it]    Build Planet:  42%|████▏     | 8/19 [00:10<00:14,  1.32s/it]    Build Planet:  47%|████▋     | 9/19 [00:11<00:13,  1.33s/it]    Build Planet:  53%|█████▎    | 10/19 [00:12<00:12,  1.34s/it]    Build Planet:  58%|█████▊    | 11/19 [00:14<00:10,  1.33s/it]    Build Planet:  63%|██████▎   | 12/19 [00:15<00:09,  1.34s/it]    Build Planet:  68%|██████▊   | 13/19 [00:16<00:08,  1.36s/it]    Build Planet:  74%|███████▎  | 14/19 [00:18<00:06,  1.35s/it]    Build Planet:  79%|███████▉  | 15/19 [00:19<00:05,  1.35s/it]    Build Planet:  84%|████████▍ | 16/19 [00:20<00:04,  1.34s/it]    Build Planet:  89%|████████▉ | 17/19 [00:22<00:02,  1.35s/it]    Build Planet:  95%|█████████▍| 18/19 [00:23<00:01,  1.29s/it]    Build Planet: 100%|██████████| 19/19 [00:24<00:00,  1.25s/it]    Build Planet: 100%|██████████| 19/19 [00:24<00:00,  1.30s/it]
     Creating interpolators:
     thermal    thermal, combined    thermal, combined, stellar    thermal, combined, stellar, photon noise    thermal, combined, stellar, photon noise, detector noise    thermal, combined, stellar, photon noise, detector noise, telescope noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise    thermal, combined, stellar, photon noise, detector noise, telescope noise, background noise, transit
     Finished!
@@ -83,22 +83,22 @@ We read in the config file and run the model.
     Loading Spectra:   0%|          | 0/17 [00:00<?, ?it/s]
     Loading Spectra:   6%|▌         | 1/17 [00:00<00:04,  3.47it/s]
     Loading Spectra:  12%|█▏        | 2/17 [00:00<00:04,  3.46it/s]
-    Loading Spectra:  18%|█▊        | 3/17 [00:00<00:04,  3.45it/s]
-    Loading Spectra:  24%|██▎       | 4/17 [00:01<00:03,  3.45it/s]
-    Loading Spectra:  29%|██▉       | 5/17 [00:01<00:03,  3.45it/s]
-    Loading Spectra:  35%|███▌      | 6/17 [00:01<00:03,  3.45it/s]
-    Loading Spectra:  41%|████      | 7/17 [00:02<00:02,  3.46it/s]
-    Loading Spectra:  47%|████▋     | 8/17 [00:02<00:02,  3.47it/s]
-    Loading Spectra:  53%|█████▎    | 9/17 [00:02<00:02,  3.48it/s]
-    Loading Spectra:  59%|█████▉    | 10/17 [00:02<00:02,  3.47it/s]
-    Loading Spectra:  65%|██████▍   | 11/17 [00:03<00:01,  3.47it/s]
-    Loading Spectra:  71%|███████   | 12/17 [00:03<00:01,  3.47it/s]
-    Loading Spectra:  76%|███████▋  | 13/17 [00:03<00:01,  3.47it/s]
-    Loading Spectra:  82%|████████▏ | 14/17 [00:04<00:00,  3.46it/s]
-    Loading Spectra:  88%|████████▊ | 15/17 [00:04<00:00,  3.47it/s]
-    Loading Spectra:  94%|█████████▍| 16/17 [00:04<00:00,  3.47it/s]
-    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.48it/s]    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.47it/s]
-    Build Spectra:   6%|▌         | 1/18 [00:05<01:35,  5.62s/it]    Build Spectra:  11%|█         | 2/18 [00:06<00:43,  2.74s/it]    Build Spectra:  17%|█▋        | 3/18 [00:07<00:27,  1.81s/it]    Build Spectra:  22%|██▏       | 4/18 [00:07<00:20,  1.43s/it]    Build Spectra:  28%|██▊       | 5/18 [00:08<00:15,  1.23s/it]    Build Spectra:  33%|███▎      | 6/18 [00:09<00:13,  1.11s/it]    Build Spectra:  39%|███▉      | 7/18 [00:10<00:11,  1.04s/it]    Build Spectra:  44%|████▍     | 8/18 [00:11<00:09,  1.01it/s]    Build Spectra:  50%|█████     | 9/18 [00:12<00:08,  1.05it/s]    Build Spectra:  56%|█████▌    | 10/18 [00:13<00:07,  1.08it/s]    Build Spectra:  61%|██████    | 11/18 [00:14<00:06,  1.09it/s]    Build Spectra:  67%|██████▋   | 12/18 [00:14<00:05,  1.10it/s]    Build Spectra:  72%|███████▏  | 13/18 [00:15<00:04,  1.11it/s]    Build Spectra:  78%|███████▊  | 14/18 [00:16<00:03,  1.12it/s]    Build Spectra:  83%|████████▎ | 15/18 [00:17<00:02,  1.13it/s]    Build Spectra:  89%|████████▉ | 16/18 [00:18<00:01,  1.12it/s]    Build Spectra:  94%|█████████▍| 17/18 [00:19<00:00,  1.13it/s]    Build Spectra: 100%|██████████| 18/18 [00:20<00:00,  1.20it/s]    Build Spectra: 100%|██████████| 18/18 [00:20<00:00,  1.11s/it]
+    Loading Spectra:  18%|█▊        | 3/17 [00:00<00:04,  3.47it/s]
+    Loading Spectra:  24%|██▎       | 4/17 [00:01<00:03,  3.47it/s]
+    Loading Spectra:  29%|██▉       | 5/17 [00:01<00:03,  3.48it/s]
+    Loading Spectra:  35%|███▌      | 6/17 [00:01<00:03,  3.48it/s]
+    Loading Spectra:  41%|████      | 7/17 [00:02<00:02,  3.49it/s]
+    Loading Spectra:  47%|████▋     | 8/17 [00:02<00:02,  3.49it/s]
+    Loading Spectra:  53%|█████▎    | 9/17 [00:02<00:02,  3.49it/s]
+    Loading Spectra:  59%|█████▉    | 10/17 [00:02<00:02,  3.49it/s]
+    Loading Spectra:  65%|██████▍   | 11/17 [00:03<00:01,  3.49it/s]
+    Loading Spectra:  71%|███████   | 12/17 [00:03<00:01,  3.49it/s]
+    Loading Spectra:  76%|███████▋  | 13/17 [00:03<00:01,  3.49it/s]
+    Loading Spectra:  82%|████████▏ | 14/17 [00:04<00:00,  3.49it/s]
+    Loading Spectra:  88%|████████▊ | 15/17 [00:04<00:00,  3.49it/s]
+    Loading Spectra:  94%|█████████▍| 16/17 [00:04<00:00,  3.49it/s]
+    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.51it/s]    Loading Spectra: 100%|██████████| 17/17 [00:04<00:00,  3.49it/s]
+    Build Spectra:   6%|▌         | 1/18 [00:05<01:35,  5.59s/it]    Build Spectra:  11%|█         | 2/18 [00:06<00:43,  2.72s/it]    Build Spectra:  17%|█▋        | 3/18 [00:07<00:27,  1.80s/it]    Build Spectra:  22%|██▏       | 4/18 [00:07<00:19,  1.42s/it]    Build Spectra:  28%|██▊       | 5/18 [00:08<00:15,  1.22s/it]    Build Spectra:  33%|███▎      | 6/18 [00:09<00:13,  1.10s/it]    Build Spectra:  39%|███▉      | 7/18 [00:10<00:11,  1.03s/it]    Build Spectra:  44%|████▍     | 8/18 [00:11<00:09,  1.02it/s]    Build Spectra:  50%|█████     | 9/18 [00:12<00:08,  1.06it/s]    Build Spectra:  56%|█████▌    | 10/18 [00:13<00:07,  1.09it/s]    Build Spectra:  61%|██████    | 11/18 [00:13<00:06,  1.11it/s]    Build Spectra:  67%|██████▋   | 12/18 [00:14<00:05,  1.12it/s]    Build Spectra:  72%|███████▏  | 13/18 [00:15<00:04,  1.13it/s]    Build Spectra:  78%|███████▊  | 14/18 [00:16<00:03,  1.14it/s]    Build Spectra:  83%|████████▎ | 15/18 [00:17<00:02,  1.14it/s]    Build Spectra:  89%|████████▉ | 16/18 [00:18<00:01,  1.14it/s]    Build Spectra:  94%|█████████▍| 17/18 [00:19<00:00,  1.15it/s]    Build Spectra: 100%|██████████| 18/18 [00:19<00:00,  1.21it/s]    Build Spectra: 100%|██████████| 18/18 [00:19<00:00,  1.10s/it]
 
 
 
@@ -169,7 +169,7 @@ to extract the transit depth.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 50.309 seconds)
+   **Total running time of the script:** (0 minutes 57.857 seconds)
 
 
 .. _sphx_glr_download_auto_examples_end_to_end_plot_transit_spectrum.py:
