@@ -82,23 +82,30 @@ gcm:
   mean_molec_weight: 28
   twoface:
     p0d: 1 bar
-    p1d: 0.1 bar
+    p1d: 0.01 bar
+    p2d: 1e-5 bar
     t0d: 500 K
     t1d: 450 K
+    t2d: 100 K
     p0n: 2 bar
-    p1n: 0.1 bar
+    p1n: 0.01 bar
+    p2n: 1e-5 bar
     t0n: 300 K
     t1n: 400 K
-    n_linear: 10
-    n_const: 20
-    p_top: 1e-5 bar
+    t2n: 100 K
+    n_troposphere: 20
+    n_stratosphere: 20
+    n_isothermal: 10
+    p_top: 1e-8 bar
     nphi: 90
     ntheta: 45
     scheme: cos2
     h2o_d0: 1e-2
     h2o_d1: 1e-3
+    h2o_d2: 1e-3
     h2o_n0: 1e-1
     h2o_n1: 1e-3
+    h2o_n2: 1e-3
     co2: 1e-3
     o3: 1e-3
     no2: 1e-3
