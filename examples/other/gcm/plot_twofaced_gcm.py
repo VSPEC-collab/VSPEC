@@ -2,7 +2,7 @@
 Day-night mix model
 ===================
 
-This example shows how to use the build-in 'two-face' planetary model.
+This example shows how to use the built-in 'two-face' planetary model.
 
 """
 from pathlib import Path
