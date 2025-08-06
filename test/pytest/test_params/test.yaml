@@ -8,6 +8,7 @@ header:
     impl_bin: rust
     impl_interp: scipy
     fail_on_missing: False
+  log_level: info
 star:
   psg_star_template: M
   teff: 3300 K

@@ -215,7 +215,8 @@ header_kwargs = dict(
     spec_grid = params.VSPECGridParameters(
         max_teff=3400*u.K,min_teff=2300*u.K,
         impl_bin='rust',impl_interp='scipy',fail_on_missing=False
-    )
+    ),
+    log_level='info'
 )
 internal_params_kwargs = dict(
     system=system_params,

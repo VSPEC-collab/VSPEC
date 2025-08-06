@@ -1,7 +1,7 @@
 """
 Module to read parameters
 """
-from typing import Callable, List, Union
+from typing import Callable, Union
 from pathlib import Path
 import yaml
 from astropy import units as u
@@ -9,6 +9,7 @@ from libpypsg import PyConfig
 from libpypsg.cfg import models
 from libpypsg.units import resolving_power as u_rp
 from GridPolator import GridSpectra
+from loguru import logger
 
 from .. import config
 from ..spectra import ForwardSpectra
@@ -178,8 +179,10 @@ class Header(BaseParameters):
         The minimum Teff to bin.
     seed : int, default=None
         The seed for the random number generator.
+    log_level : str, default='DEBUG'
+        The logger level.
     verbose : int, default=1,
-        The level of verbosity for the simulation.
+        The level of verbosity for the simulation. Depreciated. Use log_level instead.
     desc : str, default=None
         A description of the run.
 
@@ -193,8 +196,10 @@ class Header(BaseParameters):
         The minimum Teff to bin.
     seed : int or None
         The seed for the random number generator.
+    log_level : str
+        The logger level.
     verbose : int
-        The level of verbosity for the simulation.
+        The level of verbosity for the simulation. Depreciated. Use log_level instead.
     desc : str or None
         A description of the run.
 
@@ -205,14 +210,21 @@ class Header(BaseParameters):
         data_path: Path,
         spec_grid: AbstractGridParameters,
         seed: int,
-        verbose: int = 1,
+        log_level: str = None,
+        verbose: int = None,
         desc: str = None
     ):
         self.data_path = data_path
         self.spec_grid = spec_grid
         self.seed = seed
+        self.log_level = log_level
         self.verbose = verbose
         self.desc = desc
+        if verbose is not None:
+            logger.warning('The `verbose` parameter is deprecated. Use `log_level` instead.')
+        if verbose is None and log_level is None:
+            logger.warning('No log level specified. Defaulting to INFO')
+            self.log_level = 'INFO'
 
     @classmethod
     def _from_dict(cls, d: dict):
@@ -222,7 +234,11 @@ class Header(BaseParameters):
             seed=None if d.get('seed', None) is None else int(
                 d.get('seed', None)),
             desc=None if d.get('desc', None) is None else str(
-                d.get('desc', None))
+                d.get('desc', None)),
+            log_level=None if d.get('log_level', None) is None else str(
+                d.get('log_level', None)),
+            verbose=None if d.get('verbose', None) is None else int(
+                d.get('verbose', None))
         )
 
 
@@ -522,4 +538,11 @@ class InternalParameters(BaseParameters):
         int
             The total number of epochs to simulate the planet.
         """
-        return self.obs.total_images // self.psg.phase_binning
+        
+        binned_images = self.obs.total_images // self.psg.phase_binning
+        has_remainder = self.obs.total_images % self.psg.phase_binning != 0
+
+        if has_remainder:
+            binned_images += 1
+
+        return binned_images
