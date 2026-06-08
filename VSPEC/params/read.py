@@ -82,7 +82,7 @@ class VSPECGridParameters(AbstractGridParameters):
         min_teff: u.Quantity,
         impl_bin: str = 'rust',
         impl_interp: str = 'scipy',
-        fail_on_missing: bool = False
+        fail_on_missing: bool = False,
     ):
         teffs = arrange_teff(minteff=min_teff, maxteff=max_teff)
         super().__init__(GridSpectra.from_vspec, teffs=teffs, impl_bin=impl_bin, impl_interp=impl_interp, fail_on_missing=fail_on_missing)
@@ -92,6 +92,7 @@ class VSPECGridParameters(AbstractGridParameters):
         w1: u.Quantity,
         w2: u.Quantity,
         resolving_power: float,
+        show_progress: bool = True
     ):
         """
         Initialize a ``GridSpectra`` instance using additional parameters.
@@ -114,6 +115,7 @@ class VSPECGridParameters(AbstractGridParameters):
             w1=w1,
             w2=w2,
             resolving_power=resolving_power,
+            show_progress=show_progress
         )
     @classmethod
     def from_dict(cls, d: dict):
