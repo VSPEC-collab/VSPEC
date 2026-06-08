@@ -7,13 +7,12 @@ and PSG.
 """
 
 import sys
-import logging.handlers
 from pathlib import Path
 import warnings
 from time import time
-import logging
 from functools import partial
 from typing import Dict, Tuple
+from io import StringIO
 
 import numpy as np
 from astropy import units as u
@@ -81,12 +80,13 @@ class ObservationModel:
         self.spec: GridSpectra | ForwardSpectra = None
         self.star: vsm.Star = None
         self.bb = ForwardSpectra.blackbody()
-        self.psg_logger = logging.Logger('VSPEC PSG')
-        self.psg_logger.setLevel(logging.DEBUG)
+        # self.psg_logger = logging.Logger('VSPEC PSG')
+        # self.psg_logger.setLevel(logging.DEBUG)
         self._log_path.unlink(missing_ok=True)
-        fh = logging.FileHandler(self._log_path,mode='w')
-        fh.setLevel(logging.DEBUG)
-        self.psg_logger.addHandler(fh)
+        # fh = logging.FileHandler(self._log_path,mode='w')
+        # fh.setLevel(logging.DEBUG)
+        # self.psg_logger.addHandler(fh)
+        self.recent_psg_log = StringIO()
         
         self.logger = loguru.logger
         if self.params.header.verbose is not None:
@@ -184,6 +184,12 @@ class ObservationModel:
             return u.min
         else:
             return u.s
+    @property
+    def _show_progress(self):
+        if self.verbose is not None:
+            return self.verbose > 2
+        else:
+            return self.params.header.log_level.upper() in ['DEBUG', 'TRACE', 'INFO']
 
     def _wrap_iterator(self, iterator, **kwargs):
         """
@@ -202,12 +208,7 @@ class ObservationModel:
         iterable
             The iterator wrapped appropriately.
         """
-        should_wrap = False
-        if self.verbose is not None:
-            should_wrap = self.verbose > 2
-        else:
-            should_wrap = self.params.header.log_level.upper() in ['DEBUG', 'TRACE', 'INFO']
-        if should_wrap:
+        if self._show_progress:
             return tqdm(iterator, **kwargs)
         else:
             return iterator
@@ -235,6 +236,7 @@ class ObservationModel:
                 w1=self.params.inst.bandpass.wl_blue,
                 w2=self.params.inst.bandpass.wl_red,
                 resolving_power=self.params.inst.bandpass.resolving_power,
+                show_progress=self._show_progress
             )
         elif isinstance(p, BlackbodyGridParameters):
             self.logger.info('Using blackbody grid')
@@ -416,7 +418,7 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd' if update else 'set',
             app='globes',
-            logger=self.psg_logger
+            log_flag=self.params.header.data_path.name
         )
         start = time()
         _ = caller()
@@ -433,7 +435,7 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd',
             app='globes',
-            logger=self.psg_logger
+            log_flag=self.params.header.data_path.name
         )
         start = time()
         _ = caller()
@@ -491,7 +493,7 @@ class ObservationModel:
             cfg=cfg,
             output_type='all',
             app='globes',
-            logger=self.psg_logger
+            log_flag=self.params.header.data_path.name
         )
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -601,14 +603,17 @@ class ObservationModel:
         try:
             self._build_planet()
         except libpypsg.exceptions.PSGError as e:
-            with open(self._log_path, 'r', encoding='utf-8') as f:
-                e.add_note(f.read())
+            e.add_note(self.recent_psg_log.getvalue())
             raise
     def _build_planet(self):
         # check that psg is running
         self.logger.trace('Checking that PSG is configured correctly.')
         self._check_psg()
         # for not using globes, append all configurations instead of rewritting
+        
+        loguru.logger.add(self._log_path, level='TRACE', filter=lambda record: self.params.header.data_path.name in record['message'])
+        loguru.logger.add(self.recent_psg_log, level='TRACE', filter=lambda record: self.params.header.data_path.name in record['message'])
+
 
         ####################################
         # Initial upload of GCM
@@ -647,6 +652,7 @@ class ObservationModel:
         ####################################
         # iterate through phases
         for i in self._wrap_iterator(range(self.params.planet_total_images+1), desc='Build Planet', total=self.params.planet_total_images+1):
+            self.recent_psg_log.truncate(0)
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
