@@ -166,7 +166,7 @@ def test_call_psg():
         gamma=1.2,
         molecules={'H2O':1e-3}
     )
-    cfg = PyConfig(gcm=gcm)
+    cfg = PyConfig(gcm=gcm,atmosphere=gcm.update_params())
     psg = APICall(cfg,'all','globes')
     response = psg()
     assert not np.any(np.isnan(response.lyr.prof['H2O']))

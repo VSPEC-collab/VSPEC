@@ -7,8 +7,26 @@ import numpy as np
 from astropy import units as u
 from scipy.optimize import newton
 from astropy.table import QTable
+from typing import Callable
+from loguru import logger
+from time import time
 
 import matplotlib.pyplot as plt
+
+TIME_TRACE_THRESHOLD = 1e-1
+
+def timetrace(fun: Callable,):
+    """
+    Log a function's execution time
+    """
+    def wrapper(*args, **kwargs):
+        t0 = time()
+        result = fun(*args, **kwargs)
+        t1 = time()
+        if t1-t0 > TIME_TRACE_THRESHOLD:
+            logger.trace(f'Function {fun.__name__} took {t1-t0:.3f} seconds')
+        return result
+    return wrapper
 
 class SystemGeometry:
     """System Geometry
@@ -128,7 +146,7 @@ class SystemGeometry:
             self.init_planet_phase)
         self.init_true_anomaly = self.true_anomaly(
             self.init_time_since_periastron)
-
+    @timetrace
     def sub_obs(self, time):
         """
         Calculate the point on the stellar surface that is facing the observer.
@@ -146,7 +164,7 @@ class SystemGeometry:
         lon = self.init_stellar_lon - time * 360*u.deg/self.stellar_period
         lat = -1*(90*u.deg - self.inclination) + self.alpha*np.cos(self.beta)
         return {'lat': lat, 'lon': lon % (360*u.deg)}
-
+    @timetrace
     def mean_motion(self):
         """
         Get the mean motion of the planet's orbit.
@@ -157,7 +175,7 @@ class SystemGeometry:
             The mean motion of the orbit.
         """
         return 360*u.deg / self.orbital_period
-
+    @timetrace
     def mean_anomaly(self, time):
         """
         Get the mean anomaly of the orbit at a given time.
@@ -173,7 +191,7 @@ class SystemGeometry:
             The mean anomaly.
         """
         return (time * self.mean_motion()) % (360*u.deg)
-
+    @timetrace
     def eccentric_anomaly(self, time):
         """
         Calculate the eccentric anomaly of the system
@@ -195,7 +213,7 @@ class SystemGeometry:
             return mean_anom.to_value(u.rad) - (eccentric_anom*u.deg).to_value(u.rad) + self.eccentricity*np.sin((eccentric_anom*u.deg).to_value(u.rad))
         eccentric_anom = newton(func, x0=30)*u.deg
         return eccentric_anom
-
+    @timetrace
     def true_anomaly(self, time):
         """
         Calculate the true anomaly.
@@ -210,6 +228,8 @@ class SystemGeometry:
         astropy.units.Quantity [angle]
             The true anomaly.
         """
+        if self.eccentricity == 0:
+            return self.mean_anomaly(time)
         eccentric_anomaly = self.eccentric_anomaly(time) % (360*u.deg)
         if np.abs((180*u.deg - eccentric_anomaly)/u.deg) < 0.1:
             return eccentric_anomaly
@@ -226,7 +246,7 @@ class SystemGeometry:
                 return eq
             nu = newton(func, x0=nu0.to_value(u.deg))*u.deg
             return nu
-
+    @timetrace
     def phase(self, time):
         """
         Calculate the phase at a given time.
@@ -245,7 +265,7 @@ class SystemGeometry:
             The phase.
         """
         return (self.true_anomaly(time) + self.phase_of_periastron) % (360*u.deg)
-
+    @timetrace
     def sub_planet(self, time, phase=None):
         """
         Get the coordinates of the sub-planet point on the star.
@@ -270,7 +290,7 @@ class SystemGeometry:
         lon = (sub_obs['lon'] + phase + 180*u.deg) % (360*u.deg)
         lat = -1*self.alpha * np.cos(self.beta + phase)
         return {'lat': lat, 'lon': lon}
-
+    @timetrace
     def get_time_since_periastron(self, phase):
         """
         Calculate the time since the last periastron for a given phase.
@@ -300,7 +320,7 @@ class SystemGeometry:
             return val
         time = newton(func, (guess/u.day).to(u.Unit(''))) * u.day
         return time.to(u.day)
-
+    @timetrace
     def get_substellar_lon_at_periastron(self) -> u.Quantity:
         """
         Compute the sub-stellar longitude at the previous periastron
@@ -312,11 +332,11 @@ class SystemGeometry:
         astropy.units.Quantity [angle]
             The sub-stellar longitude at periastron.
         """
-        init_time_since_periastron = self.get_time_since_periastron(
-            self.init_planet_phase)
-        init_deg_rotated = 360*u.deg * init_time_since_periastron/self.planetary_rot_period
+        # init_time_since_periastron = self.get_time_since_periastron(
+        #     self.init_planet_phase)
+        init_deg_rotated = 360*u.deg * self.init_time_since_periastron/self.planetary_rot_period
         return self.planetary_init_substellar_lon + init_deg_rotated - self.init_true_anomaly
-
+    @timetrace
     def get_substellar_lon(self, time_since_periastron) -> u.quantity.Quantity:
         """
         Calculate the sub-stellar longitude at a particular time since periastron.
@@ -349,7 +369,7 @@ class SystemGeometry:
         # lon = self.planetary_init_substellar_lon - dphase + rotated
         # lon = self.planetary_init_substellar_lon + dphase - rotated
         return lon % (360.0*u.deg)
-
+    @timetrace
     def get_substellar_lat(self, phase: u.Quantity) -> u.Quantity:
         """
         Calculate the sub-stellar latitude of the planet at a particular phase.
@@ -376,7 +396,7 @@ class SystemGeometry:
                 'VSPEC does not currently support non-zero obliquity')
         lat = 0*u.deg + self.obliquity*np.cos(north_season)
         return lat
-
+    @timetrace
     def get_pl_sub_obs_lon(self, time_since_periastron: u.quantity.Quantity, phase: u.quantity.Quantity) -> u.quantity.Quantity:
         """
         Compute the sub-observer longitude of the planet.
@@ -395,7 +415,7 @@ class SystemGeometry:
         """
         lon = self.get_substellar_lon(time_since_periastron) - phase
         return lon
-
+    @timetrace
     def get_pl_sub_obs_lat(self, phase: u.Quantity) -> u.Quantity:
         """
         Compute the sub-observer latitude of the planet.
@@ -423,7 +443,7 @@ class SystemGeometry:
         lat = 0*u.deg - self.obliquity * \
             np.cos(north_season) - (90*u.deg-self.inclination)
         return lat
-
+    @timetrace
     def get_radius_coeff(self, phase: u.quantity.Quantity) -> float:
         """
         Compute the orbital radius coefficient that depends on eccentricity and phase.
@@ -442,7 +462,7 @@ class SystemGeometry:
         num = 1 - self.eccentricity**2
         den = 1 + self.eccentricity*np.cos(true_anomaly)
         return (num/den).to_value(u.dimensionless_unscaled)
-
+    @timetrace
     def get_observation_plan(self,start_times: u.quantity.Quantity,
                              ) -> QTable:
         """
@@ -472,25 +492,43 @@ class SystemGeometry:
         pl_sub_obs_lats = []
         orbit_radii = []
         u_angle = u.deg
-        for time in start_times + self.init_time_since_periastron:
-            phase = self.phase(time).to_value(u.deg)  # % (360*u.deg)
+        time_per_loop = 0
+        for i, _time in enumerate(start_times + self.init_time_since_periastron):
+            t0 = time()
+            phase = self.phase(_time).to_value(u.deg)  # % (360*u.deg)
             phases.append(phase)
-            sub_obs = self.sub_obs(time)
+            sub_obs = self.sub_obs(_time)
             sub_obs_lats.append(sub_obs['lat'].to_value(u_angle))
             sub_obs_lons.append(sub_obs['lon'].to_value(u_angle))
-            sub_planet = self.sub_planet(time, phase=phase*u_angle)
+            sub_planet = self.sub_planet(_time, phase=phase*u_angle)
             sub_planet_lats.append(sub_planet['lat'].to_value(u_angle))
             sub_planet_lons.append(sub_planet['lon'].to_value(u_angle))
-            sub_stellar_lon = self.get_substellar_lon(time)
+            sub_stellar_lon = self.get_substellar_lon(_time)
             sub_stellar_lat = self.get_substellar_lat(phase*u_angle)
             sub_stellar_lons.append(sub_stellar_lon.to_value(u_angle))
             sub_stellar_lats.append(sub_stellar_lat.to_value(u_angle))
-            pl_sub_obs_lon = self.get_pl_sub_obs_lon(time, phase*u_angle)
+            pl_sub_obs_lon = self.get_pl_sub_obs_lon(_time, phase*u_angle)
             pl_sub_obs_lat = self.get_pl_sub_obs_lat(phase*u_angle)
             pl_sub_obs_lons.append(pl_sub_obs_lon.to_value(u_angle))
             pl_sub_obs_lats.append(pl_sub_obs_lat.to_value(u_angle))
             orbit_rad = self.get_radius_coeff(phase*u_angle)
             orbit_radii.append(orbit_rad)
+            t1 = time()
+            loop_time = t1 - t0
+            if loop_time > 1:
+                logger.trace(f'Geometry Loop {i} Calculation took {t1-t0:.3f} seconds')
+            if loop_time > time_per_loop:
+                time_per_loop = loop_time
+                projected_time = time_per_loop * (len(start_times) - i)                
+                if projected_time > 60*60:
+                    logger.warning(
+                        f'Geometry calculation will take {projected_time/60/60:.3f} more hours')
+                elif projected_time > 60:
+                    logger.warning(
+                        f'Geometry calculation will take {projected_time/60:.3f} more minutes')
+                elif projected_time > 1:
+                    logger.info(
+                        f'Geometry calculation will take {projected_time:.3f} more seconds')
         return QTable(data={'time': start_times,
                 'phase': phases*u_angle,
                 'sub_obs_lat': sub_obs_lats*u_angle,

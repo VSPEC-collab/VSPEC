@@ -38,7 +38,7 @@ observation = params.ObservationParameters(
 psg_params = params.psgParameters(
     use_molecular_signatures=True,
     gcm_binning=200,
-    phase_binning=1,
+    phase_binning=3,
     use_continuum_stellar=True,
     nmax=0,
     lmax=0,
@@ -132,8 +132,9 @@ internal_params = params.InternalParameters(
         data_path=Path('.vspec/proxcenb'),
         spec_grid = params.VSPECGridParameters(
             max_teff=3400*u.K,min_teff=2300*u.K,
-            impl_bin='rust',impl_interp='scipy',fail_on_missing=False
+            impl_bin='rust',impl_interp='scipy',fail_on_missing=False,
         ),
+        log_level='DEBUG',
         seed = SEED),
     star = quiet_star,
     psg=psg_params,
@@ -183,7 +184,7 @@ im = ax.pcolormesh(time,wl,sim_data,cmap='viridis')
 fig.colorbar(im,ax=ax,label='Emission (ppm)')
 
 ax.set_xlabel('Time (days)')
-ax.set_ylabel('Wavelength ($\\mu m$)')
+_=ax.set_ylabel('Wavelength ($\\mu m$)')
 
 # %%
 # Plot the integrated spectrum

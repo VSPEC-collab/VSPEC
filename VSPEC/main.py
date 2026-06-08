@@ -6,17 +6,19 @@ perform all of the model aggregation from the rest of the package
 and PSG.
 """
 
-import logging.handlers
+import sys
 from pathlib import Path
 import warnings
-import logging
+from time import time
 from functools import partial
 from typing import Dict, Tuple
+from io import StringIO
 
 import numpy as np
 from astropy import units as u
 from astropy.table import QTable
 from tqdm.auto import tqdm
+import loguru
 
 from GridPolator import GridSpectra
 from GridPolator.binning import get_wavelengths
@@ -24,6 +26,7 @@ from GridPolator.binning import get_wavelengths
 import libpypsg
 from libpypsg import docker as psg_docker
 
+import libpypsg.exceptions
 import vspec_vsm as vsm
 
 # from VSPEC import variable_star_model as vsm
@@ -77,18 +80,42 @@ class ObservationModel:
         self.spec: GridSpectra | ForwardSpectra = None
         self.star: vsm.Star = None
         self.bb = ForwardSpectra.blackbody()
-        self.logger = logging.Logger('VSPEC')
-        self.logger.setLevel(logging.DEBUG)
+        # self.psg_logger = logging.Logger('VSPEC PSG')
+        # self.psg_logger.setLevel(logging.DEBUG)
         self._log_path.unlink(missing_ok=True)
-        fh = logging.FileHandler(self._log_path,mode='w')
-        fh.setLevel(logging.DEBUG)
-        self.logger.addHandler(fh)
+        # fh = logging.FileHandler(self._log_path,mode='w')
+        # fh.setLevel(logging.DEBUG)
+        # self.psg_logger.addHandler(fh)
+        self.recent_psg_log = StringIO()
+        
+        self.logger = loguru.logger
+        if self.params.header.verbose is not None:
+            verbosity = self.params.header.verbose
+            if verbosity == 0:
+                self.logger.add(sys.stderr, level='CRITICAL')
+            elif verbosity == 1:
+                self.logger.add(sys.stderr, level='ERROR')
+            elif verbosity == 2:
+                self.logger.add(sys.stderr, level='WARNING')
+            elif verbosity == 3:
+                self.logger.add(sys.stderr, level='INFO')
+            elif verbosity == 4:
+                self.logger.add(sys.stderr, level='DEBUG')
+            elif verbosity == 5:
+                self.logger.add(sys.stderr, level='TRACE')
+            else:
+                raise ValueError(f'Invalid verbosity level: {verbosity}')
+        else:
+            self.logger.remove()
+            self.logger.add(lambda msg: tqdm.write(msg, end=''), level=self.params.header.log_level.upper(),colorize=True)
+        
+        
         # warn if the planet sampling is too low.
         planet_dt = self.params.obs.observation_time / self.params.planet_total_images
         max_dt = self.params.planet.orbit_period / 8.0
         if planet_dt > max_dt:
             msg = f'Planet sampling is too low ({planet_dt:.2f} > {max_dt:.2f})'
-            warnings.warn(msg, RuntimeWarning)
+            self.logger.warning(msg)
 
     @classmethod
     def from_yaml(cls, config_path: Path):
@@ -147,6 +174,22 @@ class ObservationModel:
     @property
     def _log_path(self):
         return self.directories['parent'] / 'psg.log'
+    @property
+    def _appropriate_time_unit(self):
+        if self.params.obs.observation_time > 99*u.hr:
+            return u.day
+        elif self.params.obs.observation_time > 180*u.min:
+            return u.hr
+        elif self.params.obs.observation_time > 10*u.min:
+            return u.min
+        else:
+            return u.s
+    @property
+    def _show_progress(self):
+        if self.verbose is not None:
+            return self.verbose > 2
+        else:
+            return self.params.header.log_level.upper() in ['DEBUG', 'TRACE', 'INFO']
 
     def _wrap_iterator(self, iterator, **kwargs):
         """
@@ -165,7 +208,7 @@ class ObservationModel:
         iterable
             The iterator wrapped appropriately.
         """
-        if self.verbose > 0:
+        if self._show_progress:
             return tqdm(iterator, **kwargs)
         else:
             return iterator
@@ -188,14 +231,18 @@ class ObservationModel:
         """
         p = self.params.header.spec_grid
         if isinstance(p, VSPECGridParameters):
+            self.logger.info(f'Using VSPEC spectral grid with bandpass between {self.params.inst.bandpass.wl_blue} and {self.params.inst.bandpass.wl_red}')
             return p.build(
                 w1=self.params.inst.bandpass.wl_blue,
                 w2=self.params.inst.bandpass.wl_red,
                 resolving_power=self.params.inst.bandpass.resolving_power,
+                show_progress=self._show_progress
             )
         elif isinstance(p, BlackbodyGridParameters):
+            self.logger.info('Using blackbody grid')
             return p.build()
         else:
+            self.logger.critical(f'Invalid spec_grid: {p}')
             raise NotImplementedError(f'Unsure how to build ``GridSpectra`` object from {p}')
 
     @property
@@ -233,16 +280,19 @@ class ObservationModel:
         This function applies the solid angle correction.
         """
         if self.spec is None:
+            self.logger.info('Loading spectral grid...')
             self.spec = self._load_spectra()
 
         
         if isinstance(self.params.header.spec_grid, VSPECGridParameters):
             teffs = np.atleast_1d(teff.to_value(config.teff_unit))
+            self.logger.debug(f'Getting stellar spectrum with Teff = {teff}')
             return self.spec.evaluate(
                 params=(teffs,),
                 wl=np.array(self._wl.to_value(config.wl_unit))
             )[0, :] * config.flux_unit * self.params.flux_correction
         elif isinstance(self.params.header.spec_grid, BlackbodyGridParameters):
+            self.logger.debug(f'Getting blackbody spectrum with Teff = {teff}')
             return self.spec.evaluate(self._wl, teff) * self.params.flux_correction
         else:
             raise TypeError(f'Unsure how to handle grid parameters of type {type(self.params.header.spec_grid)}')
@@ -300,14 +350,19 @@ class ObservationModel:
             n_obs = int(
                 round((obs_time / int_time).to_value(u.dimensionless_unscaled)))
             start_times = np.arange(0, n_obs) * int_time
+            self.logger.debug(f'planet=False, n_obs = {n_obs}')
+            self.logger.debug(f'Final Start time = {start_times[-1]}')
         else:
             n_obs = int(round(
                 (obs_time / int_time/self.params.psg.phase_binning).to_value(u.dimensionless_unscaled)))
             start_times = np.arange(0, n_obs+1) * \
                 int_time * self.params.psg.phase_binning
+            self.logger.debug(f'planet=True, binning = {self.params.psg.phase_binning}, n_obs = {n_obs}')
+            self.logger.debug(f'Final Start time = {start_times[-1]}')
 
         return observation_parameters.get_observation_plan(start_times)
 
+    @loguru.logger.catch
     def _check_psg(self):
         """
         Check that PSG is configured correctly.
@@ -363,9 +418,11 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd' if update else 'set',
             app='globes',
-            logger=self.logger
+            log_flag=self.params.header.data_path.name
         )
+        start = time()
         _ = caller()
+        self.logger.debug(f'GCM upload time = {time() - start} s')
         if not update:
             self.__flags__.psg_needs_set = False
 
@@ -378,9 +435,11 @@ class ObservationModel:
             cfg=cfg,
             output_type='upd',
             app='globes',
-            logger=self.logger
+            log_flag=self.params.header.data_path.name
         )
+        start = time()
         _ = caller()
+        self.logger.debug(f'Static config upload time = {time() - start} s')
 
     def _psg_all_call(
         self,
@@ -434,7 +493,7 @@ class ObservationModel:
             cfg=cfg,
             output_type='all',
             app='globes',
-            logger=self.logger
+            log_flag=self.params.header.data_path.name
         )
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -442,6 +501,7 @@ class ObservationModel:
             response = caller()
             for _w in w:
                 if _w.category is libpypsg.cfg.ConfigTooLongWarning:
+                    self.logger.warning(_w.message)
                     self.__flags__.psg_needs_set = True
         rad = response.rad
         noi = response.noi
@@ -449,6 +509,7 @@ class ObservationModel:
         cfg = response.cfg
         
         if rad is None:
+            self.logger.critical('PSG returned no .rad file')
             raise RuntimeError('PSG returned no .rad file')
         else:
             key = 'rad'
@@ -458,7 +519,9 @@ class ObservationModel:
                 format='fits',
                 overwrite=True
             )
+            self.logger.trace(f'Wrote {filename} to {path_dict[key]}')
             if include_star and 'Stellar' not in rad.colnames:
+                self.logger.critical(f'No Column named "Stellar" in .rad file. Found {rad.colnames}')
                 raise ValueError('No Column named "Stellar" in .rad file')
 
         if noi is None or 'noi' not in path_dict:
@@ -471,8 +534,10 @@ class ObservationModel:
                 format='fits',
                 overwrite=True
             )
+            self.logger.trace(f'Wrote {filename} to {path_dict[key]}')
 
         if cfg is None:
+            self.logger.critical('PSG returned no .cfg file')
             raise RuntimeError('PSG returned no .cfg file')
         elif 'cfg' not in path_dict:
             pass
@@ -480,6 +545,7 @@ class ObservationModel:
             key = 'cfg'
             filename = get_filename(i, N_ZFILL, 'cfg')
             cfg.to_file(path_dict[key]/filename)
+            self.logger.trace(f'Wrote {filename} to {path_dict[key]}')
 
             # TODO: Check config against expected
 
@@ -489,6 +555,7 @@ class ObservationModel:
             key = 'lyr'
             filename = get_filename(i, N_ZFILL, 'fits')
             lyr.to_fits(path_dict[key]/filename)
+            self.logger.trace(f'Wrote {filename} to {path_dict[key]}')
 
     def _check_config(self, cfg_from_psg: libpypsg.PyConfig):
         """
@@ -535,44 +602,57 @@ class ObservationModel:
         """
         try:
             self._build_planet()
-        except Exception as e:
-            with open(self._log_path, 'r', encoding='utf-8') as f:
-                e.add_note(f.read())
+        except libpypsg.exceptions.PSGError as e:
+            e.add_note(self.recent_psg_log.getvalue())
             raise
     def _build_planet(self):
         # check that psg is running
+        self.logger.trace('Checking that PSG is configured correctly.')
         self._check_psg()
         # for not using globes, append all configurations instead of rewritting
+        
+        loguru.logger.add(self._log_path, level='TRACE', filter=lambda record: self.params.header.data_path.name in record['message'])
+        loguru.logger.add(self.recent_psg_log, level='TRACE', filter=lambda record: self.params.header.data_path.name in record['message'])
+
 
         ####################################
         # Initial upload of GCM
-
+        self.logger.trace('Doing initial GCM upload')
         self._upload_gcm(
             obstime=0*u.s,
             update=False
         )
         ####################################
         # Set observation parameters that do not change
+        self.logger.trace('Setting static parameters')
         self._set_static_config()
 
         ####################################
         # Calculate observation parameters
+        self.logger.trace('Calculating observation parameters')
         observation_parameters = self.get_observation_parameters()
+        self.logger.trace('Making observation plan')
         obs_plan = self._get_observation_plan(
             observation_parameters, planet=True)
 
         obs_info_filename = Path(
             self.directories['parent']) / 'observation_info.fits'
         obs_plan.write(obs_info_filename, overwrite=True)
+        self.logger.debug(f'Wrote observation info to {obs_info_filename}')
+        
+        self.logger.info(f'Starting at phase {self.params.planet.init_phase}')
+        self.logger.info(f'Observing for {self.params.obs.observation_time} in {self.params.planet_total_images} steps')
+        self.logger.debug(f'Phases = {np.round(np.asarray((obs_plan["phase"]/u.deg).to(u.Unit(""))), 2)} deg')
 
-        if self.verbose > 0:
-            print(
-                f'Starting at phase {self.params.planet.init_phase}, observe for {self.params.obs.observation_time} in {self.params.planet_total_images} steps')
-            print('Phases = ' +
-                  str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
+        # if self.verbose > 0:
+        #     print(
+        #         f'Starting at phase {self.params.planet.init_phase}, observe for {self.params.obs.observation_time} in {self.params.planet_total_images} steps')
+        #     print('Phases = ' +
+        #           str(np.round(np.asarray((obs_plan['phase']/u.deg).to(u.Unit(''))), 2)) + ' deg')
         ####################################
         # iterate through phases
         for i in self._wrap_iterator(range(self.params.planet_total_images+1), desc='Build Planet', total=self.params.planet_total_images+1):
+            self.recent_psg_log.truncate(0)
             phase = obs_plan['phase'][i]
             sub_stellar_lon = obs_plan['sub_stellar_lon'][i]
             sub_stellar_lat = obs_plan['sub_stellar_lat'][i]
@@ -580,15 +660,22 @@ class ObservationModel:
             pl_sub_obs_lat = obs_plan['planet_sub_obs_lat'][i]
             orbit_radius_coeff = obs_plan['orbit_radius'][i]
             obs_time = obs_plan['time'][i] - obs_plan['time'][0]
+            self.logger.debug(f'Iteration {i} of {self.params.planet_total_images+1}')
+            self.logger.debug(f'Phase {phase:.2f} at time {obs_time.to(self._appropriate_time_unit):.2f}')
+            self.logger.debug(f'Substellar point = ({sub_stellar_lon:.2f}, {sub_stellar_lat:.2f})')
+            self.logger.debug(f'Subobserver point = ({pl_sub_obs_lon:.2f}, {pl_sub_obs_lat:.2f})')
+            self.logger.debug(f'Orbit radius coeff = {orbit_radius_coeff}')
 
             if (not self.params.gcm.is_staic) or self.__flags__.psg_needs_set:
                 # enter if we need a reset or if there is time dependence
                 upload = partial(self._upload_gcm, obstime=obs_time)
                 if self.__flags__.psg_needs_set:  # do a reset if needed
+                    self.logger.debug('Resetting PSG')
                     upload(update=False)
                     self._set_static_config()
                     self.__flags__.psg_needs_set = False
                 else:  # update if it's just time dependence.
+                    self.logger.debug('Updating time-dependent GCM')
                     upload(update=True)
 
             # Write updates to the config to change the phase value and ensure the star is of type 'StarType'
@@ -607,6 +694,7 @@ class ObservationModel:
                 'noi': Path(self.directories['psg_noise']),
                 'cfg': Path(self.directories['psg_configs']),
             }
+            self.logger.debug('Running PSG with the star.')
             update_config(
                 include_star=True,
                 path_dict=path_dict,
@@ -618,6 +706,7 @@ class ObservationModel:
                 'rad': Path(self.directories['psg_thermal']),
                 'lyr': Path(self.directories['psg_layers'])
             }
+            self.logger.debug('Running PSG without the star.')
             update_config(
                 include_star=False,
                 path_dict=path_dict,
@@ -628,6 +717,7 @@ class ObservationModel:
         """
         Build a variable star model based on user-specified parameters.
         """
+        self.logger.info('Initializing the star.')
         self.star = self.params.star.to_star(
             rng=self.rng,
             seed=self.params.header.seed
@@ -650,7 +740,7 @@ class ObservationModel:
         if self.params.star.spots.initial_coverage > 0.0:
             self.star.generate_mature_spots(
                 self.params.star.spots.initial_coverage)
-            print(f'Generated {len(self.star.spots.spots)} mature spots')
+            self.logger.info(f'Generating {len(self.star.spots.spots)} spots')
         spot_warm_up_step = 1*u.day
         facula_warm_up_step = 1*u.hr
         N_steps_spot = int(
@@ -658,16 +748,19 @@ class ObservationModel:
         N_steps_facula = int(
             round((facula_warmup_time/facula_warm_up_step).to(u.Unit('')).value))
         if N_steps_spot > 0:
+            self.logger.info(f'Starting {spot_warmup_time} spot warmup')
             for _ in self._wrap_iterator(range(N_steps_spot), desc='Spot Warmup', total=N_steps_spot):
                 self.star.birth_spots(spot_warm_up_step)
                 self.star.age(spot_warm_up_step)
         if N_steps_facula > 0:
+            self.logger.info(f'Starting {facula_warmup_time} facula warmup')
             for _ in self._wrap_iterator(range(N_steps_facula), desc='Facula Warmup', total=N_steps_facula):
                 self.star.birth_faculae(facula_warm_up_step)
                 self.star.age(facula_warm_up_step)
 
         self.star.get_flares_over_observation(
             self.params.obs.observation_time)
+        self.logger.info(f'There will be {len(self.star.flares.flares)} flares during the observation.')
 
     def _calculate_composite_stellar_spectrum(
         self,
@@ -708,6 +801,7 @@ class ObservationModel:
         ValueError
             If wavenelength coordinates do not match.
         """
+        self.logger.debug(f'Computing stellar spectrum between {tstart.to(self._appropriate_time_unit):.2f} and {tfinish.to(self._appropriate_time_unit):.2f}.')
         total, covered, pl_frac = self.star.calc_coverage(
             sub_obs_coords,
             granulation_fraction=granulation_fraction,
@@ -716,8 +810,17 @@ class ObservationModel:
             phase=phase,
             inclination=inclination
         )
+        for key, val in total.items():
+            self.logger.debug(f'{val*100}% of the star has a Teff of {key} K')
+        for key, val in covered.items():
+            if val > 0:
+                self.logger.debug(f'{val*100}% of the star has a Teff of {key} K and is being occulted by the planet.')
+        self.logger.debug(f'{pl_frac*100}% of the planet is visible.')
+            
         visible_flares = self.star.get_flare_int_over_timeperiod(
             tstart, tfinish, sub_obs_coords)
+        for flare in visible_flares:
+            self.logger.debug(f'A {flare["Teff"]} K flare is visible for {flare["timearea"]}.')
         base_flux = self._get_model_spectrum(self.params.star.teff)
         base_flux = base_flux * 0
         # add up star flux before considering transit
@@ -1132,14 +1235,18 @@ class ObservationModel:
             self._build_star()
             self._warm_up_star(spot_warmup_time=self.params.star.spots.burn_in,
                               facula_warmup_time=self.params.star.faculae.burn_in)
+        self.logger.info('Calculating observation parameters.')
         observation_parameters = self.get_observation_parameters()
+        self.logger.info('Making observation plan.')
         observation_info = self._get_observation_plan(
             observation_parameters, planet=False)
         # write observation info to file
         obs_info_filename = Path(
             self.directories['all_model']) / 'observation_info.fits'
         observation_info.write(obs_info_filename, overwrite=True)
+        self.logger.debug(f'Wrote observation info to {obs_info_filename}')
 
+        self.logger.info('Making planet observation plan.')
         planet_observation_info = self._get_observation_plan(
             observation_parameters, planet=True)
         planet_times = planet_observation_info['time']
@@ -1148,32 +1255,32 @@ class ObservationModel:
             (self.params.planet_total_images+1)
         granulation_fractions = self.star.get_granulation_coverage(
             observation_info['time'])
-        print('Creating interpolators:', end='\n')
-        s = 'thermal'
-        print(s,end='\r')
+        self.logger.info('Creating interpolators')
+        start = time()
         interp_thermal = self._get_thermal_interpolator()
-        s+=', combined'
-        print(s, end='\r')
+        self.logger.success(f'Initialized thermal interpolator in {time()-start:.2f} seconds')
+        start = time()
         interp_reflected = self._get_reflected_interpolator()
-        s+=', stellar'
-        print(s, end='\r')
+        self.logger.success(f'Initialized reflected interpolator in {time()-start:.2f} seconds')
+        start = time()
         interp_stellar = self._get_psg_interp('combined', 'Stellar')
-        s+=', photon noise'
-        print(s, end='\r')
+        self.logger.success(f'Initialized stellar interpolator in {time()-start:.2f} seconds')
+        start = time()
         interp_noise_photon = self._get_psg_interp('noise', 'Source')
-        s+=', detector noise'
-        print(s, end='\r')
+        self.logger.success(f'Initialized photon noise interpolator in {time()-start:.2f} seconds')
+        start = time()
         interp_noise_detector = self._get_psg_interp('noise', 'Detector')
-        s+=', telescope noise'
-        print(s, end='\r')
+        self.logger.success(f'Initialized detector noise interpolator in {time()-start:.2f} seconds')
+        start = time()
         interp_noise_telescope = self._get_psg_interp('noise', 'Telescope')
-        s+=', background noise'
-        print(s, end='\r')
+        self.logger.success(f'Initialized telescope noise interpolator in {time()-start:.2f} seconds')
+        start = time()
         interp_noise_background = self._get_psg_interp('noise', 'Background')
-        s+=', transit'
-        print(s)
+        self.logger.success(f'Initialized background noise interpolator in {time()-start:.2f} seconds')
+        start = time()
         interp_transit = self._get_transit_interpolator()
-        print('Finished!')
+        self.logger.success(f'Initialized transit interpolator in {time()-start:.2f} seconds')
+        self.logger.success('Finished creating interpolators')
 
         for index in self._wrap_iterator(range(self.params.obs.total_images), desc='Build Spectra', total=self.params.obs.total_images, position=0, leave=True):
             tindex = observation_info['time'][index]
@@ -1188,6 +1295,12 @@ class ObservationModel:
             N1, N2 = get_planet_indicies(planet_times, tindex)
             N1_frac = (planet_times[N2] - tindex)/planet_time_step
             N1_frac = N1_frac.to_value(u.dimensionless_unscaled)
+            self.logger.debug(f'Iteration {index} of {self.params.obs.total_images}')
+            self.logger.debug(f'Phase {planet_phase:.2f} between time {tstart.to(self._appropriate_time_unit):.2f} and {tfinish.to(self._appropriate_time_unit):.2f}')
+            self.logger.debug(f'Subobserver point = ({sub_obs_lon:.2f}, {sub_obs_lat:.2f})')
+            self.logger.debug(f'Orbit radius = {orbital_radius}')
+            self.logger.debug(f'Granulation fraction = {granulation_fraction}')
+            self.logger.debug(f'N1 = {N1}, N2 = {N2}, N1_frac = {N1_frac}')
 
             sub_planet_lon = observation_info['sub_planet_lon'][index]
             sub_planet_lat = observation_info['sub_planet_lat'][index]
@@ -1197,6 +1310,7 @@ class ObservationModel:
                 end_time=tfinish.to_value(config.time_unit),
                 transit_interpolator=interp_transit,
             )
+            self.logger.debug(f'Mean Transit depth = {transit_depth.mean()}')
 
             comp_flux, pl_frac = self._calculate_composite_stellar_spectrum(
                 {'lat': sub_obs_lat, 'lon': sub_obs_lon}, tstart, tfinish,

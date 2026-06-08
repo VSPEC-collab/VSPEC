@@ -29,7 +29,8 @@ YAML files have a hierarchical structure, so for example the header section look
         teff_min: 2300 K
         teff_max: 3900 K
         desc: This is a VSPEC example.
-        verbose: 0
+        log_level: info
+        seed: 10
 
 The sections of a ``VSPEC`` YAML configuration file are below.
 
@@ -69,9 +70,12 @@ The sections of a ``VSPEC`` YAML configuration file are below.
    * - ``desc``
      - ``str``
      - A description of the model.
-   * - ``verbose``
+   * - ``verbose`` (deprecated)
      - ``int``
-     - The level of verbosity.
+     - The level of verbosity (0 [``CRITICAL``] - 5 [``TRACE``]). Deprecated. Use ``log_level`` instead.
+   * - ``log_level``
+     - ``str``
+     - The severity level of the logger. Either ``CRITICAL``, ``ERROR``, ``WARNING``, ``INFO``, ``DEBUG``, or ``TRACE``.
    * - ``seed``
      - ``int``
      - The seed for the random number generator.
@@ -957,11 +961,17 @@ This might be useful to use when testing variability as it is very fast.
       - The dayside surface pressure.
     * - ``p1d``
       - ``astropy.units.Quantity``
-      - The dayside pressure where the isothermal region begins
+      - The dayside pressure at tropopause.
+    * - ``p2d``
+      - ``astropy.units.Quantity``
+      - The dayside pressure where the isothermal region begins (top of the stratosphere).
     * - ``t0d``
       - ``astropy.units.Quantity``
       - The dayside surface temperature.
     * - ``t1d``
+      - ``astropy.units.Quantity``
+      - The dayside temperature at tropopause.
+    * - ``t2d``
       - ``astropy.units.Quantity``
       - The dayside temperature in the isothermal region.
     * - ``p0n``
@@ -969,17 +979,26 @@ This might be useful to use when testing variability as it is very fast.
       - The nightside surface pressure.
     * - ``p1n``
       - ``astropy.units.Quantity``
-      - The nightside pressure where the isothermal region begins
+      - The nightside pressure at tropopause.
+    * - ``p2n``
+      - ``astropy.units.Quantity``
+      - The nightside pressure where the isothermal region begins (top of the stratosphere).
     * - ``t0n``
       - ``astropy.units.Quantity``
       - The nightside surface temperature.
     * - ``t1n``
       - ``astropy.units.Quantity``
+      - The nightside temperature at tropopause.
+    * - ``t2n``
+      - ``astropy.units.Quantity``
       - The nightside temperature in the isothermal region.
-    * - ``n_linear``
+    * - ``n_troposphere``
       - ``int``
-      - The number of layers in the lower-atmosphere linear region.
-    * - ``n_const``
+      - The number of layers in the troposphere.
+    * - ``n_stratosphere``
+      - ``int``
+      - The number of layers in the stratosphere.
+    * - ``n_isothermal``
       - ``int``
       - The number of layers in the isothermal region.
     * - ``p_top``
@@ -999,11 +1018,17 @@ This might be useful to use when testing variability as it is very fast.
       - The dayside water vapor mixing ratio at the surface.
     * - ``h2o_d1`` (optional)
       - ``astropy.units.Quantity``
+      - The dayside water vapor mixing ratio at tropopause.
+    * - ``h2o_d2`` (optional)
+      - ``astropy.units.Quantity``
       - The dayside water vapor mixing ratio in the isothermal region.
     * - ``h2o_n0`` (optional)
       - ``astropy.units.Quantity``
       - The nightside water vapor mixing ratio at the surface.
     * - ``h2o_n1`` (optional)
+      - ``astropy.units.Quantity``
+      - The nightside water vapor mixing ratio at tropopause.
+    * - ``h2o_n2`` (optional)
       - ``astropy.units.Quantity``
       - The nightside water vapor mixing ratio in the isothermal region.
     * - ``co2`` (optional)

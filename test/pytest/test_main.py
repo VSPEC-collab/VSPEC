@@ -22,7 +22,6 @@ def observation_model():
 
 def test_observation_model_initialization(observation_model:ObservationModel):
     # Verify that the ObservationModel instance is properly initialized
-    assert observation_model.verbose == 1
     assert isinstance(observation_model.params, InternalParameters)
     assert observation_model.star is None
 

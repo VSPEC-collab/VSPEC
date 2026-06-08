@@ -36,14 +36,19 @@ def _do_interp(
     night_contrib: np.ndarray,
     p0d: u.Quantity,
     p1d: u.Quantity,
+    p2d: u.Quantity,
     q0d: u.Quantity,
     q1d: u.Quantity,
+    q2d: u.Quantity,
     p0n: u.Quantity,
     p1n: u.Quantity,
+    p2n: u.Quantity,
     q0n: u.Quantity,
     q1n: u.Quantity,
-    n_linear: int,
-    n_const: int,
+    q2n: u.Quantity,
+    n_troposphere: int,
+    n_stratosphere: int,
+    n_isothermal: int,
     p_top: u.Quantity,
     pressure_unit: u.Unit,
     quant_unit: u.Unit
@@ -52,22 +57,38 @@ def _do_interp(
         night_contrib*p0n.to_value(pressure_unit)
     p1 = day_contrib*p1d.to_value(pressure_unit) + \
         night_contrib*p1n.to_value(pressure_unit)
+    p2 = day_contrib*p2d.to_value(pressure_unit) + \
+        night_contrib*p2n.to_value(pressure_unit)
     q0 = day_contrib*q0d.to_value(quant_unit) + \
         night_contrib*q0n.to_value(quant_unit)
     q1 = day_contrib*q1d.to_value(quant_unit) + \
         night_contrib*q1n.to_value(quant_unit)
+    q2 = day_contrib*q2d.to_value(quant_unit) + \
+        night_contrib*q2n.to_value(quant_unit)
 
-    ln_pressures = np.linspace(0, np.log(p1/p0), n_linear, endpoint=False)
-    ln_pressures = np.vstack([ln_pressures, np.linspace(np.log(
-        p1/p0), np.log(p_top.to_value(pressure_unit)/p0), n_const, endpoint=True)])
-
+    ln_pressures = np.linspace(0, np.log(p1/p0), n_troposphere, endpoint=False)
+    ln_pressures = np.vstack(
+        [
+            ln_pressures,
+            np.linspace(np.log(p1/p0), np.log(p2/p0), n_stratosphere, endpoint=False),
+            np.linspace(np.log(p2/p0), np.log(p_top.to_value(pressure_unit)/p0), n_isothermal, endpoint=True)
+        ]
+    )
     a = q0
-    b = (q0-q1)/np.log(p1/p0)
+    b = (q1-q0)/np.log(p1/p0)
+    c = q1
+    d = (q2-q1)/np.log(p2/p1)
+    e = q2
+    
 
     return np.exp(ln_pressures)*p0*pressure_unit, quant_unit*np.where(
-        ln_pressures < np.log(p1/p0),
-        q1,
-        (a - b*ln_pressures)
+        ln_pressures < np.log(p2/p0),
+        e,
+        np.where(
+            ln_pressures < np.log(p1/p0),
+            c + d*(ln_pressures - np.log(p1/p0)),
+            a + b*ln_pressures,
+        )
     )
 
 
@@ -76,14 +97,19 @@ def interp_quantity_cos2(
     thetas: u.Quantity,
     p0d: u.Quantity,
     p1d: u.Quantity,
+    p2d: u.Quantity,
     q0d: u.Quantity,
     q1d: u.Quantity,
+    q2d: u.Quantity,
     p0n: u.Quantity,
     p1n: u.Quantity,
+    p2n: u.Quantity,
     q0n: u.Quantity,
     q1n: u.Quantity,
-    n_linear: int,
-    n_const: int,
+    q2n: u.Quantity,
+    n_troposphere: int,
+    n_stratosphere: int,
+    n_isothermal: int,
     p_top: u.Quantity
 ) -> Tuple[u.Quantity, u.Quantity]:
     """
@@ -101,22 +127,32 @@ def interp_quantity_cos2(
         Pressure at :math:`P_0` on the dayside
     p1d : astropy.units.Quantity
         Pressure at :math:`P_1` on the dayside
+    p2d : astropy.units.Quantity
+        Pressure at :math:`P_2` on the dayside
     q0d : astropy.units.Quantity
         Quantity at :math:`P_0` on the dayside
     q1d : astropy.units.Quantity
         Quantity at :math:`P_1` on the dayside
+    q2d : astropy.units.Quantity
+        Quantity at :math:`P_2` on the dayside
     p0n : astropy.units.Quantity
         Pressure at :math:`P_0` on the nightside
     p1n : astropy.units.Quantity
         Pressure at :math:`P_1` on the nightside
+    p2n : astropy.units.Quantity
+        Pressure at :math:`P_2` on the nightside
     q0n : astropy.units.Quantity
         Quantity at :math:`P_0` on the nightside
     q1n : astropy.units.Quantity
         Quantity at :math:`P_1` on the nightside
-    n_linear : int
-        Number of pressure cells in the linear region
-    n_const : int
-        Number of pressure cells in the constant region
+    q2n : astropy.units.Quantity
+        Quantity at :math:`P_2` on the nightside
+    n_troposphere : int
+        Number of pressure cells between :math:`P_0` and :math:`P_1`.
+    n_stratosphere : int
+        Number of pressure cells between :math:`P_1` and :math:`P_2`.
+    n_isothermal : int
+        Number of pressure cells between :math:`P_2` and the top of the atmosphere
     p_top : astropy.units.Quantity
         Pressure at the top of the atmosphere
 
@@ -134,9 +170,9 @@ def interp_quantity_cos2(
 
     return _do_interp(
         day_contrib, night_contrib,
-        p0d, p1d, q0d, q1d,
-        p0n, p1n, q0n, q1n,
-        n_linear, n_const, p_top,
+        p0d, p1d, p2d, q0d, q1d, q2d,
+        p0n, p1n, p2n, q0n, q1n, q2n,
+        n_troposphere, n_stratosphere, n_isothermal, p_top,
         pressure_unit, quant_unit
     )
 
@@ -146,14 +182,19 @@ def interp_quantity_discontinuous(
     thetas: u.Quantity,
     p0d: u.Quantity,
     p1d: u.Quantity,
+    p2d: u.Quantity,
     q0d: u.Quantity,
     q1d: u.Quantity,
+    q2d: u.Quantity,
     p0n: u.Quantity,
     p1n: u.Quantity,
+    p2n: u.Quantity,
     q0n: u.Quantity,
     q1n: u.Quantity,
-    n_linear: int,
-    n_const: int,
+    q2n: u.Quantity,
+    n_troposphere: int,
+    n_stratosphere: int,
+    n_isothermal: int,
     p_top: u.Quantity
 ) -> Tuple[u.Quantity, u.Quantity]:
     """
@@ -169,25 +210,34 @@ def interp_quantity_discontinuous(
         Pressure at :math:`P_0` on the dayside
     p1d : astropy.units.Quantity
         Pressure at :math:`P_1` on the dayside
+    p2d : astropy.units.Quantity
+        Pressure at :math:`P_2` on the dayside
     q0d : astropy.units.Quantity
         Quantity at :math:`P_0` on the dayside
     q1d : astropy.units.Quantity
         Quantity at :math:`P_1` on the dayside
+    q2d : astropy.units.Quantity
+        Quantity at :math:`P_2` on the dayside
     p0n : astropy.units.Quantity
         Pressure at :math:`P_0` on the nightside
     p1n : astropy.units.Quantity
         Pressure at :math:`P_1` on the nightside
+    p2n : astropy.units.Quantity
+        Pressure at :math:`P_2` on the nightside
     q0n : astropy.units.Quantity
         Quantity at :math:`P_0` on the nightside
     q1n : astropy.units.Quantity
         Quantity at :math:`P_1` on the nightside
-    n_linear : int
-        Number of pressure cells in the linear region
-    n_const : int
-        Number of pressure cells in the constant region
+    q2n : astropy.units.Quantity
+        Quantity at :math:`P_2` on the nightside
+    n_troposphere : int
+        Number of pressure cells between :math:`P_0` and :math:`P_1`.
+    n_stratosphere : int
+        Number of pressure cells between :math:`P_1` and :math:`P_2`.
+    n_isothermal : int
+        Number of pressure cells between :math:`P_2` and the top of the atmosphere
     p_top : astropy.units.Quantity
         Pressure at the top of the atmosphere
-
     Returns
     -------
     pressure : astropy.units.Quantity (n_linear+n_const, N, M)
@@ -208,9 +258,9 @@ def interp_quantity_discontinuous(
 
     return _do_interp(
         day_contrib, night_contrib,
-        p0d, p1d, q0d, q1d,
-        p0n, p1n, q0n, q1n,
-        n_linear, n_const, p_top,
+        p0d, p1d, p2d, q0d, q1d, q2d,
+        p0n, p1n, p2n, q0n, q1n, q2n,
+        n_troposphere, n_stratosphere, n_isothermal, p_top,
         pressure_unit, quant_unit
     )
 
@@ -221,22 +271,29 @@ def interp_quantity_discontinuous(
 def gen_planet(
     p0d: u.Quantity,
     p1d: u.Quantity,
+    p2d: u.Quantity,
     t0d: u.Quantity,
     t1d: u.Quantity,
+    t2d: u.Quantity,
     p0n: u.Quantity,
     p1n: u.Quantity,
+    p2n: u.Quantity,
     t0n: u.Quantity,
     t1n: u.Quantity,
-    n_linear: int,
-    n_const: int,
+    t2n: u.Quantity,
+    n_troposphere: int,
+    n_stratosphere: int,
+    n_isothermal: int,
     p_top: u.Quantity,
     nphi: int,
     ntheta: int,
     scheme: str,
     h2o_d0: u.Quantity,
     h2o_d1: u.Quantity,
+    h2o_d2: u.Quantity,
     h2o_n0: u.Quantity,
     h2o_n1: u.Quantity,
+    h2o_n2: u.Quantity,
     co2: u.Quantity,
     o3: u.Quantity,
     no2: u.Quantity,
@@ -251,22 +308,32 @@ def gen_planet(
         Pressure at :math:`P_0` on the dayside
     p1d : astropy.units.Quantity
         Pressure at :math:`P_1` on the dayside
+    p2d : astropy.units.Quantity
+        Pressure at :math:`P_2` on the dayside
     t0d : astropy.units.Quantity
         Temperature at :math:`T_0` on the dayside
     t1d : astropy.units.Quantity
         Temperature at :math:`T_1` on the dayside
+    t2d : astropy.units.Quantity
+        Temperature at :math:`T_2` on the dayside
     p0n : astropy.units.Quantity
         Pressure at :math:`P_0` on the nightside
     p1n : astropy.units.Quantity
         Pressure at :math:`P_1` on the nightside
+    p2n : astropy.units.Quantity
+        Pressure at :math:`P_2` on the nightside
     t0n : astropy.units.Quantity
         Temperature at :math:`T_0` on the nightside
     t1n : astropy.units.Quantity
         Temperature at :math:`T_1` on the nightside
-    n_linear : int
-        Number of linear regime grid points.
-    n_const : int
-        Number of constant regime grid points.
+    t2n : astropy.units.Quantity
+        Temperature at :math:`T_2` on the nightside
+    n_troposphere : int
+        Number of pressure cells between :math:`P_0` and :math:`P_1`.
+    n_stratosphere : int
+        Number of pressure cells between :math:`P_1` and :math:`P_2`.
+    n_isothermal : int
+        Number of pressure cells between :math:`P_2` and the top of the atmosphere
     p_top : astropy.units.Quantity
         Pressure at the top of the atmosphere.
     nphi : int
@@ -274,15 +341,19 @@ def gen_planet(
     ntheta : int
         Number of polar grid points.
     scheme : str
-        Interpolation scheme to use.
+        Interpolation scheme to use. Either ``'cos2'`` or ``'discont'``.
     h2o_d0 : astropy.units.Quantity
         H2O vmr abundance on the dayside at :math:`P_0`
     h2o_d1 : astropy.units.Quantity
         H2O vmr abundance on the dayside at :math:`P_1`
+    h2o_d2 : astropy.units.Quantity
+        H2O vmr abundance on the dayside at :math:`P_2`
     h2o_n0 : astropy.units.Quantity
         H2O vmr abundance on the nightside at :math:`P_0`
     h2o_n1 : astropy.units.Quantity
         H2O vmr abundance on the nightside at :math:`P_1`
+    h2o_n2 : astropy.units.Quantity
+        H2O vmr abundance on the nightside at :math:`P_2`
     co2 : astropy.units.Quantity
         CO2 vmr abundance
     o3 : astropy.units.Quantity
@@ -297,7 +368,7 @@ def gen_planet(
     psg.globes.PyGCM
         The PyGCM object.
     """
-    shape3d = (n_linear+n_const, nphi, ntheta)
+    shape3d = (n_troposphere+n_stratosphere+n_isothermal, nphi, ntheta)
     phis = np.linspace(-np.pi, np.pi, nphi, endpoint=True)*u.rad
     thetas = np.linspace(0, np.pi, ntheta, endpoint=True)*u.rad
     if scheme == COS2:
@@ -309,9 +380,9 @@ def gen_planet(
             Allowed values are {COS2} and {DISCONTINUOUS}.')
     pressure, temperature = interpolator(
         phis, thetas,
-        p0d, p1d, t0d, t1d,
-        p0n, p1n, t0n, t1n,
-        n_linear, n_const, p_top
+        p0d, p1d, p2d, t0d, t1d, t2d,
+        p0n, p1n, p2n, t0n, t1n, t2n,
+        n_troposphere, n_stratosphere, n_isothermal, p_top
     )
     if pressure.shape != shape3d:
         raise ValueError(f'Pressure shape {pressure.shape} \
@@ -321,9 +392,9 @@ def gen_planet(
             does not match expected shape {shape3d}.')
     _, h2o = interpolator(
         phis, thetas,
-        p0d, p1d, h2o_d0, h2o_d1,
-        p0n, p1n, h2o_n0, h2o_n1,
-        n_linear, n_const, p_top
+        p0d, p1d, p2d, h2o_d0, h2o_d1, h2o_d2,
+        p0n, p1n, p2n, h2o_n0, h2o_n1, h2o_n2,
+        n_troposphere, n_stratosphere, n_isothermal, p_top
     )
     if h2o.shape != shape3d:
         raise ValueError(f'H2O shape {h2o.shape} \
